@@ -1,14 +1,20 @@
-updateBeta = function(Z, Gamma, iV, sigma, X, Tr){
+updateBeta = function(Z,Gamma,iV,iSigma,Eta,Lambda, X,Tr){
    ny = nrow(Z)
    ns = ncol(Z)
    nc = nrow(Gamma)
    nt = ncol(Tr)
+   nr = ncol(Pi)
 
-   S = Z;
+   LFix = 0
+   LRan = vector("list", nr)
+   for(r in 1:nr){
+      LRan[[r]] = Eta[[r]][Pi[,r],]%*%Lambda[[r]]
+   }
+   S = Z - (LFix + Reduce("+", LRan))
 
    Q = crossprod(X)
    Mu = tcrossprod(Gamma,Tr)
-   isXTS = crossprod(X,S) / matrix(sigma,nc,ns,byrow=TRUE)
+   isXTS = crossprod(X,S) * matrix(iSigma,nc,ns,byrow=TRUE)
 
    # iVTen = rep.tensor(to.tensor(iV), ns, pos=3)
    # QTen = rep.tensor(to.tensor(Q), ns, pos=3)
@@ -16,9 +22,9 @@ updateBeta = function(Z, Gamma, iV, sigma, X, Tr){
    iVTen = to.tensor(iV)
    QTen = to.tensor(Q)
 
-   sigmaTen = to.tensor(sigma)
-   names(sigmaTen) = "ns"
-   iUBetaTen = iVTen + QTen / sigmaTen
+   iSigmaTen = to.tensor(iSigma)
+   names(iSigmaTen) = "ns"
+   iUBetaTen = iVTen + QTen*iSigmaTen
    RiUBetaTen = chol.tensor(iUBetaTen, "I1", "I2")
 
    RiUBetaArray = to.matrix.tensor(RiUBetaTen,i="lambda",j="I1",by="ns")

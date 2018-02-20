@@ -11,7 +11,8 @@
 #'
 #' @export
 
-setPriors = function(V0=NULL, f0=NULL, mGamma=NULL, UGamma=NULL, aSigma=NULL, bSigma=NULL, setDefault=FALSE){
+setPriors = function(V0=NULL, f0=NULL, mGamma=NULL, UGamma=NULL, aSigma=NULL, bSigma=NULL,
+   nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, setDefault=FALSE){
    if(!is.null(V0)){
       if(!isSymmetric(V0) || nrow(V0) != self$nc || ncol(V0) != self$nc)
          stop("HMSC.setPriors: V0 must be a positive definite matrix of size equal to number of covariates nc")
@@ -55,6 +56,33 @@ setPriors = function(V0=NULL, f0=NULL, mGamma=NULL, UGamma=NULL, aSigma=NULL, bS
    } else if(setDefault){
       self$bSigma = rep(0.3, self$ns)
    }
+
+   if(!is.null(nu)){
+      self$nu = nu
+   } else if(setDefault){
+      self$nu = rep(3, self$nr)
+   }
+   if(!is.null(a1)){
+      self$a1 = a1
+   } else if(setDefault){
+      self$a1 = rep(5, self$nr)
+   }
+   if(!is.null(b1)){
+      self$b1 = b1
+   } else if(setDefault){
+      self$b1 = rep(1, self$nr)
+   }
+   if(!is.null(a2)){
+      self$a2 = a2
+   } else if(setDefault){
+      self$a2 = rep(5, self$nr)
+   }
+   if(!is.null(b2)){
+      self$b2 = b2
+   } else if(setDefault){
+      self$b2 = rep(1, self$nr)
+   }
+
    # print("Hi, it is setPriors!")
 }
 

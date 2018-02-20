@@ -21,11 +21,21 @@ sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, v
 
    X = self$X
    Tr = self$Tr
+   Y = self$Y
+   distr = self$distr
+   Pi = self$Pi
 
    mGamma = self$mGamma
    iUGamma = chol2inv(solve(self$UGamma))
    V0 = self$V0
    f0 = self$f0
+   aSigma = self$aSigma
+   bSigma = self$bSigma
+   nu = self$nu
+   a1 = self$a1
+   b1 = self$b1
+   a2 = self$a2
+   b2 = self$b2
 
 
    parList = private$computeInitialParameters(initPar)
@@ -35,6 +45,11 @@ sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, v
    iV = solve(V)
    Beta = parList$Beta
    sigma = parList$sigma
+   iSigma = 1 / sigma
+   Lambda = parList$Lambda
+   Eta = parList$Eta
+   Psi = parList$Psi
+   Delta = parList$Delta
    Z = parList$Z
 
 
@@ -42,14 +57,20 @@ sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, v
    for(repN in 1:repN){
       postList = vector("list", samples)
       for(iter in 1:(samples*thin)){
-         Beta = updateBeta(Z,Gamma,V,sigma, X,Tr)
-         GammaVList = updateGammaV(Beta,Gamma,iV, Tr, mGamma,iUGamma,V0,f0)
+         Beta = updateBeta(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Tr=Tr)
+         GammaVList = updateGammaV(Beta=Beta,Gamma=Gamma,iV=iV, Tr=Tr, mGamma=mGamma,iUGamma=iUGamma,V0=V0,f0=f0)
          Gamma = GammaVList$Gamma
          iV = GammaVList$iV
-         Z = updateZ(Z, Beta, X)
+         iSigma = updateInvSigma(Z=Z,Beta=Beta,Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi, aSigma=aSigma,bSigma=bSigma)
+         Lambda = updateLambda(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Psi=Psi,Delta=Delta, X=X,Pi=Pi,rL=self$rL)
+         PsiDeltaList = updateLambdaPriors(Lambda=Lambda,Delta=Delta, rL=rL, nu=nu,a1=a1,b1=b1,a2=a2,b2=b2)
+         Psi = PsiDeltaList$Psi
+         Delta = PsiDeltaList$Delta
+         Eta = updateEta(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,rL=rL)
+         Z = updateZ(Z=Z,Beta=Beta,iSigma=iSigma, X=X)
 
          if(iter %% thin == 0){
-            postList[[iter/thin]] = private$combineParameters(Beta, Gamma, V)
+            postList[[iter/thin]] = private$combineParameters(Beta=Beta,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Psi=Psi,Delta=Delta)
          }
          if(iter %% verbose == 0){
             print(sprintf("Replicate %d, iteration %d of %d", repN, iter, samples*thin))
