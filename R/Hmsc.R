@@ -42,28 +42,38 @@ Hmsc <- R6::R6Class("Hmsc",
       spNames = NULL,
       covNames = NULL,
       trNames = NULL,
+      levelNames = NULL,
 
       dist = NULL,
 
       # priors
+      V0=NULL, f0=NULL,
+      mGamma=NULL, UGamma=NULL,
+      aSigma=NULL, bSigma=NULL,
+
+      # sampling parameters
+      samples = NULL, thin = NULL, adaptLf = NULL, saveToDisk=NULL,
+      initPar = NULL, repN=NULL,
+      randSeed = NULL,
+
+      # posterior
+      postList=NULL, repList=NULL,
 
       initialize = function(Y=NULL, X=NULL, Pi=NULL, rL=NULL, Xs=NULL, Xv=NULL, Tr=NULL, C=NULL, dist="normal", priors=NULL){
          # combine Hmsc and set data functions from Matlab
+         self$setData(Y=Y, X=X, Pi=Pi, rL=rL)
       },
       setData = function(Y=NULL, X=NULL, Pi=NULL, rL=NULL, Xs=NULL, Xv=NULL, dist="normal", spNames=NULL,
-         trNames=NULL, covNames=NULL, ...){
-         # Hmsc and set data functions from Matlab
-      },
-      setPriors = function(priors=NULL){
-         # set priors functions from Matlab
-      },
-      setMcmcParameters = function(){
-         # set McmcParameters function from Matlab
-      },
-      sample = function(){
-      },
+         trNames=NULL, covNames=NULL, ...){},
+      setPriors = function(priors=NULL){},
+      setMcmcParameters = function(){},
+      sampleMcmc = function(){},
+
       getPosterior = function(){
          # combines setPostThinning, saves a copy of that in the class and returns the posterior as mcmc object
       }
+   ),
+   private = list(
+      computeInitialParameters = function(initPar){}
    )
 )
