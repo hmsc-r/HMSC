@@ -13,17 +13,19 @@
 #'
 #' @export
 
-sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, verbose=samples*thin/100){
+sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, verbose=samples*thin/100, adaptNf=NULL){
    self$samples = samples
    self$thin = thin
    self$repN = repN
    self$saveToDisk = saveToDisk
+   self$adaptNf = adaptNf
 
    X = self$X
    Tr = self$Tr
    Y = self$Y
    distr = self$distr
    Pi = self$Pi
+   nr = self$nr
 
    mGamma = self$mGamma
    iUGamma = chol2inv(solve(self$UGamma))
@@ -68,6 +70,17 @@ sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, v
          Delta = PsiDeltaList$Delta
          Eta = updateEta(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,rL=rL)
          Z = updateZ(Z=Z,Beta=Beta,iSigma=iSigma, X=X)
+
+         for(r in 1:nr){
+            if( (is.list(adaptNf) && adaptNf[[r]][1] <= repN && adaptNf[[r]][2] >= iter) || (is.vector(adaptNf) && adaptNf[r] >= iter)){
+               listPar = updateNf(eta=Eta[[r]],lambda=Lambda[[r]],psi=Psi[[r]],delta=Delta[[r]],
+                  nu=nu[r],a1=a1[r],b1=b1[r],a2=a2[r],b2=b2[r], iter=iter)
+               Lambda[[r]] = listPar$lambda
+               Eta[[r]] = listPar$eta
+               Psi[[r]] = listPar$psi
+               Delta[[r]] = listPar$delta
+            }
+         }
 
          if(iter %% thin == 0){
             postList[[iter/thin]] = private$combineParameters(Beta=Beta,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Psi=Psi,Delta=Delta)

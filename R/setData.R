@@ -61,6 +61,7 @@ setData = function(Y=NULL, X=NULL, Pi=NULL, rL=NULL, Xs=NULL, Xv=NULL, distr="no
          distr = matrix(0,ns,4)
          distr[,1] = 1
          distr[,2] = 1
+         colnames(distr) = c("family","variance","link","something")
       },
       "probit" = {
          distr = matrix(0,ns,4)

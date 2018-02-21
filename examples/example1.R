@@ -12,7 +12,7 @@ library(lattice)
 ny = 1000
 ns = 41
 nc = 3
-np2 = 33
+np2 = 70
 
 
 # read or generate some data
@@ -27,7 +27,7 @@ Lambda1 = matrix(rnorm(nf[1]*ns),nf[1],ns)
 Lambda2 = matrix(rnorm(nf[2]*ns),nf[2],ns)
 Eta1 = matrix(rnorm(np[1]*nf[1]),np[1],nf[1])
 # Eta1[,2] = 0
-Eta2 = 0*matrix(rnorm(np[2]*nf[2]),np[2],nf[2])
+Eta2 = matrix(rnorm(np[2]*nf[2]),np[2],nf[2])
 sigma = rgamma(ns,1,1)
 
 L = X %*% Beta + Eta1[as.numeric(as.character(Pi$L1)),]%*%Lambda1 + Eta2[as.numeric(as.character(Pi$L2)),]%*%Lambda2
@@ -51,7 +51,7 @@ m = Hmsc$new(Y=Y, X=X, dist="normal", rL=list(rL1,rL2), Pi=Pi)
 m
 # m$setMcmcParameters()
 
-m$sampleMcmc(100, thin=10) #initPar=list(Eta=list(Eta1,Eta2))
+m$sampleMcmc(100, thin=10, adaptNf=c(100,100)) #initPar=list(Eta=list(Eta1,Eta2))
 # m$getPosterior() # returns posterior
 
 # postprocessing....
@@ -60,23 +60,28 @@ library(coda)
 
 
 postBeta = array(unlist(lapply(m$postList, function(a) a$Beta)),c(nc,ns,m$samples))
-plot(Beta,apply(postBeta,c(1,2),mean))
+plot(Beta,apply(postBeta,c(1,2),mean),main="Beta")
 abline(0,1,col="red")
 
 # mcmcBeta = as.mcmc(matrix(as.vector(postBeta),m$samples,nc*ns,byrow=TRUE))
 # plot(mcmcBeta)
 # acfplot(mcmcBeta)
 
-postLambda1 = to.tensor(array(unlist(lapply(m$postList, function(a) a$Lambda[[1]])),c(2,ns,m$samples)))
-OmegaTen = mul.tensor(postLambda1,c("I1"),postLambda1,by="I3")
-names(OmegaTen)[1] = "I1"
-postOmega1Mean = apply(to.matrix.tensor(OmegaTen,i="I1",by="I3"),c(1,2),mean)
-plot(postOmega1Mean,crossprod(Lambda1))
+getOmega = function(a,r=1)
+   return(crossprod(a$Lambda[[r]]))
+postOmega1 = array(unlist(lapply(m$postList,getOmega)),c(ns,ns,m$samples))
+postOmega1Mean = apply(postOmega1,c(1,2),mean)
+plot(crossprod(Lambda1),postOmega1Mean,main="Omega1")
+abline(0,1,col="red")
+
+postOmega2 = array(unlist(lapply(m$postList,getOmega,2)),c(ns,ns,m$samples))
+postOmega2Mean = apply(postOmega2,c(1,2),mean)
+plot(crossprod(Lambda2),postOmega2Mean,main="Omega2")
 abline(0,1,col="red")
 
 # levelplot(postOmega1Mean)
 # levelplot(crossprod(Lambda1))
 
 postSigma = array(unlist(lapply(m$postList, function(a) a$sigma)),c(ns,m$samples))
-plot(sigma,apply(postSigma,1,mean))
+plot(sigma,apply(postSigma,1,mean),,main="Sigma")
 abline(0,1,col="red")

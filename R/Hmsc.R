@@ -53,7 +53,7 @@ Hmsc <- R6::R6Class("Hmsc",
       nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL,
 
       # sampling parameters
-      samples = NULL, thin = NULL, adaptLf = NULL, saveToDisk=NULL,
+      samples = NULL, thin = NULL, adaptNf = NULL, saveToDisk=NULL,
       initPar = NULL, repN=NULL,
       randSeed = NULL,
 
