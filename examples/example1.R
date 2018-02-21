@@ -28,10 +28,11 @@ Lambda2 = matrix(rnorm(nf[2]*ns),nf[2],ns)
 Eta1 = matrix(rnorm(np[1]*nf[1]),np[1],nf[1])
 # Eta1[,2] = 0
 Eta2 = matrix(rnorm(np[2]*nf[2]),np[2],nf[2])
-sigma = rgamma(ns,1,1)
+sigma = 1+0*rgamma(ns,1,1)
 
 L = X %*% Beta + Eta1[as.numeric(as.character(Pi$L1)),]%*%Lambda1 + Eta2[as.numeric(as.character(Pi$L2)),]%*%Lambda2
 Y = L + matrix(rnorm(ny*ns),ny,ns)*matrix(sqrt(sigma),ny,ns,byrow=TRUE)
+# Y = matrix(as.numeric(Y>0),ny,ns)
 
 
 # create 2 random levels and specify both data and priors for them

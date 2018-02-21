@@ -18,4 +18,5 @@ Depends:
    mvtnorm,
    MCMCpack,
    Matrix,
-   tensorA
+   tensorA,
+   truncnorm

@@ -69,7 +69,7 @@ sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, v
          Psi = PsiDeltaList$Psi
          Delta = PsiDeltaList$Delta
          Eta = updateEta(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,rL=rL)
-         Z = updateZ(Z=Z,Beta=Beta,iSigma=iSigma, X=X)
+         Z = updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,distr=distr)
 
          for(r in 1:nr){
             if( (is.list(adaptNf) && adaptNf[[r]][1] <= repN && adaptNf[[r]][2] >= iter) || (is.vector(adaptNf) && adaptNf[r] >= iter)){
