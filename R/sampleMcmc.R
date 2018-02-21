@@ -59,17 +59,23 @@ sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, v
    for(repN in 1:repN){
       postList = vector("list", samples)
       for(iter in 1:(samples*thin)){
-         Beta = updateBeta(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Tr=Tr)
+         # Beta = updateBeta(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Tr=Tr,Pi=Pi)
+         # Lambda = updateLambda(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Psi=Psi,Delta=Delta, X=X,Pi=Pi,rL=self$rL)
+
+         BetaLambdaList = updateBetaLambda(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta, X=X,Tr=Tr,Pi=Pi)
+         Beta = BetaLambdaList$Beta
+         Lambda = BetaLambdaList$Lambda
+
          GammaVList = updateGammaV(Beta=Beta,Gamma=Gamma,iV=iV, Tr=Tr, mGamma=mGamma,iUGamma=iUGamma,V0=V0,f0=f0)
          Gamma = GammaVList$Gamma
          iV = GammaVList$iV
-         iSigma = updateInvSigma(Z=Z,Beta=Beta,Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi, aSigma=aSigma,bSigma=bSigma)
-         Lambda = updateLambda(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Psi=Psi,Delta=Delta, X=X,Pi=Pi,rL=self$rL)
          PsiDeltaList = updateLambdaPriors(Lambda=Lambda,Delta=Delta, rL=rL, nu=nu,a1=a1,b1=b1,a2=a2,b2=b2)
          Psi = PsiDeltaList$Psi
          Delta = PsiDeltaList$Delta
+
          Eta = updateEta(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,rL=rL)
-         Z = updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,distr=distr)
+         iSigma = updateInvSigma(Z=Z,Beta=Beta,Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi, aSigma=aSigma,bSigma=bSigma)
+         Z = updateZ(Y=Y,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,distr=distr)
 
          for(r in 1:nr){
             if( (is.list(adaptNf) && adaptNf[[r]][1] <= repN && adaptNf[[r]][2] >= iter) || (is.vector(adaptNf) && adaptNf[r] >= iter)){

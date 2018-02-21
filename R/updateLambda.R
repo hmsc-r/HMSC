@@ -11,7 +11,11 @@ updateLambda = function(Z,Beta,iSigma,Eta,Lambda,Psi,Delta, X,Pi,rL){
 
    Lambda = vector("list", nr)
    for(r in 1:nr){
-      S = Z - (LFix + Reduce("+", LRan[setdiff(1:nr, r)]))
+      if(nr > 1){
+         S = Z - (LFix + Reduce("+", LRan[setdiff(1:nr, r)]))
+      } else{
+         S = Z - LFix
+      }
       delta = Delta[[r]]
       psi = Psi[[r]]
       eta = Eta[[r]][Pi[,r],]

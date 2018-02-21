@@ -12,7 +12,11 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,rL){
 
    Eta = vector("list", nr)
    for(r in 1:nr){
-      S = Z - (LFix + Reduce("+", LRan[setdiff(1:nr, r)]))
+      if(nr > 1){
+         S = Z - (LFix + Reduce("+", LRan[setdiff(1:nr, r)]))
+      } else{
+         S = Z - LFix
+      }
       lambda = Lambda[[r]]
       nf = nrow(lambda)
       lPi = Pi[,r]

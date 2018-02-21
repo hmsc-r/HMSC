@@ -33,7 +33,10 @@ computeInitialParameters = function(initPar){
    if(!is.null(initPar$sigma)){
       sigma = initPar$sigma
    } else{
-      sigma = rgamma(self$ns, shape=self$aSigma, rate=self$bSigma)
+      sigma = rep(NA, ns)
+      indVarFix = (self$distr[,2] == 0)
+      sigma[indVarFix] = 1
+      sigma[!indVarFix] = rgamma(sum(!indVarFix), shape=self$aSigma[!indVarFix], rate=self$bSigma[!indVarFix])
    }
 
    nf = rep(NA, self$nr)

@@ -1,4 +1,4 @@
-updateBeta = function(Z,Gamma,iV,iSigma,Eta,Lambda, X,Tr){
+updateBeta = function(Z,Gamma,iV,iSigma,Eta,Lambda, X,Tr,Pi){
    ny = nrow(Z)
    ns = ncol(Z)
    nc = nrow(Gamma)

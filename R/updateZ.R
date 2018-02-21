@@ -1,7 +1,7 @@
-updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,distr){
+updateZ = function(Y,Beta,iSigma,Eta,Lambda, X,Pi,distr){
    if(any(distr[,1]!=1)){
-      ny = nrow(Z)
-      ns = ncol(Z)
+      ny = nrow(Y)
+      ns = ncol(Y)
       nr = ncol(Pi)
       np = apply(Pi, 2, function(a) length(unique(a)))
 
@@ -26,6 +26,11 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,distr){
       sigma = 1/iSigma
       std = matrix(sqrt(sigma[indProbit]),ny,pN,byrow=TRUE)
       Z[,indProbit] = rtruncnorm(ny*pN, a=lB, b=uB, mean=E[,indProbit], sd=std)
+      # Z[,indProbit] = rtnorm(ny*pN, mean=E[,indProbit], sd=1, lower=lB,upper=uB)
+      # Z[Z>30] = 30
+      # Z[Z<-30] = -30
+      # plot(E,Z)
+      # a=1
       return(Z)
    } else{
       return(Y)

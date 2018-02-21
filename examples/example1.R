@@ -6,13 +6,14 @@ set.seed(1)
 # download, install the package from GitHub and load it to the session
 # library(devtools)
 # install_github("gtikhonov/HMSC")
-library(Hmsc)
-library(lattice)
+# library(Hmsc)
+# library(lattice)
 
-ny = 1000
+ny = 10000
 ns = 41
 nc = 3
 np2 = 70
+distr = "probit"
 
 
 # read or generate some data
@@ -20,45 +21,29 @@ X = matrix(rnorm(ny*nc),ny,nc)
 S = data.frame(s1=1:np2,s2=rnorm(np2))
 Beta = matrix(rnorm(nc*ns),nc,ns)
 
-Pi = data.frame(L1=as.character(1:ny), L2=as.character(((1:ny-1) %% np2)+1))
-nf = c(3,2)
-np = apply(Pi,2,function(a) return(length(unique(a))))
+dfPi = data.frame(L1=as.character(1:ny), L2=as.character(((1:ny-1) %% np2)+1))
+nf = c(2,2)
+np = apply(dfPi,2,function(a) return(length(unique(a))))
 Lambda1 = matrix(rnorm(nf[1]*ns),nf[1],ns)
 Lambda2 = matrix(rnorm(nf[2]*ns),nf[2],ns)
-Eta1 = matrix(rnorm(np[1]*nf[1]),np[1],nf[1])
-# Eta1[,2] = 0
-Eta2 = matrix(rnorm(np[2]*nf[2]),np[2],nf[2])
+Eta1 = 1*matrix(rnorm(np[1]*nf[1]),np[1],nf[1])
+Eta2 = 1*matrix(rnorm(np[2]*nf[2]),np[2],nf[2])
 sigma = 1+0*rgamma(ns,1,1)
 
-L = X %*% Beta + Eta1[as.numeric(as.character(Pi$L1)),]%*%Lambda1 + Eta2[as.numeric(as.character(Pi$L2)),]%*%Lambda2
+L = X %*% Beta + Eta1[as.numeric(as.character(dfPi$L1)),]%*%Lambda1 + Eta2[as.numeric(as.character(dfPi$L2)),]%*%Lambda2
 Y = L + matrix(rnorm(ny*ns),ny,ns)*matrix(sqrt(sigma),ny,ns,byrow=TRUE)
-Y = matrix(as.numeric(Y>0),ny,ns)
+if(distr=="probit")
+   Y = matrix(as.numeric(Y>0),ny,ns)
 
-
-# create 2 random levels and specify both data and priors for them
-rL1 = HmscRandomLevel$new(N=ny, priors="default")
-rL2 = HmscRandomLevel$new(data=S)
-rL2$setPriors(nfMax=10, mu=3, a1=5, b1=1, a2=3, b2=1, alphapw=cbind(p=c(0,1,2,3),w=c(0.4,0.2,0.2,0.2)))
-
-
+# dfPi=dfPi[,1,drop=FALSE]
 
 # create the main model and specify data, priors, parameters
-m = Hmsc$new(Y=Y, X=X, dist="probit", rL=list(rL1,rL2), Pi=Pi)
-# m = Hmsc$new()
-# m$setData(Y=Y)
+m = Hmsc$new(Y=Y, X=X, dist=distr, dfPi)
 
-# m$setPriors()
 
-m
-# m$setMcmcParameters()
-
-m$sampleMcmc(1000, thin=10, adaptNf=c(100,100)) #initPar=list(Eta=list(Eta1,Eta2))
-# m$getPosterior() # returns posterior
+m$sampleMcmc(100, thin=10, adaptNf=c(200,200), initPar=list(Eta=list(Eta1,Eta2),Beta=Beta) )
 
 # postprocessing....
-
-library(coda)
-
 
 postBeta = array(unlist(lapply(m$postList, function(a) a$Beta)),c(nc,ns,m$samples))
 plot(Beta,apply(postBeta,c(1,2),mean),main="Beta")
@@ -80,9 +65,36 @@ postOmega2Mean = apply(postOmega2,c(1,2),mean)
 plot(crossprod(Lambda2),postOmega2Mean,main="Omega2")
 abline(0,1,col="red")
 
-# levelplot(postOmega1Mean)
-# levelplot(crossprod(Lambda1))
+# postSigma = array(unlist(lapply(m$postList, function(a) a$sigma)),c(ns,m$samples))
+# plot(sigma,apply(postSigma,1,mean),main="Sigma")
+# abline(0,1,col="red")
+#
+LFix = m$X%*%m$postList[[m$samples]]$Beta
+LRan = vector("list", m$nr)
+for(r in 1:m$nr){
+   LRan[[r]] = m$postList[[100]]$Eta[[r]][m$Pi[,r],]%*%m$postList[[100]]$Lambda[[r]]
+}
+LAll = LFix + Reduce("+", LRan)
 
-postSigma = array(unlist(lapply(m$postList, function(a) a$sigma)),c(ns,m$samples))
-plot(sigma,apply(postSigma,1,mean),,main="Sigma")
-abline(0,1,col="red")
+# plot(L,LAll)
+# plot(X%*%Beta,LFix)
+
+
+indProbit = rep(TRUE,ns)
+lB = matrix(-Inf,ny,ns)
+uB = matrix(Inf,ny,ns)
+lB[as.logical(Y[,indProbit])] = 0
+uB[!Y[,indProbit]] = 0
+
+Z = matrix(rtruncnorm(ny*ns,a=lB,b=uB,mean=LAll),ny,ns)
+# plot(LAll,Z,col=Y+1)
+
+# j = 8
+# plot(LAll[,j],Z[,j],col=Y[,j]+1)
+
+# plot(L[,8],Y[,8])
+
+# library(msm)
+# Z = rtnorm(ny*ns, mean=LAll, sd=1, lower=lB,upper=uB)
+#
+# plot(LAll,Z)
