@@ -32,7 +32,7 @@ sigma = 1+0*rgamma(ns,1,1)
 
 L = X %*% Beta + Eta1[as.numeric(as.character(Pi$L1)),]%*%Lambda1 + Eta2[as.numeric(as.character(Pi$L2)),]%*%Lambda2
 Y = L + matrix(rnorm(ny*ns),ny,ns)*matrix(sqrt(sigma),ny,ns,byrow=TRUE)
-# Y = matrix(as.numeric(Y>0),ny,ns)
+Y = matrix(as.numeric(Y>0),ny,ns)
 
 
 # create 2 random levels and specify both data and priors for them
@@ -43,7 +43,7 @@ rL2$setPriors(nfMax=10, mu=3, a1=5, b1=1, a2=3, b2=1, alphapw=cbind(p=c(0,1,2,3)
 
 
 # create the main model and specify data, priors, parameters
-m = Hmsc$new(Y=Y, X=X, dist="normal", rL=list(rL1,rL2), Pi=Pi)
+m = Hmsc$new(Y=Y, X=X, dist="probit", rL=list(rL1,rL2), Pi=Pi)
 # m = Hmsc$new()
 # m$setData(Y=Y)
 
@@ -52,7 +52,7 @@ m = Hmsc$new(Y=Y, X=X, dist="normal", rL=list(rL1,rL2), Pi=Pi)
 m
 # m$setMcmcParameters()
 
-m$sampleMcmc(100, thin=10, adaptNf=c(100,100)) #initPar=list(Eta=list(Eta1,Eta2))
+m$sampleMcmc(1000, thin=10, adaptNf=c(100,100)) #initPar=list(Eta=list(Eta1,Eta2))
 # m$getPosterior() # returns posterior
 
 # postprocessing....

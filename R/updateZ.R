@@ -10,7 +10,7 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,distr){
       for(r in 1:nr){
          LRan[[r]] = Eta[[r]][Pi[,r],]%*%Lambda[[r]]
       }
-      E = LFix + Reduce("+", LRan[setdiff(1:nr, r)])
+      E = LFix + Reduce("+", LRan)
 
       Z = matrix(NA,ny,ns)
 
@@ -20,11 +20,12 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,distr){
       indProbit = (distr[,1]==2)
       pN = sum(indProbit)
       lB = matrix(-Inf,ny,pN)
-      uB = matrix(-Inf,ny,pN)
-      lB[Y[,indProbit]] = 0
+      uB = matrix(Inf,ny,pN)
+      lB[as.logical(Y[,indProbit])] = 0
       uB[!Y[,indProbit]] = 0
-      std = matrix(1/sqrt(sigma[indProbit]),ny,pN,byrow=TRUE)
-      Z[,indProbit] = rtruncnorm(ny*pN,a=lB,b=uB,E[,indProbit],std)
+      sigma = 1/iSigma
+      std = matrix(sqrt(sigma[indProbit]),ny,pN,byrow=TRUE)
+      Z[,indProbit] = rtruncnorm(ny*pN, a=lB, b=uB, mean=E[,indProbit], sd=std)
       return(Z)
    } else{
       return(Y)
