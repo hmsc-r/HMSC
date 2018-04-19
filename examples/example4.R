@@ -8,12 +8,12 @@ set.seed(3)
 # install_github("gtikhonov/HMSC")
 library(Hmsc)
 
-ny = 2001L
+ny = 201L
 ns = 41L
 nc = 3L
 nt = 1L
 np = c(ny, round(ny/10))
-# np = np[1]
+np = np[1]
 
 distr = "normal"
 
@@ -43,7 +43,7 @@ for(r in 1:nr){
 }
 np = apply(dfPi,2,function(a) length(unique(a)))
 
-sDim = c(0,2)
+sDim = c(2,2)
 nf = as.integer(c(2,2))
 
 rL = vector("list", nr)
@@ -59,7 +59,7 @@ for(r in 1:nr){
       rL[[r]] = HmscRandomLevel$new(N=np[r])
    }
 }
-aaa
+
 
 for(r in 1:nr){
    dfPi[,r] = as.character(dfPi[,r]) #sprintf('%.3d',dfPi[,r])
@@ -107,7 +107,7 @@ AlphaT = Alpha
 m = Hmsc$new(Y=Y, X=X, dist=distr, dfPi=dfPi, Tr=Tr, rL=rL)
 
 start = proc.time()
-m$sampleMcmc(samples, thin=thin, adaptNf=0*rep(200,nr) )
+m$sampleMcmc(samples, thin=thin, adaptNf=1*rep(2000,nr) )
 # , initPar=list(Alpha=AlphaT, Eta=EtaT, Lambda=LambdaT,
 #    Beta=BetaT, Gamma=GammaT, sigma=sigmaT)
 stop = proc.time()
@@ -163,4 +163,3 @@ for(r in 1:m$nr){
 
 
 
-aaa

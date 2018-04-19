@@ -98,10 +98,11 @@ sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, v
 
          for(r in 1:nr){
             if( (is.list(adaptNf) && adaptNf[[r]][1] >= repN && adaptNf[[r]][2] >= iter) || (is.vector(adaptNf) && adaptNf[r] >= iter)){
-               listPar = updateNf(eta=Eta[[r]],lambda=Lambda[[r]],psi=Psi[[r]],delta=Delta[[r]],
+               listPar = updateNf(eta=Eta[[r]],lambda=Lambda[[r]],alpha=Alpha[[r]],psi=Psi[[r]],delta=Delta[[r]],
                   rL=self$rL[[r]], iter=iter)
                Lambda[[r]] = listPar$lambda
                Eta[[r]] = listPar$eta
+               Alpha[[r]] = listPar$alpha
                Psi[[r]] = listPar$psi
                Delta[[r]] = listPar$delta
             }

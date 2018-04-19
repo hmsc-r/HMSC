@@ -1,4 +1,4 @@
-updateNf = function(eta,lambda,psi,delta, rL, iter){
+updateNf = function(eta,lambda,alpha,psi,delta, rL, iter){
    nu = rL$nu
    a1 = rL$a1
    b1 = rL$b1
@@ -27,14 +27,16 @@ updateNf = function(eta,lambda,psi,delta, rL, iter){
          etaNew = matrix(NA,np,nf)
          etaNew[,1:(nf-1)] = eta
          etaNew[,nf] = rnorm(np)
+         alphaNew = c(alpha,1)
          psiNew = matrix(NA,nf,ns)
          psiNew[1:(nf-1),] = psi
          psiNew[nf,] = rgamma(ns,nu/2,nu/2)
          deltaNew = matrix(NA,nf,1)
          deltaNew[1:(nf-1),] = delta
          deltaNew[nf,] = rgamma(1,a2,b2)
-         eta=etaNew
+         eta = etaNew
          lambda = lambdaNew
+         alpha = alphaNew
          psi = psiNew
          delta = deltaNew
       } else if(numRedundant>0 && nf>rL$nfMin){
@@ -44,7 +46,8 @@ updateNf = function(eta,lambda,psi,delta, rL, iter){
          eta = eta[,indNotRed,drop=FALSE]
          psi = psi[indNotRed,,drop=FALSE]
          delta = delta[indNotRed,,drop=FALSE]
+         alpha = alpha[indNotRed]
       }
    }
-   return(list(eta=eta, lambda=lambda, psi=psi, delta=delta))
+   return(list(eta=eta, lambda=lambda, alpha=alpha, psi=psi, delta=delta))
 }

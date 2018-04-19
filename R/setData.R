@@ -74,6 +74,14 @@ setData = function(Y=NULL, X=NULL, dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL, Tr=NULL
       colnames(self$X) = covNames
    }
 
+   if(is.null(trNames)){
+      self$trNames = colnames(Tr)
+   } else{
+      if(length(trNames))
+         self$trNames = trNames
+      colnames(self$Tr) = trNames
+   }
+
    if(is.null(levelNames)){
       self$levelNames = colnames(dfPi)
    } else{
