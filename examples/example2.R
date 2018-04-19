@@ -1,17 +1,19 @@
 # Defining a HMSC with 2 latent factors levels (non-spatial at the level of ovservations and 2D at the level of sites),
-# probit data, and traits
+# normal data, traits and phylogeny
 rm(list=ls())
 set.seed(1)
 
 # download, install the package from GitHub and load it to the session
 # library(devtools)
 # install_github("gtikhonov/HMSC")
-# library(Hmsc)
+library(Hmsc)
 
 ny = 1001L
-ns = 41L
+ns = 101L
 nc = 13L
-nt = 2L
+nt = 1L
+rho = 0.2
+
 
 distr = "normal"
 
@@ -22,20 +24,25 @@ X = matrix(rnorm(ny*nc),ny,nc)
 X[,1] = 1
 Tr = matrix(rnorm(ns*nt),ns,nt)
 Tr[,1] = 1
+C = 1-as.matrix(dist((1:ns)/ns))
+Q = rho*C + (1-rho)*diag(ns)
 
 f0 = 1
 V0 = diag(1,nc)
-V = riwish(nc+1,V0)
+# V = riwish(nc+1,V0)
+V = diag(nc)
 mGamma0 = rep(0,nt*nc)
 UGamma0 = diag(1,nt*nc)
 Gamma = matrix(mvrnorm(1,mGamma0,UGamma0),nc,nt)
 Mu = tcrossprod(Gamma, Tr)
 Beta = matrix(NA,nc,ns)
-for(j in 1:ns)
-   Beta[,j] = mvrnorm(1,Mu[,j],V)
+Beta = Mu + matrix(mvrnorm(1, rep(0,nc*ns), kronecker(Q,V)), nc,ns)
+# image(Q)
+# image(cor(Beta))
+# aaa
 
 np = as.integer(c(ny, round(ny/10)))
-nr = 2
+nr = 1
 dfPi = matrix(NA,ny,nr)
 for(r in 1:nr){
    dfPi[,r] = (as.integer(((1:ny) - 1) %% np[r] + 1))
@@ -71,10 +78,11 @@ LambdaT = Lambda
 EtaT = Eta
 
 # create the main model and specify data, priors, parameters
-m = Hmsc$new(Y=Y, X=X, dist=distr, Pi=dfPi, Tr=Tr)
+m = Hmsc$new(Y=Y, X=X, dist=distr, Pi=dfPi, Tr=Tr, C=C)
 
+initPar = list(Beta=BetaT, Gamma=GammaT, sigma=sigmaT, Eta=EtaT, Lambda=LambdaT, V=VT)
 start = proc.time()
-m$sampleMcmc(samples, thin=thin, adaptNf=0*c(200,200) )
+m$sampleMcmc(samples, thin=thin, adaptNf=0*c(200,200), initPar=initPar)
 stop = proc.time()
 
 # postprocessing....
@@ -86,6 +94,7 @@ abline(0,1,col="red")
 postGamma = array(unlist(lapply(m$postList, function(a) a$Gamma)),c(nc,nt,m$samples))
 plot(GammaT,apply(postGamma,c(1,2),mean),main="Gamma")
 abline(0,1,col="red")
+
 
 # mcmcBeta = as.mcmc(matrix(as.vector(postBeta),m$samples,nc*ns,byrow=TRUE))
 # plot(mcmcBeta)

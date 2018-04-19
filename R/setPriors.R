@@ -12,7 +12,7 @@
 #' @export
 
 setPriors = function(V0=NULL, f0=NULL, mGamma=NULL, UGamma=NULL, aSigma=NULL, bSigma=NULL,
-   nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, setDefault=FALSE){
+   nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, rhopw=NULL, setDefault=FALSE){
    if(!is.null(V0)){
       if(!isSymmetric(V0) || nrow(V0) != self$nc || ncol(V0) != self$nc)
          stop("HMSC.setPriors: V0 must be a positive definite matrix of size equal to number of covariates nc")
@@ -37,12 +37,12 @@ setPriors = function(V0=NULL, f0=NULL, mGamma=NULL, UGamma=NULL, aSigma=NULL, bS
       self$mGamma = rep(0, self$nc*self$nt)
    }
 
-   if(!is.null(mGamma)){
+   if(!is.null(UGamma)){
       if(!isSymmetric(UGamma) || nrow(UGamma) != self$nc || ncol(UGamma) != self$nc)
-         stop("HMSC.setPriors: UGamma must be a positive definite matrix of size equal to number of covariates nc")
+         stop("HMSC.setPriors: UGamma must be a positive definite matrix of size equal to nc x nt")
       self$UGamma = UGamma
    } else if(setDefault){
-      self$UGamma = diag(self$nc)
+      self$UGamma = diag(self$nc * self$nt)
    }
 
    if(!is.null(aSigma)){
@@ -57,32 +57,17 @@ setPriors = function(V0=NULL, f0=NULL, mGamma=NULL, UGamma=NULL, aSigma=NULL, bS
       self$bSigma = rep(0.3, self$ns)
    }
 
-   if(!is.null(nu)){
-      self$nu = nu
-   } else if(setDefault){
-      self$nu = rep(3, self$nr)
-   }
-   if(!is.null(a1)){
-      self$a1 = a1
-   } else if(setDefault){
-      self$a1 = rep(5, self$nr)
-   }
-   if(!is.null(b1)){
-      self$b1 = b1
-   } else if(setDefault){
-      self$b1 = rep(1, self$nr)
-   }
-   if(!is.null(a2)){
-      self$a2 = a2
-   } else if(setDefault){
-      self$a2 = rep(5, self$nr)
-   }
-   if(!is.null(b2)){
-      self$b2 = b2
-   } else if(setDefault){
-      self$b2 = rep(1, self$nr)
-   }
 
+   if(!is.null(rhopw)){
+      if(is.null(self$C))
+         stop("HMSC.setPriors: prior for phylogeny given, but not phylogenic relationship matrix was specified")
+      if(ncol(rhopw)!=2)
+         stop("HMSC.setPriors: rhopw must be a matrix with two columns")
+      self$rhopw = rhopw
+   } else if(setDefault){
+      rhoN = 100
+      self$rhopw = cbind(c(0:rhoN)/rhoN, c(0.5,rep(0.5/rhoN,rhoN)))
+   }
    # print("Hi, it is setPriors!")
 }
 

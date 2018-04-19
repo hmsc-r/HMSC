@@ -1,9 +1,15 @@
-updateNf = function(eta,lambda,psi,delta, nu,a1,b1,a2,b2, iter){
-   b0 = 1
-   b1 = 0.0005
+updateNf = function(eta,lambda,psi,delta, rL, iter){
+   nu = rL$nu
+   a1 = rL$a1
+   b1 = rL$b1
+   a2 = rL$a1
+   b2 = rL$b2
+
+   c0 = 1
+   c1 = 0.0005
    epsilon = 1e-3                            # threshold limit
    prop = 1.00                   # proportion of redundant elements within columns
-   prob = 1/exp(b0 + b1*iter)   # probability of adapting
+   prob = 1/exp(c0 + c1*iter)   # probability of adapting
 
    if(runif(1) < prob){
       ns = ncol(lambda)
@@ -15,10 +21,9 @@ updateNf = function(eta,lambda,psi,delta, nu,a1,b1,a2,b2, iter){
       indRedundant = smallProp >= prop
       numRedundant = sum(indRedundant)
 
-      if(iter>20 && numRedundant==0 && all(smallProp<0.995)){
+      if(nf<rL$nfMax && iter>20 && numRedundant==0 && all(smallProp<0.995)){
          nf = nf+1
-         lambdaNew = matrix(0,nf,ns)
-         lambdaNew[1:(nf-1),] = lambda
+         lambdaNew = rbind(lambda, matrix(0,1,ns))
          etaNew = matrix(NA,np,nf)
          etaNew[,1:(nf-1)] = eta
          etaNew[,nf] = rnorm(np)
@@ -32,7 +37,7 @@ updateNf = function(eta,lambda,psi,delta, nu,a1,b1,a2,b2, iter){
          lambda = lambdaNew
          psi = psiNew
          delta = deltaNew
-      } else if(numRedundant>0 && nf>1){
+      } else if(numRedundant>0 && nf>rL$nfMin){
          indNotRed = setdiff(1:nf, indRedundant)
          nf = length(indNotRed)
          lambda = lambda[indNotRed,,drop=FALSE]

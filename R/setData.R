@@ -11,7 +11,7 @@
 #'
 #' @export
 
-setData = function(Y=NULL, X=NULL, Pi=NULL, rL=NULL, Xs=NULL, Xv=NULL, distr="normal", spNames=NULL,
+setData = function(Y=NULL, X=NULL, dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL, Tr=NULL, C=NULL, distr="normal", spNames=NULL,
    trNames=NULL, covNames=NULL, levelNames=NULL){
    self$Y = as.matrix(Y)
    self$ny = nrow(Y)
@@ -23,16 +23,41 @@ setData = function(Y=NULL, X=NULL, Pi=NULL, rL=NULL, Xs=NULL, Xv=NULL, distr="no
    self$X = as.matrix(X)
    self$nc = ncol(X)
 
-   if(nrow(Pi) != ny){
-      stop("Hmsc.setData: the number of rows in Pi should be equal to number of rows in Y")
+   if(is.null(dfPi)){
+      self$dfPi = NULL
+      self$Pi = NULL
+      self$np = NULL
+      self$nr = 0
+   } else{
+      if(nrow(dfPi) != ny){
+         stop("Hmsc.setData: the number of rows in Pi should be equal to number of rows in Y")
+      }
+      self$dfPi = dfPi
+      # tmp = as.data.frame(dfPi)
+      self$Pi = matrix(NA,nrow(dfPi),ncol(dfPi)) # This should be fixed to enable arbitrary levels
+      for(r in 1:ncol(dfPi))
+         self$Pi[,r] = as.numeric(dfPi[,r])
+      self$np = apply(self$Pi, 2, function(a) return(length(unique(a))))
+      self$nr = ncol(dfPi)
+      self$rL = rL
    }
-   self$Pi = matrix(as.numeric(as.matrix(Pi)),nrow(Pi),ncol(Pi)) # This should be fixed to enable arbitrary levels
-   self$np = apply(self$Pi, 2, function(a) return(length(unique(a))))
-   self$nr = ncol(Pi)
-   self$rL = rL
 
-   self$Tr = matrix(1,ns,1)
-   self$nt = 1
+
+   if(is.null(Tr)){
+      self$Tr = matrix(1,self$ns,1)
+   } else{
+      if(nrow(Tr) != self$ns)
+         stop("Hmsc.setData: the number of rows in Tr should be equal to number of species")
+      self$Tr = Tr
+   }
+   self$nt = ncol(self$Tr)
+
+   if(!is.null(C)){
+      if(any(dim(C) != ns)){
+         stop("Hmsc.setData: the size of square matrix C must be equal to number of species")
+      }
+      self$C = C
+   }
 
    if(is.null(spNames)){
       self$spNames = colnames(Y)
@@ -50,25 +75,26 @@ setData = function(Y=NULL, X=NULL, Pi=NULL, rL=NULL, Xs=NULL, Xv=NULL, distr="no
    }
 
    if(is.null(levelNames)){
-      self$levelNames = colnames(Pi)
+      self$levelNames = colnames(dfPi)
    } else{
       self$levelNames = levelNames
+      colnames(self$dfPi) = levelNames
       colnames(self$Pi) = levelNames
    }
 
    switch (distr,
       "normal" = {
-         distr = matrix(0,ns,4)
+         distr = matrix(0,self$ns,4)
          distr[,1] = 1
          distr[,2] = 1
-         colnames(distr) = c("family","variance","link","something")
       },
       "probit" = {
-         distr = matrix(0,ns,4)
+         distr = matrix(0,self$ns,4)
          distr[,1] = 2
          distr[,2] = 0
       }
    )
+   colnames(distr) = c("family","variance","link","something")
    self$distr = distr
 
    self$setPriors(setDefault=TRUE)

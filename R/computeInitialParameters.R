@@ -12,10 +12,10 @@ computeInitialParameters = function(initPar){
    if(!is.null(initPar$Gamma)){
       Gamma = initPar$Gamma
    } else{
-      Gamma = t(rmvnorm(self$nt, self$mGamma, self$UGamma))
+      Gamma = matrix(rmvnorm(1, self$mGamma, self$UGamma), self$nc, self$nt)
    }
 
-   if(!is.null(initPar$Gamma)){
+   if(!is.null(initPar$V)){
       V = initPar$V
    } else{
       V = riwish(self$f0, self$V0)
@@ -27,13 +27,13 @@ computeInitialParameters = function(initPar){
       Beta = matrix(NA, self$nc, self$ns)
       Mu = tcrossprod(Gamma,self$Tr)
       for(j in 1:self$ns)
-         Beta[,j] = rmvnorm(1, Mu[,j], self$UGamma)
+         Beta[,j] = rmvnorm(1, Mu[,j], V)
    }
 
    if(!is.null(initPar$sigma)){
       sigma = initPar$sigma
    } else{
-      sigma = rep(NA, ns)
+      sigma = rep(NA, self$ns)
       indVarFix = (self$distr[,2] == 0)
       sigma[indVarFix] = 1
       sigma[!indVarFix] = rgamma(sum(!indVarFix), shape=self$aSigma[!indVarFix], rate=self$bSigma[!indVarFix])
@@ -59,7 +59,7 @@ computeInitialParameters = function(initPar){
       Lambda = vector("list", self$nr)
    }
 
-   for(r in 1:self$nr){
+   for(r in seq_len(self$nr)){
       if(!is.null(initPar$Delta[[r]])){
          nf[r] = nrow(Delta[[r]])
       }
@@ -73,16 +73,16 @@ computeInitialParameters = function(initPar){
          nf[r] = 2
 
       if(is.null(initPar$Delta[[r]])){
-         Delta[[r]] = matrix(c(rgamma(1,self$a1[r],self$b1[r]), rgamma(nf[r]-1,self$a2[r],self$b2[r])))
+         Delta[[r]] = matrix(c(rgamma(1,self$rL[[r]]$a1,self$rL[[r]]$b1), rgamma(nf[r]-1,self$rL[[r]]$a2,self$rL[[r]]$b2)))
       }
       if(is.null(initPar$Psi[[r]])){
-         Psi[[r]] = matrix(rgamma(nf[r]*ns, self$nu[r]/2, self$nu[r]/2), nf[r], ns)
+         Psi[[r]] = matrix(rgamma(nf[r]*self$ns, self$rL[[r]]$nu/2, self$rL[[r]]$nu/2), nf[r], self$ns)
       }
       if(is.null(initPar$Lambda[[r]])){
          tau = apply(Delta[[r]], 2, cumprod)
-         tauMat = matrix(tau,nf[r],ns)
+         tauMat = matrix(tau,nf[r],self$ns)
          mult = sqrt(Psi[[r]]*tauMat)^-1
-         Lambda[[r]] = matrix(rnorm(nf[r]*ns)*mult, nf[r], ns)
+         Lambda[[r]] = matrix(rnorm(nf[r]*self$ns)*mult, nf[r], self$ns)
       }
    }
 
@@ -94,15 +94,31 @@ computeInitialParameters = function(initPar){
    } else{
       Eta = vector("list", self$nr)
    }
-   for(r in 1:self$nr){
+   for(r in seq_len(self$nr)){
       if(!is.null(initPar$Eta[[r]])){
          Eta[[r]] = initPar$Eta[[r]]
       } else{
          Eta[[r]] = matrix(rnorm(np[r]*nf[r]),np[r],nf[r])
       }
    }
+   if(!is.null(initPar$Eta)){
+      Alpha = initPar$Alpha
+   } else{
+      Alpha = vector("list", self$nr)
+   }
+   for(r in seq_len(self$nr)){
+      if(!is.null(initPar$Alpha[[r]])){
+         Alpha[[r]] = initPar$Alpha[[r]]
+      } else{
+         Alpha[[r]] = rep(1,nf[r])
+      }
+   }
 
-
+   if(!is.null(initPar$rho)){
+      rho = initPar$rho
+   } else{
+      rho = 1
+   }
    Z = self$Y
 
    parList$Gamma = Gamma
@@ -113,6 +129,8 @@ computeInitialParameters = function(initPar){
    parList$Lambda = Lambda
    parList$Psi = Psi
    parList$Delta = Delta
+   parList$Alpha = Alpha
+   parList$rho = rho
    parList$Z = Z
 
    return(parList)

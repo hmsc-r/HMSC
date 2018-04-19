@@ -25,6 +25,7 @@ sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, v
    Y = self$Y
    distr = self$distr
    Pi = self$Pi
+   C = self$C
    nr = self$nr
 
    mGamma = self$mGamma
@@ -38,7 +39,13 @@ sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, v
    b1 = self$b1
    a2 = self$a2
    b2 = self$b2
+   rhopw = self$rhopw
 
+   dataParList = private$computeDataParameters()
+   iQg = dataParList$iQg
+   RiQg = dataParList$RiQg
+   detQg = dataParList$detQg
+   rLPar = dataParList$rLPar
 
    parList = private$computeInitialParameters(initPar)
 
@@ -50,10 +57,11 @@ sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, v
    iSigma = 1 / sigma
    Lambda = parList$Lambda
    Eta = parList$Eta
+   Alpha = parList$Alpha
    Psi = parList$Psi
    Delta = parList$Delta
+   rho = parList$rho
    Z = parList$Z
-
 
    repList = vector("list", repN)
    for(repN in 1:repN){
@@ -62,25 +70,36 @@ sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, v
          # Beta = updateBeta(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Tr=Tr,Pi=Pi)
          # Lambda = updateLambda(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Psi=Psi,Delta=Delta, X=X,Pi=Pi,rL=self$rL)
 
-         BetaLambdaList = updateBetaLambda(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta, X=X,Tr=Tr,Pi=Pi)
+         # if(nr>0){
+
+         BetaLambdaList = updateBetaLambda(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta,rho=rho, iQg=iQg, X=X,Tr=Tr,Pi=Pi,C=C)
          Beta = BetaLambdaList$Beta
          Lambda = BetaLambdaList$Lambda
 
-         GammaVList = updateGammaV(Beta=Beta,Gamma=Gamma,iV=iV, Tr=Tr, mGamma=mGamma,iUGamma=iUGamma,V0=V0,f0=f0)
+         # } else{
+            # Beta = updateBeta(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Tr=Tr,Pi=Pi)
+         # }
+
+         GammaVList = updateGammaV(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho, iQg=iQg, Tr=Tr,C=C, mGamma=mGamma,iUGamma=iUGamma,V0=V0,f0=f0)
          Gamma = GammaVList$Gamma
          iV = GammaVList$iV
-         PsiDeltaList = updateLambdaPriors(Lambda=Lambda,Delta=Delta, rL=rL, nu=nu,a1=a1,b1=b1,a2=a2,b2=b2)
+         if(!is.null(self$C)){
+            rho = updateRho(Beta=Beta,Gamma=Gamma,iV=iV, RiQg=RiQg,detQg=detQg, Tr=Tr, rhopw=rhopw)
+            print(rho)
+         }
+         PsiDeltaList = updateLambdaPriors(Lambda=Lambda,Delta=Delta, rL=self$rL) #nu=nu,a1=a1,b1=b1,a2=a2,b2=b2)
          Psi = PsiDeltaList$Psi
          Delta = PsiDeltaList$Delta
 
-         Eta = updateEta(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,rL=rL)
+         Eta = updateEta(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, X=X,Pi=Pi,rL=self$rL)
+         Alpha = updateAlpha(Eta=Eta, rLPar=rLPar, rL=self$rL)
          iSigma = updateInvSigma(Z=Z,Beta=Beta,Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi, aSigma=aSigma,bSigma=bSigma)
          Z = updateZ(Y=Y,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,distr=distr)
 
          for(r in 1:nr){
-            if( (is.list(adaptNf) && adaptNf[[r]][1] <= repN && adaptNf[[r]][2] >= iter) || (is.vector(adaptNf) && adaptNf[r] >= iter)){
+            if( (is.list(adaptNf) && adaptNf[[r]][1] >= repN && adaptNf[[r]][2] >= iter) || (is.vector(adaptNf) && adaptNf[r] >= iter)){
                listPar = updateNf(eta=Eta[[r]],lambda=Lambda[[r]],psi=Psi[[r]],delta=Delta[[r]],
-                  nu=nu[r],a1=a1[r],b1=b1[r],a2=a2[r],b2=b2[r], iter=iter)
+                  rL=self$rL[[r]], iter=iter)
                Lambda[[r]] = listPar$lambda
                Eta[[r]] = listPar$eta
                Psi[[r]] = listPar$psi
@@ -89,7 +108,7 @@ sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, v
          }
 
          if(iter %% thin == 0){
-            postList[[iter/thin]] = private$combineParameters(Beta=Beta,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Psi=Psi,Delta=Delta)
+            postList[[iter/thin]] = private$combineParameters(Beta=Beta,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,Delta=Delta)
          }
          if(iter %% verbose == 0){
             print(sprintf("Replicate %d, iteration %d of %d", repN, iter, samples*thin))

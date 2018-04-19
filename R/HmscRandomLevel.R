@@ -22,11 +22,20 @@ HmscRandomLevel <- R6::R6Class("HmscRandomLevel",
       s = NULL,
       sDim = NULL,
       N = NULL,
-      priors = NULL,
+
+      nfMax = NULL,
+      nfMin = NULL,
+
+      nu = NULL,
+      a1 = NULL,
+      b1 = NULL,
+      a2 = NULL,
+      b2 = NULL,
+      alphapw = NULL,
 
       initialize = function(data=NULL, N=NULL, pi=NULL, priors=NULL){
          if(nargs()==0)
-            stop("At least one argumnet should be specified")
+            stop("HmscRandomLevel: At least one argumnet should be specified")
          if(!is.null(data)){
             self$s = data
             self$N = nrow(data)
@@ -46,8 +55,61 @@ HmscRandomLevel <- R6::R6Class("HmscRandomLevel",
             self$pi = as.factor(1:N)
             self$sDim = 0
          }
+         if(!is.null(priors)){
+            self$setPriors(priors=priors, setDefault=TRUE)
+         } else{
+            self$setPriors(setDefault=TRUE)
+         }
       },
-      setPriors = function(prior=NULL, mu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=NULL, alphapw=NULL, nfFix=NULL, nfMax=NULL, nfMin=NULL){
+      setPriors = function(priors=NULL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=NULL, alphapw=NULL, nfMax=NULL, nfMin=NULL, setDefault=FALSE){
+         if(!is.null(nu)){
+            self$nu = nu
+         } else if(setDefault){
+            self$nu = 3
+         }
+         if(!is.null(a1)){
+            self$a1 = a1
+         } else if(setDefault){
+            self$a1 = 5
+         }
+         if(!is.null(b1)){
+            self$b1 = b1
+         } else if(setDefault){
+            self$b1 = 1
+         }
+         if(!is.null(a2)){
+            self$a2 = a2
+         } else if(setDefault){
+            self$a2 = 5
+         }
+         if(!is.null(b2)){
+            self$b2 = b2
+         } else if(setDefault){
+            self$b2 = 1
+         }
+         if(!is.null(alphapw)){
+            if(self$sDim == 0)
+               stop("HmscRandomLevel.setPriors: prior for spatial scale was given, but not spatial coordinates were specified")
+            if(ncol(alphapw)!=2)
+               stop("HmscRandomLevel.setPriors: alphapw must be a matrix with two columns")
+            self$alphapw = alphapw
+         } else if(setDefault && self$sDim>0){
+            alphaN = 100
+            enclosingRectDiag = sqrt(sum(apply(self$s, 2, function(c) diff(range(c)))^2))
+            self$alphapw = cbind(enclosingRectDiag*c(0:alphaN)/alphaN, c(0.5,rep(0.5/alphaN,alphaN)))
+         }
+         if(!is.null(nfMax)){
+            self$nfMax = nfMax
+         } else if(setDefault){
+            self$nfMax = Inf
+         }
+         if(!is.null(nfMin)){
+            if(nfMin > nfMax)
+               stop("HmscRandomLevel.setPriors: nfMin must be not greater than nfMax")
+            self$nfMin = nfMin
+         } else if(setDefault){
+            self$nfMin = 1
+         }
 
       }
    )

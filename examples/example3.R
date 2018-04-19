@@ -6,9 +6,9 @@ set.seed(1)
 # download, install the package from GitHub and load it to the session
 # library(devtools)
 # install_github("gtikhonov/HMSC")
-# library(Hmsc)
+library(Hmsc)
 
-ny = 1001L
+ny = 101L
 ns = 41L
 nc = 13L
 nt = 2L
@@ -35,23 +35,54 @@ for(j in 1:ns)
    Beta[,j] = mvrnorm(1,Mu[,j],V)
 
 np = as.integer(c(ny, round(ny/10)))
-nr = 2
+nr = 1
 dfPi = matrix(NA,ny,nr)
 for(r in 1:nr){
    dfPi[,r] = (as.integer(((1:ny) - 1) %% np[r] + 1))
 }
 
+
+sRL1 = matrix(runif(np[1]*2),np[1],2)
+rownames(sRL1) = as.character(1:np[1]) #sprintf('%.3d',1:np[1])#
+rL1 = HmscRandomLevel$new(data=sRL1, priors="default")
+alpha1 = c(80, 1)
+# rL1 = HmscRandomLevel$new(N=np[1])
+
 nf = as.integer(c(2,2))
 np = apply(dfPi,2,function(a) length(unique(a)))
+
+for(r in 1:nr){
+   dfPi[,r] = as.character(dfPi[,r]) #sprintf('%.3d',dfPi[,r])
+}
+dfPi = as.data.frame(dfPi)
+
 Eta = vector("list", nr)
 Lambda = vector("list", nr)
 LRan = vector("list", nr)
 for(r in 1:nr){
-   Eta[[r]] = matrix(rnorm(np[r]*nf[r]),np[r],nf[r])
+   D = as.matrix(dist(sRL1))
+   Eta[[r]] = matrix(NA,np[r],nf[r])
+   for(h in 1:nf[r]){
+      if(rL1$alphapw[alpha1[h],1] > 0){
+      K = exp(-D/rL1$alphapw[alpha1[h],1])
+      } else
+         K = diag(np[r])
+      Eta[[r]][,h] = crossprod(chol(K), rnorm(np[r]))
+   }
+   # Eta[[r]] = matrix(rnorm(np[r]*nf[r]),np[r],nf[r])
    Lambda[[r]] = matrix(rnorm(nf[r]*ns),nf[r],ns)
    LRan[[r]] = Eta[[r]][dfPi[,r],]%*%Lambda[[r]]
 }
 LRanSum = Reduce("+", LRan)
+
+normalized = function(x){
+  (x-min(x))/(max(x)-min(x))
+}
+
+cols = colorRamp(c("blue","white","red"))(normalized(Eta[[r]][,1]))
+cols = apply(cols, 1, function(c) rgb(c[1]/255, c[2]/255, c[3]/255))
+# plot(sRL1[,1], sRL1[,2], col=cols, pch = 19, cex=2)
+# aaa
 
 # d = rep(1,ns)
 d = rgamma(ns,2,1)
@@ -60,9 +91,8 @@ Y = LFix + LRanSum + matrix(rnorm(ny*ns),ny,ns)*matrix(rep(sqrt(d),each=ny),ny,n
 if(distr == "probit")
    Y = 1*(Y>0)
 
-for(r in 1:nr){
-   dfPi[,r] = as.character(dfPi[,r])
-}
+
+
 BetaT = Beta
 GammaT = Gamma
 VT = V
@@ -70,22 +100,27 @@ sigmaT = d
 LambdaT = Lambda
 EtaT = Eta
 
+
+
+
 # create the main model and specify data, priors, parameters
-m = Hmsc$new(Y=Y, X=X, dist=distr, Pi=dfPi, Tr=Tr)
+m = Hmsc$new(Y=Y, X=X, dist=distr, dfPi=dfPi, Tr=Tr, rL=list(rL1))
 
 start = proc.time()
-m$sampleMcmc(samples, thin=thin, adaptNf=0*c(200,200) )
+m$sampleMcmc(samples, thin=thin, adaptNf=0*c(200,200), initPar=list(Alpha=list(alpha1)) )
 stop = proc.time()
 
 # postprocessing....
 
-postBeta = array(unlist(lapply(m$postList, function(a) a$Beta)),c(nc,ns,m$samples))
-plot(Beta,apply(postBeta,c(1,2),mean),main="Beta")
-abline(0,1,col="red")
+postList = m$postList
 
-postGamma = array(unlist(lapply(m$postList, function(a) a$Gamma)),c(nc,nt,m$samples))
-plot(GammaT,apply(postGamma,c(1,2),mean),main="Gamma")
-abline(0,1,col="red")
+postBeta = array(unlist(lapply(postList, function(a) a$Beta)),c(nc,ns,m$samples))
+# plot(Beta,apply(postBeta,c(1,2),mean),main="Beta")
+# abline(0,1,col="red")
+
+postGamma = array(unlist(lapply(postList, function(a) a$Gamma)),c(nc,nt,m$samples))
+# plot(GammaT,apply(postGamma,c(1,2),mean),main="Gamma")
+# abline(0,1,col="red")
 
 # mcmcBeta = as.mcmc(matrix(as.vector(postBeta),m$samples,nc*ns,byrow=TRUE))
 # plot(mcmcBeta)
@@ -93,24 +128,34 @@ abline(0,1,col="red")
 
 getOmega = function(a,r=1)
    return(crossprod(a$Lambda[[r]]))
+getEta = function(a,r=1)
+   return(a$Eta[[r]])
+getAlpha = function(a,r=1)
+   return(a$Alpha[[r]])
 for(r in 1:m$nr){
-   postOmega = array(unlist(lapply(m$postList,getOmega,r)),c(ns,ns,m$samples))
+   postOmega = array(unlist(lapply(postList,getOmega,r)),c(ns,ns,m$samples))
+   postEta = array(unlist(lapply(postList,getEta,r)),c(np[r],nf[r],m$samples))
+   # plot(apply(postEta^2, 3, mean))
    postOmegaMean = apply(postOmega,c(1,2),mean)
    plot(crossprod(Lambda[[r]]),postOmegaMean,main=sprintf("Omega%d",r))
    abline(0,1,col="red")
 }
 print(stop-start)
+
+# plot(postAlpha[1,])
+# plot(postAlpha[2,])
+
 aaa
 
 
-# postSigma = array(unlist(lapply(m$postList, function(a) a$sigma)),c(ns,m$samples))
+# postSigma = array(unlist(lapply(postList, function(a) a$sigma)),c(ns,m$samples))
 # plot(sigma,apply(postSigma,1,mean),main="Sigma")
 # abline(0,1,col="red")
 #
-LFix = m$X%*%m$postList[[m$samples]]$Beta
+LFix = m$X%*%postList[[m$samples]]$Beta
 LRan = vector("list", m$nr)
 for(r in 1:m$nr){
-   LRan[[r]] = m$postList[[100]]$Eta[[r]][m$Pi[,r],]%*%m$postList[[100]]$Lambda[[r]]
+   LRan[[r]] = postList[[100]]$Eta[[r]][m$Pi[,r],]%*%postList[[100]]$Lambda[[r]]
 }
 LAll = LFix + Reduce("+", LRan)
 

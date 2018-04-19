@@ -1,16 +1,23 @@
-updateLambdaPriors = function(Lambda,Delta, rL, nu,a1,b1,a2,b2){
+updateLambdaPriors = function(Lambda,Delta, rL){
    nr = length(Lambda)
 
    Psi = vector("list", nr)
    for(r in 1:nr){
+      nu = rL[[r]]$nu
+      a1 = rL[[r]]$a1
+      b1 = rL[[r]]$b1
+      a2 = rL[[r]]$a2
+      b2 = rL[[r]]$b2
       delta = Delta[[r]]
+
       tau = apply(delta,2,cumprod)
       lambda = Lambda[[r]]
+      ns = ncol(lambda)
       nf = nrow(lambda)
       lambda2 = lambda^2
 
-      aPsi = nu[r]/2 + 0.5
-      bPsi = nu[r]/2 + 0.5*lambda2 * matrix(tau,nf,ns)
+      aPsi = nu/2 + 0.5
+      bPsi = nu/2 + 0.5*lambda2 * matrix(tau,nf,ns)
       psi = matrix(rgamma(nf*ns, aPsi, bPsi), nf, ns)
 
       M = psi * lambda2
