@@ -13,7 +13,7 @@ ns = 41L
 nc = 3L
 nt = 1L
 np = c(ny, round(ny/10))
-np = np[1]
+# np = np[1]
 
 distr = "normal"
 
@@ -43,7 +43,7 @@ for(r in 1:nr){
 }
 np = apply(dfPi,2,function(a) length(unique(a)))
 
-sDim = c(2,2)
+sDim = c(0,2)
 nf = as.integer(c(2,2))
 
 rL = vector("list", nr)
