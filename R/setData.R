@@ -53,7 +53,7 @@ setData = function(Y=NULL, X=NULL, dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL, Tr=NULL
    self$nt = ncol(self$Tr)
 
    if(!is.null(C)){
-      if(any(dim(C) != ns)){
+      if(any(dim(C) != self$ns)){
          stop("Hmsc.setData: the size of square matrix C must be equal to number of species")
       }
       self$C = C

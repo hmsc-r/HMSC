@@ -115,7 +115,7 @@ computeInitialParameters = function(initPar){
    }
 
    if(!is.null(initPar$rho)){
-      rho = initPar$rho
+      rho = which.min(abs(initPar$rho-self$rhopw[,1]))
    } else{
       rho = 1
    }

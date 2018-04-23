@@ -109,7 +109,8 @@ sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, v
          }
 
          if(iter %% thin == 0){
-            postList[[iter/thin]] = private$combineParameters(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,Delta=Delta)
+            postList[[iter/thin]] = private$combineParameters(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,Delta=Delta,
+               rhopw=rhopw)
          }
          if(iter %% verbose == 0){
             print(sprintf("Replicate %d, iteration %d of %d", repN, iter, samples*thin))
