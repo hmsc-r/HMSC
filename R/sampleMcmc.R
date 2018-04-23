@@ -85,7 +85,7 @@ sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, v
          iV = GammaVList$iV
          if(!is.null(self$C)){
             rho = updateRho(Beta=Beta,Gamma=Gamma,iV=iV, RiQg=RiQg,detQg=detQg, Tr=Tr, rhopw=rhopw)
-            print(rho)
+            # print(rho)
          }
          PsiDeltaList = updateLambdaPriors(Lambda=Lambda,Delta=Delta, rL=self$rL) #nu=nu,a1=a1,b1=b1,a2=a2,b2=b2)
          Psi = PsiDeltaList$Psi
@@ -109,7 +109,7 @@ sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, v
          }
 
          if(iter %% thin == 0){
-            postList[[iter/thin]] = private$combineParameters(Beta=Beta,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,Delta=Delta)
+            postList[[iter/thin]] = private$combineParameters(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,Delta=Delta)
          }
          if(iter %% verbose == 0){
             print(sprintf("Replicate %d, iteration %d of %d", repN, iter, samples*thin))
