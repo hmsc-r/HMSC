@@ -53,6 +53,8 @@ sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, v
    }
    initSeed = sample.int(.Machine$integer.max, nChains)
    for(chain in 1:nChains){
+      if(nChains>1)
+         print(sprintf("Computing chain %d", chain))
       set.seed(initSeed[chain])
       parList = private$computeInitialParameters(initPar)
 
