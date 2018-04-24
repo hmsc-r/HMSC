@@ -13,7 +13,7 @@
 #'
 #' @export
 
-sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, verbose=samples*thin/100, adaptNf=NULL){
+sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, verbose=samples*thin/100, adaptNf=NULL, nChains=1){
    self$samples = samples
    self$thin = thin
    self$repN = repN
@@ -47,79 +47,95 @@ sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, v
    detQg = dataParList$detQg
    rLPar = dataParList$rLPar
 
-   parList = private$computeInitialParameters(initPar)
+   if(nChains > 1){
+      self$postList = vector("list", nChains)
+      self$repList = vector("list", nChains)
+   }
+   initSeed = sample.int(.Machine$integer.max, nChains)
+   for(chain in 1:nChains){
+      set.seed(initSeed[chain])
+      parList = private$computeInitialParameters(initPar)
 
-   Gamma = parList$Gamma
-   V = parList$V
-   iV = solve(V)
-   Beta = parList$Beta
-   sigma = parList$sigma
-   iSigma = 1 / sigma
-   Lambda = parList$Lambda
-   Eta = parList$Eta
-   Alpha = parList$Alpha
-   Psi = parList$Psi
-   Delta = parList$Delta
-   rho = parList$rho
-   Z = parList$Z
+      Gamma = parList$Gamma
+      V = parList$V
+      iV = solve(V)
+      Beta = parList$Beta
+      sigma = parList$sigma
+      iSigma = 1 / sigma
+      Lambda = parList$Lambda
+      Eta = parList$Eta
+      Alpha = parList$Alpha
+      Psi = parList$Psi
+      Delta = parList$Delta
+      rho = parList$rho
+      Z = parList$Z
 
-   repList = vector("list", repN)
-   for(repN in 1:repN){
-      postList = vector("list", samples)
-      for(iter in 1:(samples*thin)){
-         # Beta = updateBeta(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Tr=Tr,Pi=Pi)
-         # Lambda = updateLambda(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Psi=Psi,Delta=Delta, X=X,Pi=Pi,rL=self$rL)
-
-         # if(nr>0){
-
-         BetaLambdaList = updateBetaLambda(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta,rho=rho, iQg=iQg, X=X,Tr=Tr,Pi=Pi,C=C)
-         Beta = BetaLambdaList$Beta
-         Lambda = BetaLambdaList$Lambda
-
-         # } else{
+      repList = vector("list", repN)
+      for(repN in 1:repN){
+         postList = vector("list", samples)
+         for(iter in 1:(samples*thin)){
             # Beta = updateBeta(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Tr=Tr,Pi=Pi)
-         # }
+            # Lambda = updateLambda(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Psi=Psi,Delta=Delta, X=X,Pi=Pi,rL=self$rL)
 
-         GammaVList = updateGammaV(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho, iQg=iQg, Tr=Tr,C=C, mGamma=mGamma,iUGamma=iUGamma,V0=V0,f0=f0)
-         Gamma = GammaVList$Gamma
-         iV = GammaVList$iV
-         if(!is.null(self$C)){
-            rho = updateRho(Beta=Beta,Gamma=Gamma,iV=iV, RiQg=RiQg,detQg=detQg, Tr=Tr, rhopw=rhopw)
-            # print(rho)
-         }
-         PsiDeltaList = updateLambdaPriors(Lambda=Lambda,Delta=Delta, rL=self$rL) #nu=nu,a1=a1,b1=b1,a2=a2,b2=b2)
-         Psi = PsiDeltaList$Psi
-         Delta = PsiDeltaList$Delta
+            # if(nr>0){
 
-         Eta = updateEta(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, X=X,Pi=Pi,rL=self$rL)
-         Alpha = updateAlpha(Eta=Eta, rLPar=rLPar, rL=self$rL)
-         iSigma = updateInvSigma(Z=Z,Beta=Beta,Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi, aSigma=aSigma,bSigma=bSigma)
-         Z = updateZ(Y=Y,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,distr=distr)
+            BetaLambdaList = updateBetaLambda(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta,rho=rho, iQg=iQg, X=X,Tr=Tr,Pi=Pi,C=C)
+            Beta = BetaLambdaList$Beta
+            Lambda = BetaLambdaList$Lambda
 
-         for(r in 1:nr){
-            if( (is.list(adaptNf) && adaptNf[[r]][1] >= repN && adaptNf[[r]][2] >= iter) || (is.vector(adaptNf) && adaptNf[r] >= iter)){
-               listPar = updateNf(eta=Eta[[r]],lambda=Lambda[[r]],alpha=Alpha[[r]],psi=Psi[[r]],delta=Delta[[r]],
-                  rL=self$rL[[r]], iter=iter)
-               Lambda[[r]] = listPar$lambda
-               Eta[[r]] = listPar$eta
-               Alpha[[r]] = listPar$alpha
-               Psi[[r]] = listPar$psi
-               Delta[[r]] = listPar$delta
+            # } else{
+            # Beta = updateBeta(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Tr=Tr,Pi=Pi)
+            # }
+
+            GammaVList = updateGammaV(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho, iQg=iQg, Tr=Tr,C=C, mGamma=mGamma,iUGamma=iUGamma,V0=V0,f0=f0)
+            Gamma = GammaVList$Gamma
+            iV = GammaVList$iV
+            if(!is.null(self$C)){
+               rho = updateRho(Beta=Beta,Gamma=Gamma,iV=iV, RiQg=RiQg,detQg=detQg, Tr=Tr, rhopw=rhopw)
+               # print(rho)
+            }
+            PsiDeltaList = updateLambdaPriors(Lambda=Lambda,Delta=Delta, rL=self$rL) #nu=nu,a1=a1,b1=b1,a2=a2,b2=b2)
+            Psi = PsiDeltaList$Psi
+            Delta = PsiDeltaList$Delta
+
+            Eta = updateEta(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, X=X,Pi=Pi,rL=self$rL)
+            Alpha = updateAlpha(Eta=Eta, rLPar=rLPar, rL=self$rL)
+            iSigma = updateInvSigma(Z=Z,Beta=Beta,Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi, aSigma=aSigma,bSigma=bSigma)
+            Z = updateZ(Y=Y,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,distr=distr)
+
+            for(r in 1:nr){
+               if( (is.list(adaptNf) && adaptNf[[r]][1] >= repN && adaptNf[[r]][2] >= iter) || (is.vector(adaptNf) && adaptNf[r] >= iter)){
+                  listPar = updateNf(eta=Eta[[r]],lambda=Lambda[[r]],alpha=Alpha[[r]],psi=Psi[[r]],delta=Delta[[r]],
+                     rL=self$rL[[r]], iter=iter)
+                  Lambda[[r]] = listPar$lambda
+                  Eta[[r]] = listPar$eta
+                  Alpha[[r]] = listPar$alpha
+                  Psi[[r]] = listPar$psi
+                  Delta[[r]] = listPar$delta
+               }
+            }
+
+            if(iter %% thin == 0){
+               postList[[iter/thin]] = private$combineParameters(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,Delta=Delta,
+                  rhopw=rhopw)
+            }
+            if(iter %% verbose == 0){
+               print(sprintf("Replicate %d, iteration %d of %d", repN, iter, samples*thin))
             }
          }
-
-         if(iter %% thin == 0){
-            postList[[iter/thin]] = private$combineParameters(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,Delta=Delta,
-               rhopw=rhopw)
-         }
-         if(iter %% verbose == 0){
-            print(sprintf("Replicate %d, iteration %d of %d", repN, iter, samples*thin))
+         repList[[repN]] = postList
+         if(nChains == 1){
+            self$postList = postList
+         } else{
+            self$postList[[chain]] = postList
          }
       }
-      repList[[repN]] = postList
-      self$postList = postList
+      if(nChains == 1){
+         self$repList = repList
+      } else{
+         self$repList[[chain]] = repList
+      }
    }
-   self$repList = repList
 }
 
 Hmsc$set("public", "sampleMcmc", sampleMcmc, overwrite=TRUE)
