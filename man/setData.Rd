@@ -4,18 +4,18 @@
 \alias{setData}
 \title{setData}
 \usage{
-setData(Y = NULL, X = NULL, Pi = NULL, rL = NULL, Xs = NULL,
-  Xv = NULL, dist = "normal", spNames = NULL, trNames = NULL,
-  covNames = NULL, levelNames = NULL)
+setData(Y = NULL, X = NULL, dfPi = NULL, rL = NULL, Xs = NULL,
+  Xv = NULL, Tr = NULL, C = NULL, distr = "normal", spNames = NULL,
+  trNames = NULL, covNames = NULL, levelNames = NULL)
 }
 \arguments{
 \item{Y}{matrix of species occurences or abundances}
 
 \item{X}{matrix of measured covariates}
 
-\item{Pi}{matrix of correspondence between sampling units and units on different levels of latent factors}
-
 \item{rL}{list of HmscRandomLevel objects, specifying the structure and data for random levels}
+
+\item{Pi}{matrix of correspondence between sampling units and units on different levels of latent factors}
 }
 \description{
 Sets or resets various data elements to an Hmsc object

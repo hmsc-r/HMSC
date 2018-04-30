@@ -13,7 +13,7 @@
 #'
 #' @export
 
-sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, verbose=samples*thin/100, adaptNf=NULL, nChains=1){
+sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, verbose=samples*thin/100, adaptNf=NULL, nChains=1, dataParList=NULL){
    self$samples = samples
    self$thin = thin
    self$repN = repN
@@ -41,16 +41,15 @@ sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, v
    b2 = self$b2
    rhopw = self$rhopw
 
-   dataParList = private$computeDataParameters()
+   if(is.null(dataParList))
+      dataParList = private$computeDataParameters()
    iQg = dataParList$iQg
    RiQg = dataParList$RiQg
    detQg = dataParList$detQg
    rLPar = dataParList$rLPar
 
-   if(nChains > 1){
-      self$postList = vector("list", nChains)
-      self$repList = vector("list", nChains)
-   }
+   self$postList = vector("list", nChains)
+   self$repList = vector("list", nChains)
    initSeed = sample.int(.Machine$integer.max, nChains)
    for(chain in 1:nChains){
       if(nChains>1)
@@ -126,17 +125,9 @@ sampleMcmc = function(samples, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, v
             }
          }
          repList[[repN]] = postList
-         if(nChains == 1){
-            self$postList = postList
-         } else{
-            self$postList[[chain]] = postList
-         }
+         self$postList[[chain]] = postList
       }
-      if(nChains == 1){
-         self$repList = repList
-      } else{
-         self$repList[[chain]] = repList
-      }
+      self$repList[[chain]] = repList
    }
 }
 

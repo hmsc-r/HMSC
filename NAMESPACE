@@ -2,8 +2,8 @@
 
 export(Hmsc)
 export(HmscRandomLevel)
-export(computeInitialParameters)
-export(sampleMCMC)
+export(poolMcmcChains)
+export(predictLatentFactor)
 export(sampleMcmc)
 export(setData)
 export(setPriors)

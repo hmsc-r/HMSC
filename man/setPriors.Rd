@@ -5,7 +5,8 @@
 \title{setPriors}
 \usage{
 setPriors(V0 = NULL, f0 = NULL, mGamma = NULL, UGamma = NULL,
-  aSigma = NULL, bSigma = NULL, setDefault = FALSE)
+  aSigma = NULL, bSigma = NULL, nu = NULL, a1 = NULL, b1 = NULL,
+  a2 = NULL, b2 = NULL, rhopw = NULL, setDefault = FALSE)
 }
 \arguments{
 \item{V0}{scale matrix in the Wishart prior distribution for the Beta parameters}
