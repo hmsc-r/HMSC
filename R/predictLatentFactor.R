@@ -10,7 +10,7 @@
 predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predictMean=FALSE){
    predN = length(postEta)
    indOld = (unitsPred %in% units)
-   indNew = ~(indOld)
+   indNew = !(indOld)
    n = length(unitsPred)
    np = length(units)
    nn = sum(indNew)
@@ -43,8 +43,8 @@ predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predict
                iK11 = solve(K11)
                m = crossprod(K12, solve(K11, eta[,h]))
                W = K22 - crossprod(K12, solve(K11, K12))
-
-               etaPred[indNew,h] = m + r
+               L = t(chol(W))
+               etaPred[indNew,h] = m + L%*%rnorm(nn)
             }
          }
       }
