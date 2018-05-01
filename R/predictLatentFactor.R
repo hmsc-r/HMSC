@@ -11,23 +11,42 @@ predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predict
    predN = length(postEta)
    indOld = (unitsPred %in% units)
    indNew = ~(indOld)
-   N = length(unitsPred)
+   n = length(unitsPred)
+   np = length(units)
+   nn = sum(indNew)
+
    postEtaPred = vector("list", predN)
-   # np = length(unitsPred)
    for(pN in 1:predN){
       eta = postEta[[pN]]
       nf = ncol(eta)
-      etaPred = matrix(NA, N, nf)
+      etaPred = matrix(NA, n, nf)
       rownames(etaPred) = unitsPred
       etaPred[indOld,] = eta[match(unitsPred[indOld],units),]
-      if(rL$sDim == 0){
-         if(predictMean){
-            etaPred[indNew,] = 0
+      if(nn < 0){
+         if(rL$sDim == 0){
+            if(predictMean){
+               etaPred[indNew,] = 0
+            } else{
+               etaPred[indNew,] = matrix(rnorm(sum(indNew)*nf), sum(indNew), nf)
+            }
          } else{
-            etaPred[indNew,] = matrix(rnorm(sum(indNew)*nf), sum(indNew), nf)
+            alpha = postAlpha[[pN]]
+            alphapw = rL$alphapw
+            unitsAll = c(units,unitsPred[indNew])
+            s = rL$s[unitsAll,]
+            distance = as.matrix(dist(s))
+            for(h in 1:nf){
+               K = exp(-distance/alphapw[alpha[h],1])
+               K11 = K[1:np,1:np]
+               K12 = K[1:np,np+(1:nn)]
+               K22 = K[np+(1:nn),np+(1:nn)]
+               iK11 = solve(K11)
+               m = crossprod(K12, solve(K11, eta[,h]))
+               W = K22 - crossprod(K12, solve(K11, K12))
+
+               etaPred[indNew,h] = m + r
+            }
          }
-      } else{
-         alphapw = rL$alphapw
       }
       postEtaPred[[pN]] = etaPred
    }

@@ -24,7 +24,6 @@ predict.Hmsc = function(post, X=self$X, dfPiNew=self$dfPi, rL=self$rL, expected=
          LRan = LRan + predPostEta[[r]][[pN]][dfPiNew[,r],] %*% sam$Lambda[[r]]
       }
       L = LFix + LRan
-      Z =
       if(!expected){
          Z = L + matrix(rep(sam$sigma,nrow(L)), nrow(L), self$ns, byrow=TRUE)
       }
