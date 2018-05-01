@@ -17,7 +17,7 @@ setData = function(Y=NULL, X=NULL, dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL, Tr=NULL
    self$ny = nrow(Y)
    self$ns = ncol(Y)
 
-   if(nrow(X) != ny){
+   if(nrow(X) != self$ny){
       stop("Hmsc.setData: the number of rows in X should be equal to number of rows in Y")
    }
    self$X = as.matrix(X)
