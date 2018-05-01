@@ -29,7 +29,7 @@ setData = function(Y=NULL, X=NULL, dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL, Tr=NULL
       self$np = NULL
       self$nr = 0
    } else{
-      if(nrow(dfPi) != ny){
+      if(nrow(dfPi) != self$ny){
          stop("Hmsc.setData: the number of rows in Pi should be equal to number of rows in Y")
       }
       self$dfPi = dfPi
