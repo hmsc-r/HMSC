@@ -1,4 +1,4 @@
-#' @title predict
+#' @title predict.Hmsc
 #'
 #' @description Computes the initial values before the sampling starts
 #' @param initPar initial parameters value
@@ -13,7 +13,8 @@ predict.Hmsc = function(post, X=self$X, dfPiNew=self$dfPi, rL=self$rL, expected=
    for(r in 1:nr){
       postEta = lapply(post, function(c) c$Eta[[r]])
       postAlpha = lapply(post, function(c) c$Alpha[[r]])
-      predPostEta[[r]] = predictLatentFactor(levels(dfPiNew[,r]),levels(self$dfPi[,r]),postEta,postAlpha,rL[[r]],predictMean=FALSE)
+      predPostEta[[r]] = predictLatentFactor(unitsPred=levels(dfPiNew[,r]),units=levels(self$dfPi[,r]),
+         postEta=postEta,postAlpha=postAlpha,rL=rL[[r]],predictMean=FALSE)
    }
    pred = vector("list",predN)
    for(pN in 1:predN){
@@ -30,7 +31,6 @@ predict.Hmsc = function(post, X=self$X, dfPiNew=self$dfPi, rL=self$rL, expected=
          Z = L
       }
 
-      print(Z)
 
       for(j in 1:self$ns){
          if(m$distr[j,"family"] == 2){
