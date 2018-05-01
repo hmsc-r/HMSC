@@ -25,8 +25,12 @@ predict.Hmsc = function(post, X=self$X, dfPiNew=self$dfPi, rL=self$rL, expected=
       }
       L = LFix + LRan
       if(!expected){
-         Z = L + matrix(rep(sam$sigma,nrow(L)), nrow(L), self$ns, byrow=TRUE)
+         Z = L + matrix(rep(sam$sigma,nrow(L)), nrow(L), self$ns, byrow=TRUE) * matrix(rnorm(nrow(L)*self$ns), nrow(L), self$ns)
+      } else{
+         Z = L
       }
+
+      print(Z)
 
       for(j in 1:self$ns){
          if(m$distr[j,"family"] == 2){
