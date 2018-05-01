@@ -14,11 +14,11 @@ computeDataParameters = function(){
       RiQg = array(NA, c(self$ns,self$ns,nrow(self$rhopw)))
       detQg = rep(NA, nrow(self$rhopw))
       if(any(self$rhopw[,1] < 0))
-         iC = chol2inv(chol(C))
+         iC = chol2inv(chol(self$C))
       for(rg in 1:nrow(self$rhopw)){
          rho = self$rhopw[rg,1]
          if(rho >= 0){
-            rhoC = rho*C;
+            rhoC = rho*self$C;
          } else{
             rhoC = (-rho)*iC;
          }
