@@ -111,10 +111,10 @@ sampleMcmc = function(samples, transient=0, thin=1, initPar=NULL, repN=1, saveTo
             }
 
             if((iter>transient) && ((iter-transient) %% thin == 0)){
-               postList[[iter/thin]] = private$combineParameters(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,Delta=Delta,
+               postList[[(iter-transient)/thin]] = private$combineParameters(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,Delta=Delta,
                   rhopw=rhopw)
             }
-            if(iter %% verbose == 0){
+            if((verbose > 0) && (iter%%verbose == 0)){
                if(iter > transient){
                   samplingStatusString = "sampling"
                } else{
