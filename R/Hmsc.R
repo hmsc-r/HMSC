@@ -69,12 +69,18 @@ Hmsc <- R6::R6Class("Hmsc",
       setData = function(Y=NULL, X=NULL, dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL, Tr=NULL, C=NULL, distr="normal", spNames=NULL,
          trNames=NULL, covNames=NULL, ...){},
       setPriors = function(priors=NULL){},
-      setMcmcParameters = function(){},
       sampleMcmc = function(){},
 
-      getPosterior = function(){
-         # combines setPostThinning, saves a copy of that in the class and returns the posterior as mcmc object
-      }
+      computeAssociations = function(start=1){},
+      computeMarginalEffects = function(ngrid=20, prob=c(0.025,0.5,0.975), clist=1:self$nc){},
+      computePredictedValues = function(nfolds=1, start=1){},
+      computeR2 = function(predY){},
+      computeVariancePartitioning = function(group, groupnames, start=1){},
+      convertToCodaObject = function(start=1, spNamesNumbers=c(TRUE,TRUE), covNamesNumbers=c(TRUE,TRUE), trNamesNumbers=c(TRUE,TRUE),
+         Beta=TRUE, Gamma=TRUE, V=TRUE, Sigma=TRUE, Rho=TRUE, Eta=TRUE, Lambda=TRUE, Alpha=TRUE,
+         Omega=TRUE, Psi=TRUE, Delta=TRUE){},
+      plotMarginalEffects = function(pred, covariate, measure, index=1){},
+      plotVariancePartitioning = function(VP){}
    ),
    private = list(
       computeInitialParameters = function(initPar){},

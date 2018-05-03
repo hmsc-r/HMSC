@@ -3,7 +3,3 @@
 export(Hmsc)
 export(HmscRandomLevel)
 export(poolMcmcChains)
-export(predictLatentFactor)
-export(sampleMcmc)
-export(setData)
-export(setPriors)

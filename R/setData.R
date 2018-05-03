@@ -9,7 +9,6 @@
 #'
 #' @examples
 #'
-#' @export
 
 setData = function(Y=NULL, X=NULL, dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL, Tr=NULL, C=NULL, distr="normal", spNames=NULL,
    trNames=NULL, covNames=NULL, levelNames=NULL){

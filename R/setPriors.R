@@ -9,7 +9,6 @@
 #'
 #' @examples
 #'
-#' @export
 
 setPriors = function(V0=NULL, f0=NULL, mGamma=NULL, UGamma=NULL, aSigma=NULL, bSigma=NULL,
    nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, rhopw=NULL, setDefault=FALSE){

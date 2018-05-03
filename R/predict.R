@@ -3,8 +3,6 @@
 #' @description Computes the initial values before the sampling starts
 #' @param initPar initial parameters value
 #'
-#' @export
-
 
 predict.Hmsc = function(post, X=self$X, dfPiNew=self$dfPi, rL=self$rL, expected=FALSE){
    predN = length(post)
@@ -24,6 +22,7 @@ predict.Hmsc = function(post, X=self$X, dfPiNew=self$dfPi, rL=self$rL, expected=
       for(r in 1:nr){
          LRan = LRan + predPostEta[[r]][[pN]][dfPiNew[,r],] %*% sam$Lambda[[r]]
       }
+      rownames(LRan) = c()
       L = LFix + LRan
       if(!expected){
          Z = L + matrix(rep(sam$sigma,nrow(L)), nrow(L), self$ns, byrow=TRUE)*matrix(rnorm(nrow(L)*self$ns), nrow(L), self$ns)

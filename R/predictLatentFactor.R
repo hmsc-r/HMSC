@@ -5,7 +5,6 @@
 #'
 #' @examples
 #'
-#' @export
 
 predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predictMean=FALSE){
    predN = length(postEta)

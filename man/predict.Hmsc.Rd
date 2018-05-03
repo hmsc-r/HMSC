@@ -2,9 +2,10 @@
 % Please edit documentation in R/predict.R
 \name{predict.Hmsc}
 \alias{predict.Hmsc}
-\title{predict}
+\title{predict.Hmsc}
 \usage{
-\method{predict}{Hmsc}(post, X, dfPiNew, rL = self$rL, expected = FALSE)
+\method{predict}{Hmsc}(post, X = self$X, dfPiNew = self$dfPi,
+  rL = self$rL, expected = FALSE)
 }
 \arguments{
 \item{initPar}{initial parameters value}
