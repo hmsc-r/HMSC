@@ -119,7 +119,7 @@ computeInitialParameters = function(initPar){
    } else{
       rho = 1
    }
-   Z = self$Y
+   Z = updateZ(Y=self$Y,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=self$X,Pi=self$Pi,distr=self$distr)
 
    parList$Gamma = Gamma
    parList$V = V
