@@ -38,7 +38,7 @@ updateZ = function(Y,Beta,iSigma,Eta,Lambda, X,Pi,distr, ind){
       Z[,indColProbit] = ZProbit
    }
 
-   Z[indNA] = rnorm(E[indNA], std[indNA])
+   Z[indNA] = rnorm(sum(indNA), E[indNA], std[indNA])
    return(Z)
 }
 
