@@ -32,7 +32,7 @@ predict.Hmsc = function(post, X=self$X, dfPiNew=self$dfPi, rL=self$rL, expected=
 
 
       for(j in 1:self$ns){
-         if(m$distr[j,"family"] == 2){
+         if(self$distr[j,"family"] == 2){
             if(expected){
                Z[,j] = pnorm(Z[,j])
             } else{
