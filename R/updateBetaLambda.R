@@ -54,7 +54,7 @@ updateBetaLambda = function(Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQg, X,Tr,Pi,C)
       m = U %*% (P%*%as.vector(t(Mu)) + as.vector(t(isXTS)))
       BetaLambda = matrix(m + backsolve(RiU, rnorm(ns*(nc+nfSum))), nc+nfSum, ns, byrow=TRUE)
    }
-   Beta = BetaLambda[1:nc,]
+   Beta = BetaLambda[1:nc,,drop=F]
    for(r in seq_len(nr)){
       Lambda[[r]] = BetaLambda[nc+sum(nf[seq_len(r-1)])+(1:nf[r]),]
    }

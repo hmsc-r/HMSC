@@ -1,4 +1,5 @@
-updateZ = function(Y,Beta,iSigma,Eta,Lambda, X,Pi,distr, ind){
+updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,distr, ind){
+   ZPrev = Z
    ny = nrow(Y)
    ns = ncol(Y)
    nr = ncol(Pi)
@@ -36,6 +37,31 @@ updateZ = function(Y,Beta,iSigma,Eta,Lambda, X,Pi,distr, ind){
       z = rtruncnorm(length(YProbit), a=lB, b=uB, mean=e, sd=s) # this is often the bottleneck for performance
       ZProbit[indCellProbit] = z
       Z[,indColProbit] = ZProbit
+   }
+
+   indColPoisson = (distr[,1]==3)
+   pN = sum(indColPoisson)
+   if(pN > 0){
+      r = 1000 # acquiring Poisson as limit of negative-binomial
+      ZPoisson = matrix(NA,ny,pN)
+      YPoisson = Y[,indColPoisson]
+      EPoisson = E[,indColPoisson]
+      stdPoisson = std[,indColPoisson]
+      indCellPoisson = !indNA[,indColPoisson]
+      y = YPoisson[indCellPoisson]
+      e = EPoisson[indCellPoisson]
+      s = stdPoisson[indCellPoisson]
+      zPrev = ZPrev[,indColPoisson][indCellPoisson]
+      w = rpg(length(y), r+y, zPrev)
+      prec = s^-2
+      sigmaZ = (prec + w)^-1
+      muZ = sigmaZ*((y-r)/2 + prec*e)
+      z = rnorm(length(y), muZ, sqrt(sigmaZ))
+      if(any(is.na(z) | is.nan(z))){
+         print("Fail in Poisson Z update")
+      }
+      ZPoisson[indCellPoisson] = z
+      Z[,indColPoisson] = ZPoisson
    }
 
    Z[indNA] = rnorm(sum(indNA), E[indNA], std[indNA])

@@ -34,9 +34,15 @@ computeInitialParameters = function(initPar){
       sigma = initPar$sigma
    } else{
       sigma = rep(NA, self$ns)
-      indVarFix = (self$distr[,2] == 0)
-      sigma[indVarFix] = 1
-      sigma[!indVarFix] = rgamma(sum(!indVarFix), shape=self$aSigma[!indVarFix], rate=self$bSigma[!indVarFix])
+      for(j in 1:self$ns){
+         switch (self$distr[,1],
+            1 = action
+         )
+         indVarFix = (self$distr[,2] == 0)
+         sigma[indVarFix] = 1
+         sigma[!indVarFix] = rgamma(sum(!indVarFix), shape=self$aSigma[!indVarFix], rate=self$bSigma[!indVarFix])
+
+      }
    }
 
    nf = rep(NA, self$nr)
@@ -119,7 +125,15 @@ computeInitialParameters = function(initPar){
    } else{
       rho = 1
    }
-   Z = updateZ(Y=self$Y,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=self$X,Pi=self$Pi,distr=self$distr)
+
+   LFix = self$X%*%Beta
+   LRan = vector("list", self$nr)
+   for(r in 1:self$nr){
+      LRan[[r]] = Eta[[r]][self$Pi[,r],]%*%Lambda[[r]]
+   }
+   Z = LFix + Reduce("+", LRan)
+   # Z = matrix(0,self$ny,self$ns)
+   Z = updateZ(Y=self$Y,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=self$X,Pi=self$Pi,distr=self$distr)
 
    parList$Gamma = Gamma
    parList$V = V

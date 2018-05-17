@@ -99,6 +99,16 @@ setData = function(Y=NULL, X=NULL, dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL, Tr=NULL
          distr = matrix(0,self$ns,4)
          distr[,1] = 2
          distr[,2] = 0
+      },
+      "poisson" = {
+         distr = matrix(0,self$ns,4)
+         distr[,1] = 3
+         distr[,2] = 0
+      },
+      "lognormal poisson" = {
+         distr = matrix(0,self$ns,4)
+         distr[,1] = 3
+         distr[,2] = 1
       }
    )
    colnames(distr) = c("family","variance","link","something")
