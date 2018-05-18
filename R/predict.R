@@ -4,7 +4,18 @@
 #' @param initPar initial parameters value
 #'
 
-predict.Hmsc = function(post, X=self$X, dfPiNew=self$dfPi, rL=self$rL, expected=FALSE){
+predict.Hmsc = function(post, XData=NULL, X=NULL, dfPiNew=self$dfPi, rL=self$rL, expected=FALSE){
+   if(!is.null(XData) && !is.null(X)){
+      stop("Hmsc.predict: nly single of XData and X arguments can be specified")
+   }
+   if(!is.null(XData)){
+      xlev = lapply(self$XData, levels)[unlist(lapply(self$XData, is.factor))]
+      X = model.matrix(self$XFormula, XData, xlev=xlev)
+   } else{
+      if(is.null(X))
+         X = self$X
+   }
+
    predN = length(post)
    nr = ncol(dfPiNew)
    predPostEta = vector("list", nr)

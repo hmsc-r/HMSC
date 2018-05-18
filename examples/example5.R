@@ -1,7 +1,7 @@
 # Defining a HMSC with 1 latent factors levels (non-spatial at the level of ovservations),
 # and traits. Defining X data through data.frame and formula.
 rm(list=ls())
-set.seed(3)
+set.seed(1)
 
 # download, install the package from GitHub and load it to the session
 # library(devtools)
@@ -125,7 +125,7 @@ EtaT = Eta
 AlphaT = Alpha
 
 # create the main model and specify data, priors, parameters
-m = Hmsc$new(Y=Y, X=X, dist=distr, dfPi=dfPi, Tr=Tr, rL=rL)
+m = Hmsc$new(Y=Y, XData=XData, XFormula=fo, dist=distr, dfPi=dfPi, Tr=Tr, rL=rL)
 
 start = proc.time()
 m$sampleMcmc(samples, thin=thin, adaptNf=0*rep(2000,nr))
@@ -134,3 +134,7 @@ m$sampleMcmc(samples, thin=thin, adaptNf=0*rep(2000,nr))
 stop = proc.time()
 
 postList = m$postList[[1]]
+
+
+XDataNew = XData[sample(1:10,ny,replace=TRUE),]
+p = m$predict(postList, XData=XDataNew)
