@@ -10,17 +10,71 @@
 #' @examples
 #'
 
-setData = function(Y=NULL, X=NULL, dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL, Tr=NULL, C=NULL, distr="normal", spNames=NULL,
+setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL, Tr=NULL, C=NULL, distr="normal", spNames=NULL,
    trNames=NULL, covNames=NULL, levelNames=NULL){
+
+   if(!is.matrix(Y)){
+      stop("Hmsc.setData: Y argument must be a matrix of sampling units times species")
+   }
    self$Y = as.matrix(Y)
    self$ny = nrow(Y)
    self$ns = ncol(Y)
 
-   if(nrow(X) != self$ny){
-      stop("Hmsc.setData: the number of rows in X should be equal to number of rows in Y")
+   if(!xor(is.null(XData),is.null(X))){
+      stop("Hmsc.setData: only single of XData and X arguments must be specified")
    }
-   self$X = as.matrix(X)
-   self$nc = ncol(X)
+
+   if(!is.null(XData)){
+      if(nrow(XData) != self$ny){
+         stop("Hmsc.setData: the number of rows in XData should be equal to number of rows in Y")
+      }
+      self$XData = XData
+      self$XFormula = XFormula
+      self$X = model.matrix(XFormula, XData)
+      self$nc = ncol(self$X)
+   }
+
+   if(!is.null(X)){
+      if(!is.matrix(X)){
+         stop("Hmsc.setData: X must be a matrix")
+      }
+      if(nrow(X) != self$ny){
+         stop("Hmsc.setData: the number of rows in X should be equal to number of rows in Y")
+      }
+      self$XData = NULL
+      self$X = as.matrix(X)
+      self$nc = ncol(X)
+   }
+
+   if(identical(XScale,FALSE)){
+      self$XScalePar = NULL
+      self$XScaled = self$X
+      self$XScaleFlag = FALSE
+   } else{
+      interceptInd = which(colnames(self$X) %in% c("Intercept","(Intercept)"))
+      if(length(interceptInd)>1){
+         stop("Hmsc.setData: only one column of X matrix could be named intercept")
+         if(!all(self$X[,interceptInd] == 1)){
+            stop("Hmsc.setData: intercept column must be a column of ones")
+         }
+      }
+      XScalePar = matrix(0,2,self$nc)
+      XScalePar[1,interceptInd] = -1
+      XScaled = self$X
+      if(identical(XScale,TRUE)){
+         scaleInd = apply(self$X, 2, function(a) !all(a %in% c(0,1)))
+         self$XScaleFlag = TRUE
+      } else{
+         scaleInd = XScale
+         self$XScaleFlag = NULL
+      }
+      scaleInd[interceptInd] = FALSE
+      sc = scale(self$X)
+      XScalePar[,scaleInd] = rbind(attr(sc,"scaled:center"), attr(sc,"scaled:scale"))[,scaleInd]
+      XScaled[,scaleInd] = sc[,scaleInd]
+      self$XScaled = XScaled
+   }
+
 
    if(is.null(dfPi)){
       self$dfPi = NULL

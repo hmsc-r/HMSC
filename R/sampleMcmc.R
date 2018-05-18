@@ -13,7 +13,7 @@
 #'
 
 sampleMcmc = function(samples, transient=0, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, verbose=samples*thin/100, adaptNf=NULL, nChains=1, dataParList=NULL){
-   X = self$X
+   X = self$XScaled
    Tr = self$Tr
    Y = self$Y
    distr = self$distr

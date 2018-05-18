@@ -20,7 +20,7 @@ Hmsc <- R6::R6Class("Hmsc",
    public = list(
       # data
       Y = NULL,
-      X = NULL,
+      XData=NULL, XFormula=NULL, X=NULL, XScaled=NULL, XScaleFlag=NULL,
       rL = NULL,
       Xs = NULL,
       Xv = NULL,
@@ -47,6 +47,9 @@ Hmsc <- R6::R6Class("Hmsc",
       trNames = NULL,
       levelNames = NULL,
 
+      # scaling
+      XScalePar=NULL,
+
       # priors
       V0=NULL, f0=NULL,
       mGamma=NULL, UGamma=NULL,
@@ -62,11 +65,11 @@ Hmsc <- R6::R6Class("Hmsc",
       # posterior
       postList=NULL, repList=NULL,
 
-      initialize = function(Y=NULL, X=NULL, dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL, Tr=NULL, C=NULL, distr="normal", priors=NULL){
+      initialize = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL, Tr=NULL, C=NULL, distr="normal", priors=NULL){
          # combine Hmsc and set data functions from Matlab
-         self$setData(Y=Y, X=X, dfPi=dfPi, rL=rL, Tr=Tr, C=C, distr=distr)
+         self$setData(Y=Y, XData=XData, X=X, dfPi=dfPi, rL=rL, Tr=Tr, C=C, distr=distr)
       },
-      setData = function(Y=NULL, X=NULL, dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL, Tr=NULL, C=NULL, distr="normal", spNames=NULL,
+      setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL, Tr=NULL, C=NULL, distr="normal", spNames=NULL,
          trNames=NULL, covNames=NULL, ...){},
       setPriors = function(priors=NULL){},
       sampleMcmc = function(){},

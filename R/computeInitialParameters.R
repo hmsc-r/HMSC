@@ -35,13 +35,15 @@ computeInitialParameters = function(initPar){
    } else{
       sigma = rep(NA, self$ns)
       for(j in 1:self$ns){
-         switch (self$distr[,1],
-            1 = action
-         )
-         indVarFix = (self$distr[,2] == 0)
-         sigma[indVarFix] = 1
-         sigma[!indVarFix] = rgamma(sum(!indVarFix), shape=self$aSigma[!indVarFix], rate=self$bSigma[!indVarFix])
-
+         if(self$distr[j,2] == 1){
+            sigma[j] = rgamma(1, shape=self$aSigma[j], rate=self$bSigma[j])
+         } else{
+            switch(self$distr[j,1],
+               sigma[j] <- 1,
+               sigma[j] <- 1,
+               sigma[j] <- 1e-3
+            )
+         }
       }
    }
 
