@@ -1,6 +1,6 @@
 # updating Gamma after marginalizing Beta
 
-updateGamma2 = function(Z,Gamma,iV,iSigma, X,Pi,Tr,C, iQg, mGamma,iUGamma){
+updateGamma2 = function(Z,Gamma,iV,iSigma,Eta,Lambda, X,Pi,Tr,C, iQg, mGamma,iUGamma){
    ns = ncol(Z)
    nc = nrow(iV)
    nt = ncol(Tr)

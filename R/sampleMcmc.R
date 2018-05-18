@@ -73,7 +73,7 @@ sampleMcmc = function(samples, transient=0, thin=1, initPar=NULL, repN=1, saveTo
 
             # if(nr>0){
 
-            Gamma = updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma, X=X,Pi=Pi,Tr=Tr,C=C, iQg=iQg, mGamma=mGamma,iUGamma=iUGamma)
+            Gamma = updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,Tr=Tr,C=C, iQg=iQg, mGamma=mGamma,iUGamma=iUGamma)
             BetaLambdaList = updateBetaLambda(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta,rho=rho, iQg=iQg, X=X,Tr=Tr,Pi=Pi,C=C)
             Beta = BetaLambdaList$Beta
             Lambda = BetaLambdaList$Lambda
