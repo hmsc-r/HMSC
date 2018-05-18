@@ -50,16 +50,21 @@ setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, dfPi=NU
       self$XScalePar = NULL
       self$XScaled = self$X
       self$XScaleFlag = FALSE
+      self$XInterceptInd = NULL
    } else{
-      interceptInd = which(colnames(self$X) %in% c("Intercept","(Intercept)"))
-      if(length(interceptInd)>1){
+      XInterceptInd = which(colnames(self$X) %in% c("Intercept","(Intercept)"))
+      if(length(XInterceptInd)>1){
          stop("Hmsc.setData: only one column of X matrix could be named intercept")
-         if(!all(self$X[,interceptInd] == 1)){
-            stop("Hmsc.setData: intercept column must be a column of ones")
-         }
       }
+      if(!all(self$X[,XInterceptInd] == 1)){
+         stop("Hmsc.setData: intercept column must be a column of ones")
+      }
+      if(length(XInterceptInd)==1){
+         self$XInterceptInd = XInterceptInd
+      } else
+         self$XInterceptInd = NULL
       XScalePar = matrix(0,2,self$nc)
-      XScalePar[1,interceptInd] = -1
+      # XScalePar[1,XInterceptInd] = -1
       XScaled = self$X
       if(identical(XScale,TRUE)){
          scaleInd = apply(self$X, 2, function(a) !all(a %in% c(0,1)))
@@ -68,10 +73,16 @@ setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, dfPi=NU
          scaleInd = XScale
          self$XScaleFlag = NULL
       }
-      scaleInd[interceptInd] = FALSE
+      scaleInd[XInterceptInd] = FALSE
       sc = scale(self$X)
       XScalePar[,scaleInd] = rbind(attr(sc,"scaled:center"), attr(sc,"scaled:scale"))[,scaleInd]
-      XScaled[,scaleInd] = sc[,scaleInd]
+      if(length(XInterceptInd)>0){
+         XScaled[,scaleInd] = sc[,scaleInd]
+      } else{
+         XScalePar[1,scaleInd] = 0
+         XScaled[,scaleInd] = XScaled[,scaleInd] / matrix(XScalePar[2,scaleInd],ny,sum(scaleInd),byrow=T)
+      }
+      self$XScalePar = XScalePar
       self$XScaled = XScaled
    }
 

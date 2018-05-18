@@ -8,7 +8,7 @@ set.seed(1)
 # install_github("gtikhonov/HMSC")
 library(Hmsc)
 
-ny = 201L
+ny = 2001L
 ns = 31L
 nc1 = 2L
 nc2 = 2L
@@ -125,7 +125,7 @@ EtaT = Eta
 AlphaT = Alpha
 
 # create the main model and specify data, priors, parameters
-m = Hmsc$new(Y=Y, XData=XData, XFormula=fo, dist=distr, dfPi=dfPi, Tr=Tr, rL=rL)
+m = Hmsc$new(Y=Y, XData=XData, XFormula=fo, XScale=TRUE, dist=distr, dfPi=dfPi, Tr=Tr, rL=rL)
 
 start = proc.time()
 m$sampleMcmc(samples, thin=thin, adaptNf=0*rep(2000,nr))
@@ -138,3 +138,16 @@ postList = m$postList[[1]]
 
 XDataNew = XData[sample(1:10,ny,replace=TRUE),]
 p = m$predict(postList, XData=XDataNew)
+
+
+postBeta = array(unlist(lapply(postList, function(a) a$Beta)),c(nc,ns,m$samples))
+plot(Beta,apply(postBeta,c(1,2),mean),main="Beta")
+abline(0,1,col="red")
+
+postGamma = array(unlist(lapply(postList, function(a) a$Gamma)),c(nc,nt,m$samples))
+plot(GammaT,apply(postGamma,c(1,2),mean),main="Gamma")
+abline(0,1,col="red")
+
+normalized = function(x){
+   (x-min(x))/(max(x)-min(x))
+}

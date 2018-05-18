@@ -20,7 +20,7 @@ Hmsc <- R6::R6Class("Hmsc",
    public = list(
       # data
       Y = NULL,
-      XData=NULL, XFormula=NULL, X=NULL, XScaled=NULL, XScaleFlag=NULL,
+      XData=NULL, XFormula=NULL, X=NULL, XScaled=NULL, XScaleFlag=NULL, XInterceptInd=NULL,
       rL = NULL,
       Xs = NULL,
       Xv = NULL,
@@ -67,7 +67,7 @@ Hmsc <- R6::R6Class("Hmsc",
 
       initialize = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL, Tr=NULL, C=NULL, distr="normal", priors=NULL){
          # combine Hmsc and set data functions from Matlab
-         self$setData(Y=Y, XData=XData, X=X, dfPi=dfPi, rL=rL, Tr=Tr, C=C, distr=distr)
+         self$setData(Y=Y, XFormula=XFormula, XData=XData, X=X, XScale=XScale, dfPi=dfPi, rL=rL, Tr=Tr, C=C, distr=distr)
       },
       setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL, Tr=NULL, C=NULL, distr="normal", spNames=NULL,
          trNames=NULL, covNames=NULL, ...){},
