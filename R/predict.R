@@ -4,7 +4,7 @@
 #' @param initPar initial parameters value
 #'
 
-predict.Hmsc = function(post, XData=NULL, X=NULL, dfPiNew=self$dfPi, rL=self$rL, expected=FALSE){
+predict.Hmsc = function(post=poolMcmcChains(self$postList), XData=NULL, X=NULL, dfPiNew=self$dfPi, rL=self$rL, expected=FALSE){
    if(!is.null(XData) && !is.null(X)){
       stop("Hmsc.predict: nly single of XData and X arguments can be specified")
    }
@@ -51,6 +51,7 @@ predict.Hmsc = function(post, XData=NULL, X=NULL, dfPiNew=self$dfPi, rL=self$rL,
             }
          }
       }
+      colnames(Z) = self$spNames
       pred[[pN]] = Z
    }
    return(pred)

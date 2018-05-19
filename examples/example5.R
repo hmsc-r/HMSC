@@ -137,7 +137,7 @@ postList = m$postList[[1]]
 
 
 XDataNew = XData[sample(1:10,ny,replace=TRUE),]
-p = m$predict(postList, XData=XDataNew)
+p = m$predict(XData=XDataNew)
 
 
 postBeta = array(unlist(lapply(postList, function(a) a$Beta)),c(nc,ns,m$samples))
@@ -151,3 +151,7 @@ abline(0,1,col="red")
 normalized = function(x){
    (x-min(x))/(max(x)-min(x))
 }
+
+Gradient = m$constructGradient(focalVariable = "x1")
+predY = m$predict(XData = Gradient$XDataNew, dfPiNew = Gradient$dfPiNew, rL = Gradient$rLNew, expected = TRUE)
+m$plotGradient(Gradient, pred = predY, measure = "Y", index = 1)
