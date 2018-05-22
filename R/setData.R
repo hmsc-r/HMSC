@@ -131,7 +131,7 @@ setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, dfPi=NU
    }
 
    if(is.null(covNames)){
-      self$covNames = colnames(X)
+      self$covNames = colnames(self$X)
    } else{
       if(length(covNames))
       self$covNames = covNames
