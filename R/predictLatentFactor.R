@@ -31,21 +31,41 @@ predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predict
          } else{
             alpha = postAlpha[[pN]]
             alphapw = rL$alphapw
-            unitsAll = c(units,unitsPred[indNew])
-            s = rL$s[unitsAll,]
-            distance = as.matrix(dist(s))
-            for(h in 1:nf){
-               if(alphapw[alpha[h],1] > 0){
-                  K = exp(-distance/alphapw[alpha[h],1])
-                  K11 = K[1:np,1:np]
-                  K12 = K[1:np,np+(1:nn)]
-                  K22 = K[np+(1:nn),np+(1:nn)]
-                  m = crossprod(K12, solve(K11, eta[,h]))
-                  W = K22 - crossprod(K12, solve(K11, K12))
-                  L = t(chol(W))
-                  etaPred[indNew,h] = m + L%*%rnorm(nn)
-               } else{
-                  etaPred[indNew,h] = rnorm(nn)
+            if(predictMean){
+               s1 = rL$s[units,]
+               s2 = rL$s[unitsPred[indNew],]
+               D11 = as.matrix(dist(s1))
+               # replace following 3 lines with direct compuation of distances between s1 and s2
+               s = rL$s[unitsAll,]
+               D = as.matrix(dist(s))
+               D12 = K[1:np,np+(1:nn)]
+               for(h in 1:nf){
+                  if(alphapw[alpha[h],1] > 0){
+                     K11 = exp(-D11/alphapw[alpha[h],1])
+                     K12 = exp(-D12/alphapw[alpha[h],1])
+                     m = crossprod(K12, solve(K11, eta[,h]))
+                     etaPred[indNew,h] = m
+                  } else{
+                     etaPred[indNew,h] = 0
+                  }
+               }
+            } else{
+               unitsAll = c(units,unitsPred[indNew])
+               s = rL$s[unitsAll,]
+               D = as.matrix(dist(s))
+               for(h in 1:nf){
+                  if(alphapw[alpha[h],1] > 0){
+                     K = exp(-D/alphapw[alpha[h],1])
+                     K11 = K[1:np,1:np]
+                     K12 = K[1:np,np+(1:nn)]
+                     K22 = K[np+(1:nn),np+(1:nn)]
+                     m = crossprod(K12, solve(K11, eta[,h]))
+                     W = K22 - crossprod(K12, solve(K11, K12))
+                     L = t(chol(W))
+                     etaPred[indNew,h] = m + L%*%rnorm(nn)
+                  } else{
+                     etaPred[indNew,h] = rnorm(nn)
+                  }
                }
             }
          }

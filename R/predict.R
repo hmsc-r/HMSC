@@ -4,7 +4,7 @@
 #' @param initPar initial parameters value
 #'
 
-predict.Hmsc = function(post=poolMcmcChains(self$postList), XData=NULL, X=NULL, dfPiNew=self$dfPi, rL=self$rL, expected=FALSE){
+predict.Hmsc = function(post=poolMcmcChains(self$postList), XData=NULL, X=NULL, dfPiNew=self$dfPi, rL=self$rL, expected=FALSE, predictEtaMean=FALSE){
    if(!is.null(XData) && !is.null(X)){
       stop("Hmsc.predict: nly single of XData and X arguments can be specified")
    }
@@ -22,7 +22,7 @@ predict.Hmsc = function(post=poolMcmcChains(self$postList), XData=NULL, X=NULL, 
       postEta = lapply(post, function(c) c$Eta[[r]])
       postAlpha = lapply(post, function(c) c$Alpha[[r]])
       predPostEta[[r]] = predictLatentFactor(unitsPred=levels(dfPiNew[,r]),units=levels(self$dfPi[,r]),
-         postEta=postEta,postAlpha=postAlpha,rL=rL[[r]],predictMean=FALSE)
+         postEta=postEta,postAlpha=postAlpha,rL=rL[[r]],predictMean=predictEtaMean)
    }
    pred = vector("list",predN)
    for(pN in 1:predN){
@@ -42,11 +42,18 @@ predict.Hmsc = function(post=poolMcmcChains(self$postList), XData=NULL, X=NULL, 
 
 
       for(j in 1:self$ns){
-         if(self$distr[j,"family"] == 2){
+         if(self$distr[j,"family"] == 2){ # probit
             if(expected){
                Z[,j] = pnorm(Z[,j])
             } else{
                Z[,j] = as.numeric(Z[,j]>0)
+            }
+         }
+         if(self$distr[j,"family"] == 3){ # poisson
+            if(expected){
+               Z[,j] = Z[,j]
+            } else{
+               Z[,j] = rpois(nrow(Z),Z[,j])
             }
          }
       }

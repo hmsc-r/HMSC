@@ -8,7 +8,7 @@ set.seed(1)
 # install_github("gtikhonov/HMSC")
 library(Hmsc)
 
-ny = 2001L
+ny = 201L
 ns = 71L
 nc1 = 2L
 nc2 = 2L
@@ -35,7 +35,10 @@ for(i in 1:nc2){
 X = model.matrix(fo,XData)
 nc = ncol(X)
 TrData = as.data.frame(matrix(rnorm(ns*nt0),ns,nt0))
+TrMult = 100
+TrData = TrMult*TrData
 Tr = model.matrix(TrFo,TrData)
+
 nt = ncol(Tr)
 
 
@@ -45,6 +48,7 @@ V = riwish(nc+1,V0)
 mGamma0 = rep(0,nt*nc)
 UGamma0 = diag(1,nt*nc)
 Gamma = matrix(mvrnorm(1,mGamma0,UGamma0),nc,nt)
+Gamma[,-1] = Gamma[,-1]/TrMult
 Mu = tcrossprod(Gamma, Tr)
 Beta = matrix(NA,nc,ns)
 for(j in 1:ns)
@@ -58,7 +62,7 @@ for(r in 1:nr){
 }
 np = apply(dfPi,2,function(a) length(unique(a)))
 
-sDim = c(0,0)
+sDim = c(2,0)
 nf = as.integer(c(2,2))
 
 rL = vector("list", nr)
