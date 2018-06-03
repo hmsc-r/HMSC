@@ -36,9 +36,10 @@ predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predict
                s2 = rL$s[unitsPred[indNew],]
                D11 = as.matrix(dist(s1))
                # replace following 3 lines with direct compuation of distances between s1 and s2
+               unitsAll = c(units,unitsPred[indNew])
                s = rL$s[unitsAll,]
                D = as.matrix(dist(s))
-               D12 = K[1:np,np+(1:nn)]
+               D12 = D[1:np,np+(1:nn)]
                for(h in 1:nf){
                   if(alphapw[alpha[h],1] > 0){
                      K11 = exp(-D11/alphapw[alpha[h],1])
