@@ -12,7 +12,7 @@
 
 setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL,
-   TrFormula=NULL, TrData=NULL, Tr=NULL, TrScale=NULL,
+   TrFormula=NULL, TrData=NULL, Tr=NULL, TrScale=TRUE,
    phyloTree=NULL, C=NULL,
    distr="normal", spNames=NULL,
    trNames=NULL, covNames=NULL, levelNames=NULL){
