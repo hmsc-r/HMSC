@@ -51,9 +51,9 @@ predict.Hmsc = function(post=poolMcmcChains(self$postList), XData=NULL, X=NULL, 
          }
          if(self$distr[j,"family"] == 3){ # poisson
             if(expected){
-               Z[,j] = Z[,j]
+               Z[,j] = exp(Z[,j])
             } else{
-               Z[,j] = rpois(nrow(Z),Z[,j])
+               Z[,j] = rpois(nrow(Z)exp(,Z[,j]))
             }
          }
       }
