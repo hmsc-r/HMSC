@@ -156,7 +156,7 @@ for(r in 1:nr){
 }
 
 dfPiNew = data.frame(sprintf("%s",dfPi[,1]))
-p = m$predict(XData=XDataNew, dfPiNew=dfPiNew, rLNew=rLNew, predictEtaMean=TRUE)
+p = m$predict(XData=XDataNew, dfPiNew=dfPiNew, rL=rLNew, predictEtaMean=TRUE)
 
 
 postBeta = array(unlist(lapply(postList, function(a) a$Beta)),c(nc,ns,m$samples))
