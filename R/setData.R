@@ -10,7 +10,11 @@
 #' @examples
 #'
 
-setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL, Tr=NULL, C=NULL, distr="normal", spNames=NULL,
+setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
+   dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL,
+   TrFormula=NULL, TrData=NULL, Tr=NULL, TrScale=NULL,
+   phyloTree=NULL, C=NULL,
+   distr="normal", spNames=NULL,
    trNames=NULL, covNames=NULL, levelNames=NULL){
 
    if(!is.matrix(Y)){
@@ -19,11 +23,17 @@ setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, dfPi=NU
    self$Y = as.matrix(Y)
    self$ny = nrow(Y)
    self$ns = ncol(Y)
+   if(is.null(spNames)){
+      self$spNames = colnames(Y)
+   } else{
+      self$spNames = spNames
+      colnames(self$Y) = spNames
+   }
 
+   # linear regression covariates
    if(!xor(is.null(XData),is.null(X))){
       stop("Hmsc.setData: only single of XData and X arguments must be specified")
    }
-
    if(!is.null(XData)){
       if(nrow(XData) != self$ny){
          stop("Hmsc.setData: the number of rows in XData should be equal to number of rows in Y")
@@ -31,9 +41,7 @@ setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, dfPi=NU
       self$XData = XData
       self$XFormula = XFormula
       self$X = model.matrix(XFormula, XData)
-      self$nc = ncol(self$X)
    }
-
    if(!is.null(X)){
       if(!is.matrix(X)){
          stop("Hmsc.setData: X must be a matrix")
@@ -43,8 +51,8 @@ setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, dfPi=NU
       }
       self$XData = NULL
       self$X = as.matrix(X)
-      self$nc = ncol(X)
    }
+   self$nc = ncol(self$X)
 
    if(identical(XScale,FALSE)){
       self$XScalePar = NULL
@@ -54,10 +62,10 @@ setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, dfPi=NU
    } else{
       XInterceptInd = which(colnames(self$X) %in% c("Intercept","(Intercept)"))
       if(length(XInterceptInd)>1){
-         stop("Hmsc.setData: only one column of X matrix could be named intercept")
+         stop("Hmsc.setData: only one column of X matrix could be named Intercept or (Intercept)")
       }
       if(!all(self$X[,XInterceptInd] == 1)){
-         stop("Hmsc.setData: intercept column must be a column of ones")
+         stop("Hmsc.setData: intercept column in X matrix must be a column of ones")
       }
       if(length(XInterceptInd)==1){
          self$XInterceptInd = XInterceptInd
@@ -86,7 +94,7 @@ setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, dfPi=NU
       self$XScaled = XScaled
    }
 
-
+   # latent factors bindings
    if(is.null(dfPi)){
       self$dfPi = NULL
       self$Pi = NULL
@@ -106,28 +114,92 @@ setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, dfPi=NU
       self$rL = rL
    }
 
-
-   if(is.null(Tr)){
-      self$Tr = matrix(1,self$ns,1)
-   } else{
-      if(nrow(Tr) != self$ns)
-         stop("Hmsc.setData: the number of rows in Tr should be equal to number of species")
+   # traits
+   if(!is.null(TrData)){
+      if(!is.null(Tr)){
+         stop("Hmsc.setData: at maximum one of TrData and Tr arguments can be specified")
+      }
+      if(is.null(TrFormula)){
+         stop("Hmsc.setData: TrFormula argument must be specified if TrData is provided")
+      }
+   }
+   if(!is.null(TrData)){
+      if(nrow(TrData) != self$ns){
+         stop("Hmsc.setData: the number of rows in TrData should be equal to number of columns in Y")
+      }
+      self$TrData = TrData
+      self$TrFormula = TrFormula
+      self$Tr = model.matrix(TrFormula, TrData)
+   }
+   if(!is.null(Tr)){
+      if(!is.matrix(Tr)){
+         stop("Hmsc.setData: Tr must be a matrix")
+      }
+      if(nrow(Tr) != self$ns){
+         stop("Hmsc.setData: the number of rows in Tr should be equal to number of columns in Y")
+      }
+      self$TrData = NULL
       self$Tr = Tr
+   }
+   if(is.null(self$Tr)){
+      self$Tr = matrix(1,self$ns,1)
    }
    self$nt = ncol(self$Tr)
 
+   if(identical(TrScale,FALSE)){
+      self$TrScalePar = NULL
+      self$TrScaled = self$Tr
+      self$TrScaleFlag = FALSE
+      self$TrInterceptInd = NULL
+   } else{
+      TrInterceptInd = which(colnames(self$Tr) %in% c("Intercept","(Intercept)"))
+      if(length(TrInterceptInd)>1){
+         stop("Hmsc.setData: only one column of Tr matrix could be named Intercept or (Intercept)")
+      }
+      if(!all(self$Tr[,TrInterceptInd]==1)){
+         stop("Hmsc.setData: intercept column in Tr matrix must be a column of ones")
+      }
+      if(length(TrInterceptInd)==1){
+         self$TrInterceptInd = TrInterceptInd
+      } else
+         self$TrInterceptInd = NULL
+      TrScalePar = matrix(0,2,self$nt)
+      TrScaled = self$Tr
+      if(identical(TrScale,TRUE)){
+         scaleInd = apply(self$Tr, 2, function(a) !all(a %in% c(0,1)))
+         self$TrScaleFlag = TRUE
+      } else{
+         scaleInd = TrScale
+         self$TrScaleFlag = NULL
+      }
+      scaleInd[TrInterceptInd] = FALSE
+      sc = scale(self$Tr)
+      TrScalePar[,scaleInd] = rbind(attr(sc,"scaled:center"), attr(sc,"scaled:scale"))[,scaleInd]
+      if(length(TrInterceptInd)>0){
+         TrScaled[,scaleInd] = sc[,scaleInd]
+      } else{
+         TrScalePar[1,scaleInd] = 0
+         TrScaled[,scaleInd] = TrScaled[,scaleInd] / matrix(TrScalePar[2,scaleInd],ns,sum(scaleInd),byrow=T)
+      }
+      self$TrScalePar = TrScalePar
+      self$TrScaled = TrScaled
+   }
+
+
+   # phylogeny
+   if(!is.null(C) && !is.null(phyloTree)){
+      stop("Hmsc.setData: at maximum one of phyloTree and C arguments can be specified")
+   }
+   if(!is.null(phyloTree)){
+      corM = vcv.phylo(phyloTree, model="Brownian", cor=T)
+      corM = corM[self$spNames,self$spNames]
+      self$C = corM
+   }
    if(!is.null(C)){
       if(any(dim(C) != self$ns)){
          stop("Hmsc.setData: the size of square matrix C must be equal to number of species")
       }
       self$C = C
-   }
-
-   if(is.null(spNames)){
-      self$spNames = colnames(Y)
-   } else{
-      self$spNames = spNames
-      colnames(self$Y) = spNames
    }
 
    if(is.null(covNames)){

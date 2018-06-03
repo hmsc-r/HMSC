@@ -25,7 +25,7 @@ computeVariancePartitioning = function(group, groupnames, start=1){
    traitR2 = 0
    cM = cov(m$X)
 
-   postList=poolMcmcChains(m$postList, start = start)
+   postList=poolMcmcChains(m$postList, start=start)
 
    for (i in 1:m$samples){
       fixed1 = matrix(0,nrow=ns,ncol=1);

@@ -1,5 +1,5 @@
 updateLambdaPriors = function(Lambda,Delta, rL){
-   nr = length(Lambda)
+   nr = length(rL)
 
    Psi = vector("list", nr)
    for(r in 1:nr){

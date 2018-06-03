@@ -24,8 +24,8 @@ Hmsc <- R6::R6Class("Hmsc",
       rL = NULL,
       Xs = NULL,
       Xv = NULL,
-      Tr = NULL,
-      C = NULL,
+      TrData=NULL, TrFormula=NULL, Tr=NULL, TrScaled=NULL, TrScaleFlag=NULL, TrInterceptInd=NULL,
+      C=NULL, phyloTree=NULL,
       dfPi = NULL,
       Pi = NULL,
       distr = NULL,
@@ -48,7 +48,7 @@ Hmsc <- R6::R6Class("Hmsc",
       levelNames = NULL,
 
       # scaling
-      XScalePar=NULL,
+      XScalePar=NULL, TrScalePar=NULL,
 
       # priors
       V0=NULL, f0=NULL,
@@ -65,12 +65,23 @@ Hmsc <- R6::R6Class("Hmsc",
       # posterior
       postList=NULL, repList=NULL,
 
-      initialize = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL, Tr=NULL, C=NULL, distr="normal", priors=NULL){
-         # combine Hmsc and set data functions from Matlab
-         self$setData(Y=Y, XFormula=XFormula, XData=XData, X=X, XScale=XScale, dfPi=dfPi, rL=rL, Tr=Tr, C=C, distr=distr)
+      initialize = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
+         dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL,
+         TrFormula=NULL, TrData=NULL, Tr=NULL, TrScale=NULL,
+         phyloTree=NULL, C=NULL,
+         distr="normal", priors=NULL){
+         self$setData(Y=Y, XFormula=XFormula, XData=XData, X=X, XScale=XScale,
+            dfPi=dfPi, rL=rL,
+            TrFormula=TrFormula, TrData=TrData, Tr=Tr,
+            phyloTree=phyloTree, C=C,
+            distr=distr)
       },
-      setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL, Tr=NULL, C=NULL, distr="normal", spNames=NULL,
-         trNames=NULL, covNames=NULL, ...){},
+      setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
+         dfPi=NULL, rL=NULL, Xs=NULL, Xv=NULL,
+         TrFormula=NULL, TrData=NULL, Tr=NULL, TrScale=NULL,
+         phyloTree=NULL, C=NULL,
+         distr="normal", spNames=NULL,
+         trNames=NULL, covNames=NULL, levelNames=NULL){},
       setPriors = function(priors=NULL){},
       sampleMcmc = function(){},
 

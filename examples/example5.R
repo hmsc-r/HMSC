@@ -124,8 +124,9 @@ LambdaT = Lambda
 EtaT = Eta
 AlphaT = Alpha
 
+TrData = as.data.frame(Tr)
 # create the main model and specify data, priors, parameters
-m = Hmsc$new(Y=Y, XData=XData, XFormula=fo, XScale=TRUE, dist=distr, dfPi=dfPi, Tr=Tr, rL=rL)
+m = Hmsc$new(Y=Y, XData=XData, XFormula=fo, XScale=TRUE, dist=distr, dfPi=dfPi, TrFormula=~., TrData=TrData, TrScale=FALSE, rL=rL)
 
 start = proc.time()
 m$sampleMcmc(samples, thin=thin, adaptNf=0*rep(2000,nr))
@@ -155,3 +156,6 @@ normalized = function(x){
 Gradient = m$constructGradient(focalVariable = "x1")
 predY = m$predict(XData = Gradient$XDataNew, dfPiNew = Gradient$dfPiNew, rL = Gradient$rLNew, expected = TRUE)
 m$plotGradient(Gradient, pred = predY, measure = "Y", index = 1)
+
+VP = m$computeVariancePartitioning(c(1,1:(m$nc-1)),sprintf("%d",1:(m$nc-1)))
+m$plotVariancePartitioning(VP,ylim=c(0,10))

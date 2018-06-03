@@ -4,6 +4,7 @@ updateGamma2 = function(Z,Gamma,iV,iSigma,Eta,Lambda, X,Pi,Tr,C, iQg, mGamma,iUG
    ns = ncol(Z)
    nc = nrow(iV)
    nt = ncol(Tr)
+   nr = ncol(Pi)
 
    inv = function(A){
       return(chol2inv(chol(A)))
