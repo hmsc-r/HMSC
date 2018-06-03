@@ -144,7 +144,19 @@ postList = m$postList[[1]]
 
 
 XDataNew = XData[sample(1:10,ny,replace=TRUE),]
-p = m$predict(XData=XDataNew)
+rLNew = vector("list", nr)
+for(r in 1:nr){
+   if(sDim[r]>0){
+      sRLNew = rbind(rL[[r]]$s,rL[[r]]$s+0.1)
+      rownames(sRLNew) = c(rownames(rL[[r]]$s), sprintf('new_%d',1:np[r]))
+      rLNew[[r]] = HmscRandomLevel$new(data=sRLNew, priors="default")
+   } else{
+      rLNew[[r]] = HmscRandomLevel$new(N=np[r])
+   }
+}
+
+dfPiNew = data.frame(sprintf("%s",dfPi[,1]))
+p = m$predict(XData=XDataNew, dfPiNew=dfPiNew, rLNew=rLNew, predictEtaMean=TRUE)
 
 
 postBeta = array(unlist(lapply(postList, function(a) a$Beta)),c(nc,ns,m$samples))
