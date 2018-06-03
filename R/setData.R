@@ -193,6 +193,7 @@ setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    if(!is.null(phyloTree)){
       corM = vcv.phylo(phyloTree, model="Brownian", cor=T)
       corM = corM[self$spNames,self$spNames]
+      self$phyloTree = phyloTree
       self$C = corM
    }
    if(!is.null(C)){
