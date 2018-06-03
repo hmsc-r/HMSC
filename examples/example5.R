@@ -9,10 +9,10 @@ set.seed(1)
 library(Hmsc)
 
 ny = 2001L
-ns = 31L
+ns = 71L
 nc1 = 2L
 nc2 = 2L
-nt = 1L
+nt0 = 1L
 np = c(ny)
 
 distr = "normal"
@@ -21,6 +21,7 @@ samples = 1000
 thin = 1
 
 fo = ~x1+poly(x2,degree=2,raw=TRUE)+c1+c2+x1*c2
+TrFo = ~.
 XData = data.frame(rnorm(ny))
 for(i in 2:nc1)
    XData[,i] = rnorm(ny)
@@ -33,8 +34,10 @@ for(i in 1:nc2){
 
 X = model.matrix(fo,XData)
 nc = ncol(X)
-Tr = matrix(rnorm(ns*nt),ns,nt)
-Tr[,1] = 1
+TrData = as.data.frame(matrix(rnorm(ns*nt0),ns,nt0))
+Tr = model.matrix(TrFo,TrData)
+nt = ncol(Tr)
+
 
 f0 = 1
 V0 = diag(1,nc)
@@ -46,7 +49,7 @@ Mu = tcrossprod(Gamma, Tr)
 Beta = matrix(NA,nc,ns)
 for(j in 1:ns)
    Beta[,j] = mvrnorm(1,Mu[,j],V)
-Beta[1,] = Beta[1,] + 1
+# Beta[1,] = Beta[1,] + 1
 
 nr = length(np)
 dfPi = matrix(NA,ny,nr)
@@ -124,12 +127,11 @@ LambdaT = Lambda
 EtaT = Eta
 AlphaT = Alpha
 
-TrData = as.data.frame(Tr)
 # create the main model and specify data, priors, parameters
-m = Hmsc$new(Y=Y, XData=XData, XFormula=fo, XScale=TRUE, dist=distr, dfPi=dfPi, TrFormula=~., TrData=TrData, TrScale=FALSE, rL=rL)
+m = Hmsc$new(Y=Y, XData=XData, XFormula=fo, XScale=TRUE, dist=distr, dfPi=dfPi, TrFormula=~., TrData=TrData, TrScale=TRUE, rL=rL)
 
 start = proc.time()
-m$sampleMcmc(samples, thin=thin, adaptNf=0*rep(2000,nr))
+m$sampleMcmc(samples, transient=round(samples/5), thin=thin, adaptNf=0*rep(2000,nr), updater=list(Gamma2=FALSE))
 # , initPar=list(Alpha=AlphaT, Eta=EtaT, Lambda=LambdaT,
 # Beta=BetaT, Gamma=GammaT, sigma=sigmaT))
 stop = proc.time()
@@ -154,8 +156,8 @@ normalized = function(x){
 }
 
 Gradient = m$constructGradient(focalVariable = "x1")
-predY = m$predict(XData = Gradient$XDataNew, dfPiNew = Gradient$dfPiNew, rL = Gradient$rLNew, expected = TRUE)
-m$plotGradient(Gradient, pred = predY, measure = "Y", index = 1)
+predY = m$predict(XData=Gradient$XDataNew, dfPiNew=Gradient$dfPiNew, rL=Gradient$rLNew, expected=TRUE)
+m$plotGradient(Gradient, pred=predY, measure="Y", index=1)
 
-VP = m$computeVariancePartitioning(c(1,1:(m$nc-1)),sprintf("%d",1:(m$nc-1)))
-m$plotVariancePartitioning(VP,ylim=c(0,10))
+# VP = m$computeVariancePartitioning(c(1,1:(m$nc-1)),sprintf("%d",1:(m$nc-1)))
+# m$plotVariancePartitioning(VP,ylim=c(0,10))

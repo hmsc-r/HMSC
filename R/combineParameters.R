@@ -1,9 +1,20 @@
 combineParameters = function(Beta,Gamma,iV,rho,iSigma,Eta,Lambda,Alpha,Psi,Delta, rhopw){
 
+   for(p in 1:self$nt){
+      m = self$TrScalePar[1,p]
+      s = self$TrScalePar[2,p]
+      if(m!=0 || s!=1){
+         Gamma[,p] = Gamma[,p]/s
+         if(!is.null(self$TrInterceptInd)){
+            Gamma[,self$TrInterceptInd] = Gamma[,self$TrInterceptInd] - m*Gamma[,p]
+         }
+      }
+   }
+
    for(k in 1:self$nc){
-      if(any(self$XScalePar[,k] != 0)){
-         m = self$XScalePar[1,k]
-         s = self$XScalePar[2,k]
+      m = self$XScalePar[1,k]
+      s = self$XScalePar[2,k]
+      if(m!=0 || s!=1){
          Beta[k,] = Beta[k,]/s
          Gamma[k,] = Gamma[k,]/s
          if(!is.null(self$XInterceptInd)){
@@ -14,6 +25,7 @@ combineParameters = function(Beta,Gamma,iV,rho,iSigma,Eta,Lambda,Alpha,Psi,Delta
          iV[,k] = iV[,k]*s
       }
    }
+
 
 
    V = chol2inv(chol(iV))

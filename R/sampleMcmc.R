@@ -12,7 +12,7 @@
 #' @examples
 #'
 
-sampleMcmc = function(samples, transient=0, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, verbose=samples*thin/100, adaptNf=NULL, nChains=1, dataParList=NULL){
+sampleMcmc = function(samples, transient=0, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, verbose=samples*thin/100, adaptNf=NULL, nChains=1, dataParList=NULL, updater=list()){
    X = self$XScaled
    Tr = self$Tr
    Y = self$Y
@@ -68,35 +68,43 @@ sampleMcmc = function(samples, transient=0, thin=1, initPar=NULL, repN=1, saveTo
       for(repN in 1:repN){
          postList = vector("list", samples)
          for(iter in 1:(transient+samples*thin)){
-            # Beta = updateBeta(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Tr=Tr,Pi=Pi)
-            # Lambda = updateLambda(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Psi=Psi,Delta=Delta, X=X,Pi=Pi,rL=self$rL)
+            if(!identical(updater$Gamma2, FALSE))
+               Gamma = updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,Tr=Tr,C=C, iQg=iQg, mGamma=mGamma,iUGamma=iUGamma)
 
-            # if(nr>0){
+            if(!identical(updater$BetaLambda, FALSE)){
+               BetaLambdaList = updateBetaLambda(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta,rho=rho, iQg=iQg, X=X,Tr=Tr,Pi=Pi,C=C)
+               Beta = BetaLambdaList$Beta
+               Lambda = BetaLambdaList$Lambda
+            }
 
-            Gamma = updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,Tr=Tr,C=C, iQg=iQg, mGamma=mGamma,iUGamma=iUGamma)
-            BetaLambdaList = updateBetaLambda(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta,rho=rho, iQg=iQg, X=X,Tr=Tr,Pi=Pi,C=C)
-            Beta = BetaLambdaList$Beta
-            Lambda = BetaLambdaList$Lambda
+            if(!identical(updater$BetaLambda, FALSE)){
+               GammaVList = updateGammaV(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho, iQg=iQg, Tr=Tr,C=C, mGamma=mGamma,iUGamma=iUGamma,V0=V0,f0=f0)
+               Gamma = GammaVList$Gamma
+               iV = GammaVList$iV
+            }
 
-            # } else{
-            # Beta = updateBeta(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Tr=Tr,Pi=Pi)
-            # }
-
-            GammaVList = updateGammaV(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho, iQg=iQg, Tr=Tr,C=C, mGamma=mGamma,iUGamma=iUGamma,V0=V0,f0=f0)
-            Gamma = GammaVList$Gamma
-            iV = GammaVList$iV
-            if(!is.null(self$C)){
+            if(!is.null(self$C) && !identical(updater$Rho, FALSE)){
                rho = updateRho(Beta=Beta,Gamma=Gamma,iV=iV, RiQg=RiQg,detQg=detQg, Tr=Tr, rhopw=rhopw)
                # print(rho)
             }
-            PsiDeltaList = updateLambdaPriors(Lambda=Lambda,Delta=Delta, rL=self$rL) #nu=nu,a1=a1,b1=b1,a2=a2,b2=b2)
-            Psi = PsiDeltaList$Psi
-            Delta = PsiDeltaList$Delta
 
-            Eta = updateEta(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, X=X,Pi=Pi,rL=self$rL)
-            Alpha = updateAlpha(Eta=Eta, rLPar=rLPar, rL=self$rL)
-            iSigma = updateInvSigma(Z=Z,Beta=Beta,Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi, aSigma=aSigma,bSigma=bSigma)
-            Z = updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,distr=distr)
+            if(!identical(updater$LambdaPriors, FALSE)){
+               PsiDeltaList = updateLambdaPriors(Lambda=Lambda,Delta=Delta, rL=self$rL) #nu=nu,a1=a1,b1=b1,a2=a2,b2=b2)
+               Psi = PsiDeltaList$Psi
+               Delta = PsiDeltaList$Delta
+            }
+
+            if(!identical(updater$Eta, FALSE))
+               Eta = updateEta(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, X=X,Pi=Pi,rL=self$rL)
+
+            if(!identical(updater$Alpha, FALSE))
+               Alpha = updateAlpha(Eta=Eta, rLPar=rLPar, rL=self$rL)
+
+            if(!identical(updater$InvSigma, FALSE))
+               iSigma = updateInvSigma(Z=Z,Beta=Beta,Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi, aSigma=aSigma,bSigma=bSigma)
+
+            if(!identical(updater$Z, FALSE))
+               Z = updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,distr=distr)
 
             for(r in 1:nr){
                if( (is.list(adaptNf) && adaptNf[[r]][1] >= repN && adaptNf[[r]][2] >= iter) || (is.vector(adaptNf) && adaptNf[r] >= iter)){
@@ -111,8 +119,8 @@ sampleMcmc = function(samples, transient=0, thin=1, initPar=NULL, repN=1, saveTo
             }
 
             if((iter>transient) && ((iter-transient) %% thin == 0)){
-               postList[[(iter-transient)/thin]] = private$combineParameters(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,Delta=Delta,
-                  rhopw=rhopw)
+               postList[[(iter-transient)/thin]] = private$combineParameters(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,
+                  Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,Delta=Delta,rhopw=rhopw)
             }
             if((verbose > 0) && (iter%%verbose == 0)){
                if(iter > transient){

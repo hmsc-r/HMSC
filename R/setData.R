@@ -55,9 +55,8 @@ setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    self$nc = ncol(self$X)
 
    if(identical(XScale,FALSE)){
-      self$XScalePar = NULL
+      self$XScalePar = rbind(rep(0,self$nc), rep(1,self$nc))
       self$XScaled = self$X
-      self$XScaleFlag = FALSE
       self$XInterceptInd = NULL
    } else{
       XInterceptInd = which(colnames(self$X) %in% c("Intercept","(Intercept)"))
@@ -71,47 +70,31 @@ setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
          self$XInterceptInd = XInterceptInd
       } else
          self$XInterceptInd = NULL
-      XScalePar = matrix(0,2,self$nc)
-      # XScalePar[1,XInterceptInd] = -1
+      XScalePar = rbind(rep(0,self$nc), rep(1,self$nc))
       XScaled = self$X
       if(identical(XScale,TRUE)){
          scaleInd = apply(self$X, 2, function(a) !all(a %in% c(0,1)))
-         self$XScaleFlag = TRUE
       } else{
          scaleInd = XScale
-         self$XScaleFlag = NULL
       }
       scaleInd[XInterceptInd] = FALSE
-      sc = scale(self$X)
-      XScalePar[,scaleInd] = rbind(attr(sc,"scaled:center"), attr(sc,"scaled:scale"))[,scaleInd]
       if(length(XInterceptInd)>0){
-         XScaled[,scaleInd] = sc[,scaleInd]
+         sc = scale(self$X)
+         XScalePar[,scaleInd] = rbind(attr(sc,"scaled:center"), attr(sc,"scaled:scale"))[,scaleInd]
       } else{
-         XScalePar[1,scaleInd] = 0
-         XScaled[,scaleInd] = XScaled[,scaleInd] / matrix(XScalePar[2,scaleInd],ny,sum(scaleInd),byrow=T)
+         sc = scale(self$X, center=FALSE)
+         XScalePar[2,scaleInd] = attr(sc,"scaled:scale")[scaleInd]
       }
+      XScaled[,scaleInd] = sc[,scaleInd]
       self$XScalePar = XScalePar
       self$XScaled = XScaled
    }
-
-   # latent factors bindings
-   if(is.null(dfPi)){
-      self$dfPi = NULL
-      self$Pi = NULL
-      self$np = NULL
-      self$nr = 0
+   if(is.null(covNames)){
+      self$covNames = colnames(self$X)
    } else{
-      if(nrow(dfPi) != self$ny){
-         stop("Hmsc.setData: the number of rows in Pi should be equal to number of rows in Y")
-      }
-      self$dfPi = dfPi
-      # tmp = as.data.frame(dfPi)
-      self$Pi = matrix(NA,nrow(dfPi),ncol(dfPi)) # This should be fixed to enable arbitrary levels
-      for(r in 1:ncol(dfPi))
-         self$Pi[,r] = as.numeric(dfPi[,r])
-      self$np = apply(self$Pi, 2, function(a) return(length(unique(a))))
-      self$nr = ncol(dfPi)
-      self$rL = rL
+      if(length(covNames))
+         self$covNames = covNames
+      colnames(self$X) = covNames
    }
 
    # traits
@@ -147,9 +130,8 @@ setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    self$nt = ncol(self$Tr)
 
    if(identical(TrScale,FALSE)){
-      self$TrScalePar = NULL
+      self$TrScalePar = rbind(rep(0,self$nt), rep(1,self$nt))
       self$TrScaled = self$Tr
-      self$TrScaleFlag = FALSE
       self$TrInterceptInd = NULL
    } else{
       TrInterceptInd = which(colnames(self$Tr) %in% c("Intercept","(Intercept)"))
@@ -163,28 +145,32 @@ setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
          self$TrInterceptInd = TrInterceptInd
       } else
          self$TrInterceptInd = NULL
-      TrScalePar = matrix(0,2,self$nt)
+      TrScalePar = rbind(rep(0,self$nt), rep(1,self$nt))
       TrScaled = self$Tr
       if(identical(TrScale,TRUE)){
          scaleInd = apply(self$Tr, 2, function(a) !all(a %in% c(0,1)))
-         self$TrScaleFlag = TRUE
       } else{
          scaleInd = TrScale
-         self$TrScaleFlag = NULL
       }
       scaleInd[TrInterceptInd] = FALSE
-      sc = scale(self$Tr)
-      TrScalePar[,scaleInd] = rbind(attr(sc,"scaled:center"), attr(sc,"scaled:scale"))[,scaleInd]
       if(length(TrInterceptInd)>0){
-         TrScaled[,scaleInd] = sc[,scaleInd]
+         sc = scale(self$Tr)
+         TrScalePar[,scaleInd] = rbind(attr(sc,"scaled:center"), attr(sc,"scaled:scale"))[,scaleInd]
       } else{
-         TrScalePar[1,scaleInd] = 0
-         TrScaled[,scaleInd] = TrScaled[,scaleInd] / matrix(TrScalePar[2,scaleInd],ns,sum(scaleInd),byrow=T)
+         sc = scale(self$Tr, center=FALSE)
+         TRScalePar[2,scaleInd] = attr(sc,"scaled:scale")[scaleInd]
       }
+      TrScaled[,scaleInd] = sc[,scaleInd]
       self$TrScalePar = TrScalePar
       self$TrScaled = TrScaled
    }
-
+   if(is.null(trNames)){
+      self$trNames = colnames(self$Tr)
+   } else{
+      if(length(trNames) == nt)
+         self$trNames = trNames
+      colnames(self$Tr) = trNames
+   }
 
    # phylogeny
    if(!is.null(C) && !is.null(phyloTree)){
@@ -203,22 +189,25 @@ setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       self$C = C
    }
 
-   if(is.null(covNames)){
-      self$covNames = colnames(self$X)
+   # latent factors
+   if(is.null(dfPi)){
+      self$dfPi = NULL
+      self$Pi = NULL
+      self$np = NULL
+      self$nr = 0
    } else{
-      if(length(covNames))
-      self$covNames = covNames
-      colnames(self$X) = covNames
+      if(nrow(dfPi) != self$ny){
+         stop("Hmsc.setData: the number of rows in Pi should be equal to number of rows in Y")
+      }
+      self$dfPi = dfPi
+      # tmp = as.data.frame(dfPi)
+      self$Pi = matrix(NA,nrow(dfPi),ncol(dfPi)) # This should be fixed to enable arbitrary levels
+      for(r in 1:ncol(dfPi))
+         self$Pi[,r] = as.numeric(dfPi[,r])
+      self$np = apply(self$Pi, 2, function(a) return(length(unique(a))))
+      self$nr = ncol(dfPi)
+      self$rL = rL
    }
-
-   if(is.null(trNames)){
-      self$trNames = colnames(Tr)
-   } else{
-      if(length(trNames))
-         self$trNames = trNames
-      colnames(self$Tr) = trNames
-   }
-
    if(is.null(levelNames)){
       self$levelNames = colnames(dfPi)
    } else{
@@ -226,6 +215,8 @@ setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       colnames(self$dfPi) = levelNames
       colnames(self$Pi) = levelNames
    }
+
+
 
    switch (distr,
       "normal" = {
