@@ -53,7 +53,7 @@ predict.Hmsc = function(post=poolMcmcChains(self$postList), XData=NULL, X=NULL, 
             if(expected){
                Z[,j] = exp(Z[,j])
             } else{
-               Z[,j] = rpois(nrow(Z)exp(,Z[,j]))
+               Z[,j] = rpois(nrow(Z),exp(,Z[,j]))
             }
          }
       }
