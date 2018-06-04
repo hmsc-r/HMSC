@@ -38,6 +38,9 @@ setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       if(nrow(XData) != self$ny){
          stop("Hmsc.setData: the number of rows in XData should be equal to number of rows in Y")
       }
+      if(any(is.na(XData))){
+         stop("Hmsc.setData: XData parameter must not contain any NA values")
+      }
       self$XData = XData
       self$XFormula = XFormula
       self$X = model.matrix(XFormula, XData)
@@ -48,6 +51,9 @@ setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       }
       if(nrow(X) != self$ny){
          stop("Hmsc.setData: the number of rows in X should be equal to number of rows in Y")
+      }
+      if(any(is.na(X))){
+         stop("Hmsc.setData: X parameter must not contain any NA values")
       }
       self$XData = NULL
       self$X = as.matrix(X)
@@ -110,6 +116,9 @@ setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       if(nrow(TrData) != self$ns){
          stop("Hmsc.setData: the number of rows in TrData should be equal to number of columns in Y")
       }
+      if(any(is.na(TrData))){
+         stop("Hmsc.setData: TrData parameter must not contain any NA values")
+      }
       self$TrData = TrData
       self$TrFormula = TrFormula
       self$Tr = model.matrix(TrFormula, TrData)
@@ -120,6 +129,9 @@ setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       }
       if(nrow(Tr) != self$ns){
          stop("Hmsc.setData: the number of rows in Tr should be equal to number of columns in Y")
+      }
+      if(any(is.na(Tr))){
+         stop("Hmsc.setData: Tr parameter must not contain any NA values")
       }
       self$TrData = NULL
       self$Tr = Tr
