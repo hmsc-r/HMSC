@@ -8,15 +8,55 @@
 #'
 
 
-computePredictedValues = function(nfolds=1, start=1){
+computePredictedValues = function(nfolds=NULL, column=NULL, partition=NULL, start=1){
    m = self
-   if (nfolds==1){
+   if(identical(nfolds,1) || (is.null(nfolds) && is.null(partition))){
+      if(!is.null(column)){
+         stop("HMSC.computePredictedValues: no column can be specified when calculating with single fold")
+      }
+      if(!is.null(partition)){
+         stop("HMSC.computePredictedValues: no partition can be specified when calculating with single fold")
+      }
       postList=poolMcmcChains(m$postList, start = start)
       pred = m$predict(post = postList, expected = TRUE)
       mpred = apply(abind(pred,along=3),c(1,2),mean)}
    else{
+      if(!is.null(nfolds) && !is.null(partition)){
+         stop("HMSC.computePredictedValues: both nfolds and partition parameters cannot be specified similtaniously")
+      }
+      if(!is.null(nfolds)){
+         if(is.null(column)){
+            indResidual = which(apply(m$dfPi, 2, function(a) length(unique(a)) ) == self$ny)
+            if(length(indResidual)==1){
+               column = indResidual
+            } else{
+               if(length(indResidual)==0){
+                  stop("HMSC.computePredictedValues: none of latent factors correspond to residual level, specify column parameter manually")
+               } else{
+                  stop("HMSC.computePredictedValues: multiple latent factors correspond to residual level, specify column parameter manually")
+               }
+            }
+         }
+         np = length(unique(m$dfPi[,column]))
+         if(np < nfolds){
+            stop("HMSC.computePredictedValues: nfolds must be no bigger than numero of units in specified random level")
+         }
+         tmp1 = data.frame(col=unique(m$dfPi[,column]), part=sample(rep(1:nfolds,ceiling(np/nfolds)),np))
+         colnames(tmp1)[1] = colnames(m$dfPi)[column]
+         tmp2 = merge(m$dfPi, tmp1)
+         part = tmp2[,ncol(tmp2)]
+      }
+      if(!is.null(partition)){
+         if(length(partition) != m$ny){
+            stop("HMSC.computePredictedValues: partition parameter must be a vector of length ny")
+         }
+         nfolds = length(unique(partition))
+         if(any(!(partition %in% 1:nfolds))){
+            stop("HMSC.computePredictedValues: partition must be a vector with values in 1:N, each value represented")
+         }
+         part = partition
+      }
       mpred = matrix(NA,m$ny,m$ns)
-      part = sample(rep(1:nfolds,ceiling(m$ny/nfolds)),m$ny,replace=FALSE)
       for (k in 1:nfolds){
          print(sprintf("Cross-validation, fold %d out of %d", k, nfolds))
          train = (part!=k)
