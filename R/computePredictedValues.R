@@ -19,8 +19,9 @@ computePredictedValues = function(nfolds=NULL, column=NULL, partition=NULL, star
       }
       postList=poolMcmcChains(m$postList, start = start)
       pred = m$predict(post = postList, expected = TRUE)
-      mpred = apply(abind(pred,along=3),c(1,2),mean)}
-   else{
+      mpred = apply(abind(pred,along=3),c(1,2),mean)
+      attr(mpred, "partition") = rep(1,m$ny)
+   } else{
       if(!is.null(nfolds) && !is.null(partition)){
          stop("HMSC.computePredictedValues: both nfolds and partition parameters cannot be specified similtaniously")
       }
@@ -80,6 +81,7 @@ computePredictedValues = function(nfolds=NULL, column=NULL, partition=NULL, star
          mpred1 = apply(abind(pred1,along=3),c(1,2),mean)
          mpred[val,] = mpred1
       }
+      attr(mpred, "partition") = part
    }
    colnames(mpred) = m$spNames
    return(mpred)
