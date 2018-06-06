@@ -44,7 +44,7 @@ computePredictedValues = function(nfolds=NULL, column=NULL, partition=NULL, star
          }
          tmp1 = data.frame(col=unique(m$dfPi[,column]), part=sample(rep(1:nfolds,ceiling(np/nfolds)),np))
          colnames(tmp1)[1] = colnames(m$dfPi)[column]
-         tmp2 = merge(m$dfPi, tmp1)
+         tmp2 = merge(m$dfPi, tmp1, all.x=TRUE, sort=FALSE)
          part = tmp2[,ncol(tmp2)]
       }
       if(!is.null(partition)){
