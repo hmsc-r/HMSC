@@ -27,26 +27,28 @@ computeVariancePartitioning = function(group, groupnames, start=1){
 
    postList=poolMcmcChains(m$postList, start=start)
 
+   geta = function(a)
+      return(m$X%*%(t(m$Tr%*%t(a$Gamma))))
+   la=lapply(postList, geta)
+   getf = function(a)
+      return(m$X%*%(a$Beta))
+   lf=lapply(postList, getf)
+
    for (i in 1:m$samples){
       fixed1 = matrix(0,nrow=ns,ncol=1);
       fixedsplit1 = matrix(0,nrow=ns,ncol=ngroups);
       random1 = matrix(0,nrow=ns,ncol=nr);
-
       Beta = postList[[i]]$Beta
-      Gamma = t(postList[[i]]$Gamma)
       Lambdas = postList[[i]]$Lambda
 
-      mu = t(m$Tr%*%Gamma)
-      f = m$X%*%Beta
-      a = m$X%*%mu
-      res1 = 0
-      res2 = 0
-      for (j in 1:ny){
-         res1 = res1 + cov(a[j,],f[j,])^2
-         res2 = res2 + (cov(a[j,],a[j,])*cov(f[j,],f[j,]))
-      }
-      traitR2 = traitR2 + res1/res2
+      f = lf[[i]]
+      a = la[[i]]
 
+      a=a-matrix(rep(rowMeans(a),m$ns),ncol=m$ns)
+      f=f-matrix(rep(rowMeans(f),m$ns),ncol=m$ns)
+      res1 = sum((rowSums((a*f))/(m$ns-1))^2)
+      res2 = sum((rowSums((a*a))/(m$ns-1))*(rowSums((f*f))/(m$ns-1)))
+      traitR2 = traitR2 + res1/res2
       for (j in 1:ns){
          ftotal = t(Beta[,j])%*%cM%*%Beta[,j]
          fixed1[j] = fixed1[j] + ftotal
@@ -70,8 +72,7 @@ computeVariancePartitioning = function(group, groupnames, start=1){
          for (level in seq_len(nr)){
             random[,level] = random[,level] + random1[,level]/tot
          }
-      } else
-      {
+      } else{
          fixed = fixed + matrix(1,nrow=ns,ncol=1)
       }
       for (k in 1:ngroups){
@@ -86,11 +87,11 @@ computeVariancePartitioning = function(group, groupnames, start=1){
 
    vals = matrix(0,nrow=ngroups+nr,ncol=ns)
    for (i in 1:ngroups){
-     vals[i,] = fixed*fixedsplit[,i]
+      vals[i,] = fixed*fixedsplit[,i]
 
    }
    for (i in seq_len(nr)){
-     vals[ngroups+i,] = random[,i]
+      vals[ngroups+i,] = random[,i]
    }
 
    VP = list()
