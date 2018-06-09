@@ -18,7 +18,7 @@ predict.Hmsc = function(post=poolMcmcChains(self$postList), XData=NULL, X=NULL, 
 
    predN = length(post)
    predPostEta = vector("list", self$nr)
-   for(r in 1:self$nr){
+   for(r in seq_len(self$nr)){
       postEta = lapply(post, function(c) c$Eta[[r]])
       postAlpha = lapply(post, function(c) c$Alpha[[r]])
       predPostEta[[r]] = predictLatentFactor(unitsPred=levels(dfPiNew[,r]),units=levels(self$dfPi[,r]),
@@ -29,7 +29,7 @@ predict.Hmsc = function(post=poolMcmcChains(self$postList), XData=NULL, X=NULL, 
       sam = post[[pN]]
       LFix = X %*% sam$Beta
       LRan = matrix(0,nrow(LFix),ncol(LFix))
-      for(r in 1:self$nr){
+      for(r in seq_len(self$nr)){
          LRan = LRan + predPostEta[[r]][[pN]][dfPiNew[,r],] %*% sam$Lambda[[r]]
       }
       rownames(LRan) = c()

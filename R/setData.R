@@ -204,8 +204,8 @@ setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    # latent factors
    if(is.null(dfPi)){
       self$dfPi = NULL
-      self$Pi = NULL
-      self$np = NULL
+      self$Pi = matrix(NA,self$ny,0)
+      self$np = integer(0)
       self$nr = 0
    } else{
       if(nrow(dfPi) != self$ny){

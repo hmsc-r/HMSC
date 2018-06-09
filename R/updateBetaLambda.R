@@ -8,28 +8,31 @@ updateBetaLambda = function(Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQg, X,Tr,Pi,C)
    LFix = 0
    S = Z - LFix
 
-   if(!is.null(nr)){
+   Lambda = vector("list", nr)
+   if(nr > 0){
       EtaFull = vector("list", nr)
-      Lambda = vector("list", nr)
       nf = rep(NA,nr)
       for(r in seq_len(nr)){
          EtaFull[[r]] = Eta[[r]][Pi[,r],]
          nf[r] = ncol(Eta[[r]])
       }
       nfSum = sum(nf)
-   } else
-      nfSum = 0
+      EtaSt = matrix(unlist(EtaFull),ny,nfSum)
+      XEta = cbind(X,EtaSt)
 
-   EtaSt = matrix(unlist(EtaFull),ny,nfSum)
-   XEta = cbind(X,EtaSt)
+      psiSt = matrix(unlist(lapply(Psi, t)),nfSum,ns,byrow=TRUE)
+      Tau = lapply(Delta, function(a) apply(a,2,cumprod))
+      tauSt = matrix(unlist(Tau),nfSum,1)
+      priorLambda = psiSt*matrix(tauSt,nfSum,ns)
+   } else{
+      nfSum = 0
+      XEta = X
+      priorLambda = matrix(numeric(0),0,ns)
+   }
    Q = crossprod(XEta)
 
    Mu = rbind(tcrossprod(Gamma,Tr), matrix(0,nfSum,ns))
    isXTS = crossprod(XEta,S) * matrix(iSigma,nc+nfSum,ns,byrow=TRUE)
-   psiSt = matrix(unlist(lapply(Psi, t)),nfSum,ns,byrow=TRUE)
-   Tau = lapply(Delta, function(a) apply(a,2,cumprod))
-   tauSt = matrix(unlist(Tau),nfSum,1)
-   priorLambda = psiSt*matrix(tauSt,nfSum,ns)
 
    if(is.null(C)){
       # no phylogeny information
@@ -56,7 +59,7 @@ updateBetaLambda = function(Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQg, X,Tr,Pi,C)
    }
    Beta = BetaLambda[1:nc,,drop=F]
    for(r in seq_len(nr)){
-      Lambda[[r]] = BetaLambda[nc+sum(nf[seq_len(r-1)])+(1:nf[r]),]
+      Lambda[[r]] = BetaLambda[nc+sum(nf[seq_len(r-1)])+(1:nf[r]),,drop=FALSE]
    }
    return(list(Beta=Beta, Lambda=Lambda))
 }

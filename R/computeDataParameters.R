@@ -35,7 +35,7 @@ computeDataParameters = function(){
    }
 
    rLPar = vector("list", self$nr)
-   for(r in 1:self$nr){
+   for(r in seq_len(self$nr)){
       if(self$rL[[r]]$sDim > 0){
          alphapw = self$rL[[r]]$alphapw
          np = self$np[r]

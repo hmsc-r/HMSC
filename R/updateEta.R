@@ -6,12 +6,12 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,rL){
 
    LFix = X%*%Beta
    LRan = vector("list", nr)
-   for(r in 1:nr){
+   for(r in seq_len(nr)){
       LRan[[r]] = Eta[[r]][Pi[,r],]%*%Lambda[[r]]
    }
 
    Eta = vector("list", nr)
-   for(r in 1:nr){
+   for(r in seq_len(nr)){
       if(nr > 1){
          S = Z - (LFix + Reduce("+", LRan[setdiff(1:nr, r)]))
       } else{

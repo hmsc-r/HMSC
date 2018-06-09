@@ -5,10 +5,13 @@ updateInvSigma = function(Z,Beta,Eta,Lambda, distr,X,Pi, aSigma,bSigma){
 
    LFix = X%*%Beta
    LRan = vector("list", nr)
-   for(r in 1:nr){
+   for(r in seq_len(nr)){
       LRan[[r]] = Eta[[r]][Pi[,r],]%*%Lambda[[r]]
    }
-   Eps = Z - (LFix + Reduce("+", LRan))
+   if(nr > 0){
+      Eps = Z - (LFix + Reduce("+", LRan))
+   } else
+      Eps = Z - LFix
 
    shape = aSigma + ny/2
    rate = bSigma + apply(Eps^2, 2, sum)/2

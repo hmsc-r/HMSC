@@ -127,7 +127,7 @@ convertToCodaObject = function(start=1, spNamesNumbers=c(TRUE,TRUE), covNamesNum
       postPsi1 = vector("list", nr)
       postDelta1 = vector("list", nr)
 
-      for(r in 1:nr){
+      for(r in seq_len(nr)){
          postNf = unlist(lapply(lapply(postList, getEta, r=r), ncol))
          if(length(unique(postNf))!=1)
             stop("HMSC: number of latent factors was changing in selected sequence of samples")
@@ -193,7 +193,7 @@ convertToCodaObject = function(start=1, spNamesNumbers=c(TRUE,TRUE), covNamesNum
       mpost$Rho = mcmc.list(postRho)
    }
 
-   for(r in 1:nr){
+   for(r in seq_len(nr)){
       postEta2 = vector("list", nChains)
       postLambda2 = vector("list", nChains)
       postOmega2 = vector("list", nChains)

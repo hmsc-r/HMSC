@@ -2,7 +2,7 @@ updateLambdaPriors = function(Lambda,Delta, rL){
    nr = length(rL)
 
    Psi = vector("list", nr)
-   for(r in 1:nr){
+   for(r in seq_len(nr)){
       nu = rL[[r]]$nu
       a1 = rL[[r]]$a1
       b1 = rL[[r]]$b1

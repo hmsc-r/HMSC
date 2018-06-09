@@ -130,11 +130,14 @@ computeInitialParameters = function(initPar){
 
    LFix = self$X%*%Beta
    LRan = vector("list", self$nr)
-   for(r in 1:self$nr){
+   for(r in seq_len(self$nr)){
       LRan[[r]] = Eta[[r]][self$Pi[,r],]%*%Lambda[[r]]
    }
-   Z = LFix + Reduce("+", LRan)
-   # Z = matrix(0,self$ny,self$ns)
+   if(self$nr > 0){
+      Z = LFix + Reduce("+", LRan)
+   } else
+      Z = LFix
+
    Z = updateZ(Y=self$Y,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=self$X,Pi=self$Pi,distr=self$distr)
 
    parList$Gamma = Gamma

@@ -57,7 +57,7 @@ computeVariancePartitioning = function(group, groupnames, start=1){
          }
       }
 
-      for (level in 1:nr){
+      for (level in seq_len(nr)){
          Lambda = Lambdas[[level]]
          nf = dim(Lambda)[[1]]
          for (factor in 1:nf){
@@ -67,7 +67,7 @@ computeVariancePartitioning = function(group, groupnames, start=1){
       if (nr>0){
          tot = fixed1+rowSums(random1)
          fixed = fixed + fixed1/tot
-         for (level in 1:nr){
+         for (level in seq_len(nr)){
             random[,level] = random[,level] + random1[,level]/tot
          }
       } else
@@ -89,7 +89,7 @@ computeVariancePartitioning = function(group, groupnames, start=1){
      vals[i,] = fixed*fixedsplit[,i]
 
    }
-   for (i in 1:nr){
+   for (i in seq_len(nr)){
      vals[ngroups+i,] = random[,i]
    }
 

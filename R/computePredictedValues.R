@@ -26,26 +26,31 @@ computePredictedValues = function(nfolds=NULL, column=NULL, partition=NULL, star
          stop("HMSC.computePredictedValues: both nfolds and partition parameters cannot be specified similtaniously")
       }
       if(!is.null(nfolds)){
-         if(is.null(column)){
-            indResidual = which(apply(m$dfPi, 2, function(a) length(unique(a)) ) == self$ny)
-            if(length(indResidual)==1){
-               column = indResidual
-            } else{
-               if(length(indResidual)==0){
-                  stop("HMSC.computePredictedValues: none of latent factors correspond to residual level, specify column parameter manually")
+         if(m$nr > 0){
+            if(is.null(column)){
+               indResidual = which(apply(m$dfPi, 2, function(a) length(unique(a)) ) == self$ny)
+               if(length(indResidual)==1){
+                  column = indResidual
                } else{
-                  stop("HMSC.computePredictedValues: multiple latent factors correspond to residual level, specify column parameter manually")
+                  if(length(indResidual)==0){
+                     stop("HMSC.computePredictedValues: none of latent factors correspond to residual level, specify column parameter manually")
+                  } else{
+                     stop("HMSC.computePredictedValues: multiple latent factors correspond to residual level, specify column parameter manually")
+                  }
                }
             }
+            np = length(unique(m$dfPi[,column]))
+            if(np < nfolds){
+               stop("HMSC.computePredictedValues: nfolds must be no bigger than numero of units in specified random level")
+            }
+            tmp1 = data.frame(col=unique(m$dfPi[,column]), part=sample(rep(1:nfolds,ceiling(np/nfolds)),np))
+            colnames(tmp1)[1] = colnames(m$dfPi)[column]
+            tmp2 = merge(m$dfPi, tmp1, all.x=TRUE, sort=FALSE)
+            part = tmp2[,ncol(tmp2)]
          }
-         np = length(unique(m$dfPi[,column]))
-         if(np < nfolds){
-            stop("HMSC.computePredictedValues: nfolds must be no bigger than numero of units in specified random level")
+         else{
+            part=sample(rep(1:nfolds,ceiling(m$ny/nfolds)),m$ny)
          }
-         tmp1 = data.frame(col=unique(m$dfPi[,column]), part=sample(rep(1:nfolds,ceiling(np/nfolds)),np))
-         colnames(tmp1)[1] = colnames(m$dfPi)[column]
-         tmp2 = merge(m$dfPi, tmp1, all.x=TRUE, sort=FALSE)
-         part = tmp2[,ncol(tmp2)]
       }
       if(!is.null(partition)){
          if(length(partition) != m$ny){
@@ -63,7 +68,7 @@ computePredictedValues = function(nfolds=NULL, column=NULL, partition=NULL, star
          train = (part!=k)
          val = (part==k)
          dfPi = as.data.frame(matrix(NA,sum(train),m$nr))
-         for (r in 1:m$nr){
+         for(r in seq_len(m$nr)){
             dfPi[,r] = factor(m$dfPi[train,r])
          }
          m1 = Hmsc$new(Y=as.matrix(m$Y[train,]), X=as.matrix(m$X[train,]), Xs=as.matrix(m$Xs[train,]), Xv=as.matrix(m$Xv[train,]), dist="probit", dfPi=dfPi, Tr=m$Tr, C=m$C, rL=m$rL)
@@ -74,7 +79,7 @@ computePredictedValues = function(nfolds=NULL, column=NULL, partition=NULL, star
          postList = m1$postList[[1]]
          postList = postList[start:length(postList)]
          dfPi = as.data.frame(matrix(NA,sum(val),m$nr))
-         for (r in 1:m$nr){
+         for (r in seq_len(m$nr)){
             dfPi[,r] = factor(m$dfPi[val,r])
          }
          pred1 = m1$predict(post = postList, X=as.matrix(m$X[val,]), dfPiNew = dfPi, rL = m$rL, expected = TRUE)

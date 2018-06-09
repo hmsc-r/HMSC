@@ -2,7 +2,7 @@ updateAlpha = function(Eta ,rL, rLPar){
    nr = length(Eta)
 
    Alpha = vector("list", nr)
-   for(r in 1:nr){
+   for(r in seq_len(nr)){
       eta = Eta[[r]]
       np = nrow(eta)
       nf = ncol(eta)

@@ -15,10 +15,13 @@ updateGamma2 = function(Z,Gamma,iV,iSigma,Eta,Lambda, X,Pi,Tr,C, iQg, mGamma,iUG
 
    LFix = 0
    LRan = vector("list", nr)
-   for(r in 1:nr){
+   for(r in seq_len(nr)){
       LRan[[r]] = Eta[[r]][Pi[,r],]%*%Lambda[[r]]
    }
-   S = Z - (LFix + Reduce("+", LRan))
+   if(nr > 0){
+      S = Z - (LFix + Reduce("+", LRan))
+   } else
+      S = Z
 
    if(is.null(C)){
       if(all(iSigma==1)){
@@ -42,7 +45,7 @@ updateGamma2 = function(Z,Gamma,iV,iSigma,Eta,Lambda, X,Pi,Tr,C, iQg, mGamma,iUG
          Gamma = matrix(Gamma,nc,nt)
       }
    } else{
-
+      # to be implemented later
    }
    return(Gamma)
 }

@@ -107,13 +107,13 @@ constructGradient = function(focalVariable, non.focalVariables=list(), ngrid=20)
 
 
   dfPiNew = matrix(NA,ngrid,self$nr)
-  for (r in 1:self$nr){
+  for (r in seq_len(self$nr)){
     dfPiNew[,r] = sprintf('new_unit',1:(ngrid))
   }
   dfPiNew = as.data.frame(dfPiNew)
 
   rLNew = vector("list", self$nr)
-  for (r in 1:self$nr){
+  for (r in seq_len(self$nr)){
     tmp = self$rL[[r]]
     rL1=tmp$clone()
     units = rL1$pi

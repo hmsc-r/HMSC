@@ -12,7 +12,7 @@ computeAssociations = function(start=1){
    postList=poolMcmcChains(m$postList, start = start)
    getOmegaCor = function(a,r=r)
       return(cov2cor(crossprod(a$Lambda[[r]])))
-   for (r in 1:m$nr){
+   for (r in seq_len(m$nr)){
       OmegaCor1 = lapply(postList, getOmegaCor, r=r)
       mOmegaCor1 = apply(abind(OmegaCor1,along=3),c(1,2),mean)
       OmegaCor2 = lapply(OmegaCor1, function(a) return(a>0))

@@ -7,10 +7,13 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,distr, ind){
 
    LFix = X%*%Beta
    LRan = vector("list", nr)
-   for(r in 1:nr){
+   for(r in seq_len(nr)){
       LRan[[r]] = Eta[[r]][Pi[,r],]%*%Lambda[[r]]
    }
-   E = LFix + Reduce("+", LRan)
+   if(nr > 0){
+      E = LFix + Reduce("+", LRan)
+   } else
+      E = LFix
 
    Z = matrix(NA,ny,ns)
    indNA = is.na(Y)

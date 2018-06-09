@@ -33,14 +33,14 @@ computeMarginalEffects = function(ngrid=20, prob=c(0.025,0.5,0.975), clist=1:sel
       }
 
       dfPi = matrix(NA, ngrid, m$nr)
-      for(r in 1:m$nr){
+      for(r in seq_len(m$nr)){
          dfPi[,r] = sprintf('new_unit', 1:(ngrid))
       }
       dfPi = as.data.frame(dfPi)
       postList = poolMcmcChains(m$postList)
 
       rL = vector("list", m$nr)
-      for (r in 1:m$nr){
+      for (r in seq_len(m$nr)){
          tmp = m$rL[[r]]
          rL1 = tmp$clone()
          units = rL1$pi
