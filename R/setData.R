@@ -170,7 +170,7 @@ setData = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
          TrScalePar[,scaleInd] = rbind(attr(sc,"scaled:center"), attr(sc,"scaled:scale"))[,scaleInd]
       } else{
          sc = scale(self$Tr, center=FALSE)
-         TRScalePar[2,scaleInd] = attr(sc,"scaled:scale")[scaleInd]
+         TrScalePar[2,scaleInd] = attr(sc,"scaled:scale")[scaleInd]
       }
       TrScaled[,scaleInd] = sc[,scaleInd]
       self$TrScalePar = TrScalePar
