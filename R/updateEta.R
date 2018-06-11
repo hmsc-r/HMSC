@@ -59,9 +59,9 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,rL){
             feta = backsolve(R, tmp2);
             eta = matrix(feta,np[r],nf);
          } else{
-            Pi = diag(np[r])[lPi,]
-            tmp1 = kronecker(LamInvSigLam, Diagonal(x=apply(Pi,2,sum)))
-            fS = tcrossprod(crossprod(Pi,S), lambda*matrix(iSigma,nf,ns,byrow=TRUE))
+            Pr = diag(np[r])[lPi,]
+            tmp1 = kronecker(LamInvSigLam, Diagonal(x=apply(Pr,2,sum)))
+            fS = tcrossprod(crossprod(Pr,S), lambda*matrix(iSigma,nf,ns,byrow=TRUE))
             iUEta = iWs + tmp1
             R = chol(iUEta)
             L = t(R)
