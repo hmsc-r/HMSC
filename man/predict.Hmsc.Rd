@@ -4,8 +4,9 @@
 \alias{predict.Hmsc}
 \title{predict.Hmsc}
 \usage{
-\method{predict}{Hmsc}(post, X = self$X, dfPiNew = self$dfPi,
-  rL = self$rL, expected = FALSE)
+\method{predict}{Hmsc}(post = poolMcmcChains(self$postList), XData = NULL,
+  X = NULL, dfPiNew = self$dfPi, rL = self$rL, expected = FALSE,
+  predictEtaMean = FALSE)
 }
 \arguments{
 \item{initPar}{initial parameters value}

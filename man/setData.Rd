@@ -4,8 +4,10 @@
 \alias{setData}
 \title{setData}
 \usage{
-setData(Y = NULL, X = NULL, dfPi = NULL, rL = NULL, Xs = NULL,
-  Xv = NULL, Tr = NULL, C = NULL, distr = "normal", spNames = NULL,
+setData(Y = NULL, XFormula = ~., XData = NULL, X = NULL,
+  XScale = TRUE, dfPi = NULL, rL = NULL, Xs = NULL, Xv = NULL,
+  TrFormula = NULL, TrData = NULL, Tr = NULL, TrScale = TRUE,
+  phyloTree = NULL, C = NULL, distr = "normal", spNames = NULL,
   trNames = NULL, covNames = NULL, levelNames = NULL)
 }
 \arguments{

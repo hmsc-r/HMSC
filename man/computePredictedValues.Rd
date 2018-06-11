@@ -4,7 +4,8 @@
 \alias{computePredictedValues}
 \title{Hmsc$computePredictedValues}
 \usage{
-computePredictedValues(nfolds = 1, start = 1)
+computePredictedValues(nfolds = NULL, column = NULL, partition = NULL,
+  start = 1)
 }
 \arguments{
 \item{start}{}

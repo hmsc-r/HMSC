@@ -4,7 +4,7 @@
 \alias{plotVariancePartitioning}
 \title{Hmsc$plotVariancePartitioning}
 \usage{
-plotVariancePartitioning(VP)
+plotVariancePartitioning(VP, ...)
 }
 \arguments{
 \item{VP}{}
