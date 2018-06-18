@@ -14,7 +14,7 @@
 
 sampleMcmc = function(samples, transient=0, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, verbose=samples*thin/100, adaptNf=NULL, nChains=1, dataParList=NULL, updater=list()){
    X = self$XScaled
-   Tr = self$Tr
+   Tr = self$TrScaled
    Y = self$Y
    distr = self$distr
    Pi = self$Pi
