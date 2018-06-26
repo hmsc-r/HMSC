@@ -22,6 +22,9 @@ getPostEstimate = function(parName, r=1, q=c(), chainIndex=1:length(self$postLis
    if(parName %in% c("Eta", "Lambda", "Psi", "Delta")){
       valList = lapply(postList, function(a) a[[parName]][[r]])
    }
+   if(parName %in% c("Alpha")){
+      valList = lapply(postList, function(a) m$rL[[r]]$alphapw[a[[parName]][[r]],1])
+   }
    if(parName %in% c("Omega", "OmegaCor")){
       valList = lapply(postList, function(a) crossprod(a[["Lambda"]][[r]]))
       if(parName %in% c("OmegaCor")){

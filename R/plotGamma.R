@@ -82,3 +82,6 @@ plotGamma=function(post, param = "Gamma", trOrder="Original", trVector= NULL, co
              zlim = c(-max(abs(range(X))),max(abs(range(X)))))
   par(old.par)
 }
+
+Hmsc$set("public", "plotGamma", plotGamma, overwrite=TRUE)
+

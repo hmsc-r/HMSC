@@ -111,3 +111,5 @@ plotBeta=function(post, param = "Support", plotTree = F, SpeciesOrder = "Origina
       lab.breaks=NULL, zlim = c(-max(abs(range(X))),max(abs(range(X)))))
    par(old.par)
 }
+
+Hmsc$set("public", "plotBeta", plotBeta, overwrite=TRUE)

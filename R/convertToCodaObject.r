@@ -149,7 +149,8 @@ convertToCodaObject = function(start=1, spNamesNumbers=c(TRUE,TRUE), covNamesNum
             postOmega1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
          }
          if (Alpha)      {
-            tmp = do.call(rbind, lapply(postList, getAlpha, r=r))
+            tmpInd = do.call(rbind, lapply(postList, getAlpha, r=r))
+            tmp = m$rL[[r]]$alphapw[tmpInd,1]
             colnames(tmp) = sprintf("Alpha%d[factor%s]",r,as.character(1:nf) )
             postAlpha1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
          }
