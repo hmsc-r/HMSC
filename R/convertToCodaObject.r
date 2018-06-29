@@ -150,7 +150,7 @@ convertToCodaObject = function(start=1, spNamesNumbers=c(TRUE,TRUE), covNamesNum
          }
          if (Alpha)      {
             tmpInd = do.call(rbind, lapply(postList, getAlpha, r=r))
-            tmp = m$rL[[r]]$alphapw[tmpInd,1]
+            tmp = matrix(m$rL[[r]]$alphapw[as.vector(tmpInd),1], nrow(tmpInd), ncol(tmpInd))
             colnames(tmp) = sprintf("Alpha%d[factor%s]",r,as.character(1:nf) )
             postAlpha1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
          }
