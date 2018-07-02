@@ -41,7 +41,7 @@ computeInitialParameters = function(initPar){
             switch(self$distr[j,1],
                sigma[j] <- 1,
                sigma[j] <- 1,
-               sigma[j] <- 1e-3
+               sigma[j] <- 1e-2
             )
          }
       }

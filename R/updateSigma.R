@@ -1,4 +1,4 @@
-updateInvSigma = function(Z,Beta,Eta,Lambda, distr,X,Pi, aSigma,bSigma){
+updateInvSigma = function(Z,Beta,iSigma,Eta,Lambda, distr,X,Pi, aSigma,bSigma){
    ny = nrow(Z)
    ns = ncol(Z)
    nr = ncol(Pi)
@@ -16,7 +16,6 @@ updateInvSigma = function(Z,Beta,Eta,Lambda, distr,X,Pi, aSigma,bSigma){
    shape = aSigma + ny/2
    rate = bSigma + apply(Eps^2, 2, sum)/2
 
-   iSigma = rep(1,ns)
    indVarSigma = (distr[,2]==1)
    iSigma[indVarSigma] = rgamma(sum(indVarSigma), shape[indVarSigma], rate[indVarSigma])
 

@@ -45,7 +45,7 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,distr, ind){
    indColPoisson = (distr[,1]==3)
    pN = sum(indColPoisson)
    if(pN > 0){
-      r = 1000 # acquiring Poisson as limit of negative-binomial
+      r = 1e3# acquiring Poisson as limit of negative-binomial
       ZPoisson = matrix(NA,ny,pN)
       YPoisson = Y[,indColPoisson]
       EPoisson = E[,indColPoisson]
@@ -55,10 +55,10 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,distr, ind){
       e = EPoisson[indCellPoisson]
       s = stdPoisson[indCellPoisson]
       zPrev = ZPrev[,indColPoisson][indCellPoisson]
-      w = rpg(length(y), r+y, zPrev)
+      w = rpg(num=length(y), h=y+r, z=zPrev-1*log(r))
       prec = s^-2
       sigmaZ = (prec + w)^-1
-      muZ = sigmaZ*((y-r)/2 + prec*e)
+      muZ = sigmaZ*((y-r)/(2) + prec*(e-log(r))) + 1*log(r)
       z = rnorm(length(y), muZ, sqrt(sigmaZ))
       if(any(is.na(z) | is.nan(z))){
          print("Fail in Poisson Z update")

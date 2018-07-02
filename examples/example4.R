@@ -8,19 +8,19 @@ set.seed(3)
 # install_github("gtikhonov/HMSC")
 library(Hmsc)
 
-ny = 201L
+ny = 2001L
 ns = 31L
-nc = 2L
+nc = 4L
 nt = 1L
 np = c(ny, round(ny/10))
-# np = np[1]
+np = np[1]
 
 # distr = "probit"
 distr = "poisson"
 
 
 samples = 1000
-thin = 1
+thin = 10
 
 X = matrix(rnorm(ny*nc),ny,nc)
 X[,1] = 1
@@ -37,7 +37,8 @@ Mu = tcrossprod(Gamma, Tr)
 Beta = matrix(NA,nc,ns)
 for(j in 1:ns)
    Beta[,j] = mvrnorm(1,Mu[,j],V)
-Beta[1,] = Beta[1,] + 1
+# Beta = Beta / 40
+Beta[1,] = Beta[1,]
 
 nr = length(np)
 dfPi = matrix(NA,ny,nr)
@@ -93,7 +94,7 @@ LRanSum = Reduce("+", LRan)
 
 switch (distr,
    probit = {d = rep(1,ns)},
-   poisson = {d = rep(0.01,ns)},
+   poisson = {d = rep(1e-20,ns)},
    normal = {d = rgamma(ns,2,1)}
 )
 LFix = X%*%Beta
@@ -101,10 +102,13 @@ Z = LFix + LRanSum + matrix(rnorm(ny*ns),ny,ns)*matrix(rep(sqrt(d),each=ny),ny,n
 
 switch (distr,
    probit = {Y = 1*(Z>0)},
-   poisson = {Y = matrix(rpois(ny*ns,exp(Z)), ny, ns)},
+   poisson = {
+      r = 1e3
+      Y = matrix(rnbinom(ny*ns, r, 1-exp(Z)/(exp(Z)+r)), ny, ns)
+   },
    normal = {Y = Z}
 )
-
+# aaa
 # Y[sample.int(length(Y),round(length(Y)/5))] = NA
 
 BetaT = Beta
@@ -119,7 +123,7 @@ AlphaT = Alpha
 m = Hmsc$new(Y=Y, X=X, dist=distr, dfPi=dfPi, Tr=Tr, rL=rL)
 
 start = proc.time()
-m$sampleMcmc(samples, thin=thin, adaptNf=0*rep(2000,nr))
+m$sampleMcmc(samples, thin=thin, adaptNf=0*rep(2000,nr), transient=samples*thin/2)
 # , initPar=list(Alpha=AlphaT, Eta=EtaT, Lambda=LambdaT,
 # Beta=BetaT, Gamma=GammaT, sigma=sigmaT))
 stop = proc.time()
@@ -129,7 +133,8 @@ postList = m$postList[[1]]
 
 
 postBeta = array(unlist(lapply(postList, function(a) a$Beta)),c(nc,ns,m$samples))
-plot(Beta,apply(postBeta,c(1,2),mean),main="Beta")
+postBetaMean = apply(postBeta,c(1,2),mean)
+plot(Beta,postBetaMean,main="Beta")
 abline(0,1,col="red")
 
 postGamma = array(unlist(lapply(postList, function(a) a$Gamma)),c(nc,nt,m$samples))
@@ -157,7 +162,7 @@ getAlpha = function(a,r=1)
 for(r in 1:m$nr){
    postOmega = array(unlist(lapply(postList,getOmega,r)),c(ns,ns,m$samples))
    postEta = array(unlist(lapply(postList,getEta,r)),c(np[r],nf[r],m$samples))
-   plot(apply(postEta^2, 3, mean))
+   # plot(apply(postEta^2, 3, mean))
    postOmegaMean = apply(postOmega,c(1,2),mean)
    plot(crossprod(LambdaT[[r]]),postOmegaMean,main=sprintf("Omega%d",r))
    abline(0,1,col="red")
@@ -178,19 +183,19 @@ for(r in 1:m$nr){
          par(mfrow=c(1,1))
       }
    }
-   plot(apply(postEta, 3, function(c) sum((c-EtaT[[r]])^2)))
+   # plot(apply(postEta, 3, function(c) sum((c-EtaT[[r]])^2)))
 }
 
 
-LFix = m$X%*%postBeta[,,samples]
-LRan = vector("list", m$nr)
-for(r in 1:m$nr){
-   postEta = array(unlist(lapply(postList,getEta,r)),c(np[r],nf[r],m$samples))
-   postLambda = array(unlist(lapply(postList,getLambda,r)),c(nf[r],ns,m$samples))
-
-   LRan[[r]] = postEta[m$Pi[,r],,samples]%*%postLambda[,,samples]
-}
-L = LFix + Reduce("+", LRan)
-
-plot(L,Z)
-abline(1,1)
+# LFix = m$X%*%postBeta[,,samples]
+# LRan = vector("list", m$nr)
+# for(r in 1:m$nr){
+#    postEta = array(unlist(lapply(postList,getEta,r)),c(np[r],nf[r],m$samples))
+#    postLambda = array(unlist(lapply(postList,getLambda,r)),c(nf[r],ns,m$samples))
+#
+#    LRan[[r]] = postEta[m$Pi[,r],,samples]%*%postLambda[,,samples]
+# }
+# L = LFix + Reduce("+", LRan)
+#
+# plot(L,Z)
+# abline(1,1)

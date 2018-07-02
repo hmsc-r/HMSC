@@ -70,7 +70,7 @@ HmscRandomLevel <- R6::R6Class("HmscRandomLevel",
          if(!is.null(a1)){
             self$a1 = a1
          } else if(setDefault){
-            self$a1 = 5
+            self$a1 = 50
          }
          if(!is.null(b1)){
             self$b1 = b1
@@ -80,7 +80,7 @@ HmscRandomLevel <- R6::R6Class("HmscRandomLevel",
          if(!is.null(a2)){
             self$a2 = a2
          } else if(setDefault){
-            self$a2 = 5
+            self$a2 = 50
          }
          if(!is.null(b2)){
             self$b2 = b2

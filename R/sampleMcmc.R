@@ -101,7 +101,7 @@ sampleMcmc = function(samples, transient=0, thin=1, initPar=NULL, repN=1, saveTo
                Alpha = updateAlpha(Eta=Eta, rLPar=rLPar, rL=self$rL)
 
             if(!identical(updater$InvSigma, FALSE))
-               iSigma = updateInvSigma(Z=Z,Beta=Beta,Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi, aSigma=aSigma,bSigma=bSigma)
+               iSigma = updateInvSigma(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi, aSigma=aSigma,bSigma=bSigma)
 
             if(!identical(updater$Z, FALSE))
                Z = updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,distr=distr)
