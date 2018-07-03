@@ -8,7 +8,7 @@
 #'
 
 
-computePredictedValues = function(nfolds=NULL, column=NULL, partition=NULL, start=1){
+computePredictedValues = function(nfolds=NULL, column=NULL, partition=NULL, start=1, expected=TRUE){
    m = self
    if(identical(nfolds,1) || (is.null(nfolds) && is.null(partition))){
       if(!is.null(column)){
@@ -18,7 +18,7 @@ computePredictedValues = function(nfolds=NULL, column=NULL, partition=NULL, star
          stop("HMSC.computePredictedValues: no partition can be specified when calculating with single fold")
       }
       postList=poolMcmcChains(m$postList, start = start)
-      pred = m$predict(post = postList, expected = TRUE)
+      pred = m$predict(post = postList, expected=expected)
       mpred = apply(abind(pred,along=3),c(1,2),mean)
       attr(mpred, "partition") = rep(1,m$ny)
    } else{
@@ -82,7 +82,7 @@ computePredictedValues = function(nfolds=NULL, column=NULL, partition=NULL, star
          for (r in seq_len(m$nr)){
             dfPi[,r] = factor(m$dfPi[val,r])
          }
-         pred1 = m1$predict(post = postList, X=as.matrix(m$X[val,]), dfPiNew = dfPi, rL = m$rL, expected = TRUE)
+         pred1 = m1$predict(post = postList, X=as.matrix(m$X[val,]), dfPiNew = dfPi, rL = m$rL, expected=expected)
          mpred1 = apply(abind(pred1,along=3),c(1,2),mean)
          mpred[val,] = mpred1
       }

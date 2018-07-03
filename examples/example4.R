@@ -16,11 +16,11 @@ np = c(ny, round(ny/10))
 np = np[1]
 
 # distr = "probit"
-distr = "poisson"
+distr = "lognormal poisson"
 
 
 samples = 1000
-thin = 10
+thin = 1
 
 X = matrix(rnorm(ny*nc),ny,nc)
 X[,1] = 1
@@ -37,7 +37,7 @@ Mu = tcrossprod(Gamma, Tr)
 Beta = matrix(NA,nc,ns)
 for(j in 1:ns)
    Beta[,j] = mvrnorm(1,Mu[,j],V)
-# Beta = Beta / 40
+Beta = Beta / 10
 Beta[1,] = Beta[1,]
 
 nr = length(np)
@@ -95,6 +95,7 @@ LRanSum = Reduce("+", LRan)
 switch (distr,
    probit = {d = rep(1,ns)},
    poisson = {d = rep(1e-20,ns)},
+   "lognormal poisson" = {d = rgamma(ns,2,1)},
    normal = {d = rgamma(ns,2,1)}
 )
 LFix = X%*%Beta
@@ -103,6 +104,10 @@ Z = LFix + LRanSum + matrix(rnorm(ny*ns),ny,ns)*matrix(rep(sqrt(d),each=ny),ny,n
 switch (distr,
    probit = {Y = 1*(Z>0)},
    poisson = {
+      r = 1e3
+      Y = matrix(rnbinom(ny*ns, r, 1-exp(Z)/(exp(Z)+r)), ny, ns)
+   },
+   "lognormal poisson" = {
       r = 1e3
       Y = matrix(rnbinom(ny*ns, r, 1-exp(Z)/(exp(Z)+r)), ny, ns)
    },
@@ -185,6 +190,9 @@ for(r in 1:m$nr){
    }
    # plot(apply(postEta, 3, function(c) sum((c-EtaT[[r]])^2)))
 }
+
+predY = m$computePredictedValues()
+plot(log(rowSums(m$Y+1)),log(rowSums((predY+1))))
 
 
 # LFix = m$X%*%postBeta[,,samples]

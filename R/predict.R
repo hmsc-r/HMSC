@@ -35,7 +35,7 @@ predict.Hmsc = function(post=poolMcmcChains(self$postList), XData=NULL, X=NULL, 
       rownames(LRan) = c()
       L = LFix + LRan
       if(!expected){
-         Z = L + matrix(rep(sam$sigma,nrow(L)), nrow(L), self$ns, byrow=TRUE)*matrix(rnorm(nrow(L)*self$ns), nrow(L), self$ns)
+         Z = L + matrix(sqrt(sam$sigma),nrow(L),self$ns,byrow=TRUE) * matrix(rnorm(nrow(L)*self$ns),nrow(L),self$ns)
       } else{
          Z = L
       }
@@ -51,9 +51,9 @@ predict.Hmsc = function(post=poolMcmcChains(self$postList), XData=NULL, X=NULL, 
          }
          if(self$distr[j,"family"] == 3){ # poisson
             if(expected){
-               Z[,j] = exp(Z[,j])
+               Z[,j] = exp(Z[,j] + sam$sigma[j]/2)
             } else{
-               Z[,j] = rpois(nrow(Z),exp(,Z[,j]))
+               Z[,j] = rpois(nrow(Z),exp(Z[,j]))
             }
          }
       }
