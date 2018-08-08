@@ -1,3 +1,4 @@
+# Developed by Oystein
 plotBeta=function(post, param = "Support", plotTree = F, SpeciesOrder = "Original", SpVector = NULL, covOrder="Original",covVector=NULL, spNamesNumbers = c(T,T), covNamesNumbers = c(T,T), supportLevel = .9, split = .3, cex = c(0.7,0.7,0.8)){
    m = self
 
@@ -60,8 +61,6 @@ plotBeta=function(post, param = "Support", plotTree = F, SpeciesOrder = "Origina
    if(plotTree){colnames(betaMat) = m$spNames}
    if(!plotTree){colnames(betaMat) = spNames}
 
-   X = t(betaMat[covorder,order])
-
    old.par = par(no.readonly = TRUE)
    colors = colorRampPalette(c("blue","white","red"))(200)
 
@@ -101,6 +100,13 @@ plotBeta=function(post, param = "Support", plotTree = F, SpeciesOrder = "Origina
    }
 
    #Plot
+   if(all(is.na(X)) || sum(X)==0){
+      warning("Nothing to plot at this level of posterior support")
+      zlim = c(-1,1)
+   } else{
+      zlim = c(-max(abs(range(X))),max(abs(range(X))))
+   }
+
    image.plot(x = seq(START+ADJx, END-ADJx, by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)),
       y = seq(ADJy, 1-ADJy, length.out=nrow(X)),
       z = t(X), add = TRUE, nlevel = 200, box=T,
@@ -108,7 +114,7 @@ plotBeta=function(post, param = "Support", plotTree = F, SpeciesOrder = "Origina
       legend.cex=cex, axis.args=list(cex.axis=cex[3],mgp=c(3,2,0),hadj=1),
       graphics.reset = TRUE, horizontal = FALSE, bigplot = NULL,
       smallplot = NULL, legend.only = FALSE, col = colors,
-      lab.breaks=NULL, zlim = c(-max(abs(range(X))),max(abs(range(X)))))
+      lab.breaks=NULL, zlim = zlim)
    par(old.par)
 }
 
