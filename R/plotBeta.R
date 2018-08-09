@@ -61,6 +61,8 @@ plotBeta=function(post, param = "Support", plotTree = F, SpeciesOrder = "Origina
    if(plotTree){colnames(betaMat) = m$spNames}
    if(!plotTree){colnames(betaMat) = spNames}
 
+   X = t(betaMat[covorder,order])
+
    old.par = par(no.readonly = TRUE)
    colors = colorRampPalette(c("blue","white","red"))(200)
 
