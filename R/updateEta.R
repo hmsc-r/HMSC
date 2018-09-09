@@ -25,11 +25,29 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,rL){
          LamInvSigLam = tcrossprod(lambda*matrix(sqrt(iSigma),nf,ns,byrow=TRUE))
          eta = matrix(NA,np[r],nf)
          if(np[r] == ny){
+            Yx = !is.na(Y)
+            indRowFull = apply(Yx,1,all)
+            indRowNA = !indRowFull
+            nyFull = sum(indRowFull)
+
             iV = diag(nf) + LamInvSigLam
             RiV = chol(iV)
             V = chol2inv(RiV)
-            mu = tcrossprod(S,lambda*matrix(iSigma,nf,ns,byrow=TRUE)) %*% V
-            eta[lPi,] = mu + t(backsolve(RiV,matrix(rnorm(ny*nf),nf,ny)))
+            mu = tcrossprod(S[indRowFull,],lambda*matrix(iSigma,nf,ns,byrow=TRUE)) %*% V
+            eta[lPi[indRowFull],] = mu + t(backsolve(RiV,matrix(rnorm(nyFull*nf),nf,nyFull)))
+
+            for(i in indRowNA){
+               indSp = Yx[i,]
+               lam = lambda[,indSp,drop=FALSE]
+               iSig = iSigma[indSp]
+               nsx = sum(indSp)
+               LiSL = tcrossprod(lam*matrix(sqrt(iSig),nf,nsx,byrow=TRUE))
+               iV = diag(nf) + LiSL
+               RiV = chol(iV)
+               V = chol2inv(RiV)
+               mu = tcrossprod(S[i,indSp,drop=FALSE],lam*matrix(iSig,nf,nsx,byrow=TRUE)) %*% V
+               eta[lPi[i],] = mu + t(backsolve(RiV,rnorm(nf)))
+            }
          } else{
             # eta = 0*matrix(rnorm(np[r]*nf),np[r],nf)
             unLPi = unique(lPi)

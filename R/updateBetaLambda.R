@@ -1,4 +1,4 @@
-updateBetaLambda = function(Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQg, X,Tr,Pi,C){
+updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQg, X,Tr,Pi,C){
    ny = nrow(Z)
    ns = ncol(Z)
    nc = nrow(Gamma)
@@ -36,11 +36,16 @@ updateBetaLambda = function(Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQg, X,Tr,Pi,C)
 
    if(is.null(C)){
       # no phylogeny information
+      Yx = !is.na(Y)
+      indColFull = apply(Yx,2,all)
+      indColNA = !indColFull
+
       diagiV = diag(iV)
       P0 = matrix(0,nc+nfSum,nc+nfSum)
       P0[1:nc,1:nc] = iV
       BetaLambda = matrix(NA, nc+nfSum, ns)
-      for(j in 1:ns){ # test whether worthy to rewrite with tensorA?
+
+      for(j in indColFull){ # test whether worthy to rewrite with tensorA?
          P = P0
          diag(P) = c(diagiV, priorLambda[,j])
          iU = P + Q*iSigma[j]
@@ -49,6 +54,19 @@ updateBetaLambda = function(Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQg, X,Tr,Pi,C)
          m = U %*% (P%*%Mu[,j] + isXTS[,j]);
          BetaLambda[,j] = m + backsolve(RiU, rnorm(nc+nfSum))
       }
+      for(j in indColNA){
+         indObs = Yx[,j]
+         Q = crossprod(XEta[indObs,])
+         isXTS = crossprod(XEta[indObs,],S[indObs,j]) * iSigma[j]
+         P = P0
+         diag(P) = c(diagiV, priorLambda[,j])
+         iU = P + Q*iSigma[j]
+         RiU = chol(iU)
+         U = chol2inv(RiU)
+         m = U %*% (P%*%Mu[,j] + isXTS);
+         BetaLambda[,j] = m + backsolve(RiU, rnorm(nc+nfSum))
+      }
+
    } else{
       # available phylogeny information
       P = bdiag(kronecker(iV,iQg[,,rho]), Diagonal(x=t(priorLambda)))
