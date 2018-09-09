@@ -26,8 +26,6 @@ combineParameters = function(Beta,Gamma,iV,rho,iSigma,Eta,Lambda,Alpha,Psi,Delta
       }
    }
 
-
-
    V = chol2inv(chol(iV))
    sigma = 1/iSigma
    par = list(Beta=Beta, Gamma=Gamma, V=V, rho=rhopw[rho,1], sigma=sigma, Eta=Eta, Lambda=Lambda, Alpha=Alpha, Psi=Psi, Delta=Delta)

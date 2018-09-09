@@ -72,7 +72,7 @@ sampleMcmc = function(samples, transient=0, thin=1, initPar=NULL, repN=1, saveTo
                Gamma = updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,Tr=Tr,C=C, iQg=iQg, mGamma=mGamma,iUGamma=iUGamma)
 
             if(!identical(updater$BetaLambda, FALSE)){
-               BetaLambdaList = updateBetaLambda(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta,rho=rho, iQg=iQg, X=X,Tr=Tr,Pi=Pi,C=C)
+               BetaLambdaList = updateBetaLambda(Y=Y,Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta,rho=rho, iQg=iQg, X=X,Tr=Tr,Pi=Pi,C=C)
                Beta = BetaLambdaList$Beta
                Lambda = BetaLambdaList$Lambda
             }
@@ -95,13 +95,13 @@ sampleMcmc = function(samples, transient=0, thin=1, initPar=NULL, repN=1, saveTo
             }
 
             if(!identical(updater$Eta, FALSE))
-               Eta = updateEta(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, X=X,Pi=Pi,rL=self$rL)
+               Eta = updateEta(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, X=X,Pi=Pi,rL=self$rL)
 
             if(!identical(updater$Alpha, FALSE))
                Alpha = updateAlpha(Eta=Eta, rLPar=rLPar, rL=self$rL)
 
             if(!identical(updater$InvSigma, FALSE))
-               iSigma = updateInvSigma(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi, aSigma=aSigma,bSigma=bSigma)
+               iSigma = updateInvSigma(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi, aSigma=aSigma,bSigma=bSigma)
 
             if(!identical(updater$Z, FALSE))
                Z = updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,distr=distr)
