@@ -45,7 +45,7 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQg, X,Tr,Pi,
       P0[1:nc,1:nc] = iV
       BetaLambda = matrix(NA, nc+nfSum, ns)
 
-      for(j in indColFull){ # test whether worthy to rewrite with tensorA?
+      for(j in which(indColFull)){ # test whether worthy to rewrite with tensorA?
          P = P0
          diag(P) = c(diagiV, priorLambda[,j])
          iU = P + Q*iSigma[j]
@@ -54,7 +54,7 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQg, X,Tr,Pi,
          m = U %*% (P%*%Mu[,j] + isXTS[,j]);
          BetaLambda[,j] = m + backsolve(RiU, rnorm(nc+nfSum))
       }
-      for(j in indColNA){
+      for(j in which(indColNA)){
          indObs = Yx[,j]
          Q = crossprod(XEta[indObs,])
          isXTS = crossprod(XEta[indObs,],S[indObs,j]) * iSigma[j]

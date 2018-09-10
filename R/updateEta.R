@@ -36,7 +36,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,rL){
             mu = tcrossprod(S[indRowFull,],lambda*matrix(iSigma,nf,ns,byrow=TRUE)) %*% V
             eta[lPi[indRowFull],] = mu + t(backsolve(RiV,matrix(rnorm(nyFull*nf),nf,nyFull)))
 
-            for(i in indRowNA){
+            for(i in which(indRowNA)){
                indSp = Yx[i,]
                lam = lambda[,indSp,drop=FALSE]
                iSig = iSigma[indSp]
