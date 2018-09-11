@@ -56,8 +56,8 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQg, X,Tr,Pi,
       }
       for(j in which(indColNA)){
          indObs = Yx[,j]
-         Q = crossprod(XEta[indObs,])
-         isXTS = crossprod(XEta[indObs,],S[indObs,j]) * iSigma[j]
+         Q = crossprod(XEta[indObs,,drop=FALSE])
+         isXTS = crossprod(XEta[indObs,,drop=FALSE],S[indObs,j]) * iSigma[j]
          P = P0
          diag(P) = c(diagiV, priorLambda[,j])
          iU = P + Q*iSigma[j]
