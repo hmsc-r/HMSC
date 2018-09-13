@@ -30,16 +30,18 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,distr, ind){
       EProbit = E[,indColProbit]
       stdProbit = std[,indColProbit]
       indCellProbit = !indNA[,indColProbit]
-      YProbit = as.logical(YProbit[indCellProbit])
-      e = EProbit[indCellProbit]
-      s = stdProbit[indCellProbit]
-      lB = rep(-Inf, length(YProbit))
-      uB = rep(Inf, length(YProbit))
-      lB[YProbit] = 0
-      uB[!YProbit] = 0
-      z = rtruncnorm(length(YProbit), a=lB, b=uB, mean=e, sd=s) # this is often the bottleneck for performance
-      ZProbit[indCellProbit] = z
-      Z[,indColProbit] = ZProbit
+      if(any(indCellProbit)){
+         YProbit = as.logical(YProbit[indCellProbit])
+         e = EProbit[indCellProbit]
+         s = stdProbit[indCellProbit]
+         lB = rep(-Inf, length(YProbit))
+         uB = rep(Inf, length(YProbit))
+         lB[YProbit] = 0
+         uB[!YProbit] = 0
+         z = rtruncnorm(length(YProbit), a=lB, b=uB, mean=e, sd=s) # this is often the bottleneck for performance
+         ZProbit[indCellProbit] = z
+         Z[,indColProbit] = ZProbit
+      }
    }
 
    indColPoisson = (distr[,1]==3)
@@ -51,20 +53,22 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,distr, ind){
       EPoisson = E[,indColPoisson]
       stdPoisson = std[,indColPoisson]
       indCellPoisson = !indNA[,indColPoisson]
-      y = YPoisson[indCellPoisson]
-      e = EPoisson[indCellPoisson]
-      s = stdPoisson[indCellPoisson]
-      zPrev = ZPrev[,indColPoisson][indCellPoisson]
-      w = rpg(num=length(y), h=y+r, z=zPrev-1*log(r))
-      prec = s^-2
-      sigmaZ = (prec + w)^-1
-      muZ = sigmaZ*((y-r)/(2) + prec*(e-log(r))) + 1*log(r)
-      z = rnorm(length(y), muZ, sqrt(sigmaZ))
-      if(any(is.na(z) | is.nan(z))){
-         print("Fail in Poisson Z update")
+      if(any(indCellPoisson)){
+         y = YPoisson[indCellPoisson]
+         e = EPoisson[indCellPoisson]
+         s = stdPoisson[indCellPoisson]
+         zPrev = ZPrev[,indColPoisson][indCellPoisson]
+         w = rpg(num=length(y), h=y+r, z=zPrev-1*log(r))
+         prec = s^-2
+         sigmaZ = (prec + w)^-1
+         muZ = sigmaZ*((y-r)/(2) + prec*(e-log(r))) + 1*log(r)
+         z = rnorm(length(y), muZ, sqrt(sigmaZ))
+         if(any(is.na(z) | is.nan(z))){
+            print("Fail in Poisson Z update")
+         }
+         ZPoisson[indCellPoisson] = z
+         Z[,indColPoisson] = ZPoisson
       }
-      ZPoisson[indCellPoisson] = z
-      Z[,indColPoisson] = ZPoisson
    }
 
    Z[indNA] = rnorm(sum(indNA), E[indNA], std[indNA])

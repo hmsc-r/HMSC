@@ -30,11 +30,13 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,rL){
             indRowNA = !indRowFull
             nyFull = sum(indRowFull)
 
-            iV = diag(nf) + LamInvSigLam
-            RiV = chol(iV)
-            V = chol2inv(RiV)
-            mu = tcrossprod(S[indRowFull,],lambda*matrix(iSigma,nf,ns,byrow=TRUE)) %*% V
-            eta[lPi[indRowFull],] = mu + t(backsolve(RiV,matrix(rnorm(nyFull*nf),nf,nyFull)))
+            if(nyFull > 0){
+               iV = diag(nf) + LamInvSigLam
+               RiV = chol(iV)
+               V = chol2inv(RiV)
+               mu = tcrossprod(S[indRowFull,],lambda*matrix(iSigma,nf,ns,byrow=TRUE)) %*% V
+               eta[lPi[indRowFull],] = mu + t(backsolve(RiV,matrix(rnorm(nyFull*nf),nf,nyFull)))
+            }
 
             for(i in which(indRowNA)){
                indSp = Yx[i,]
