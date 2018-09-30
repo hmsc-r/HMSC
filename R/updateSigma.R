@@ -1,6 +1,6 @@
 updateInvSigma = function(Y,Z,Beta,iSigma,Eta,Lambda, distr,X,Pi, aSigma,bSigma){
    indVarSigma = (distr[,2]==1)
-   if(indVarSigma){
+   if(any(indVarSigma)){
       ny = nrow(Z)
       ns = ncol(Z)
       nr = ncol(Pi)
