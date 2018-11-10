@@ -5,13 +5,15 @@
 \title{Hmsc$computePredictedValues}
 \usage{
 computePredictedValues(nfolds = NULL, column = NULL, partition = NULL,
-  start = 1)
+  start = 1, expected = TRUE)
 }
 \arguments{
-\item{start}{}
+\item{nfolds}{number of cross-validation folds}
+
+\item{start}{index of first MCMC sample included}
 }
 \description{
-Computes ...
+Computes predicted values from the trained model
 }
 \examples{
 

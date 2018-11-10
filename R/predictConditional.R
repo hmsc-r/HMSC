@@ -1,10 +1,24 @@
-#' @title predict.Hmsc
+#' @title predictConditional
 #'
-#' @description Computes the initial values before the sampling starts
-#' @param initPar initial parameters value
+#' @description Make conditions predictions given HMSC model object 
+#'
+#' @param Yc
+#' @param post
+#' @param mcmcStep
+#' @param XData
+#' @param X
+#' @param dfPiNew
+#' @param rL
+#' @param expected (boolean; default is FALSE)
+#' @param predictEtaMean (boolean; default is FALSE)
+#'
+#' @examples
 #'
 
-predictConditional = function(Yc, post=poolMcmcChains(self$postList), mcmcStep=1, XData=NULL, X=NULL, dfPiNew=self$dfPi, rL=self$rL, expected=FALSE, predictEtaMean=FALSE){
+
+predictConditional = function(Yc, post=poolMcmcChains(self$postList), 
+  mcmcStep=1, XData=NULL, X=NULL, dfPiNew=self$dfPi, rL=self$rL, 
+  expected=FALSE, predictEtaMean=FALSE){
    if(!is.null(XData) && !is.null(X)){
       stop("Hmsc.predictConditional: only single of XData and X arguments can be specified")
    }

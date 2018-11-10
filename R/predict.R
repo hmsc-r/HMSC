@@ -1,10 +1,21 @@
 #' @title predict.Hmsc
 #'
-#' @description Computes the initial values before the sampling starts
-#' @param initPar initial parameters value
+#' @description Calculates predicted values for a given HMSC model
+#'
+#' @param post
+#' @param XData
+#' @param X
+#' @param dfPiNew
+#' @param rL
+#' @param expected (boolean; default is FALSE)
+#' @param predictEtaMean (boolean; default is FALSE)
+#'
+#' @examples
 #'
 
-predict.Hmsc = function(post=poolMcmcChains(self$postList), XData=NULL, X=NULL, dfPiNew=self$dfPi, rL=self$rL, expected=FALSE, predictEtaMean=FALSE){
+predict.Hmsc = function(post=poolMcmcChains(self$postList), 
+  XData=NULL, X=NULL, dfPiNew=self$dfPi, rL=self$rL, 
+  expected=FALSE, predictEtaMean=FALSE){
    if(!is.null(XData) && !is.null(X)){
       stop("Hmsc.predict: nly single of XData and X arguments can be specified")
    }

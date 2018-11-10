@@ -7,7 +7,7 @@
 computeAssociations(start = 1)
 }
 \arguments{
-\item{start}{}
+\item{start}{index of first MCMC sample included}
 }
 \description{
 Computes the species association matrices

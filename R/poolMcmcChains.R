@@ -11,7 +11,8 @@
 #'
 #' @export
 
-poolMcmcChains = function(postList, chainIndex=1:length(postList), start=1, thin=1){
+poolMcmcChains = function(postList, chainIndex=1:length(postList), 
+  start=1, thin=1){
    post = list()
    for(i in chainIndex){
       chain = postList[[i]]

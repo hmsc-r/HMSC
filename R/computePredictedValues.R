@@ -1,8 +1,8 @@
 #' @title Hmsc$computePredictedValues
 #'
-#' @description Computes ...
-#' @param nfolds
-#' @param start
+#' @description Computes predicted values from the trained model
+#' @param nfolds number of cross-validation folds
+#' @param start index of first MCMC sample included
 #'
 #' @examples
 #'

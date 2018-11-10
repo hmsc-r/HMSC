@@ -16,6 +16,8 @@ setPriors(V0 = NULL, f0 = NULL, mGamma = NULL, UGamma = NULL,
 \item{mGamma}{mean for the prior multivariate Gaussian distribution for Gamma parameters}
 
 \item{UGamma}{covariance matrix for the prior multivariate Gaussian distribution for Gamma parameters}
+
+\item{setDefault}{}
 }
 \description{
 Sets or resets priors to the Hmsc object

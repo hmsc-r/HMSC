@@ -6,20 +6,27 @@
 \usage{
 sampleMcmc(samples, transient = 0, thin = 1, initPar = NULL, repN = 1,
   saveToDisk = FALSE, verbose = samples * thin/100, adaptNf = NULL,
-  nChains = 1, dataParList = NULL, updater = list())
+  nChains = 1, nCores = 1, dataParList = NULL, updater = list())
 }
 \arguments{
 \item{samples}{number of MCMC steps to be recorded}
+
+\item{transient}{}
 
 \item{thin}{thinning between recorded MCMC samples}
 
 \item{initPar}{initial parameters value}
 
-\item{saveToDisk}{whether to save replicates to the disk once they are ready and discard them from RAM memory}
+\item{repN}{number of replicates the samples should be splitted}
 
-\item{replicates}{number of replicates the samples should be splitted}
+\item{saveToDisk}{whether to save replicates to the disk once they 
+are ready and discard them from RAM memory}
 
-\item{discardDataPar}{whether to discard the precomputed data-based quantities once the sampling is finished}
+\item{nChains}{number of mcmc chains}
+
+\item{nCores}{number of cores (max of one core per chain)}
+
+\item{updater}{}
 }
 \description{
 Samples the posterior with block-conditional Gibbs MCMC sampler

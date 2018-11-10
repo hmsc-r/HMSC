@@ -1,7 +1,7 @@
 #' @title Hmsc$computeAssociations
 #'
 #' @description Computes the species association matrices
-#' @param start
+#' @param start index of first MCMC sample included
 #'
 #'@examples
 #'

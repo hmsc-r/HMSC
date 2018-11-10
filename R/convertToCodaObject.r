@@ -1,14 +1,29 @@
 #' @title Hmsc$convertToCodaObject
 #'
 #' @description Converts Hmsc posterior structure into a named list of mcmc.list objects
-#' @param start
+#' @param start index of first MCMC sample included
+#' @param spNamesNumbers
+#' @param covNamesNumbers
+#' @param trNamesNumbers
+#' @param Beta
+#' @param Gamma
+#' @param V
+#' @param Sigma
+#' @param Rho
+#' @param Eta
+#' @param Lambda
+#' @param Alpha
+#' @param Omega
+#' @param Psi
+#' @param Delta
 #'
 #' @examples
 #'
 
-convertToCodaObject = function(start=1, spNamesNumbers=c(TRUE,TRUE), covNamesNumbers=c(TRUE,TRUE), trNamesNumbers=c(TRUE,TRUE),
-   Beta=TRUE, Gamma=TRUE, V=TRUE, Sigma=TRUE, Rho=TRUE, Eta=TRUE, Lambda=TRUE, Alpha=TRUE,
-   Omega=TRUE, Psi=TRUE, Delta=TRUE) {
+convertToCodaObject = function(start=1, spNamesNumbers=c(TRUE,TRUE), 
+  covNamesNumbers=c(TRUE,TRUE), trNamesNumbers=c(TRUE,TRUE),
+  Beta=TRUE, Gamma=TRUE, V=TRUE, Sigma=TRUE, Rho=TRUE, Eta=TRUE, Lambda=TRUE, Alpha=TRUE,
+  Omega=TRUE, Psi=TRUE, Delta=TRUE) {
    m = self
    if (is.null(m$C)){
       Rho = FALSE

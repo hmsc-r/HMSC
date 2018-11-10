@@ -1,7 +1,13 @@
 #' @title predictLatentFactor
 #'
-#' @description Computes the initial values before the sampling starts
-#' @param initPar initial parameters value
+#' @description Predicts 
+#'
+#' @param unitsPred
+#' @param units
+#' @param postEta
+#' @param postAlpha
+#' @param rL
+#' @param predictMean (boolean; default is FALSE)
 #'
 #' @examples
 #'

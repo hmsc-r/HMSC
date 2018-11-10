@@ -1,6 +1,7 @@
 #' @title Hmsc$plotMarginalEffects
 #'
 #' @description Plots ...
+#'
 #' @param pred
 #' @param covariate
 #' @param measure
