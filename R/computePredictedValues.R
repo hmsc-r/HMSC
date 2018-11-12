@@ -4,9 +4,15 @@
 #' @param nfolds number of cross-validation folds
 #' @param start index of first MCMC sample included
 #'
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
 #' @examples
 #'
-
 
 computePredictedValues = function(nfolds=NULL, column=NULL, partition=NULL, start=1, expected=TRUE){
    m = self

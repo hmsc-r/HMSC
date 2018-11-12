@@ -10,9 +10,15 @@ predictLatentFactor(unitsPred, units, postEta, postAlpha, rL,
 \arguments{
 \item{predictMean}{(boolean; default is FALSE)}
 }
+\value{
+
+}
 \description{
 Predicts
 }
 \examples{
+
+}
+\seealso{
 
 }

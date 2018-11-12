@@ -7,6 +7,13 @@
 #' @param start index of first MCMC sample included
 #' @param thin thinning between included MCMC samples
 #'
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
 #' @examples
 #'
 #' @export

@@ -16,6 +16,13 @@
 #' @param rhopw
 #' @param setDefault
 #'
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
 #' @examples
 #'
 

@@ -24,6 +24,13 @@
 #' @param covNames
 #' @param levelNames 
 #'
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
 #' @examples
 #'
 

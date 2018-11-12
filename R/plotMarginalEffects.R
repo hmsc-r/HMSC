@@ -7,9 +7,15 @@
 #' @param measure
 #' @param index
 #'
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
 #' @examples
 #'
-
 plotMarginalEffects = function(pred, covariate, measure, index=1){
    m = self
 

@@ -28,9 +28,15 @@ different levels of latent factors}
 
 \item{levelNames}{}
 }
+\value{
+
+}
 \description{
 Sets or resets various data elements to an Hmsc object
 }
 \examples{
+
+}
+\seealso{
 
 }

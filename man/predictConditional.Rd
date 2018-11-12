@@ -13,9 +13,15 @@ predictConditional(Yc, post = poolMcmcChains(self$postList), mcmcStep = 1,
 
 \item{predictEtaMean}{(boolean; default is FALSE)}
 }
+\value{
+
+}
 \description{
 Make conditions predictions given HMSC model object
 }
 \examples{
+
+}
+\seealso{
 
 }

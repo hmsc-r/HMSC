@@ -13,9 +13,15 @@
 
 \item{predictEtaMean}{(boolean; default is FALSE)}
 }
+\value{
+
+}
 \description{
 Calculates predicted values for a given HMSC model
 }
 \examples{
+
+}
+\seealso{
 
 }

@@ -8,6 +8,13 @@
 #' @param index
 #' @param prob
 #'
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
 #' @examples
 #'
 

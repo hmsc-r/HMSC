@@ -13,9 +13,15 @@ computeVariancePartitioning(group, groupnames, start = 1)
 
 \item{start}{index of first MCMC sample included}
 }
+\value{
+
+}
 \description{
 Computes variance partitions with respect to given grouping of fixed efffects and levels of random effects
 }
 \examples{
+
+}
+\seealso{
 
 }

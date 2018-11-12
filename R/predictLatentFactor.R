@@ -9,6 +9,13 @@
 #' @param rL
 #' @param predictMean (boolean; default is FALSE)
 #'
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
 #' @examples
 #'
 

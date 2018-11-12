@@ -11,9 +11,15 @@ plotGamma(post, param = "Gamma", trOrder = "Original", trVector = NULL,
 \arguments{
 \item{cex}{}
 }
+\value{
+
+}
 \description{
 Plots betas
 }
 \examples{
+
+}
+\seealso{
 
 }

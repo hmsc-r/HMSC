@@ -15,8 +15,16 @@
 #' @param cex
 #'
 #' @notes developed by Oystein
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
 #' @examples
 #'
+
 
 plotBeta = function(post, param = "Support", plotTree = F, 
   SpeciesOrder = "Original", SpVector = NULL, covOrder="Original",

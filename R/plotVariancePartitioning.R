@@ -4,6 +4,13 @@
 #' @param VP
 #' @param ... other parameters passed to the barplot function
 #'
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
 #' @examples
 #'
 

@@ -5,6 +5,13 @@
 #' @param non.focalVariable
 #' @param ngrid
 #'
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
 #' @examples
 #'
 

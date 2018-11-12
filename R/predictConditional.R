@@ -12,6 +12,13 @@
 #' @param expected (boolean; default is FALSE)
 #' @param predictEtaMean (boolean; default is FALSE)
 #'
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
 #' @examples
 #'
 

@@ -17,6 +17,13 @@
 #' @param Psi
 #' @param Delta
 #'
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
 #' @examples
 #'
 

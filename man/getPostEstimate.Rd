@@ -17,9 +17,15 @@ model's baseline parameters, "Omega" or "OmegaCor".}
 
 \item{chainIndex}{Which posterir chains to use for summarization (defaults to all)}
 }
+\value{
+
+}
 \description{
 Calculates mean, support and other posterior quantities for model parameter
 }
 \examples{
+
+}
+\seealso{
 
 }

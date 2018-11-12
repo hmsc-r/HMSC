@@ -8,8 +8,16 @@
 #' @param q Which quantiles to calculate.
 #' @param chainIndex Which posterir chains to use for summarization (defaults to all)
 #'
-#'@examples
 #'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
+#' @examples
+#'
+
 
 getPostEstimate = function(parName, r=1, q=c(), chainIndex=1:length(self$postList)){
    m = self

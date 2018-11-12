@@ -9,9 +9,15 @@ constructGradient(focalVariable, non.focalVariables = list(), ngrid = 20)
 \arguments{
 \item{ngrid}{}
 }
+\value{
+
+}
 \description{
 Computes ...
 }
 \examples{
+
+}
+\seealso{
 
 }

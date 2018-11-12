@@ -10,6 +10,8 @@
 #' @param sDim number of spatial dimensions
 #' @param N number of unique units on this level
 #'
+#' @return
+#' 
 #' @examples
 #' HmscRandomLevel$new(data.frame(s1=c(1:10),s2=c(10:1)))
 #' HmscRandomLevel$new(pi=as.factor(1:10))

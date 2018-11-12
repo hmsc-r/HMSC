@@ -12,9 +12,15 @@ computePredictedValues(nfolds = NULL, column = NULL, partition = NULL,
 
 \item{start}{index of first MCMC sample included}
 }
+\value{
+
+}
 \description{
 Computes predicted values from the trained model
 }
 \examples{
+
+}
+\seealso{
 
 }

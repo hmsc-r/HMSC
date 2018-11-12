@@ -19,9 +19,15 @@ setPriors(V0 = NULL, f0 = NULL, mGamma = NULL, UGamma = NULL,
 
 \item{setDefault}{}
 }
+\value{
+
+}
 \description{
 Sets or resets priors to the Hmsc object
 }
 \examples{
+
+}
+\seealso{
 
 }

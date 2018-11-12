@@ -3,7 +3,13 @@
 #' @description Computes the species association matrices
 #' @param start index of first MCMC sample included
 #'
-#'@examples
+#' @return list of association matrices ($\omega$) corresponding to each random level in the model
+#'
+#'
+#' @seealso 
+#'
+#' 
+#' @examples
 #'
 
 computeAssociations = function(start=1){

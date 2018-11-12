@@ -12,9 +12,15 @@ plotBeta(post, param = "Support", plotTree = F, SpeciesOrder = "Original",
 \arguments{
 \item{cex}{}
 }
+\value{
+
+}
 \description{
 Plots betas
 }
 \examples{
+
+}
+\seealso{
 
 }

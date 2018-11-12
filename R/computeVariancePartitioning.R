@@ -5,6 +5,13 @@
 #' @param groupnames vector of names for each random and fixed effect
 #' @param start index of first MCMC sample included
 #'
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
 #' @examples
 #'
 

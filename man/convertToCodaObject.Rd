@@ -15,9 +15,15 @@ convertToCodaObject(start = 1, spNamesNumbers = c(TRUE, TRUE),
 
 \item{Delta}{}
 }
+\value{
+
+}
 \description{
 Converts Hmsc posterior structure into a named list of mcmc.list objects
 }
 \examples{
+
+}
+\seealso{
 
 }
