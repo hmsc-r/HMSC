@@ -8,7 +8,7 @@
 #'
 
 
-computePredictedValues = function(nfolds=NULL, column=NULL, partition=NULL, start=1, expected=TRUE){
+computePredictedValues = function(nfolds=NULL, column=NULL, partition=NULL, start=1, Yc=NULL, mcmcStep=1, expected=TRUE){
    m = self
    if(identical(nfolds,1) || (is.null(nfolds) && is.null(partition))){
       if(!is.null(column)){
@@ -18,7 +18,7 @@ computePredictedValues = function(nfolds=NULL, column=NULL, partition=NULL, star
          stop("HMSC.computePredictedValues: no partition can be specified when calculating with single fold")
       }
       postList=poolMcmcChains(m$postList, start = start)
-      pred = m$predict(post = postList, expected=expected)
+      pred = m$predict(post=postList, Yc=Yc, mcmcStep=1, expected=expected)
       mpred = apply(abind(pred,along=3),c(1,2),mean)
       attr(mpred, "partition") = rep(1,m$ny)
    } else{
@@ -75,14 +75,14 @@ computePredictedValues = function(nfolds=NULL, column=NULL, partition=NULL, star
          m1$distr=m$distr
          # HOW TO BETTER SET THE DISTRIBUTION?
          # NEED TO INHERIT PRIORS, SCALINGS ETC. FROM m
-         m1$sampleMcmc(samples=m$samples, thin=m$thin, transient=m$transient,adaptNf=m$adaptNf, nChains = 1)
+         m1$sampleMcmc(samples=m$samples, thin=m$thin, transient=m$transient,adaptNf=m$adaptNf, nChains=1)
          postList = m1$postList[[1]]
          postList = postList[start:length(postList)]
          dfPi = as.data.frame(matrix(NA,sum(val),m$nr))
          for (r in seq_len(m$nr)){
             dfPi[,r] = factor(m$dfPi[val,r])
          }
-         pred1 = m1$predict(post = postList, X=as.matrix(m$X[val,]), dfPiNew = dfPi, rL = m$rL, expected=expected)
+         pred1 = m1$predict(post=postList, X=as.matrix(m$X[val,,drop=FASLE]), dfPiNew=dfPi, rL=m$rL, Yc=Yc[val,,drop=FALSE], mcmcStep=mcmcStep, expected=expected)
          mpred1 = apply(abind(pred1,along=3),c(1,2),mean)
          mpred[val,] = mpred1
       }
