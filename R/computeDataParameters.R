@@ -3,7 +3,15 @@
 #' @description Computes the initial values before the sampling starts
 #' @param initPar initial parameters value
 #'
-
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
+#' @examples
+#'
 
 
 computeDataParameters = function(){

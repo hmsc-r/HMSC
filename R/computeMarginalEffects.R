@@ -5,6 +5,13 @@
 #' @param prob
 #' @param clist
 #'
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
 #' @examples
 #'
 

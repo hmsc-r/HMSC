@@ -1,10 +1,17 @@
 #' @title Hmsc$computeVariancePartitioning
 #'
-#' @description Computes variance partitionint w.r.t. given grouping of fixed efffects and levels of random effects
-#' @param group
-#' @param groupnames
-#' @param start
+#' @description Computes variance partitions with respect to given grouping of fixed efffects and levels of random effects
+#' @param group vector of numeric values corresponding to group identifiers in groupnames
+#' @param groupnames vector of names for each random and fixed effect
+#' @param start index of first MCMC sample included
 #'
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
 #' @examples
 #'
 

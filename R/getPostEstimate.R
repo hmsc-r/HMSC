@@ -1,13 +1,23 @@
 #' @title Hmsc$getPostEstimate
 #'
 #' @description Calculates mean, support and other posterior quantities for model parameter
-#' @param parName The name of the parameter to be summarized. Can take value of model's baseline parameters, "Omega" or "OmegaCor".
-#' @param r=1 Which random level calculate the parameter for. Has effect only for Eta, Lambda, Omega and OmegaCor.
-#' @param q=c() Which quantiles to calculate.
-#' @param chainIndex=1:length(self$postList) Which posterir chains to use for summarization.
 #'
-#'@examples
+#' @param parName The name of the parameter to be summarized. Can take value of 
+#'  model's baseline parameters, "Omega" or "OmegaCor".
+#' @param r Which random level calculate the parameter for. Has effect only for Eta, Lambda, Omega and OmegaCor.
+#' @param q Which quantiles to calculate.
+#' @param chainIndex Which posterir chains to use for summarization (defaults to all)
 #'
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
+#' @examples
+#'
+
 
 getPostEstimate = function(parName, r=1, q=c(), chainIndex=1:length(self$postList)){
    m = self

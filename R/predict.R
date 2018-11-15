@@ -1,7 +1,23 @@
 #' @title predict.Hmsc
 #'
-#' @description Computes the initial values before the sampling starts
-#' @param initPar initial parameters value
+#' @description Calculates predicted values for a given HMSC model
+#'
+#' @param post
+#' @param XData
+#' @param X
+#' @param dfPiNew
+#' @param rL
+#' @param expected (boolean; default is FALSE)
+#' @param predictEtaMean (boolean; default is FALSE)
+#'
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
+#' @examples
 #'
 
 predict.Hmsc = function(post=poolMcmcChains(self$postList), XData=NULL, X=NULL, dfPiNew=self$dfPi, rL=self$rL, Yc=NULL, mcmcStep=1, expected=FALSE, predictEtaMean=FALSE){
@@ -89,4 +105,3 @@ predict.Hmsc = function(post=poolMcmcChains(self$postList), XData=NULL, X=NULL, 
 }
 
 Hmsc$set("public", "predict", predict.Hmsc, overwrite=TRUE)
-

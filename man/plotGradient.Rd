@@ -10,9 +10,15 @@ plotGradient(Gradient, pred, measure, index = 1, prob = c(0.025, 0.5,
 \arguments{
 \item{prob}{}
 }
+\value{
+
+}
 \description{
 Plots ...
 }
 \examples{
+
+}
+\seealso{
 
 }

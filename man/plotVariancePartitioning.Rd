@@ -7,11 +7,17 @@
 plotVariancePartitioning(VP, ...)
 }
 \arguments{
-\item{VP}{}
+\item{...}{other parameters passed to the barplot function}
+}
+\value{
+
 }
 \description{
 Plots ...
 }
 \examples{
+
+}
+\seealso{
 
 }

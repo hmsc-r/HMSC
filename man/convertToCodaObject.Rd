@@ -11,11 +11,19 @@ convertToCodaObject(start = 1, spNamesNumbers = c(TRUE, TRUE),
   Delta = TRUE)
 }
 \arguments{
-\item{start}{}
+\item{start}{index of first MCMC sample included}
+
+\item{Delta}{}
+}
+\value{
+
 }
 \description{
 Converts Hmsc posterior structure into a named list of mcmc.list objects
 }
 \examples{
+
+}
+\seealso{
 
 }

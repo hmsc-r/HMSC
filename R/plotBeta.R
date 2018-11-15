@@ -1,10 +1,41 @@
-# Developed by Oystein
-plotBeta=function(post, param = "Support", plotTree = F, SpeciesOrder = "Original", SpVector = NULL, covOrder="Original",covVector=NULL, spNamesNumbers = c(T,T), covNamesNumbers = c(T,T), supportLevel = .9, split = .3, cex = c(0.7,0.7,0.8)){
+#' @title plotBeta
+#'
+#' @description Plots betas
+#' @param post
+#' @param param
+#' @param plotTree
+#' @param SpeciesOrder
+#' @param SpVector
+#' @param covOrder
+#' @param covVector
+#' @param spNamesNumbers
+#' @param covNamesNumbers
+#' @param supportLevel
+#' @param split
+#' @param cex
+#'
+#' @notes developed by Oystein
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
+#' @examples
+#'
+
+
+plotBeta = function(post, param = "Support", plotTree = F, 
+  SpeciesOrder = "Original", SpVector = NULL, covOrder="Original",
+  covVector=NULL, spNamesNumbers = c(T,T), covNamesNumbers = c(T,T), 
+  supportLevel = 0.9, split = 0.3, cex = c(0.7,0.7,0.8)){
+
    m = self
 
    if(plotTree){
-      tree=m$phyloTree
-      tree=untangle(tree,"read.tree")
+      tree = m$phyloTree
+      tree = untangle(tree,"read.tree")
    }
 
    spNames = character(m$ns)

@@ -1,4 +1,31 @@
-plotGamma=function(post, param = "Gamma", trOrder="Original", trVector= NULL, covOrder="Original",covVector=NULL, trNamesNumbers=c(T,T), covNamesNumbers=c(T,T),supportLevel=.9,cex=c(.8,.8,.8)){
+#' @title plotBeta
+#'
+#' @description Plots betas
+#' @param post
+#' @param param
+#' @param trOrder
+#' @param trVector
+#' @param covOrder
+#' @param covVector
+#' @param trNamesNumbers
+#' @param covNamesNumbers
+#' @param supportLevel
+#' @param cex
+#'
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
+#' @examples
+#'
+
+plotGamma=function(post, param = "Gamma", trOrder="Original", 
+  trVector= NULL, covOrder="Original",covVector=NULL, trNamesNumbers=c(T,T),
+  covNamesNumbers=c(T,T),supportLevel=.9,cex=c(.8,.8,.8)){
+  
    m = self
 
    covNames = character(m$nc)

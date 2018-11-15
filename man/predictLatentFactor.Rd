@@ -8,11 +8,17 @@ predictLatentFactor(unitsPred, units, postEta, postAlpha, rL,
   predictMean = FALSE)
 }
 \arguments{
-\item{initPar}{initial parameters value}
+\item{predictMean}{(boolean; default is FALSE)}
+}
+\value{
+
 }
 \description{
-Computes the initial values before the sampling starts
+Predicts
 }
 \examples{
+
+}
+\seealso{
 
 }

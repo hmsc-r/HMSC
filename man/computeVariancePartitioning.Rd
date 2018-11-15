@@ -7,11 +7,21 @@
 computeVariancePartitioning(group, groupnames, start = 1)
 }
 \arguments{
-\item{start}{}
+\item{group}{vector of numeric values corresponding to group identifiers in groupnames}
+
+\item{groupnames}{vector of names for each random and fixed effect}
+
+\item{start}{index of first MCMC sample included}
+}
+\value{
+
 }
 \description{
-Computes variance partitionint w.r.t. given grouping of fixed efffects and levels of random effects
+Computes variance partitions with respect to given grouping of fixed efffects and levels of random effects
 }
 \examples{
+
+}
+\seealso{
 
 }

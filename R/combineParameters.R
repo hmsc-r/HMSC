@@ -1,5 +1,5 @@
-combineParameters = function(Beta,Gamma,iV,rho,iSigma,Eta,Lambda,Alpha,Psi,Delta, rhopw){
-
+combineParameters = function(Beta, Gamma, iV, rho, iSigma, Eta, 
+		Lambda,Alpha,Psi,Delta, rhopw){
    for(p in 1:self$nt){
       m = self$TrScalePar[1,p]
       s = self$TrScalePar[2,p]

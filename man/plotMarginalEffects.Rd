@@ -9,9 +9,15 @@ plotMarginalEffects(pred, covariate, measure, index = 1)
 \arguments{
 \item{index}{}
 }
+\value{
+
+}
 \description{
 Plots ...
 }
 \examples{
+
+}
+\seealso{
 
 }

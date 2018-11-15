@@ -1,12 +1,20 @@
 #' @title Hmsc$plotGradient
 #'
 #' @description Plots ...
+#'
 #' @param Gradient
 #' @param pred
 #' @param measure
 #' @param index
 #' @param prob
 #'
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
 #' @examples
 #'
 

@@ -2,23 +2,30 @@
 % Please edit documentation in R/getPostEstimate.R
 \name{getPostEstimate}
 \alias{getPostEstimate}
-\title{Hmsc$computeAssociations}
+\title{Hmsc$getPostEstimate}
 \usage{
 getPostEstimate(parName, r = 1, q = c(),
   chainIndex = 1:length(self$postList))
 }
 \arguments{
-\item{parName}{The name of the parameter to be summarized. Can take value of model's baseline parameters, "Omega" or "OmegaCor".}
+\item{parName}{The name of the parameter to be summarized. Can take value of 
+model's baseline parameters, "Omega" or "OmegaCor".}
 
-\item{r=1}{Which random level calculate the parameter for. Has effect only for Eta, Lambda, Omega and OmegaCor.}
+\item{r}{Which random level calculate the parameter for. Has effect only for Eta, Lambda, Omega and OmegaCor.}
 
-\item{q=c()}{Which quantiles to calculate.}
+\item{q}{Which quantiles to calculate.}
 
-\item{chainIndex=1:length(self$postList)}{Which posterir chains to use for summarization.}
+\item{chainIndex}{Which posterir chains to use for summarization (defaults to all)}
+}
+\value{
+
 }
 \description{
 Calculates mean, support and other posterior quantities for model parameter
 }
 \examples{
+
+}
+\seealso{
 
 }

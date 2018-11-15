@@ -2,7 +2,15 @@
 #'
 #' @description Plots ...
 #' @param VP
+#' @param ... other parameters passed to the barplot function
 #'
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
 #' @examples
 #'
 
@@ -20,7 +28,8 @@ plotVariancePartitioning = function(VP, ...){
    }
    # par(mfrow=c(1,1), mar=c(5,5,4,8)) what is the point of this?
    mainTitle = paste("Variance partitioning. R2(traits) = ", round(VP$traitR2,2), ".", sep="")
-   barplot(VP$vals, main=mainTitle, xlab="Species", ylab="Variance proportion", legend=leg, col=heat.colors(ng,alpha=1), ...)
+   barplot(VP$vals, main=mainTitle, xlab="Species", ylab="Variance proportion", legend=leg,
+     col=heat.colors(ng,alpha=1), ...)
 }
 
 Hmsc$set("public", "plotVariancePartitioning", plotVariancePartitioning, overwrite=TRUE)

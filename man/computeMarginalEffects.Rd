@@ -10,9 +10,15 @@ computeMarginalEffects(ngrid = 20, prob = c(0.025, 0.5, 0.975),
 \arguments{
 \item{clist}{}
 }
+\value{
+
+}
 \description{
 Computes ...
 }
 \examples{
+
+}
+\seealso{
 
 }

@@ -9,8 +9,19 @@
   predictEtaMean = FALSE)
 }
 \arguments{
-\item{initPar}{initial parameters value}
+\item{expected}{(boolean; default is FALSE)}
+
+\item{predictEtaMean}{(boolean; default is FALSE)}
+}
+\value{
+
 }
 \description{
-Computes the initial values before the sampling starts
+Calculates predicted values for a given HMSC model
+}
+\examples{
+
+}
+\seealso{
+
 }

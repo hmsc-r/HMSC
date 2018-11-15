@@ -3,10 +3,34 @@
 #' @description Sets or resets various data elements to an Hmsc object
 #'
 #' @param Y matrix of species occurences or abundances
+#' @param XFormula 
+#' @param XData
 #' @param X matrix of measured covariates
-#' @param Pi matrix of correspondence between sampling units and units on different levels of latent factors
+#' @param XScale (boolean; default is TRUE) scale values in X matrix?
+#' @param dfPi matrix of correspondence between sampling units and units on 
+#'  different levels of latent factors
 #' @param rL list of HmscRandomLevel objects, specifying the structure and data for random levels
+#' @param Xs
+#' @param Xv
+#' @param TrFormula
+#' @param TrData
+#' @param Tr
+#' @param TrScale (boolean; default is TRUE) scale values in the trait (TR) matrix?
+#' @param phyloTree
+#' @param C
+#' @param distr
+#' @param spNames
+#' @param trNames
+#' @param covNames
+#' @param levelNames 
 #'
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
 #' @examples
 #'
 

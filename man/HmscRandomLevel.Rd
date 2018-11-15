@@ -17,6 +17,9 @@ HmscRandomLevel
 
 \item{N}{number of unique units on this level}
 }
+\value{
+
+}
 \description{
 Specifies the structure for the single level of random factors, whether the level
  is assumed to be spatial or not, the spatial coordinates,

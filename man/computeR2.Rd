@@ -7,11 +7,17 @@
 computeR2(predY)
 }
 \arguments{
-\item{predY}{}
+\item{predY}{vector of predictions from the trained model}
+}
+\value{
+
 }
 \description{
 Computes explainatory R2 measure based on predicted species abundance matrix
 }
 \examples{
+
+}
+\seealso{
 
 }

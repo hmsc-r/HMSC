@@ -3,12 +3,23 @@
 #' @description Samples the posterior with block-conditional Gibbs MCMC sampler
 #'
 #' @param samples number of MCMC steps to be recorded
+#' @param transient
 #' @param thin thinning between recorded MCMC samples
 #' @param initPar initial parameters value
-#' @param replicates number of replicates the samples should be splitted
+#' @param repN number of replicates the samples should be splitted
 #' @param saveToDisk whether to save replicates to the disk once they are ready and discard them from RAM memory
-#' @param discardDataPar whether to discard the precomputed data-based quantities once the sampling is finished
+#' @param verbose at which steps should model progress be displayed (default = samples*thin / 100)
+#' @param adaptNf
+#' @param nChains number of MCMC chains to run
+#' @param dataParList
+#' @param updater
 #'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
 #' @examples
 #'
 
@@ -69,39 +80,47 @@ sampleMcmc = function(samples, transient=0, thin=1, initPar=NULL, repN=1, saveTo
          postList = vector("list", samples)
          for(iter in 1:(transient+samples*thin)){
             if(!identical(updater$Gamma2, FALSE))
-               Gamma = updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,Tr=Tr,C=C, iQg=iQg, mGamma=mGamma,iUGamma=iUGamma)
+               Gamma = updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,
+                Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,Tr=Tr,C=C, iQg=iQg, 
+                mGamma=mGamma,iUGamma=iUGamma)
 
             if(!identical(updater$BetaLambda, FALSE)){
-               BetaLambdaList = updateBetaLambda(Y=Y,Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta,rho=rho, iQg=iQg, X=X,Tr=Tr,Pi=Pi,C=C)
+               BetaLambdaList = updateBetaLambda(Y=Y,Z=Z,Gamma=Gamma,iV=iV,
+                iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta,rho=rho, iQg=iQg, 
+                X=X,Tr=Tr,Pi=Pi,C=C)
                Beta = BetaLambdaList$Beta
                Lambda = BetaLambdaList$Lambda
             }
 
             if(!identical(updater$BetaLambda, FALSE)){
-               GammaVList = updateGammaV(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho, iQg=iQg, Tr=Tr,C=C, mGamma=mGamma,iUGamma=iUGamma,V0=V0,f0=f0)
+               GammaVList = updateGammaV(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho, 
+                iQg=iQg, Tr=Tr,C=C, mGamma=mGamma,iUGamma=iUGamma,V0=V0,f0=f0)
                Gamma = GammaVList$Gamma
                iV = GammaVList$iV
             }
 
             if(!is.null(self$C) && !identical(updater$Rho, FALSE)){
-               rho = updateRho(Beta=Beta,Gamma=Gamma,iV=iV, RiQg=RiQg,detQg=detQg, Tr=Tr, rhopw=rhopw)
+               rho = updateRho(Beta=Beta,Gamma=Gamma,iV=iV, RiQg=RiQg,
+                detQg=detQg, Tr=Tr, rhopw=rhopw)
                # print(rho)
             }
 
             if(!identical(updater$LambdaPriors, FALSE)){
-               PsiDeltaList = updateLambdaPriors(Lambda=Lambda,Delta=Delta, rL=self$rL) #nu=nu,a1=a1,b1=b1,a2=a2,b2=b2)
+               PsiDeltaList = updateLambdaPriors(Lambda=Lambda,Delta=Delta, rL=self$rL) 
                Psi = PsiDeltaList$Psi
                Delta = PsiDeltaList$Delta
             }
 
             if(!identical(updater$Eta, FALSE))
-               Eta = updateEta(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, X=X,Pi=Pi,rL=self$rL)
+               Eta = updateEta(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
+                Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, X=X,Pi=Pi,rL=self$rL)
 
             if(!identical(updater$Alpha, FALSE))
                Alpha = updateAlpha(Eta=Eta, rLPar=rLPar, rL=self$rL)
 
             if(!identical(updater$InvSigma, FALSE))
-               iSigma = updateInvSigma(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi, aSigma=aSigma,bSigma=bSigma)
+               iSigma = updateInvSigma(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,
+                Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi, aSigma=aSigma,bSigma=bSigma)
 
             if(!identical(updater$Z, FALSE))
                Z = updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,distr=distr)
@@ -146,4 +165,3 @@ sampleMcmc = function(samples, transient=0, thin=1, initPar=NULL, repN=1, saveTo
 }
 
 Hmsc$set("public", "sampleMcmc", sampleMcmc, overwrite=TRUE)
-

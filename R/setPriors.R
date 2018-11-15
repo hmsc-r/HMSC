@@ -6,12 +6,29 @@
 #' @param f0 number of degreees of freedom in the Wishart prior distribution for the Beta parameters
 #' @param mGamma mean for the prior multivariate Gaussian distribution for Gamma parameters
 #' @param UGamma covariance matrix for the prior multivariate Gaussian distribution for Gamma parameters
+#' @param aSigma
+#' @param bSigma
+#' @param nu
+#' @param a1
+#' @param b1
+#' @param a2
+#' @param b2
+#' @param rhopw
+#' @param setDefault
 #'
+#'
+#' @return
+#'
+#'
+#' @seealso
+#'
+#' 
 #' @examples
 #'
 
-setPriors = function(V0=NULL, f0=NULL, mGamma=NULL, UGamma=NULL, aSigma=NULL, bSigma=NULL,
-   nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, rhopw=NULL, setDefault=FALSE){
+setPriors = function(V0=NULL, f0=NULL, mGamma=NULL, 
+  UGamma=NULL, aSigma=NULL, bSigma=NULL, nu=NULL, a1=NULL, 
+  b1=NULL, a2=NULL, b2=NULL, rhopw=NULL, setDefault=FALSE){
    if(!is.null(V0)){
       if(!isSymmetric(V0) || nrow(V0) != self$nc || ncol(V0) != self$nc)
          stop("HMSC.setPriors: V0 must be a positive definite matrix of size equal to number of covariates nc")

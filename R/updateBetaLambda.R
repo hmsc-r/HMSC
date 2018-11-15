@@ -1,3 +1,7 @@
+#' @title updateBetaLambda
+#'
+#' @description updates beta lambda
+#'
 updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQg, X,Tr,Pi,C){
    ny = nrow(Z)
    ns = ncol(Z)

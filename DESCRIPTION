@@ -1,12 +1,12 @@
 Package: Hmsc
+Title: Demonstrates the potential user interface and distribution of HMSC package
 Type: Package
-Title: Demonstrates the potential user interface and distribution of HMSC package.
 Version: 0.2.11.3
 Author: Gleb Tikhonov
-Maintainer: The package maintainer <gleb.tikhonov@helsinki.fi>
+Maintainer: Gleb Tikhonov <gleb.tikhonov@helsinki.fi>
 Description: Hierarchical Modelling of Species Communities (HMSC) is
   a model-based approach for analyzing community ecological data.
-License: GPL-2 | file LICENSE
+License: GPL-3 | file LICENSE
 URL: https://www.helsinki.fi/en/researchgroups/metapopulation-research-centre/hmsc
 Encoding: UTF-8
 LazyData: true
@@ -23,7 +23,7 @@ Depends:
    MCMCpack,
    mvtnorm,
    nnet,
+   parallel,
    phytools,
    tensorA,
-   truncnorm,
-   
+   truncnorm
