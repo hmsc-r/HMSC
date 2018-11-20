@@ -4,7 +4,7 @@
 \alias{computeInitialParameters}
 \title{computeInitialParameters}
 \usage{
-computeInitialParameters(initPar)
+computeInitialParameters(hM, initPar)
 }
 \arguments{
 \item{initPar}{initial parameters value}

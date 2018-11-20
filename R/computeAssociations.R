@@ -1,4 +1,4 @@
-#' @title Hmsc$computeAssociations
+#' @title computeAssociations
 #'
 #' @description Computes the species association matrices
 #' @param start index of first MCMC sample included
@@ -6,27 +6,27 @@
 #' @return list of association matrices ($\omega$) corresponding to each random level in the model
 #'
 #'
-#' @seealso 
+#' @seealso
 #'
-#' 
+#'
 #' @examples
 #'
+#' @export
 
-computeAssociations = function(start=1){
-   m = self
-   OmegaCor = vector("list", m$nr)
-   postList=poolMcmcChains(m$postList, start = start)
+computeAssociations = function(hM, start=1){
+   OmegaCor = vector("list", hM$nr)
+   postList=poolMcmcChains(hM$postList, start = start)
    getOmegaCor = function(a,r=r)
       return(cov2cor(crossprod(a$Lambda[[r]])))
-   for (r in seq_len(m$nr)){
+   for (r in seq_len(hM$nr)){
       OmegaCor1 = lapply(postList, getOmegaCor, r=r)
       mOmegaCor1 = apply(abind(OmegaCor1,along=3),c(1,2),mean)
       OmegaCor2 = lapply(OmegaCor1, function(a) return(a>0))
       support1 = apply(abind(OmegaCor2,along=3),c(1,2),mean)
-      colnames(mOmegaCor1) = m$spNames
-      rownames(mOmegaCor1) = m$spNames
-      colnames(support1) = m$spNames
-      rownames(support1) = m$spNames
+      colnames(mOmegaCor1) = hM$spNames
+      rownames(mOmegaCor1) = hM$spNames
+      colnames(support1) = hM$spNames
+      rownames(support1) = hM$spNames
       tmp = list()
       tmp$mean = mOmegaCor1
       tmp$support = support1
@@ -34,5 +34,3 @@ computeAssociations = function(start=1){
    }
    return(OmegaCor)
 }
-
-Hmsc$set("public", "computeAssociations", computeAssociations, overwrite=TRUE)

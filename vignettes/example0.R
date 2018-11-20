@@ -1,13 +1,11 @@
-# Defining a HMSC with 2 latent factors levels (non-spatial at the level of ovservations and 2D at the level of sites),
-# probit data, and traits
+# Defining a HMSC without latent factors levels
 rm(list=ls())
 set.seed(1)
 
-# download, install the package from GitHub and load it to the session
+####################################### installation ########################################################
 # library(devtools)
 # install_github("gtikhonov/HMSC")
-# library(Hmsc)
-# library(lattice)
+library(Hmsc)
 
 ny = 1000
 ns = 21
@@ -16,7 +14,7 @@ np2 = 70
 distr = "normal"
 
 
-# read or generate some data
+####################################### generating data #####################################################
 X = matrix(rnorm(ny*nc),ny,nc)
 S = data.frame(s1=1:np2,s2=rnorm(np2))
 Beta = matrix(rnorm(nc*ns),nc,ns)
@@ -29,22 +27,17 @@ Y = L + matrix(rnorm(ny*ns),ny,ns)*matrix(sqrt(sigma),ny,ns,byrow=TRUE)
 if(distr=="probit")
    Y = matrix(as.numeric(Y>0),ny,ns)
 
+####################################### create the main model and specify data, priors, parameters ##########
+m = Hmsc(Y=Y, X=X, dist=distr, dfPi)
+m = sampleMcmc(m, 100, thin=10, adaptNf=c(200,200), nChains=2 )
 
-# create the main model and specify data, priors, parameters
-m = Hmsc$new(Y=Y, X=X, dist=distr, dfPi)
-
-
-m$sampleMcmc(100, thin=10, adaptNf=c(200,200), initPar=list(Eta=list(),Beta=Beta) )
-
-# postprocessing....
-
-postBeta = array(unlist(lapply(m$postList, function(a) a$Beta)),c(nc,ns,m$samples))
+####################################### postprocessing #####################################################
+postBeta = array(unlist(lapply(poolMcmcChains(m$postList), function(a) a$Beta)),c(nc,ns,m$samples))
 plot(Beta,apply(postBeta,c(1,2),mean),main="Beta")
 abline(0,1,col="red")
 
-# mcmcBeta = as.mcmc(matrix(as.vector(postBeta),m$samples,nc*ns,byrow=TRUE))
-# plot(mcmcBeta)
-# acfplot(mcmcBeta)
+codaList = convertToCodaObject(m)
+gelman.diag(codaList$Beta)
 
 getOmega = function(a,r=1)
    return(crossprod(a$Lambda[[r]]))

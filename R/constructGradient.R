@@ -1,4 +1,4 @@
-#' @title Hmsc$constructGradient
+#' @title hM$sc$constructGradient
 #'
 #' @description Computes ...
 #' @param focalVariable
@@ -11,14 +11,15 @@
 #'
 #' @seealso
 #'
-#' 
+#'
 #' @examples
 #'
+#' @export
 
-constructGradient = function(focalVariable, non.focalVariables=list(), ngrid=20){
+constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid=20){
 
   non.focalNames = names(non.focalVariables)
-  Mode <- function(x, na.rm = FALSE) {
+  Mode <- function(x, na.rm=FALSE) {
     if(na.rm){
       x = x[!is.na(x)]
     }
@@ -26,7 +27,7 @@ constructGradient = function(focalVariable, non.focalVariables=list(), ngrid=20)
     return(ux[which.max(tabulate(match(x, ux)))])
   }
 
-  vars = all.vars(self$XFormula)
+  vars = all.vars(hM$XFormula)
   nvars = length(vars)
   factors = rep(FALSE,nvars)
   focal = NA
@@ -58,14 +59,14 @@ constructGradient = function(focalVariable, non.focalVariables=list(), ngrid=20)
         vals[[length(vals)+1]] = NA
       }
     }
-    if (is.factor(self$XData[,vars[i]])){
+    if (is.factor(hM$XData[,vars[i]])){
       factors[i] = TRUE
     }
   }
 
 
   f.focal = factors[focal]
-  v.focal = self$XData[,vars[focal]]
+  v.focal = hM$XData[,vars[focal]]
   if (f.focal){
     xx = levels(v.focal)
     ngrid = length(xx)
@@ -82,7 +83,7 @@ constructGradient = function(focalVariable, non.focalVariables=list(), ngrid=20)
     type = types[i]
     val = vals[[i]]
     f.non.focal = factors[non.focal]
-    v.non.focal = self$XData[,vars[non.focal]]
+    v.non.focal = hM$XData[,vars[non.focal]]
     if (f.non.focal){
       if (type==1){
         XDataNew[,vars[non.focal]] = Mode(v.non.focal)
@@ -97,7 +98,7 @@ constructGradient = function(focalVariable, non.focalVariables=list(), ngrid=20)
       }
     }
     if (!f.non.focal){
-      v.non.focal = self$XData[,vars[non.focal]]
+      v.non.focal = hM$XData[,vars[non.focal]]
       if (type==1){
         XDataNew[,vars[non.focal]] = mean(v.non.focal)
       }
@@ -113,16 +114,15 @@ constructGradient = function(focalVariable, non.focalVariables=list(), ngrid=20)
   }
 
 
-  dfPiNew = matrix(NA,ngrid,self$nr)
-  for (r in seq_len(self$nr)){
+  dfPiNew = matrix(NA,ngrid,hM$nr)
+  for (r in seq_len(hM$nr)){
     dfPiNew[,r] = sprintf('new_unit',1:(ngrid))
   }
   dfPiNew = as.data.frame(dfPiNew)
 
-  rLNew = vector("list", self$nr)
-  for (r in seq_len(self$nr)){
-    tmp = self$rL[[r]]
-    rL1=tmp$clone()
+  rLNew = vector("list", hM$nr)
+  for (r in seq_len(hM$nr)){
+    rL1 = hM$rL[[r]]
     units = rL1$pi
     units1 = c(units,"new_unit")
     xydata = rL1$s
@@ -144,5 +144,3 @@ constructGradient = function(focalVariable, non.focalVariables=list(), ngrid=20)
 
   return(Gradient)
 }
-
-Hmsc$set("public", "constructGradient", constructGradient, overwrite=TRUE)

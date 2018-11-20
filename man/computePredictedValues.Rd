@@ -2,10 +2,11 @@
 % Please edit documentation in R/computePredictedValues.R
 \name{computePredictedValues}
 \alias{computePredictedValues}
-\title{Hmsc$computePredictedValues}
+\title{computePredictedValues}
 \usage{
-computePredictedValues(nfolds = NULL, column = NULL, partition = NULL,
-  start = 1, expected = TRUE)
+computePredictedValues(hM, nfolds = NULL, column = NULL,
+  partition = NULL, start = 1, Yc = NULL, mcmcStep = 1,
+  expected = TRUE)
 }
 \arguments{
 \item{nfolds}{number of cross-validation folds}

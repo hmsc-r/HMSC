@@ -1,6 +1,6 @@
 #' @title predictLatentFactor
 #'
-#' @description Predicts 
+#' @description Predicts
 #'
 #' @param unitsPred
 #' @param units
@@ -15,9 +15,10 @@
 #'
 #' @seealso
 #'
-#' 
+#'
 #' @examples
 #'
+#' @export
 
 predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predictMean=FALSE){
    predN = length(postEta)
@@ -88,6 +89,4 @@ predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predict
    }
    return(postEtaPred)
 }
-
-# Hmsc$set("public", "predictLatentFactor", predictLatentFactor, overwrite=TRUE)
 

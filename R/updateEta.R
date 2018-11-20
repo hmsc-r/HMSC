@@ -74,8 +74,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,rL){
             fS = tcrossprod(S[order(lPi),,drop=FALSE],lambda*matrix(iSigma,nf,ns,byrow=TRUE))
             iUEta = iWs + tmp1
             R = chol(iUEta)
-            L = t(R)
-            tmp2 = forwardsolve(L, as.vector(fS)) + rnorm(np[r]*nf)
+            tmp2 = backsolve(R, as.vector(fS), transpose=TRUE) + rnorm(np[r]*nf)
             feta = backsolve(R, tmp2);
             eta = matrix(feta,np[r],nf);
          } else{
@@ -84,8 +83,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,rL){
             fS = tcrossprod(crossprod(Pr,S), lambda*matrix(iSigma,nf,ns,byrow=TRUE))
             iUEta = iWs + tmp1
             R = chol(iUEta)
-            L = t(R)
-            tmp2 = forwardsolve(L, as.vector(fS)) + rnorm(np[r]*nf)
+            tmp2 = backsolve(R, as.vector(fS), transpose=TRUE) + rnorm(np[r]*nf)
             feta = backsolve(R, tmp2);
             eta = matrix(feta,np[r],nf);
          }

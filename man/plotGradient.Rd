@@ -4,8 +4,8 @@
 \alias{plotGradient}
 \title{Hmsc$plotGradient}
 \usage{
-plotGradient(Gradient, pred, measure, index = 1, prob = c(0.025, 0.5,
-  0.975))
+plotGradient(hM, Gradient, pred, measure, index = 1, prob = c(0.025,
+  0.5, 0.975))
 }
 \arguments{
 \item{prob}{}

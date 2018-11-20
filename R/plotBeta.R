@@ -21,28 +21,27 @@
 #'
 #' @seealso
 #'
-#' 
+#'
 #' @examples
 #'
+#' @export
 
 
-plotBeta = function(post, param = "Support", plotTree = F, 
+plotBeta = function(hM, post, param = "Support", plotTree = F,
   SpeciesOrder = "Original", SpVector = NULL, covOrder="Original",
-  covVector=NULL, spNamesNumbers = c(T,T), covNamesNumbers = c(T,T), 
+  covVector=NULL, spNamesNumbers = c(T,T), covNamesNumbers = c(T,T),
   supportLevel = 0.9, split = 0.3, cex = c(0.7,0.7,0.8)){
 
-   m = self
-
    if(plotTree){
-      tree = m$phyloTree
+      tree = hM$phyloTree
       tree = untangle(tree,"read.tree")
    }
 
-   spNames = character(m$ns)
-   for (i in 1:m$ns) {
+   spNames = character(hM$ns)
+   for (i in 1:hM$ns) {
       sep = ""
       if (spNamesNumbers[1]) {
-         spNames[i] = paste(spNames[i], m$spNames[i], sep = sep)
+         spNames[i] = paste(spNames[i], hM$spNames[i], sep = sep)
          sep = " "
       }
       if (spNamesNumbers[2]) {
@@ -51,11 +50,11 @@ plotBeta = function(post, param = "Support", plotTree = F,
       }
    }
 
-   covNames = character(m$nc)
-   for (i in 1:m$nc) {
+   covNames = character(hM$nc)
+   for (i in 1:hM$nc) {
       sep = ""
       if (covNamesNumbers[1]) {
-         covNames[i] = paste(covNames[i], m$covNames[i], sep = sep)
+         covNames[i] = paste(covNames[i], hM$covNames[i], sep = sep)
          sep = " "
       }
       if (covNamesNumbers[2]) {
@@ -66,12 +65,12 @@ plotBeta = function(post, param = "Support", plotTree = F,
 
    if(plotTree){order=tree$tip.label}
    if(!plotTree & SpeciesOrder=="Vector"){order=SpVector}
-   if(!plotTree & SpeciesOrder=="Original"){order=rev(1:ncol(m$Y))}
-   if(!plotTree & SpeciesOrder=="Tree"){order=match(tree$tip.label,colnames(m$Y))}
-   if(!plotTree & SpeciesOrder=="Tree"){order=match(tree$tip.label,m$spNames)}
+   if(!plotTree & SpeciesOrder=="Original"){order=rev(1:ncol(hM$Y))}
+   if(!plotTree & SpeciesOrder=="Tree"){order=match(tree$tip.label,colnames(hM$Y))}
+   if(!plotTree & SpeciesOrder=="Tree"){order=match(tree$tip.label,hM$spNames)}
 
    if(covOrder=="Vector"){covorder=covVector}
-   if(covOrder=="Original"){covorder=1:ncol(m$X)}
+   if(covOrder=="Original"){covorder=1:ncol(hM$X)}
 
    mbeta=post$mean
    betaP=post$support
@@ -79,17 +78,17 @@ plotBeta = function(post, param = "Support", plotTree = F,
    if(param=="Beta"){
       toPlot = mbeta
       toPlot = toPlot * ((betaP>supportLevel) + (betaP<(1-supportLevel))>0)
-      betaMat = matrix(toPlot, nrow=ncol(m$X), ncol=ncol(m$Y))
+      betaMat = matrix(toPlot, nrow=ncol(hM$X), ncol=ncol(hM$Y))
    }
    else{
       if(param=="Support"){
          toPlot = 2*betaP-1
          toPlot = toPlot * ((betaP>supportLevel) + (betaP<(1-supportLevel))>0)
-         betaMat = matrix(toPlot, nrow=ncol(m$X), ncol=ncol(m$Y))
+         betaMat = matrix(toPlot, nrow=ncol(hM$X), ncol=ncol(hM$Y))
       }}
 
    rownames(betaMat) = covNames
-   if(plotTree){colnames(betaMat) = m$spNames}
+   if(plotTree){colnames(betaMat) = hM$spNames}
    if(!plotTree){colnames(betaMat) = spNames}
 
    X = t(betaMat[covorder,order])
@@ -101,7 +100,7 @@ plotBeta = function(post, param = "Support", plotTree = F,
    if(plotTree){
       par(fig = c(0,split[1],0,1), mar=c(6,0,2,0))
       if(sum(!spNamesNumbers)==2){plot(tree,show.tip.label=F)}
-      else{tree$tip.label[match(m$spNames,tree$tip.label)]=spNames
+      else{tree$tip.label[match(hM$spNames,tree$tip.label)]=spNames
       plot(tree, show.tip.label=T,adj=1,align.tip.label=T,cex=cex[2])}
 
       par(fig = c(split[1],1,0,1),  mar=c(6,0,2,0), new=T)
@@ -150,5 +149,3 @@ plotBeta = function(post, param = "Support", plotTree = F,
       lab.breaks=NULL, zlim = zlim)
    par(old.par)
 }
-
-Hmsc$set("public", "plotBeta", plotBeta, overwrite=TRUE)

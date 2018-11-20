@@ -4,8 +4,9 @@
 \alias{predict.Hmsc}
 \title{predict.Hmsc}
 \usage{
-\method{predict}{Hmsc}(post = poolMcmcChains(self$postList), XData = NULL,
-  X = NULL, dfPiNew = self$dfPi, rL = self$rL, expected = FALSE,
+\method{predict}{Hmsc}(hM, post = poolMcmcChains(hM$postList),
+  XData = NULL, X = NULL, dfPiNew = hM$dfPi, rL = hM$rL,
+  Yc = NULL, mcmcStep = 1, expected = FALSE,
   predictEtaMean = FALSE)
 }
 \arguments{
@@ -17,7 +18,7 @@
 
 }
 \description{
-Calculates predicted values for a given HMSC model
+Calculates predicted values for a given hMSC model
 }
 \examples{
 

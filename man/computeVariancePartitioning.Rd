@@ -4,7 +4,7 @@
 \alias{computeVariancePartitioning}
 \title{Hmsc$computeVariancePartitioning}
 \usage{
-computeVariancePartitioning(group, groupnames, start = 1)
+computeVariancePartitioning(hM, group, groupnames, start = 1)
 }
 \arguments{
 \item{group}{vector of numeric values corresponding to group identifiers in groupnames}

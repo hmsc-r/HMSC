@@ -4,11 +4,11 @@
 \alias{convertToCodaObject}
 \title{Hmsc$convertToCodaObject}
 \usage{
-convertToCodaObject(start = 1, spNamesNumbers = c(TRUE, TRUE),
+convertToCodaObject(hM, start = 1, spNamesNumbers = c(TRUE, TRUE),
   covNamesNumbers = c(TRUE, TRUE), trNamesNumbers = c(TRUE, TRUE),
   Beta = TRUE, Gamma = TRUE, V = TRUE, Sigma = TRUE, Rho = TRUE,
-  Eta = TRUE, Lambda = TRUE, Alpha = TRUE, Omega = TRUE, Psi = TRUE,
-  Delta = TRUE)
+  Eta = TRUE, Lambda = TRUE, Alpha = TRUE, Omega = TRUE,
+  Psi = TRUE, Delta = TRUE)
 }
 \arguments{
 \item{start}{index of first MCMC sample included}

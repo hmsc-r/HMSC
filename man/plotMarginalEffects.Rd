@@ -4,7 +4,7 @@
 \alias{plotMarginalEffects}
 \title{Hmsc$plotMarginalEffects}
 \usage{
-plotMarginalEffects(pred, covariate, measure, index = 1)
+plotMarginalEffects(hM, model, pred, covariate, measure, index = 1)
 }
 \arguments{
 \item{index}{}

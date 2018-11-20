@@ -1,4 +1,4 @@
-#' @title Hmsc$plotVariancePartitioning
+#' @title plotVariancePartitioning
 #'
 #' @description Plots ...
 #' @param VP
@@ -10,17 +10,17 @@
 #'
 #' @seealso
 #'
-#' 
+#'
 #' @examples
 #'
+#' @export
 
-plotVariancePartitioning = function(VP, ...){
-   m = self
+plotVariancePartitioning = function(hM, VP, ...){
 
    ng = dim(VP$vals)[1]
    leg = VP$groupnames
-   for(r in 1:m$nr){
-      leg = c(leg, paste("random: ", m$levelNames[r], sep=""))
+   for(r in 1:hM$nr){
+      leg = c(leg, paste("random: ", hM$levelNames[r], sep=""))
    }
    means = round(100*rowMeans(VP$vals), 1)
    for(i in 1:ng){
@@ -31,5 +31,3 @@ plotVariancePartitioning = function(VP, ...){
    barplot(VP$vals, main=mainTitle, xlab="Species", ylab="Variance proportion", legend=leg,
      col=heat.colors(ng,alpha=1), ...)
 }
-
-Hmsc$set("public", "plotVariancePartitioning", plotVariancePartitioning, overwrite=TRUE)

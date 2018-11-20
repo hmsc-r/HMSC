@@ -11,37 +11,36 @@
 #'
 #' @seealso
 #'
-#' 
+#'
 #' @examples
 #'
+#' @export
 
-computeVariancePartitioning = function(group, groupnames, start=1){
-   m = self
-
-   ny = m$ny
-   nc = m$nc
-   nt = m$nt
-   ns = m$ns
-   np = m$np
-   nr = m$nr
+computeVariancePartitioning = function(hM, group, groupnames, start=1){
+   ny = hM$ny
+   nc = hM$nc
+   nt = hM$nt
+   ns = hM$ns
+   np = hM$np
+   nr = hM$nr
 
    ngroups = max(group);
    fixed = matrix(0,nrow=ns,ncol=1);
    fixedsplit = matrix(0,nrow=ns,ncol=ngroups);
    random = matrix(0,nrow=ns,ncol=nr);
    traitR2 = 0
-   cM = cov(m$X)
+   cM = cov(hM$X)
 
-   postList=poolMcmcChains(m$postList, start=start)
+   postList=poolMcmcChains(hM$postList, start=start)
 
    geta = function(a)
-      return(m$X%*%(t(m$Tr%*%t(a$Gamma))))
+      return(hM$X%*%(t(hM$Tr%*%t(a$Gamma))))
    la=lapply(postList, geta)
    getf = function(a)
-      return(m$X%*%(a$Beta))
+      return(hM$X%*%(a$Beta))
    lf=lapply(postList, getf)
 
-   for (i in 1:m$samples){
+   for (i in 1:hM$samples){
       fixed1 = matrix(0,nrow=ns,ncol=1);
       fixedsplit1 = matrix(0,nrow=ns,ncol=ngroups);
       random1 = matrix(0,nrow=ns,ncol=nr);
@@ -51,10 +50,10 @@ computeVariancePartitioning = function(group, groupnames, start=1){
       f = lf[[i]]
       a = la[[i]]
 
-      a=a-matrix(rep(rowMeans(a),m$ns),ncol=m$ns)
-      f=f-matrix(rep(rowMeans(f),m$ns),ncol=m$ns)
-      res1 = sum((rowSums((a*f))/(m$ns-1))^2)
-      res2 = sum((rowSums((a*a))/(m$ns-1))*(rowSums((f*f))/(m$ns-1)))
+      a=a-matrix(rep(rowMeans(a),hM$ns),ncol=hM$ns)
+      f=f-matrix(rep(rowMeans(f),hM$ns),ncol=hM$ns)
+      res1 = sum((rowSums((a*f))/(hM$ns-1))^2)
+      res2 = sum((rowSums((a*a))/(hM$ns-1))*(rowSums((f*f))/(hM$ns-1)))
       traitR2 = traitR2 + res1/res2
       for (j in 1:ns){
          ftotal = t(Beta[,j])%*%cM%*%Beta[,j]
@@ -86,10 +85,10 @@ computeVariancePartitioning = function(group, groupnames, start=1){
          fixedsplit[,k] =  fixedsplit[,k] + fixedsplit1[,k]/rowSums(fixedsplit1)
       }
    }
-   fixed = fixed/m$samples
-   random = random/m$samples
-   fixedsplit = fixedsplit/m$samples
-   traitR2 = traitR2/m$samples
+   fixed = fixed/hM$samples
+   random = random/hM$samples
+   fixedsplit = fixedsplit/hM$samples
+   traitR2 = traitR2/hM$samples
 
 
    vals = matrix(0,nrow=ngroups+nr,ncol=ns)
@@ -109,5 +108,3 @@ computeVariancePartitioning = function(group, groupnames, start=1){
 
    return(VP)
 }
-
-Hmsc$set("public", "computeVariancePartitioning", computeVariancePartitioning, overwrite=TRUE)

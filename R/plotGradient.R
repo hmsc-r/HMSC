@@ -14,11 +14,12 @@
 #'
 #' @seealso
 #'
-#' 
+#'
 #' @examples
 #'
+#' @export
 
-plotGradient = function(Gradient, pred, measure, index=1, prob=c(0.025,0.5,0.975)){
+plotGradient = function(hM, Gradient, pred, measure, index=1, prob=c(0.025,0.5,0.975)){
 
   if (measure == "S"){
     predS = lapply(predY, rowSums)
@@ -28,13 +29,13 @@ plotGradient = function(Gradient, pred, measure, index=1, prob=c(0.025,0.5,0.975
   if (measure == "Y"){
     qpred = apply(abind(predY,along=3),c(1,2),quantile,prob=prob)
     qpred = qpred[,,index]
-    ylabel = self$spNames[[index]]
+    ylabel = hM$spNames[[index]]
   }
   if (measure == "T"){
-    predT = lapply(predY, function(a) (a%*%self$Tr)/matrix(rep(rowSums(a),self$nt),ncol=self$nt))
+    predT = lapply(predY, function(a) (a%*%hM$Tr)/matrix(rep(rowSums(a),hM$nt),ncol=hM$nt))
     qpred = apply(abind(predT,along=3),c(1,2),quantile,prob=prob)
     qpred = qpred[,,index]
-    ylabel = self$trNames[[index]]
+    ylabel = hM$trNames[[index]]
   }
 
   xlabel = colnames(Gradient$XDataNew)[[1]]
@@ -59,6 +60,3 @@ plotGradient = function(Gradient, pred, measure, index=1, prob=c(0.025,0.5,0.975
     lines(xx, qpred[3,], col="red",lty=2)
   }
 }
-
-Hmsc$set("public", "plotGradient", plotGradient, overwrite=TRUE)
-

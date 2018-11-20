@@ -4,7 +4,7 @@
 \alias{computeR2}
 \title{Hmsc$computeR2}
 \usage{
-computeR2(predY)
+computeR2(hM, predY)
 }
 \arguments{
 \item{predY}{vector of predictions from the trained model}

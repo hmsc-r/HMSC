@@ -2,9 +2,9 @@
 % Please edit documentation in R/computeAssociations.R
 \name{computeAssociations}
 \alias{computeAssociations}
-\title{Hmsc$computeAssociations}
+\title{computeAssociations}
 \usage{
-computeAssociations(start = 1)
+computeAssociations(hM, start = 1)
 }
 \arguments{
 \item{start}{index of first MCMC sample included}

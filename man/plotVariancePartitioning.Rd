@@ -2,9 +2,9 @@
 % Please edit documentation in R/plotVariancePartitioning.R
 \name{plotVariancePartitioning}
 \alias{plotVariancePartitioning}
-\title{Hmsc$plotVariancePartitioning}
+\title{plotVariancePartitioning}
 \usage{
-plotVariancePartitioning(VP, ...)
+plotVariancePartitioning(hM, VP, ...)
 }
 \arguments{
 \item{...}{other parameters passed to the barplot function}

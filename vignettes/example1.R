@@ -6,7 +6,7 @@ set.seed(1)
 # download, install the package from GitHub and load it to the session
 # library(devtools)
 # install_github("gtikhonov/HMSC")
-# library(Hmsc)
+library(Hmsc)
 
 ny = 1001L
 ns = 41L
@@ -14,10 +14,11 @@ nc = 13L
 nt = 2L
 
 distr = "normal"
-
 samples = 100
 thin = 10
 
+
+####################################### generating data #####################################################
 X = matrix(rnorm(ny*nc),ny,nc)
 X[,1] = 1
 Tr = matrix(rnorm(ns*nt),ns,nt)
@@ -70,11 +71,11 @@ sigmaT = d
 LambdaT = Lambda
 EtaT = Eta
 
-# create the main model and specify data, priors, parameters
-m = Hmsc$new(Y=Y, X=X, dist=distr, Pi=dfPi, Tr=Tr)
+####################################### create the main model and specify data, priors, parameters ##########
+m = Hmsc(Y=Y, X=X, dist=distr, dfPi=dfPi, Tr=Tr)
 
 start = proc.time()
-m$sampleMcmc(samples, thin=thin, adaptNf=0*c(200,200) )
+m = sampleMcmc(m, samples, thin=thin, adaptNf=0*c(200,200))
 stop = proc.time()
 
 # postprocessing....

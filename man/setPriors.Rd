@@ -4,30 +4,17 @@
 \alias{setPriors}
 \title{setPriors}
 \usage{
-setPriors(V0 = NULL, f0 = NULL, mGamma = NULL, UGamma = NULL,
-  aSigma = NULL, bSigma = NULL, nu = NULL, a1 = NULL, b1 = NULL,
-  a2 = NULL, b2 = NULL, rhopw = NULL, setDefault = FALSE)
+setPriors(x, ...)
 }
 \arguments{
-\item{V0}{scale matrix in the Wishart prior distribution for the Beta parameters}
-
-\item{f0}{number of degreees of freedom in the Wishart prior distribution for the Beta parameters}
-
-\item{mGamma}{mean for the prior multivariate Gaussian distribution for Gamma parameters}
-
-\item{UGamma}{covariance matrix for the prior multivariate Gaussian distribution for Gamma parameters}
-
-\item{setDefault}{}
+\item{x}{Hmsc or HmscRandolLevel object}
 }
 \value{
-
+Object of same type as first input
 }
 \description{
-Sets or resets priors to the Hmsc object
-}
-\examples{
-
+Sets or resets priors to objects
 }
 \seealso{
-
+setPriors.Hmsc, setPriors.HmscRandomLevel
 }

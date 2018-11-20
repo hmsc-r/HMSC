@@ -75,9 +75,11 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQg, X,Tr,Pi,
       # available phylogeny information
       P = bdiag(kronecker(iV,iQg[,,rho]), Diagonal(x=t(priorLambda)))
       RiU = chol(kronecker(Q,diag(iSigma)) + P)
-      U = chol2inv(RiU)
-      m = U %*% (P%*%as.vector(t(Mu)) + as.vector(t(isXTS)))
-      BetaLambda = matrix(m + backsolve(RiU, rnorm(ns*(nc+nfSum))), nc+nfSum, ns, byrow=TRUE)
+      # U = chol2inv(RiU)
+      # m = U %*% (P%*%as.vector(t(Mu)) + as.vector(t(isXTS)))
+      # BetaLambda = matrix(m + backsolve(RiU, rnorm(ns*(nc+nfSum))), nc+nfSum, ns, byrow=TRUE)
+      m1 = backsolve(RiU, P%*%as.vector(t(Mu)) + as.vector(t(isXTS)), transpose=TRUE)
+      BetaLambda = matrix(backsolve(RiU, m1 + rnorm(ns*(nc+nfSum))), nc+nfSum, ns, byrow=TRUE)
    }
    Beta = BetaLambda[1:nc,,drop=F]
    for(r in seq_len(nr)){

@@ -2,9 +2,10 @@
 % Please edit documentation in R/constructGradient.R
 \name{constructGradient}
 \alias{constructGradient}
-\title{Hmsc$constructGradient}
+\title{hM$sc$constructGradient}
 \usage{
-constructGradient(focalVariable, non.focalVariables = list(), ngrid = 20)
+constructGradient(hM, focalVariable, non.focalVariables = list(),
+  ngrid = 20)
 }
 \arguments{
 \item{ngrid}{}

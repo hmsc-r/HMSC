@@ -4,9 +4,10 @@
 \alias{plotGamma}
 \title{plotBeta}
 \usage{
-plotGamma(post, param = "Gamma", trOrder = "Original", trVector = NULL,
-  covOrder = "Original", covVector = NULL, trNamesNumbers = c(T, T),
-  covNamesNumbers = c(T, T), supportLevel = 0.9, cex = c(0.8, 0.8, 0.8))
+plotGamma(hM, post, param = "Gamma", trOrder = "Original",
+  trVector = NULL, covOrder = "Original", covVector = NULL,
+  trNamesNumbers = c(T, T), covNamesNumbers = c(T, T),
+  supportLevel = 0.9, cex = c(0.8, 0.8, 0.8))
 }
 \arguments{
 \item{cex}{}

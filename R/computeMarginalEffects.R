@@ -11,9 +11,10 @@
 #'
 #' @seealso
 #'
-#' 
+#'
 #' @examples
 #'
+#' @export
 
 computeMarginalEffects = function(ngrid=20, prob=c(0.025,0.5,0.975), clist=1:self$nc){
    m = self
@@ -100,5 +101,3 @@ computeMarginalEffects = function(ngrid=20, prob=c(0.025,0.5,0.975), clist=1:sel
    }
    return(pred)
 }
-
-Hmsc$set("public", "computeMarginalEffects", computeMarginalEffects, overwrite=TRUE)

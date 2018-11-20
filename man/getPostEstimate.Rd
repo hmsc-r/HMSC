@@ -4,11 +4,11 @@
 \alias{getPostEstimate}
 \title{Hmsc$getPostEstimate}
 \usage{
-getPostEstimate(parName, r = 1, q = c(),
-  chainIndex = 1:length(self$postList))
+getPostEstimate(hM, parName, r = 1, q = c(),
+  chainIndex = 1:length(hM$postList))
 }
 \arguments{
-\item{parName}{The name of the parameter to be summarized. Can take value of 
+\item{parName}{The name of the parameter to be summarized. Can take value of
 model's baseline parameters, "Omega" or "OmegaCor".}
 
 \item{r}{Which random level calculate the parameter for. Has effect only for Eta, Lambda, Omega and OmegaCor.}

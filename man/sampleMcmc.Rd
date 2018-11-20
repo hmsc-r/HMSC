@@ -4,9 +4,10 @@
 \alias{sampleMcmc}
 \title{sampleMCMC}
 \usage{
-sampleMcmc(samples, transient = 0, thin = 1, initPar = NULL, repN = 1,
-  saveToDisk = FALSE, verbose = samples * thin/100, adaptNf = NULL,
-  nChains = 1, dataParList = NULL, updater = list())
+sampleMcmc(hM, samples, transient = 0, thin = 1, initPar = NULL,
+  repN = 1, saveToDisk = FALSE, verbose = samples * thin/100,
+  adaptNf = NULL, nChains = 1, dataParList = NULL,
+  updater = list())
 }
 \arguments{
 \item{samples}{number of MCMC steps to be recorded}

@@ -4,10 +4,10 @@
 \alias{plotBeta}
 \title{plotBeta}
 \usage{
-plotBeta(post, param = "Support", plotTree = F, SpeciesOrder = "Original",
-  SpVector = NULL, covOrder = "Original", covVector = NULL,
-  spNamesNumbers = c(T, T), covNamesNumbers = c(T, T), supportLevel = 0.9,
-  split = 0.3, cex = c(0.7, 0.7, 0.8))
+plotBeta(hM, post, param = "Support", plotTree = F,
+  SpeciesOrder = "Original", SpVector = NULL, covOrder = "Original",
+  covVector = NULL, spNamesNumbers = c(T, T), covNamesNumbers = c(T,
+  T), supportLevel = 0.9, split = 0.3, cex = c(0.7, 0.7, 0.8))
 }
 \arguments{
 \item{cex}{}

@@ -9,31 +9,31 @@
 #'
 #' @seealso
 #'
-#' 
+#'
 #' @examples
 #'
 
 
-computeDataParameters = function(){
+computeDataParameters = function(hM){
    parList = list()
 
-   if(!is.null(self$C)){
-      iQg = array(NA, c(self$ns,self$ns,nrow(self$rhopw)))
-      RiQg = array(NA, c(self$ns,self$ns,nrow(self$rhopw)))
-      detQg = rep(NA, nrow(self$rhopw))
-      if(any(self$rhopw[,1] < 0))
-         iC = chol2inv(chol(self$C))
-      for(rg in 1:nrow(self$rhopw)){
-         rho = self$rhopw[rg,1]
+   if(!is.null(hM$C)){
+      iQg = array(NA, c(hM$ns,hM$ns,nrow(hM$rhopw)))
+      RiQg = array(NA, c(hM$ns,hM$ns,nrow(hM$rhopw)))
+      detQg = rep(NA, nrow(hM$rhopw))
+      if(any(hM$rhopw[,1] < 0))
+         iC = chol2inv(chol(hM$C))
+      for(rg in 1:nrow(hM$rhopw)){
+         rho = hM$rhopw[rg,1]
          if(rho >= 0){
-            rhoC = rho*self$C;
+            rhoC = rho*hM$C;
          } else{
             rhoC = (-rho)*iC;
          }
-         Q = rhoC + (1-abs(rho))*diag(self$ns)
+         Q = rhoC + (1-abs(rho))*diag(hM$ns)
          RQ = chol(Q);
          iQg[,,rg] = chol2inv(RQ)
-         RiQg[,,rg] = t(backsolve(RQ, diag(self$ns)))
+         RiQg[,,rg] = t(backsolve(RQ, diag(hM$ns)))
          detQg[rg] = 2*sum(log(diag(RQ)))
       }
    } else{
@@ -42,12 +42,12 @@ computeDataParameters = function(){
       RiQg = NULL
    }
 
-   rLPar = vector("list", self$nr)
-   for(r in seq_len(self$nr)){
-      if(self$rL[[r]]$sDim > 0){
-         alphapw = self$rL[[r]]$alphapw
-         np = self$np[r]
-         s = self$rL[[r]]$s[levels(self$dfPi[,r]),]
+   rLPar = vector("list", hM$nr)
+   for(r in seq_len(hM$nr)){
+      if(hM$rL[[r]]$sDim > 0){
+         alphapw = hM$rL[[r]]$alphapw
+         np = hM$np[r]
+         s = hM$rL[[r]]$s[levels(hM$dfPi[,r]),]
          alphaN = nrow(alphapw)
          distance = as.matrix(dist(s))
 
@@ -78,6 +78,4 @@ computeDataParameters = function(){
 
    return(parList)
 }
-
-Hmsc$set("private", "computeDataParameters", computeDataParameters, overwrite=TRUE)
 

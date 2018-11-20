@@ -44,7 +44,7 @@ for(r in 1:nr){
 
 sRL1 = matrix(runif(np[1]*2),np[1],2)
 rownames(sRL1) = as.character(1:np[1]) #sprintf('%.3d',1:np[1])#
-rL1 = HmscRandomLevel$new(data=sRL1, priors="default")
+rL1 = HmscRandomLevel(data=sRL1, priors="default")
 alpha1 = c(80, 1)
 # rL1 = HmscRandomLevel$new(N=np[1])
 

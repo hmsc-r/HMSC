@@ -13,11 +13,12 @@
 #'
 #' @seealso
 #'
-#' 
+#'
 #' @examples
 #'
-plotMarginalEffects = function(pred, covariate, measure, index=1){
-   m = self
+#' @export
+
+plotMarginalEffects = function(hM, model, pred, covariate, measure, index=1){
 
    if (measure == "S"){
       val = t(pred[[covariate]]$S)
@@ -26,11 +27,11 @@ plotMarginalEffects = function(pred, covariate, measure, index=1){
 
    if (measure == "Y"){
       val = t(pred[[covariate]]$Y[,,index])
-      ylab = m$spNames[[index]]
+      ylab = hM$spNames[[index]]
    }
    if (measure == "T"){
       val = t(pred[[covariate]]$Tr[,,index])
-      ylab = m$trNames[[index]]
+      ylab = hM$trNames[[index]]
    }
 
    xlab = colnames(val)[[1]]
@@ -40,5 +41,3 @@ plotMarginalEffects = function(pred, covariate, measure, index=1){
    lines(val[,1], val[,2], col="red",lty=2)
    lines(val[,1], val[,4], col="red",lty=2)
 }
-
-Hmsc$set("public", "plotMarginalEffects", plotMarginalEffects, overwrite=TRUE)

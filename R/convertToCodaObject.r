@@ -23,36 +23,36 @@
 #'
 #' @seealso
 #'
-#' 
+#'
 #' @examples
 #'
+#' @export
 
-convertToCodaObject = function(start=1, spNamesNumbers=c(TRUE,TRUE), 
+convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
   covNamesNumbers=c(TRUE,TRUE), trNamesNumbers=c(TRUE,TRUE),
   Beta=TRUE, Gamma=TRUE, V=TRUE, Sigma=TRUE, Rho=TRUE, Eta=TRUE, Lambda=TRUE, Alpha=TRUE,
   Omega=TRUE, Psi=TRUE, Delta=TRUE) {
-   m = self
-   if (is.null(m$C)){
+   if (is.null(hM$C)){
       Rho = FALSE
    }
 
-   nChains = length(m$postList)
-   nc = m$nc
-   nt = m$nt
-   ns = m$ns
-   nr = m$nr
+   nChains = length(hM$postList)
+   nc = hM$nc
+   nt = hM$nt
+   ns = hM$ns
+   nr = hM$nr
 
-   thin = m$thin
-   samples = m$samples
-   start1 = m$transient+start*thin
-   end1 = m$transient + samples*thin
+   thin = hM$thin
+   samples = hM$samples
+   start1 = hM$transient+start*thin
+   end1 = hM$transient + samples*thin
 
 
    spNames = character(ns)
    for (i in 1:ns){
       sep = ""
       if (spNamesNumbers[1]){
-         spNames[i] = paste(spNames[i],m$spNames[i],sep=sep)
+         spNames[i] = paste(spNames[i],hM$spNames[i],sep=sep)
          sep = " "
       }
       if (spNamesNumbers[2]){
@@ -64,7 +64,7 @@ convertToCodaObject = function(start=1, spNamesNumbers=c(TRUE,TRUE),
    for (i in 1:nt){
       sep = ""
       if (trNamesNumbers[1]){
-         trNames[i] = paste(trNames[i],m$trNames[i],sep=sep)
+         trNames[i] = paste(trNames[i],hM$trNames[i],sep=sep)
          sep = " "
       }
       if (trNamesNumbers[2]){
@@ -76,7 +76,7 @@ convertToCodaObject = function(start=1, spNamesNumbers=c(TRUE,TRUE),
    for (i in 1:nc){
       sep = ""
       if (covNamesNumbers[1]){
-         covNames[i] = paste(covNames[i],m$covNames[i],sep=sep)
+         covNames[i] = paste(covNames[i],hM$covNames[i],sep=sep)
          sep = " "
       }
       if (covNamesNumbers[2]){
@@ -84,7 +84,7 @@ convertToCodaObject = function(start=1, spNamesNumbers=c(TRUE,TRUE),
       }
    }
 
-   postListAll = m$postList
+   postListAll = hM$postList
 
    postBeta = list()
    postGamma = list()
@@ -167,7 +167,7 @@ convertToCodaObject = function(start=1, spNamesNumbers=c(TRUE,TRUE),
             tmp1 = lapply(postList, getEta, r=r)
             tmp2 = lapply(tmp1, function(A) cbind(A, matrix(0,nrow(A),nfMax[r]-ncol(A))))
             tmp = do.call(rbind, lapply(tmp2, as.vector))
-            colnames(tmp) = sprintf("Eta%d[%s, factor%s]",r,m$dfPi[(rep(1:m$np[r],nfMax[r])),r],as.character(rep(1:nfMax[r],each=m$np[r])))
+            colnames(tmp) = sprintf("Eta%d[%s, factor%s]",r,hM$dfPi[(rep(1:hM$np[r],nfMax[r])),r],as.character(rep(1:nfMax[r],each=hM$np[r])))
             postEta1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
          }
 
@@ -184,7 +184,7 @@ convertToCodaObject = function(start=1, spNamesNumbers=c(TRUE,TRUE),
             postOmega1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
          }
          if (Alpha)      {
-            tmp1 = lapply(lapply(postList, getAlpha, r=r), function(a) m$rL[[r]]$alphapw[a,1])
+            tmp1 = lapply(lapply(postList, getAlpha, r=r), function(a) hM$rL[[r]]$alphapw[a,1])
             tmp2 = lapply(tmp1, function(a) c(a,rep(0,nfMax[r]-length(a))))
             tmp = do.call(rbind, tmp2)
             colnames(tmp) = sprintf("Alpha%d[factor%s]",r,as.character(1:nfMax[r]) )
@@ -282,7 +282,5 @@ convertToCodaObject = function(start=1, spNamesNumbers=c(TRUE,TRUE),
    }
    return(mpost)
 }
-
-Hmsc$set("public", "convertToCodaObject", convertToCodaObject, overwrite=TRUE)
 
 
