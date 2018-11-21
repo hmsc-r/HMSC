@@ -288,7 +288,7 @@ Hmsc = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       hM$rL = rL[rNames]
 
       hM$Pi = matrix(NA,hM$ny,length(rNames),dimnames=list(NULL,rNames))
-      for(r in 1:length(rNames))
+      for(r in seq_len(length(rNames)))
          hM$Pi[,r] = as.numeric(dfPi[,rNames[r]])
       hM$np = apply(hM$Pi, 2, function(a) return(length(unique(a))))
       hM$nr = ncol(hM$Pi)
