@@ -115,12 +115,14 @@ constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid
 
 
   dfPiNew = matrix(NA,ngrid,hM$nr)
+  colnames(dfPiNew) = hM$rLNames
   for (r in seq_len(hM$nr)){
     dfPiNew[,r] = sprintf('new_unit',1:(ngrid))
   }
   dfPiNew = as.data.frame(dfPiNew)
 
   rLNew = vector("list", hM$nr)
+  names(rLNew) = hM$rLNames
   for (r in seq_len(hM$nr)){
     rL1 = hM$rL[[r]]
     units = rL1$pi
@@ -140,7 +142,6 @@ constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid
     rLNew[[r]] = rL1
   }
 
-  Gradient = list(XDataNew = XDataNew, dfPiNew = dfPiNew, rLNew = rLNew)
-
+  Gradient = list(XDataNew=XDataNew, dfPiNew=dfPiNew, rLNew=rLNew)
   return(Gradient)
 }

@@ -74,10 +74,11 @@ computePredictedValues = function(hM, nfolds=NULL, column=NULL, partition=NULL, 
          train = (part!=k)
          val = (part==k)
          dfPi = as.data.frame(matrix(NA,sum(train),hM$nr))
+         colnames(dfPi) = hM$rLNames
          for(r in seq_len(hM$nr)){
             dfPi[,r] = factor(hM$dfPi[train,r])
          }
-         hM1 = Hmsc(Y=as.matrix(hM$Y[train,]), X=as.matrix(hM$X[train,]), Xs=as.matrix(hM$Xs[train,]), Xv=as.matrix(hM$Xv[train,]), dist="probit", dfPi=dfPi, Tr=hM$Tr, C=hM$C, rL=hM$rL)
+         hM1 = Hmsc(Y=as.matrix(hM$Y[train,]), X=as.matrix(hM$X[train,]), Xs=as.matrix(hM$Xs[train,]), Xv=as.matrix(hM$Xv[train,]), dist="probit", ranLevelsDesign=dfPi, Tr=hM$Tr, C=hM$C, ranLevels=hM$rL)
          hM1$distr=hM$distr
          # HOW TO BETTER SET THE DISTRIBUTION?
          # NEED TO INHERIT PRIORS, SCALINGS ETC. FROM hM
@@ -85,10 +86,11 @@ computePredictedValues = function(hM, nfolds=NULL, column=NULL, partition=NULL, 
          postList = hM1$postList[[1]]
          postList = postList[start:length(postList)]
          dfPi = as.data.frame(matrix(NA,sum(val),hM$nr))
+         colnames(dfPi) = hM$rLNames
          for (r in seq_len(hM$nr)){
             dfPi[,r] = factor(hM$dfPi[val,r])
          }
-         pred1 = predict(hM1, post=postList, X=as.matrix(hM$X[val,,drop=FALSE]), dfPiNew=dfPi, rL=hM$rL, Yc=Yc[val,,drop=FALSE], mcmcStep=mcmcStep, expected=expected)
+         pred1 = predict(hM1, post=postList, X=as.matrix(hM$X[val,,drop=FALSE]), ranLevelsDesign=dfPi, Yc=Yc[val,,drop=FALSE], mcmcStep=mcmcStep, expected=expected)
          mpred1 = apply(abind(pred1,along=3),c(1,2),mean)
          mpred[val,] = mpred1
       }

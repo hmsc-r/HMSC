@@ -21,7 +21,10 @@
 #'
 #' @export
 
-predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL, ranLevelsDesign=hM$ranLevelsDesign, ranLevels=hM$ranLevels, Yc=NULL, mcmcStep=1, expected=FALSE, predictEtaMean=FALSE){
+predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL,
+   ranLevelsDesign=hM$ranLevelsDesign, ranLevels=hM$ranLevels,
+   Yc=NULL, mcmcStep=1, expected=FALSE, predictEtaMean=FALSE){
+
    if(!is.null(XData) && !is.null(X)){
       stop("hMsc.predict: nly single of XData and X arguments can be specified")
    }
@@ -56,8 +59,8 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
    for(r in seq_len(hM$nr)){
       postEta = lapply(post, function(c) c$Eta[[r]])
       postAlpha = lapply(post, function(c) c$Alpha[[r]])
-      predPostEta[[r]] = predictLatentFactor(unitsPred=levels(dfPiNew[,hM$rNames[r]]),units=levels(hM$dfPi[,hM$rNames[r]]),
-         postEta=postEta,postAlpha=postAlpha,rL=rL[[hM$rNames[r]]],predictMean=predictEtaMean)
+      predPostEta[[r]] = predictLatentFactor(unitsPred=levels(dfPiNew[,r]),units=levels(hM$dfPi[,r]),
+         postEta=postEta,postAlpha=postAlpha,rL=rL[[r]],predictMean=predictEtaMean)
       rowNames = rownames(predPostEta[[r]][[1]])
       PiNew[,r] = sapply(dfPiNew[,r], function(s) which(rowNames==s))
    }

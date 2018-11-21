@@ -24,7 +24,12 @@
 #'
 #' @export
 
-sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, verbose=samples*thin/100, adaptNf=NULL, nChains=1, dataParList=NULL, updater=list()){
+sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, verbose=samples*thin/100, adaptNf=NULL, nChains=1, nCores=1, dataParList=NULL, updater=list()){
+   if(nCores > nChains){
+      warning('number of cores cannot be more than number of chains')
+      nCores <- nChains
+   }
+
    X = hM$XScaled
    Tr = hM$TrScaled
    Y = hM$Y
@@ -56,7 +61,13 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, repN=1, sa
    hM$postList = vector("list", nChains)
    hM$repList = vector("list", nChains)
    initSeed = sample.int(.Machine$integer.max, nChains)
-   for(chain in 1:nChains){
+
+   sampleChain = function(chain){
+      # library(mvtnorm)
+      # library(BayesLogit)
+      # library(MCMCpack)
+      # library(truncnorm)
+
       if(nChains>1)
          print(sprintf("Computing chain %d", chain))
       set.seed(initSeed[chain])
@@ -77,7 +88,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, repN=1, sa
       Z = parList$Z
 
       postList = vector("list", samples)
-      for(iter in 1:(transient+samples*thin)){
+      for(iter in 1:(transient+samples*thin)){ #  the parallel version fails on this line
          if(!identical(updater$Gamma2, FALSE))
             Gamma = updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,
                Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,Tr=Tr,C=C, iQg=iQg,
@@ -150,8 +161,18 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, repN=1, sa
             print(sprintf("Chain %d, iteration %d of %d, (%s)", chain, iter, transient+samples*thin, samplingStatusString) )
          }
       }
-      hM$postList[[chain]] = postList
+      return(postList)
    }
+   if(nCores > 1){
+      cl<-makeCluster(nCores,type="SOCK")
+      hM$postList = clusterApplyLB(cl, 1:nChains, fun=sampleChain)
+      stopCluster(cl)
+   } else{
+      for(chain in 1:nChains){
+         hM$postList[[chain]] = sampleChain(chain)
+      }
+   }
+
 
    hM$samples = samples
    hM$transient = transient

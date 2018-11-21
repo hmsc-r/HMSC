@@ -12,6 +12,7 @@
 #'
 #' @examples
 #'
+#' @export
 
 
 computeDataParameters = function(hM){

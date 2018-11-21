@@ -7,10 +7,10 @@
 #' @param XData dataframe of measured covariates
 #' @param X matrix of measured covariates for direct specification
 #' @param XScale (boolean; default is TRUE) scale values in X matrix?
-#' @param dfPi data frame of correspondence between sampling units and units on
+#' @param ranLevelsDesign data frame of correspondence between sampling units and units on
 #'  different levels of latent factors
-#' @param levelNames vector with names of levels of latent factors that are used in the analysis, subset of colnames(dfPi)
-#' @param rL list of HmscRandomLevel objects, specifying the structure and data for random levels
+#' @param ranLevelsUsed vector with names of levels of latent factors that are used in the analysis, subset of colnames(dfPi)
+#' @param ranLevels list of HmscRandomLevel objects, specifying the structure and data for random levels
 #' @param Xs
 #' @param Xv
 #' @param TrFormula
@@ -273,7 +273,7 @@ Hmsc = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       hM$Pi = matrix(NA,hM$ny,0)
       hM$np = integer(0)
       hM$nr = 0
-      hM$levelNames = character(0)
+      hM$rLNames = character(0)
       if(!is.null(ranLevels)){
          if(length(ranLevels) > 0){
             stop("Hmsc.setData: ranLevelsDesign is empty, but ranLevels is not")
