@@ -7,8 +7,9 @@
 #' @param XData dataframe of measured covariates
 #' @param X matrix of measured covariates for direct specification
 #' @param XScale (boolean; default is TRUE) scale values in X matrix?
-#' @param dfPi matrix of correspondence between sampling units and units on
+#' @param dfPi data frame of correspondence between sampling units and units on
 #'  different levels of latent factors
+#' @param levelNames vector with names of levels of latent factors that are used in the analysis, subset of colnames(dfPi)
 #' @param rL list of HmscRandomLevel objects, specifying the structure and data for random levels
 #' @param Xs
 #' @param Xv
@@ -22,7 +23,6 @@
 #' @param spNames
 #' @param trNames
 #' @param covNames
-#' @param levelNames
 #'
 #'
 #' @return
@@ -37,7 +37,7 @@
 
 
 Hmsc = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
-   dfPi=NULL, rL=NULL, rNames=colnames(dfPi), Xs=NULL, Xv=NULL,
+   ranLevels=NULL, ranLevelsDesign=NULL, ranLevelsUsed=colnames(ranLevelsDesign), Xs=NULL, Xv=NULL,
    TrFormula=NULL, TrData=NULL, Tr=NULL, TrScale=TRUE,
    phyloTree=NULL, C=NULL,
    distr="normal",
@@ -46,7 +46,8 @@ Hmsc = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    hM = structure(list(
             Y = NULL,
             XData=NULL, XFormula=NULL, X=NULL, XScaled=NULL, XInterceptInd=NULL,
-            dfPi = NULL, rL=NULL, rNames=NULL, Pi=NULL,
+            ranLevels=NULL, ranLevelsDesign=NULL, ranLevelsUsed=colnames(ranLevelsDesign),
+            dfPi = NULL, rL=NULL, Pi=NULL,
             Xs = NULL,
             Xv = NULL,
             TrData=NULL, TrFormula=NULL, Tr=NULL, TrScaled=NULL, TrInterceptInd=NULL,
@@ -68,7 +69,7 @@ Hmsc = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
             spNames = NULL,
             covNames = NULL,
             trNames = NULL,
-            levelNames = NULL,
+            rLNames = NULL,
 
             # scaling
             XScalePar=NULL, TrScalePar=NULL,
@@ -266,34 +267,42 @@ Hmsc = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    }
 
    # latent factors
-   if(is.null(dfPi)){
+   if(is.null(ranLevelsDesign)){
+      hM$dfPi = ranLevelsDesign
       hM$dfPi = NULL
       hM$Pi = matrix(NA,hM$ny,0)
       hM$np = integer(0)
       hM$nr = 0
       hM$levelNames = character(0)
-      if(!is.null(rL)){
-         if(length(rL) > 0){
-            stop("Hmsc.setData: dfPi is empty, but rL is not")
+      if(!is.null(ranLevels)){
+         if(length(ranLevels) > 0){
+            stop("Hmsc.setData: ranLevelsDesign is empty, but ranLevels is not")
          }
       }
    } else {
-      if(nrow(dfPi) != hM$ny){
-         stop("Hmsc.setData: the number of rows in dfPi must be equal to number of rows in Y")
+      if(nrow(ranLevelsDesign) != hM$ny){
+         stop("Hmsc.setData: the number of rows in ranLevelsDesign must be equal to number of rows in Y")
       }
-      if(!all(rNames %in% names(rL)) || !all(rNames %in% colnames(dfPi))){
-         stop("Hmsc.setData: colnames of dfPi must match names of rL")
+      if(!all(ranLevelsUsed %in% names(ranLevels))){
+         stop("Hmsc.setData: ranLevels must contain named elements corresponding to all levels listed in ranLevelsUsed")
       }
-      hM$dfPi = dfPi
-      hM$rL = rL[rNames]
+      if(!all(ranLevelsUsed %in% colnames(ranLevelsDesign))){
+         stop("Hmsc.setData: ranLevelsDesign must contain named columns corresponding to all levels listed in ranLevelsUsed")
+      }
+      hM$ranLevelsDesign = ranLevelsDesign
+      hM$ranLevels = ranLevels
+      hM$ranLevelsUsed = ranLevelsUsed
 
-      hM$Pi = matrix(NA,hM$ny,length(rNames),dimnames=list(NULL,rNames))
-      for(r in 1:length(rNames))
-         hM$Pi[,r] = as.numeric(dfPi[,rNames[r]])
+      hM$dfPi = ranLevelsDesign[,ranLevelsUsed,drop=FALSE]
+      hM$rL = ranLevels[ranLevelsUsed]
+      hM$rLNames = colnames(hM$dfPi)
+
+      hM$Pi = matrix(NA,hM$ny,ncol(hM$dfPi),dimnames=list(NULL,hM$rLNames))
+      for(r in seq_len(ncol(hM$dfPi)))
+         hM$Pi[,r] = as.numeric(hM$dfPi[,r])
       hM$np = apply(hM$Pi, 2, function(a) return(length(unique(a))))
       hM$nr = ncol(hM$Pi)
    }
-   hM$levelNames = rNames
 
    switch (distr,
       "normal" = {

@@ -34,7 +34,7 @@ computePredictedValues = function(hM, nfolds=NULL, column=NULL, partition=NULL, 
       if(!is.null(nfolds)){
          if(hM$nr > 0){
             if(is.null(column)){
-               indResidual = which(apply(hM$dfPi, 2, function(a) length(unique(a)) ) == self$ny)
+               indResidual = which(apply(hM$ranLevelsDesign, 2, function(a) length(unique(a)) ) == self$ny)
                if(length(indResidual)==1){
                   column = indResidual
                } else{
@@ -45,12 +45,12 @@ computePredictedValues = function(hM, nfolds=NULL, column=NULL, partition=NULL, 
                   }
                }
             }
-            np = length(unique(hM$dfPi[,column]))
+            np = length(unique(hM$ranLevelsDesign[,column]))
             if(np < nfolds){
-               stop("HMSC.computePredictedValues: nfolds must be no bigger than numero of units in specified random level")
+               stop("HMSC.computePredictedValues: nfolds must be no bigger than number of units in specified random level")
             }
-            tmp1 = data.frame(col=unique(hM$dfPi[,column]), part=sample(rep(1:nfolds,ceiling(np/nfolds)),np))
-            colnames(tmp1)[1] = colnames(hM$dfPi)[column]
+            tmp1 = data.frame(col=unique(hM$ranLevelsDesign[,column]), part=sample(rep(1:nfolds,ceiling(np/nfolds)),np))
+            colnames(tmp1)[1] = colnames(hM$ranLevelsDesign[,column,drop=FALSE])
             tmp2 = merge(hM$dfPi, tmp1, all.x=TRUE, sort=FALSE)
             part = tmp2[,ncol(tmp2)]
          }
@@ -80,7 +80,7 @@ computePredictedValues = function(hM, nfolds=NULL, column=NULL, partition=NULL, 
          hM1 = Hmsc(Y=as.matrix(hM$Y[train,]), X=as.matrix(hM$X[train,]), Xs=as.matrix(hM$Xs[train,]), Xv=as.matrix(hM$Xv[train,]), dist="probit", dfPi=dfPi, Tr=hM$Tr, C=hM$C, rL=hM$rL)
          hM1$distr=hM$distr
          # HOW TO BETTER SET THE DISTRIBUTION?
-         # NEED TO INHERIT PRIORS, SCALINGS ETC. FROM m
+         # NEED TO INHERIT PRIORS, SCALINGS ETC. FROM hM
          hM1 = sampleMcmc(hM1, samples=hM$samples, thin=hM$thin, transient=hM$transient,adaptNf=hM$adaptNf, nChains=1)
          postList = hM1$postList[[1]]
          postList = postList[start:length(postList)]

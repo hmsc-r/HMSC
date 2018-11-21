@@ -21,7 +21,7 @@
 #'
 #' @export
 
-predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL, dfPiNew=hM$dfPi, rL=hM$rL, Yc=NULL, mcmcStep=1, expected=FALSE, predictEtaMean=FALSE){
+predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL, ranLevelsDesign=hM$ranLevelsDesign, ranLevels=hM$ranLevels, Yc=NULL, mcmcStep=1, expected=FALSE, predictEtaMean=FALSE){
    if(!is.null(XData) && !is.null(X)){
       stop("hMsc.predict: nly single of XData and X arguments can be specified")
    }
@@ -40,6 +40,15 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
          stop("hMsc.predict: number of rows in Yc and X must be equal")
       }
    }
+   if(!all(hM$rLNames %in% colnames(ranLevelsDesign))){
+      stop("hMsc.predict: dfPiNew does not contain all the necessary named columns")
+   }
+   if(!all(hM$rLNames %in% names(ranLevels))){
+      stop("hMsc.predict: rL does not contain all the necessary named levels")
+   }
+
+   dfPiNew = ranLevelsDesign[,hM$rLNames,drop=FALSE]
+   rL = ranLevels[hM$rLNames]
 
    predN = length(post)
    predPostEta = vector("list", hM$nr)
@@ -47,10 +56,10 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
    for(r in seq_len(hM$nr)){
       postEta = lapply(post, function(c) c$Eta[[r]])
       postAlpha = lapply(post, function(c) c$Alpha[[r]])
-      predPostEta[[r]] = predictLatentFactor(unitsPred=levels(dfPiNew[,r]),units=levels(hM$dfPi[,r]),
-         postEta=postEta,postAlpha=postAlpha,rL=rL[[r]],predictMean=predictEtaMean)
-      rNames = rownames(predPostEta[[r]][[1]])
-      PiNew[,r] = sapply(dfPiNew[,r], function(s) which(rNames==s))
+      predPostEta[[r]] = predictLatentFactor(unitsPred=levels(dfPiNew[,hM$rNames[r]]),units=levels(hM$dfPi[,hM$rNames[r]]),
+         postEta=postEta,postAlpha=postAlpha,rL=rL[[hM$rNames[r]]],predictMean=predictEtaMean)
+      rowNames = rownames(predPostEta[[r]][[1]])
+      PiNew[,r] = sapply(dfPiNew[,r], function(s) which(rowNames==s))
    }
    pred = vector("list",predN)
    for(pN in 1:predN){

@@ -16,41 +16,39 @@
 #'
 #' @export
 
-computeMarginalEffects = function(ngrid=20, prob=c(0.025,0.5,0.975), clist=1:self$nc){
-   m = self
+computeMarginalEffects = function(hM, ngrid=20, prob=c(0.025,0.5,0.975), clist=1:self$nc){
    nc = length(clist)
 
    pred = vector("list", nc)
    for(ii in 1:nc){
       i = clist[[ii]]
-      X = matrix(NA, ncol=m$nc, nrow=ngrid)
-      x = m$X[,i]
+      X = matrix(NA, ncol=hM$nc, nrow=ngrid)
+      x = hM$X[,i]
       mi = min(x)
       ma = max(x)
       xx = seq(mi, ma, length.out=ngrid)
       X[,i] = xx
 
-      for(j in 1:m$nc){
+      for(j in 1:hM$nc){
          if(j!=i){
-            xv = m$X[,2]
-            yv = m$X[,j]
+            xv = hM$X[,2]
+            yv = hM$X[,j]
             mylm = lm(yv~xv)
             yy = predict(mylm, newdata=data.frame(xv=xx))
             X[,j] = yy
          }
       }
 
-      dfPi = matrix(NA, ngrid, m$nr)
-      for(r in seq_len(m$nr)){
+      dfPi = matrix(NA, ngrid, hM$nr, dimnames=c(NULL, hM$rLNames))
+      for(r in seq_len(hM$nr)){
          dfPi[,r] = sprintf('new_unit', 1:(ngrid))
       }
       dfPi = as.data.frame(dfPi)
-      postList = poolMcmcChains(m$postList)
+      postList = poolMcmcChains(hM$postList)
 
-      rL = vector("list", m$nr)
-      for (r in seq_len(m$nr)){
-         tmp = m$rL[[r]]
-         rL1 = tmp$clone()
+      rL = vector("list", hM$nr)
+      for (r in seq_len(hM$nr)){
+         rL1 = hM$rL[[r]]
          units = rL1$pi
          units1 = c(units,"new_unit")
          xydata = rL1$s
@@ -68,29 +66,29 @@ computeMarginalEffects = function(ngrid=20, prob=c(0.025,0.5,0.975), clist=1:sel
          rL[[r]] = rL1
       }
 
-      predY1 = m$predict(post=postList, X=X, dfPiNew=dfPi, rL=rL, expected=TRUE)
+      predY1 = predict(hM, post=postList, X=X, dfPiNew=dfPi, rL=rL, expected=TRUE)
       for (j in 1:length(predY1)){
-         colnames(predY1[[j]]) = m$spNames
+         colnames(predY1[[j]]) = hM$spNames
       }
       predS1 = lapply(predY1, rowSums)
-      predT1 = lapply(predY1, function(a) (a%*%m$Tr)/matrix(rep(rowSums(a),m$nt),ncol=m$nt))
+      predT1 = lapply(predY1, function(a) (a%*%hM$Tr)/matrix(rep(rowSums(a),hM$nt),ncol=hM$nt))
 
       qpredY1 = apply(abind(predY1,along=3),c(1,2),quantile,prob=c(0,prob))
       qpredS1 = apply(abind(predS1,along=2),c(1),quantile,prob=c(0,prob))
       qpredT1 = apply(abind(predT1,along=3),c(1,2),quantile,prob=c(0,prob))
 
       qpredS1[1,] = xx
-      rownames(qpredS1)[[1]] = m$covNames[[i]]
+      rownames(qpredS1)[[1]] = hM$covNames[[i]]
 
-      for (j in 1:m$nt){
+      for (j in 1:hM$nt){
          qpredT1[1,,j] = xx
       }
-      rownames(qpredT1)[1] = m$covNames[[i]]
+      rownames(qpredT1)[1] = hM$covNames[[i]]
 
-      for (j in 1:m$ns){
+      for (j in 1:hM$ns){
          qpredY1[1,,j] = xx
       }
-      rownames(qpredY1)[1] = m$covNames[[i]]
+      rownames(qpredY1)[1] = hM$covNames[[i]]
 
       pred1=list()
       pred1$Y = qpredY1
