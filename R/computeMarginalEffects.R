@@ -66,7 +66,7 @@ computeMarginalEffects = function(hM, ngrid=20, prob=c(0.025,0.5,0.975), clist=1
          rL[[r]] = rL1
       }
 
-      predY1 = predict(hM, post=postList, X=X, ranLevelsDesign=dfPi, ranLevels=rL, expected=TRUE)
+      predY1 = predict(hM, post=postList, X=X, studyDesign=dfPi, ranLevels=rL, expected=TRUE)
       for (j in 1:length(predY1)){
          colnames(predY1[[j]]) = hM$spNames
       }

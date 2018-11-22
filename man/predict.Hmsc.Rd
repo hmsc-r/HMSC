@@ -5,9 +5,9 @@
 \title{predict.Hmsc}
 \usage{
 \method{predict}{Hmsc}(hM, post = poolMcmcChains(hM$postList),
-  XData = NULL, X = NULL, dfPiNew = hM$dfPi, rL = hM$rL,
-  Yc = NULL, mcmcStep = 1, expected = FALSE,
-  predictEtaMean = FALSE)
+  XData = NULL, X = NULL, ranLevelsDesign = hM$ranLevelsDesign,
+  ranLevels = hM$ranLevels, Yc = NULL, mcmcStep = 1,
+  expected = FALSE, predictEtaMean = FALSE)
 }
 \arguments{
 \item{expected}{(boolean; default is FALSE)}

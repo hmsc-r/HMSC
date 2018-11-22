@@ -4,7 +4,7 @@
 \alias{computeMarginalEffects}
 \title{Hmsc$computeMarginalEffects}
 \usage{
-computeMarginalEffects(ngrid = 20, prob = c(0.025, 0.5, 0.975),
+computeMarginalEffects(hM, ngrid = 20, prob = c(0.025, 0.5, 0.975),
   clist = 1:self$nc)
 }
 \arguments{

@@ -6,7 +6,7 @@
 \usage{
 sampleMcmc(hM, samples, transient = 0, thin = 1, initPar = NULL,
   repN = 1, saveToDisk = FALSE, verbose = samples * thin/100,
-  adaptNf = NULL, nChains = 1, dataParList = NULL,
+  adaptNf = NULL, nChains = 1, nCores = 1, dataParList = NULL,
   updater = list())
 }
 \arguments{

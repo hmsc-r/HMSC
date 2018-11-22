@@ -22,7 +22,7 @@
 #' @export
 
 predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL,
-   ranLevelsDesign=hM$ranLevelsDesign, ranLevels=hM$ranLevels,
+   studyDesign=hM$studyDesign, ranLevels=hM$ranLevels,
    Yc=NULL, mcmcStep=1, expected=FALSE, predictEtaMean=FALSE){
 
    if(!is.null(XData) && !is.null(X)){
@@ -43,14 +43,14 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
          stop("hMsc.predict: number of rows in Yc and X must be equal")
       }
    }
-   if(!all(hM$rLNames %in% colnames(ranLevelsDesign))){
+   if(!all(hM$rLNames %in% colnames(studyDesign))){
       stop("hMsc.predict: dfPiNew does not contain all the necessary named columns")
    }
    if(!all(hM$rLNames %in% names(ranLevels))){
       stop("hMsc.predict: rL does not contain all the necessary named levels")
    }
 
-   dfPiNew = ranLevelsDesign[,hM$rLNames,drop=FALSE]
+   dfPiNew = studyDesign[,hM$rLNames,drop=FALSE]
    rL = ranLevels[hM$rLNames]
 
    predN = length(post)

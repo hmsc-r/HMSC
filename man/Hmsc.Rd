@@ -5,31 +5,38 @@
 \title{Hmsc}
 \usage{
 Hmsc(Y = NULL, XFormula = ~., XData = NULL, X = NULL,
-  XScale = TRUE, dfPi = NULL, rL = NULL, Xs = NULL, Xv = NULL,
+  XScale = TRUE, ranLevels = NULL, ranLevelsDesign = NULL,
+  ranLevelsUsed = colnames(ranLevelsDesign), Xs = NULL, Xv = NULL,
   TrFormula = NULL, TrData = NULL, Tr = NULL, TrScale = TRUE,
-  phyloTree = NULL, C = NULL, distr = "normal", spNames = NULL,
-  trNames = NULL, covNames = NULL, levelNames = NULL,
-  priors = NULL)
+  phyloTree = NULL, C = NULL, distr = "normal", priors = NULL)
 }
 \arguments{
 \item{Y}{matrix of species occurences or abundances}
 
 \item{XFormula}{formula for linear regression component of HMSC}
 
-\item{XData}{dataframe of measured covariates}
+\item{XData}{dataframe of measured covariates for formula-based specification}
 
 \item{X}{matrix of measured covariates for direct specification}
 
-\item{XScale}{(boolean; default is TRUE) scale values in X matrix?}
+\item{XScale}{(boolean; default is TRUE) whether to scale values in X matrix}
 
-\item{dfPi}{matrix of correspondence between sampling units and units on
+\item{ranLevels}{list of HmscRandomLevel objects, specifying the structure and data for random levels}
+
+\item{ranLevelsDesign}{data frame of correspondence between sampling units and units on
 different levels of latent factors}
 
-\item{rL}{list of HmscRandomLevel objects, specifying the structure and data for random levels}
+\item{ranLevelsUsed}{vector with names of levels of latent factors that are used in the analysis, subset of colnames(dfPi)}
 
-\item{TrScale}{(boolean; default is TRUE) scale values in the trait (TR) matrix?}
+\item{TrFormula}{formula for linear regression dependence of Beta coefficeints on provided traits}
 
-\item{levelNames}{}
+\item{TrData}{dataframe of measured traits for formula-based specification}
+
+\item{Tr}{matrix of measured traits for direct specification}
+
+\item{TrScale}{(boolean; default is TRUE) whether to scale values in the Tr matrix}
+
+\item{distr}{string shortcut or $n_s \times 4$ matrix specifying the observation models}
 }
 \value{
 Object of Hmsc class
@@ -38,6 +45,9 @@ Object of Hmsc class
 Creates a Hmsc object
 }
 \examples{
+Y = matrix(rnorm(100*10),100,10,dimnames=list(NULL,letters[1:10]))
+X = matrix(rnorm(100*3),100,3,dimnames=list(NULL,sprintf("cov\%d",1:3)))
+m = Hmsc(Y=Y, XData=as.data.frame(X), XFormula=~cov1+cov3))
 
 }
 \seealso{

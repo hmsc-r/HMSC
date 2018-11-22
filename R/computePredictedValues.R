@@ -34,7 +34,7 @@ computePredictedValues = function(hM, nfolds=NULL, column=NULL, partition=NULL, 
       if(!is.null(nfolds)){
          if(hM$nr > 0){
             if(is.null(column)){
-               indResidual = which(apply(hM$ranLevelsDesign, 2, function(a) length(unique(a)) ) == self$ny)
+               indResidual = which(apply(hM$studyDesign, 2, function(a) length(unique(a)) ) == self$ny)
                if(length(indResidual)==1){
                   column = indResidual
                } else{
@@ -45,12 +45,12 @@ computePredictedValues = function(hM, nfolds=NULL, column=NULL, partition=NULL, 
                   }
                }
             }
-            np = length(unique(hM$ranLevelsDesign[,column]))
+            np = length(unique(hM$studyDesign[,column]))
             if(np < nfolds){
                stop("HMSC.computePredictedValues: nfolds must be no bigger than number of units in specified random level")
             }
-            tmp1 = data.frame(col=unique(hM$ranLevelsDesign[,column]), part=sample(rep(1:nfolds,ceiling(np/nfolds)),np))
-            colnames(tmp1)[1] = colnames(hM$ranLevelsDesign[,column,drop=FALSE])
+            tmp1 = data.frame(col=unique(hM$studyDesign[,column]), part=sample(rep(1:nfolds,ceiling(np/nfolds)),np))
+            colnames(tmp1)[1] = colnames(hM$studyDesign[,column,drop=FALSE])
             tmp2 = merge(hM$dfPi, tmp1, all.x=TRUE, sort=FALSE)
             part = tmp2[,ncol(tmp2)]
          }
@@ -78,7 +78,7 @@ computePredictedValues = function(hM, nfolds=NULL, column=NULL, partition=NULL, 
          for(r in seq_len(hM$nr)){
             dfPi[,r] = factor(hM$dfPi[train,r])
          }
-         hM1 = Hmsc(Y=as.matrix(hM$Y[train,]), X=as.matrix(hM$X[train,]), Xs=as.matrix(hM$Xs[train,]), Xv=as.matrix(hM$Xv[train,]), dist="probit", ranLevelsDesign=dfPi, Tr=hM$Tr, C=hM$C, ranLevels=hM$rL)
+         hM1 = Hmsc(Y=as.matrix(hM$Y[train,]), X=as.matrix(hM$X[train,]), Xs=as.matrix(hM$Xs[train,]), Xv=as.matrix(hM$Xv[train,]), dist="probit", studyDesign=dfPi, Tr=hM$Tr, C=hM$C, ranLevels=hM$rL)
          hM1$distr=hM$distr
          # HOW TO BETTER SET THE DISTRIBUTION?
          # NEED TO INHERIT PRIORS, SCALINGS ETC. FROM hM
@@ -90,7 +90,7 @@ computePredictedValues = function(hM, nfolds=NULL, column=NULL, partition=NULL, 
          for (r in seq_len(hM$nr)){
             dfPi[,r] = factor(hM$dfPi[val,r])
          }
-         pred1 = predict(hM1, post=postList, X=as.matrix(hM$X[val,,drop=FALSE]), ranLevelsDesign=dfPi, Yc=Yc[val,,drop=FALSE], mcmcStep=mcmcStep, expected=expected)
+         pred1 = predict(hM1, post=postList, X=as.matrix(hM$X[val,,drop=FALSE]), studyDesign=dfPi, Yc=Yc[val,,drop=FALSE], mcmcStep=mcmcStep, expected=expected)
          mpred1 = apply(abind(pred1,along=3),c(1,2),mean)
          mpred[val,] = mpred1
       }

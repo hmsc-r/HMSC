@@ -4,25 +4,22 @@
 #'
 #' @param Y matrix of species occurences or abundances
 #' @param XFormula formula for linear regression component of HMSC
-#' @param XData dataframe of measured covariates
+#' @param XData dataframe of measured covariates for formula-based specification
 #' @param X matrix of measured covariates for direct specification
-#' @param XScale (boolean; default is TRUE) scale values in X matrix?
-#' @param ranLevelsDesign data frame of correspondence between sampling units and units on
+#' @param XScale (boolean; default is TRUE) whether to scale values in X matrix
+#' @param studyDesign data frame of correspondence between sampling units and units on
 #'  different levels of latent factors
 #' @param ranLevelsUsed vector with names of levels of latent factors that are used in the analysis, subset of colnames(dfPi)
 #' @param ranLevels list of HmscRandomLevel objects, specifying the structure and data for random levels
 #' @param Xs
 #' @param Xv
-#' @param TrFormula
-#' @param TrData
-#' @param Tr
-#' @param TrScale (boolean; default is TRUE) scale values in the trait (TR) matrix?
+#' @param TrFormula formula for linear regression dependence of Beta coefficeints on provided traits
+#' @param TrData dataframe of measured traits for formula-based specification
+#' @param Tr matrix of measured traits for direct specification
+#' @param TrScale (boolean; default is TRUE) whether to scale values in the Tr matrix
 #' @param phyloTree
 #' @param C
-#' @param distr
-#' @param spNames
-#' @param trNames
-#' @param covNames
+#' @param distr string shortcut or $n_s \times 4$ matrix specifying the observation models
 #'
 #'
 #' @return
@@ -32,12 +29,15 @@
 #'
 #'
 #' @examples
+#' Y = matrix(rnorm(100*10),100,10,dimnames=list(NULL,letters[1:10]))
+#' X = matrix(rnorm(100*3),100,3,dimnames=list(NULL,sprintf("cov%d",1:3)))
+#' m = Hmsc(Y=Y, XData=as.data.frame(X), XFormula=~cov1+cov3)
 #'
 #' @export
 
 
-Hmsc = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
-   ranLevels=NULL, ranLevelsDesign=NULL, ranLevelsUsed=colnames(ranLevelsDesign), Xs=NULL, Xv=NULL,
+Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
+   studyDesign=NULL, ranLevels=NULL, ranLevelsUsed=names(ranLevels), Xs=NULL, Xv=NULL,
    TrFormula=NULL, TrData=NULL, Tr=NULL, TrScale=TRUE,
    phyloTree=NULL, C=NULL,
    distr="normal",
@@ -46,7 +46,7 @@ Hmsc = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    hM = structure(list(
             Y = NULL,
             XData=NULL, XFormula=NULL, X=NULL, XScaled=NULL, XInterceptInd=NULL,
-            ranLevels=NULL, ranLevelsDesign=NULL, ranLevelsUsed=colnames(ranLevelsDesign),
+            studyDesign=NULL, ranLevels=NULL, ranLevelsUsed=NULL,
             dfPi = NULL, rL=NULL, Pi=NULL,
             Xs = NULL,
             Xv = NULL,
@@ -267,8 +267,7 @@ Hmsc = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    }
 
    # latent factors
-   if(is.null(ranLevelsDesign)){
-      hM$dfPi = ranLevelsDesign
+   if(is.null(studyDesign)){
       hM$dfPi = NULL
       hM$Pi = matrix(NA,hM$ny,0)
       hM$np = integer(0)
@@ -276,24 +275,24 @@ Hmsc = function(Y=NULL, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       hM$rLNames = character(0)
       if(!is.null(ranLevels)){
          if(length(ranLevels) > 0){
-            stop("Hmsc.setData: ranLevelsDesign is empty, but ranLevels is not")
+            stop("Hmsc.setData: studyDesign is empty, but ranLevels is not")
          }
       }
    } else {
-      if(nrow(ranLevelsDesign) != hM$ny){
-         stop("Hmsc.setData: the number of rows in ranLevelsDesign must be equal to number of rows in Y")
+      if(nrow(studyDesign) != hM$ny){
+         stop("Hmsc.setData: the number of rows in studyDesign must be equal to number of rows in Y")
       }
       if(!all(ranLevelsUsed %in% names(ranLevels))){
          stop("Hmsc.setData: ranLevels must contain named elements corresponding to all levels listed in ranLevelsUsed")
       }
-      if(!all(ranLevelsUsed %in% colnames(ranLevelsDesign))){
-         stop("Hmsc.setData: ranLevelsDesign must contain named columns corresponding to all levels listed in ranLevelsUsed")
+      if(!all(ranLevelsUsed %in% colnames(studyDesign))){
+         stop("Hmsc.setData: studyDesign must contain named columns corresponding to all levels listed in ranLevelsUsed")
       }
-      hM$ranLevelsDesign = ranLevelsDesign
+      hM$studyDesign = studyDesign
       hM$ranLevels = ranLevels
       hM$ranLevelsUsed = ranLevelsUsed
 
-      hM$dfPi = ranLevelsDesign[,ranLevelsUsed,drop=FALSE]
+      hM$dfPi = studyDesign[,ranLevelsUsed,drop=FALSE]
       hM$rL = ranLevels[ranLevelsUsed]
       hM$rLNames = colnames(hM$dfPi)
 
