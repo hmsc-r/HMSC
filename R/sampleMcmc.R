@@ -6,7 +6,6 @@
 #' @param transient
 #' @param thin thinning between recorded MCMC samples
 #' @param initPar initial parameters value
-#' @param repN number of replicates the samples should be splitted
 #' @param saveToDisk whether to save replicates to the disk once they are ready and discard them from RAM memory
 #' @param verbose at which steps should model progress be displayed (default = samples*thin / 100)
 #' @param adaptNf
@@ -24,7 +23,8 @@
 #'
 #' @export
 
-sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, repN=1, saveToDisk=FALSE, verbose=samples*thin/100, adaptNf=NULL, nChains=1, nCores=1, dataParList=NULL, updater=list()){
+sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, verbose=samples*thin/100, adaptNf=rep(transient,hM$nr), nChains=1, nCores=1, dataParList=NULL, updater=list()){
+   force(adaptNf)
    if(nCores > nChains){
       warning('number of cores cannot be more than number of chains')
       nCores <- nChains
@@ -44,11 +44,6 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, repN=1, sa
    f0 = hM$f0
    aSigma = hM$aSigma
    bSigma = hM$bSigma
-   nu = hM$nu
-   a1 = hM$a1
-   b1 = hM$b1
-   a2 = hM$a2
-   b2 = hM$b2
    rhopw = hM$rhopw
 
    if(is.null(dataParList))
@@ -63,11 +58,6 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, repN=1, sa
    initSeed = sample.int(.Machine$integer.max, nChains)
 
    sampleChain = function(chain){
-      # library(mvtnorm)
-      # library(BayesLogit)
-      # library(MCMCpack)
-      # library(truncnorm)
-
       if(nChains>1)
          print(sprintf("Computing chain %d", chain))
       set.seed(initSeed[chain])
@@ -136,7 +126,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, repN=1, sa
             Z = updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,distr=distr)
 
          for(r in seq_len(nr)){
-            if( (is.list(adaptNf) && adaptNf[[r]][1] >= repN && adaptNf[[r]][2] >= iter) || (is.vector(adaptNf) && adaptNf[r] >= iter)){
+            if(iter <= adaptNf[r]){
                listPar = updateNf(eta=Eta[[r]],lambda=Lambda[[r]],alpha=Alpha[[r]],psi=Psi[[r]],delta=Delta[[r]],
                   rL=hM$rL[[r]], iter=iter)
                Lambda[[r]] = listPar$lambda
@@ -163,8 +153,20 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, repN=1, sa
       }
       return(postList)
    }
+
    if(nCores > 1){
-      cl<-makeCluster(nCores,type="SOCK")
+      cl = makeCluster(nCores, type="SOCK")
+      clusterExport(cl, c("hM","nChains","transient","samples","thin","adaptNf","initSeed","initPar",
+         "X", "Tr", "Y", "distr", "Pi", "C", "nr",
+         "mGamma", "iUGamma", "V0", "f0", "aSigma", "bSigma", "rhopw",
+         "iQg", "RiQg", "detQg", "rLPar"), envir=environment())
+
+      clusterEvalQ(cl, {
+         library(mvtnorm);
+         library(BayesLogit);
+         library(MCMCpack);
+         library(truncnorm);
+         library(Matrix) })
       hM$postList = clusterApplyLB(cl, 1:nChains, fun=sampleChain)
       stopCluster(cl)
    } else{
@@ -177,7 +179,6 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, repN=1, sa
    hM$samples = samples
    hM$transient = transient
    hM$thin = thin
-   hM$saveToDisk = saveToDisk
    hM$adaptNf = adaptNf
 
    return(hM)

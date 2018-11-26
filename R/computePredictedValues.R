@@ -34,7 +34,7 @@ computePredictedValues = function(hM, nfolds=NULL, column=NULL, partition=NULL, 
       if(!is.null(nfolds)){
          if(hM$nr > 0){
             if(is.null(column)){
-               indResidual = which(apply(hM$studyDesign, 2, function(a) length(unique(a)) ) == self$ny)
+               indResidual = which(apply(hM$studyDesign, 2, function(a) length(unique(a)) ) == hM$ny)
                if(length(indResidual)==1){
                   column = indResidual
                } else{
@@ -51,7 +51,7 @@ computePredictedValues = function(hM, nfolds=NULL, column=NULL, partition=NULL, 
             }
             tmp1 = data.frame(col=unique(hM$studyDesign[,column]), part=sample(rep(1:nfolds,ceiling(np/nfolds)),np))
             colnames(tmp1)[1] = colnames(hM$studyDesign[,column,drop=FALSE])
-            tmp2 = merge(hM$dfPi, tmp1, all.x=TRUE, sort=FALSE)
+            tmp2 = merge(hM$studyDesign, tmp1, all.x=TRUE, sort=FALSE)
             part = tmp2[,ncol(tmp2)]
          }
          else{
