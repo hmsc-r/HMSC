@@ -34,14 +34,13 @@ constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid
   non.focals = NULL
   types = NULL
   vals = list()
-  for (i in 1:nvars){
+  for (i in seq_len(nvars)){
     if (vars[i]==focalVariable){
       focal = i
     } else {
       non.focals = c(non.focals,i)
       found = FALSE
-      if (length(non.focalVariables)>0){
-        for (j in 1:length(non.focalVariables)){
+        for (j in seq_len(length(non.focalVariables))){
           if (vars[i]==non.focalNames[[j]]){
             found = TRUE
             type = as.numeric(non.focalVariables[[j]][[1]])
@@ -53,7 +52,6 @@ constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid
             }
           }
         }
-      }
       if (!found) {
         types = c(types,2)
         vals[[length(vals)+1]] = NA
@@ -78,7 +76,7 @@ constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid
   XDataNew = data.frame(xx)
   colnames(XDataNew) = vars[focal]
 
-  for (i in 1:length(non.focals)){
+  for (i in seq_len(length(non.focals))){
     non.focal = non.focals[i]
     type = types[i]
     val = vals[[i]]
