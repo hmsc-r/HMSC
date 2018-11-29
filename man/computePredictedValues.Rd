@@ -4,12 +4,11 @@
 \alias{computePredictedValues}
 \title{computePredictedValues}
 \usage{
-computePredictedValues(hM, nfolds = NULL, column = NULL,
-  partition = NULL, start = 1, Yc = NULL, mcmcStep = 1,
-  expected = TRUE)
+computePredictedValues(hM, partition = NULL, start = 1, Yc = NULL,
+  mcmcStep = 1, expected = TRUE)
 }
 \arguments{
-\item{nfolds}{number of cross-validation folds}
+\item{partition}{vector of observations partitioning for cross-validation}
 
 \item{start}{index of first MCMC sample included}
 }

@@ -4,9 +4,9 @@
 \alias{Hmsc}
 \title{Hmsc}
 \usage{
-Hmsc(Y = NULL, XFormula = ~., XData = NULL, X = NULL,
-  XScale = TRUE, ranLevels = NULL, ranLevelsDesign = NULL,
-  ranLevelsUsed = colnames(ranLevelsDesign), Xs = NULL, Xv = NULL,
+Hmsc(Y, XFormula = ~., XData = NULL, X = NULL, XScale = TRUE,
+  studyDesign = NULL, ranLevels = NULL,
+  ranLevelsUsed = names(ranLevels), Xs = NULL, Xv = NULL,
   TrFormula = NULL, TrData = NULL, Tr = NULL, TrScale = TRUE,
   phyloTree = NULL, C = NULL, distr = "normal", priors = NULL)
 }
@@ -21,10 +21,10 @@ Hmsc(Y = NULL, XFormula = ~., XData = NULL, X = NULL,
 
 \item{XScale}{(boolean; default is TRUE) whether to scale values in X matrix}
 
-\item{ranLevels}{list of HmscRandomLevel objects, specifying the structure and data for random levels}
-
-\item{ranLevelsDesign}{data frame of correspondence between sampling units and units on
+\item{studyDesign}{data frame of correspondence between sampling units and units on
 different levels of latent factors}
+
+\item{ranLevels}{list of HmscRandomLevel objects, specifying the structure and data for random levels}
 
 \item{ranLevelsUsed}{vector with names of levels of latent factors that are used in the analysis, subset of colnames(dfPi)}
 
@@ -47,7 +47,7 @@ Creates a Hmsc object
 \examples{
 Y = matrix(rnorm(100*10),100,10,dimnames=list(NULL,letters[1:10]))
 X = matrix(rnorm(100*3),100,3,dimnames=list(NULL,sprintf("cov\%d",1:3)))
-m = Hmsc(Y=Y, XData=as.data.frame(X), XFormula=~cov1+cov3))
+m = Hmsc(Y=Y, XData=as.data.frame(X), XFormula=~cov1+cov3)
 
 }
 \seealso{

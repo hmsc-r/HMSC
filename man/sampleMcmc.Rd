@@ -5,9 +5,8 @@
 \title{sampleMCMC}
 \usage{
 sampleMcmc(hM, samples, transient = 0, thin = 1, initPar = NULL,
-  repN = 1, saveToDisk = FALSE, verbose = samples * thin/100,
-  adaptNf = NULL, nChains = 1, nCores = 1, dataParList = NULL,
-  updater = list())
+  verbose = samples * thin/100, adaptNf = rep(transient, hM$nr),
+  nChains = 1, nCores = 1, dataParList = NULL, updater = list())
 }
 \arguments{
 \item{samples}{number of MCMC steps to be recorded}
@@ -16,15 +15,13 @@ sampleMcmc(hM, samples, transient = 0, thin = 1, initPar = NULL,
 
 \item{initPar}{initial parameters value}
 
-\item{repN}{number of replicates the samples should be splitted}
-
-\item{saveToDisk}{whether to save replicates to the disk once they are ready and discard them from RAM memory}
-
 \item{verbose}{at which steps should model progress be displayed (default = samples*thin / 100)}
 
 \item{nChains}{number of MCMC chains to run}
 
 \item{updater}{}
+
+\item{saveToDisk}{whether to save replicates to the disk once they are ready and discard them from RAM memory}
 }
 \value{
 
