@@ -89,7 +89,7 @@ computePredictedValues = function(nfolds=NULL, column=NULL, partition=NULL, star
          for (r in seq_len(m$nr)){
             dfPi[,r] = factor(m$dfPi[val,r])
          }
-         pred1 = m1$predict(post=postList, X=as.matrix(m$X[val,,drop=FASLE]), dfPiNew=dfPi, rL=m$rL, Yc=Yc[val,,drop=FALSE], mcmcStep=mcmcStep, expected=expected)
+         pred1 = m1$predict(post=postList, X=as.matrix(m$X[val,,drop=FALSE]), dfPiNew=dfPi, rL=m$rL, Yc=Yc[val,,drop=FALSE], mcmcStep=mcmcStep, expected=expected)
          mpred1 = apply(abind(pred1,along=3),c(1,2),mean)
          mpred[val,] = mpred1
       }
