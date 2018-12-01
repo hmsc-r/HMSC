@@ -74,7 +74,7 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
          LRan[[r]] = predPostEta[[r]][[pN]][dfPiNew[,r],] %*% sam$Lambda[[r]]
          Eta[[r]] = predPostEta[[r]][[pN]]
       }
-      L = LFix + Reduce("+", LRan)
+      if(hM$nr > 0){L = LFix + Reduce("+", LRan)} else L = LFix
 
       if(!is.null(Yc) && any(!is.na(Yc))){
          Z = L
@@ -86,7 +86,7 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
          for(r in seq_len(hM$nr)){
             LRan[[r]] = predPostEta[[r]][[pN]][dfPiNew[,r],] %*% sam$Lambda[[r]]
          }
-         L = LFix + Reduce("+", LRan)
+         if(hM$nr > 0){L = LFix + Reduce("+", LRan)} else L = LFix
       }
 
       if(!expected){

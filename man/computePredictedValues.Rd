@@ -5,7 +5,7 @@
 \title{computePredictedValues}
 \usage{
 computePredictedValues(hM, partition = NULL, start = 1, Yc = NULL,
-  mcmcStep = 1, expected = TRUE)
+  mcmcStep = 1, expected = TRUE, nCores = 1)
 }
 \arguments{
 \item{partition}{vector of observations partitioning for cross-validation}
