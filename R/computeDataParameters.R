@@ -19,6 +19,7 @@ computeDataParameters = function(hM){
    parList = list()
 
    if(!is.null(hM$C)){
+      Qg = array(NA, c(hM$ns,hM$ns,nrow(hM$rhopw)))
       iQg = array(NA, c(hM$ns,hM$ns,nrow(hM$rhopw)))
       RiQg = array(NA, c(hM$ns,hM$ns,nrow(hM$rhopw)))
       detQg = rep(NA, nrow(hM$rhopw))
@@ -32,12 +33,14 @@ computeDataParameters = function(hM){
             rhoC = (-rho)*iC;
          }
          Q = rhoC + (1-abs(rho))*diag(hM$ns)
+         Qg[,,rg] = Q
          RQ = chol(Q);
          iQg[,,rg] = chol2inv(RQ)
          RiQg[,,rg] = t(backsolve(RQ, diag(hM$ns)))
          detQg[rg] = 2*sum(log(diag(RQ)))
       }
    } else{
+      Qg = diag(ns)
       iQg = NULL
       detQg = NULL
       RiQg = NULL
@@ -52,6 +55,7 @@ computeDataParameters = function(hM){
          alphaN = nrow(alphapw)
          distance = as.matrix(dist(s))
 
+         Wg = array(NA, c(np,np,alphaN))
          iWg = array(NA, c(np,np,alphaN))
          RiWg = array(NA, c(np,np,alphaN))
          detWg = rep(NA, alphaN)
@@ -65,13 +69,15 @@ computeDataParameters = function(hM){
             RW = chol(W)
             iW = chol2inv(RW)
 
+            Wg[,,ag] = W
             iWg[,,ag] = iW
             RiWg[,,ag] = chol(iW)
             detWg[ag] = 2*sum(log(diag(RW)))
          }
-         rLPar[[r]] = list(iWg=iWg, RiWg=RiWg, detWg=detWg)
+         rLPar[[r]] = list(Wg=Wg, iWg=iWg, RiWg=RiWg, detWg=detWg)
       }
    }
+   parList$Qg = Qg
    parList$iQg = iQg
    parList$RiQg = RiQg
    parList$detQg = detQg

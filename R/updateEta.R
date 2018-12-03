@@ -7,7 +7,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,rL){
    LFix = X%*%Beta
    LRan = vector("list", nr)
    for(r in seq_len(nr)){
-      LRan[[r]] = Eta[[r]][Pi[,r],]%*%Lambda[[r]]
+      LRan[[r]] = Eta[[r]][Pi[,r],,drop=FALSE] %*% Lambda[[r]]
    }
 
    Eta = vector("list", nr)
@@ -89,6 +89,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,rL){
          }
       }
       Eta[[r]] = eta
+      LRan[[r]] = Eta[[r]][Pi[,r],,drop=FALSE]%*%Lambda[[r]]
    }
    return(Eta)
 }

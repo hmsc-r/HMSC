@@ -48,6 +48,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, verbose=sa
 
    if(is.null(dataParList))
       dataParList = computeDataParameters(hM)
+   Qg = dataParList$Qg
    iQg = dataParList$iQg
    RiQg = dataParList$RiQg
    detQg = dataParList$detQg
@@ -65,7 +66,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, verbose=sa
 
       Gamma = parList$Gamma
       V = parList$V
-      iV = solve(V)
+      iV = chol2inv(chol(V))
       Beta = parList$Beta
       sigma = parList$sigma
       iSigma = 1 / sigma
@@ -83,6 +84,13 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, verbose=sa
             Gamma = updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,
                Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,Tr=Tr,C=C, iQg=iQg,
                mGamma=mGamma,iUGamma=iUGamma)
+
+         if(!identical(updater$GammaEta, FALSE) && hM$nr>0){
+            GammaEtaList = updateGammaEta(Z=Z,V=chol2inv(chol(V)),id=iSigma,
+               Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,Tr=Tr,rL=hM$rL, rLPar=rLPar,Q=Qg[,,rho],U=m$UGamma)
+            Gamma = GammaEtaList$Gamma
+            Eta = GammaEtaList$Eta
+         }
 
          if(!identical(updater$BetaLambda, FALSE)){
             BetaLambdaList = updateBetaLambda(Y=Y,Z=Z,Gamma=Gamma,iV=iV,
