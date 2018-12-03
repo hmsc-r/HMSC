@@ -86,7 +86,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, verbose=sa
                mGamma=mGamma,iUGamma=iUGamma)
 
          if(!identical(updater$GammaEta, FALSE) && hM$nr>0){
-            GammaEtaList = updateGammaEta(Z=Z,V=chol2inv(chol(V)),id=iSigma,
+            GammaEtaList = updateGammaEta(Z=Z,V=chol2inv(chol(iV)),id=iSigma,
                Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,Tr=Tr,rL=hM$rL, rLPar=rLPar,Q=Qg[,,rho],U=hM$UGamma)
             Gamma = GammaEtaList$Gamma
             Eta = GammaEtaList$Eta
@@ -94,13 +94,13 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, verbose=sa
 
          if(!identical(updater$BetaLambda, FALSE)){
             BetaLambdaList = updateBetaLambda(Y=Y,Z=Z,Gamma=Gamma,iV=iV,
-               iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta,rho=rho, iQg=iQg,
+               iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta, iQ=iQg[,,rho],
                X=X,Tr=Tr,Pi=Pi,C=C)
             Beta = BetaLambdaList$Beta
             Lambda = BetaLambdaList$Lambda
          }
 
-         if(!identical(updater$BetaLambda, FALSE)){
+         if(!identical(updater$GammaV, FALSE)){
             GammaVList = updateGammaV(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho,
                iQg=iQg, Tr=Tr,C=C, mGamma=mGamma,iUGamma=iUGamma,V0=V0,f0=f0)
             Gamma = GammaVList$Gamma

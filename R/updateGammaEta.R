@@ -33,7 +33,6 @@ updateGammaEta = function(Z,V,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,U){
       if(rL[[r]]$sDim == 0){
          cat("HMSC.updateGammaEta to be implemented for non-structured latent factors\n")
       } else{
-         eta = matrix(0,np[r],nf)
          K = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$Wg[,,Alpha[[r]][x]]))
          iK = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$iWg[,,Alpha[[r]][x]]))
          LamiDLam = tcrossprod(lambda*matrix(sqrt(id),nf,ns,byrow=TRUE))
@@ -52,7 +51,7 @@ updateGammaEta = function(Z,V,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,U){
 
          XtS = crossprod(X,S)
          mg10 = as.vector(XtS %*% iDTr)
-         mg21 = as.vector(Matrix::tcrossprod(Matrix::crossprod(P,Y), LamiD))
+         mg21 = as.vector(Matrix::tcrossprod(Matrix::crossprod(P,S), LamiD))
          mg22 = backsolve(RW, backsolve(RW, mg21, transpose=TRUE))
          mg20 = Matrix::crossprod(kronecker(LamiD%*%Tr,PtX), mg22)
          mg31 = as.vector(XtS %*% iD) - Matrix::crossprod(LamiD_PtX, mg22)
@@ -67,6 +66,7 @@ updateGammaEta = function(Z,V,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,U){
          me30 = LamiD_PtX %*% mg32 - tmp1 %*% backsolve(RW, tmp2%*%mg32)
          me = K %*% (me10 - me20 - me30)
       }
+      # Sigma = Matrix::crossprod(chol(A)%*%kronecker(Diagonal(ns),t(X)))
       Gamma = matrix(mg,nc,nt)
       Eta[[r]] = matrix(me,np[r],nf)
       LRan[[r]] = Eta[[r]][Pi[,r],,drop=FALSE]%*%Lambda[[r]]

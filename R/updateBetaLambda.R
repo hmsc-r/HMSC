@@ -2,7 +2,7 @@
 #'
 #' @description updates beta lambda
 #'
-updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQg, X,Tr,Pi,C){
+updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,C){
    ny = nrow(Z)
    ns = ncol(Z)
    nc = nrow(Gamma)
@@ -33,7 +33,7 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQg, X,Tr,Pi,
       XEta = X
       priorLambda = matrix(numeric(0),0,ns)
    }
-   Q = crossprod(XEta)
+   XEtatXEta = crossprod(XEta)
 
    Mu = rbind(tcrossprod(Gamma,Tr), matrix(0,nfSum,ns))
    isXTS = crossprod(XEta,S) * matrix(iSigma,nc+nfSum,ns,byrow=TRUE)
@@ -60,11 +60,11 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQg, X,Tr,Pi,
       }
       for(j in which(indColNA)){
          indObs = Yx[,j]
-         Q = crossprod(XEta[indObs,,drop=FALSE])
+         XEtatXEta = crossprod(XEta[indObs,,drop=FALSE])
          isXTS = crossprod(XEta[indObs,,drop=FALSE],S[indObs,j]) * iSigma[j]
          P = P0
          diag(P) = c(diagiV, priorLambda[,j])
-         iU = P + Q*iSigma[j]
+         iU = P + XEtatXEta*iSigma[j]
          RiU = chol(iU)
          U = chol2inv(RiU)
          m = U %*% (P%*%Mu[,j] + isXTS);
@@ -73,8 +73,8 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQg, X,Tr,Pi,
 
    } else{
       # available phylogeny information
-      P = bdiag(kronecker(iV,iQg[,,rho]), Diagonal(x=t(priorLambda)))
-      RiU = chol(kronecker(Q,diag(iSigma)) + P)
+      P = bdiag(kronecker(iV,iQ), Diagonal(x=t(priorLambda)))
+      RiU = chol(kronecker(XEtatXEta,diag(iSigma)) + P)
       # U = chol2inv(RiU)
       # m = U %*% (P%*%as.vector(t(Mu)) + as.vector(t(isXTS)))
       # BetaLambda = matrix(m + backsolve(RiU, rnorm(ns*(nc+nfSum))), nc+nfSum, ns, byrow=TRUE)

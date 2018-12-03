@@ -41,7 +41,7 @@ computeDataParameters = function(hM){
       }
    } else{
       Qg = diag(ns)
-      iQg = NULL
+      iQg = diag(ns)
       detQg = NULL
       RiQg = NULL
    }
