@@ -4,7 +4,7 @@
 \alias{updateBetaLambda}
 \title{updateBetaLambda}
 \usage{
-updateBetaLambda(Y, Z, Gamma, iV, iSigma, Eta, Psi, Delta, rho, iQg, X, Tr,
+updateBetaLambda(Y, Z, Gamma, iV, iSigma, Eta, Psi, Delta, rho, iQ, X, Tr,
   Pi, C)
 }
 \description{
