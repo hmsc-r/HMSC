@@ -86,8 +86,8 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, verbose=sa
                mGamma=mGamma,iUGamma=iUGamma)
 
          if(!identical(updater$GammaEta, FALSE) && hM$nr>0){
-            GammaEtaList = updateGammaEta(Z=Z,V=chol2inv(chol(iV)),id=iSigma,
-               Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,Tr=Tr,rL=hM$rL, rLPar=rLPar,Q=Qg[,,rho],U=hM$UGamma)
+            GammaEtaList = updateGammaEta(Z=Z,V=chol2inv(chol(iV)),iV=iV,id=iSigma,
+               Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,Tr=Tr,rL=hM$rL, rLPar=rLPar,Q=Qg[,,rho],iQ=iQg[,,rho],U=hM$UGamma)
             Gamma = GammaEtaList$Gamma
             Eta = GammaEtaList$Eta
          }

@@ -1,6 +1,6 @@
 # id = diagonal of inverse residual variations
 
-updateGammaEta = function(Z,V,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,U){
+updateGammaEta = function(Z,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,iQ,U){
    ny = nrow(Z)
    ns = ncol(Z)
    nr = ncol(Pi)
@@ -53,7 +53,6 @@ updateGammaEta = function(Z,V,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,U){
          W = iK + LamiDLam_PtP
          RW = chol(W)
 
-         iLW.LamiDLam_PtP = backsolve(RW, LamiDLam_PtP, transpose=TRUE)
          iLW.LamiD_PtX = backsolve(RW, LamiD_PtX, transpose=TRUE)
          iDLamt_XtP.iW.LamiD_PtX = crossprod(iLW.LamiD_PtX)
          M = iA + kronecker(iD,XtX) - iDLamt_XtP.iW.LamiD_PtX
@@ -71,31 +70,17 @@ updateGammaEta = function(Z,V,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,U){
 
          me10 = mg21
          me20 = LamiDLam_PtP %*% mg22
-         tmp2 = LamiD_PtX - crossprod(iLW.LamiDLam_PtP, iLW.LamiD_PtX)
-         me30 = tmp2 %*% mg32
+         me30 = LamiD_PtX %*% mg32 - LamiDLam_PtP %*% backsolve(RW, iLW.LamiD_PtX %*% mg32)
          me = K %*% (me10 - me20 - me30)
 
-         # F1g = kronecker(chol(crossprod(iD05T)), chol(crossprod(X))) %*% U
-         # F1e = kronecker(chol(LamiDLam),sqrt(PtP)) %*% K
-         F2g = backsolve(RW, LamiDT_PtX, transpose=TRUE) %*% U
-         F2e = iLW.LamiDLam_PtP %*% K
-         F3g = backsolve(RM, tmp1, transpose=TRUE) %*% U
-         F3e = backsolve(RM, Matrix::t(tmp2), transpose=TRUE) %*% K
-
-         # H1gg = crossprod(F1g)
-         # H1ee = Matrix::crossprod(F1e)
-         H1gg = U %*% kronecker(crossprod(iD05T), crossprod(X)) %*% U
-         H1gg = (H1gg + t(H1gg)) / 2
-         H1ee = K %*% kronecker(LamiDLam, PtP) %*% K
-         H1ee = (H1ee + Matrix::t(H1ee)) / 2
-         H1eg = K %*% kronecker(LamiD%*%Tr,PtX) %*% U
-         H1 = rbind(cbind(H1gg,Matrix::t(H1eg)), cbind(H1eg,H1ee))
-         H2 = Matrix::crossprod(cbind(F2g, F2e))
-         H3 = Matrix::crossprod(cbind(F3g, F3e))
+         H = kronecker(iQ, iV) + kronecker(iD,XtX)
+         iG1 = bdiag(chol2inv(chol(U)), iK)
+         iG2 = Matrix::crossprod(cbind(kronecker(iD05T,X), kronecker(iD05Lamt,P)))
+         iG3 = crossprod(backsolve(chol(H), cbind(iDT_XtX, Matrix::t(LamiD_PtX)), transpose=TRUE))
+         iG = iG1 + iG2 - iG3
 
          m = as.vector(rbind(mg,me))
-         G = bdiag(U,K) - (H1 - H2 - H3)
-         gammaEta = m + crossprod(chol(G), rnorm(nc*nt+np*nf))
+         gammaEta = m + backsolve(chol(iG), rnorm(nc*nt+np*nf))
       }
       Gamma = matrix(gammaEta[1:(nc*nt)],nc,nt)
       Eta[[r]] = matrix(gammaEta[(nc*nt+1):(nc*nt+np[r]*nf)],np[r],nf)
