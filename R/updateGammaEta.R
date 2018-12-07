@@ -1,6 +1,6 @@
 # id = diagonal of inverse residual variations
 
-updateGammaEta = function(Z,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,iQ,U){
+updateGammaEta = function(Z,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,iQ,U,iU){
    ny = nrow(Z)
    ns = ncol(Z)
    nr = ncol(Pi)
@@ -73,10 +73,10 @@ updateGammaEta = function(Z,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,iQ,U){
          me30 = LamiD_PtX %*% mg32 - LamiDLam_PtP %*% backsolve(RW, iLW.LamiD_PtX %*% mg32)
          me = K %*% (me10 - me20 - me30)
 
-         H = kronecker(iQ, iV) + kronecker(iD,XtX)
-         iG1 = bdiag(chol2inv(chol(U)), iK)
+         H = kronecker(iQ, iV) + as(kronecker(iD,XtX), "symmetricMatrix")
+         iG1 = bdiag(iU, iK)
          iG2 = Matrix::crossprod(cbind(kronecker(iD05T,X), kronecker(iD05Lamt,P)))
-         iG3 = crossprod(backsolve(chol(H), cbind(iDT_XtX, Matrix::t(LamiD_PtX)), transpose=TRUE))
+         iG3 = crossprod(backsolve(Matrix::chol(H), cbind(iDT_XtX, Matrix::t(LamiD_PtX)), transpose=TRUE))
          iG = iG1 + iG2 - iG3
 
          m = as.vector(rbind(mg,me))
