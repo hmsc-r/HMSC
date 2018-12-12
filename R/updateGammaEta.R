@@ -13,6 +13,7 @@ updateGammaEta = function(Z,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,iQ,U,i
       LRan[[r]] = Eta[[r]][Pi[,r],,drop=FALSE]%*%Lambda[[r]]
    }
 
+   Eta = vector("list", nr)
    iD = Diagonal(x=id)
    iDT = matrix(id,ns,nt)*Tr
    iD05T = matrix(sqrt(id),ns,nt)*Tr
@@ -32,7 +33,7 @@ updateGammaEta = function(Z,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,iQ,U,i
       lPi = Pi[,r]
 
       if(rL[[r]]$sDim == 0){
-         # cat("HMSC.updateGammaEta to be implemented for non-structured latent factors\n")
+         cat("HMSC.updateGammaEta to be implemented for non-structured latent factors\n")
       } else{
          K = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$Wg[,,Alpha[[r]][x]]))
          iK = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$iWg[,,Alpha[[r]][x]]))
@@ -80,11 +81,10 @@ updateGammaEta = function(Z,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,iQ,U,i
 
          m = as.vector(rbind(mg,me))
          gammaEta = m + backsolve(chol(iG), rnorm(nc*nt+np*nf))
-
-         Gamma = matrix(gammaEta[1:(nc*nt)],nc,nt)
-         Eta[[r]] = matrix(gammaEta[(nc*nt+1):(nc*nt+np[r]*nf)],np[r],nf)
-         LRan[[r]] = Eta[[r]][Pi[,r],,drop=FALSE]%*%Lambda[[r]]
       }
+      Gamma = matrix(gammaEta[1:(nc*nt)],nc,nt)
+      Eta[[r]] = matrix(gammaEta[(nc*nt+1):(nc*nt+np[r]*nf)],np[r],nf)
+      LRan[[r]] = Eta[[r]][Pi[,r],,drop=FALSE]%*%Lambda[[r]]
    }
    return(list(Gamma=Gamma, Eta=Eta))
 }
