@@ -52,7 +52,7 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,C
       for(j in which(indColFull)){ # test whether worthy to rewrite with tensorA?
          P = P0
          diag(P) = c(diagiV, priorLambda[,j])
-         iU = P + Q*iSigma[j]
+         iU = P + XEtatXEta*iSigma[j]
          RiU = chol(iU)
          U = chol2inv(RiU)
          m = U %*% (P%*%Mu[,j] + isXTS[,j]);

@@ -169,7 +169,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, verbose=sa
       clusterExport(cl, c("hM","nChains","transient","samples","thin","adaptNf","initSeed","initPar",
          "X", "Tr", "Y", "distr", "Pi", "C", "nr",
          "mGamma", "iUGamma", "V0", "f0", "aSigma", "bSigma", "rhopw",
-         "iQg", "RiQg", "detQg", "rLPar"), envir=environment())
+         "Qg", "iQg", "RiQg", "detQg", "rLPar"), envir=environment())
 
       clusterEvalQ(cl, {
          library(mvtnorm);

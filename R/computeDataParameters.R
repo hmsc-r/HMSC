@@ -40,10 +40,10 @@ computeDataParameters = function(hM){
          detQg[rg] = 2*sum(log(diag(RQ)))
       }
    } else{
-      Qg = diag(ns)
-      iQg = diag(ns)
-      detQg = NULL
-      RiQg = NULL
+      Qg = array(diag(hM$ns), c(hM$ns,hM$ns,1))
+      iQg = array(diag(hM$ns), c(hM$ns,hM$ns,1))
+      detQg = 0
+      RiQg = array(diag(hM$ns), c(hM$ns,hM$ns,1))
    }
 
    rLPar = vector("list", hM$nr)
