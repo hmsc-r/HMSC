@@ -17,25 +17,47 @@
 computeInitialParameters = function(hM, initPar){
    parList = list()
 
-   if(!is.null(initPar$Gamma)){
-      Gamma = initPar$Gamma
+   if(identical(initPar, "fixed effects")){
+      cat("Hmsc::computeInitialParameter - initializing fixed effects with SSDM estimates\n")
+      Beta = matrix(NA,hM$nc,hM$ns)
+      for(j in 1:hM$ns){
+         if(hM$distr[j,1] == 1)
+            fm = lm.fit(hM$X, hM$Y[,j])
+         if(hM$distr[j,1] == 2)
+            fm = glm.fit(hM$X, hM$Y[,j], family=binomial(link="probit"))
+         if(hM$distr[j,1] == 3)
+            fm = glm.fit(hM$X, hM$Y[,j], family=poisson())
+         Beta[,j] = coef(fm)
+      }
+      Gamma = matrix(NA,hM$nc,hM$nt)
+      for(k in 1:hM$nc){
+         fm = lm.fit(hM$Tr, Beta[k,])
+         Gamma[k,] = coef(fm)
+      }
+      V = cov(t(initBeta - tcrossprod(initGamma, hM$Tr)))
+      initPar = NULL
    } else{
-      Gamma = matrix(rmvnorm(1, hM$mGamma, hM$UGamma), hM$nc, hM$nt)
-   }
 
-   if(!is.null(initPar$V)){
-      V = initPar$V
-   } else{
-      V = riwish(hM$f0, hM$V0)
-   }
+      if(!is.null(initPar$Gamma)){
+         Gamma = initPar$Gamma
+      } else{
+         Gamma = matrix(rmvnorm(1, hM$mGamma, hM$UGamma), hM$nc, hM$nt)
+      }
 
-   if(!is.null(initPar$Beta)){
-      Beta = initPar$Beta
-   } else{
-      Beta = matrix(NA, hM$nc, hM$ns)
-      Mu = tcrossprod(Gamma,hM$Tr)
-      for(j in 1:hM$ns)
-         Beta[,j] = rmvnorm(1, Mu[,j], V)
+      if(!is.null(initPar$V)){
+         V = initPar$V
+      } else{
+         V = riwish(hM$f0, hM$V0)
+      }
+
+      if(!is.null(initPar$Beta)){
+         Beta = initPar$Beta
+      } else{
+         Beta = matrix(NA, hM$nc, hM$ns)
+         Mu = tcrossprod(Gamma,hM$Tr)
+         for(j in 1:hM$ns)
+            Beta[,j] = rmvnorm(1, Mu[,j], V)
+      }
    }
 
    if(!is.null(initPar$sigma)){
