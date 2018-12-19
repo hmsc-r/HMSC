@@ -34,7 +34,7 @@ computeInitialParameters = function(hM, initPar){
          fm = lm.fit(hM$Tr, Beta[k,])
          Gamma[k,] = coef(fm)
       }
-      V = cov(t(initBeta - tcrossprod(initGamma, hM$Tr)))
+      V = cov(t(Beta - tcrossprod(Gamma, hM$Tr)))
       initPar = NULL
    } else{
 
