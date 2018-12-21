@@ -54,7 +54,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,rL){
             # eta = 0*matrix(rnorm(np[r]*nf),np[r],nf)
             unLPi = unique(lPi)
             for(q in 1:np[r]){
-               rows = (Pi[,r]==unLPi[q])
+               rows = (lPi==unLPi[q])
                iV = diag(nf) + LamInvSigLam*sum(rows)
                RiV = chol(iV)
                V = chol2inv(RiV)

@@ -31,22 +31,12 @@ updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,
       lambda = Lambda[[r]]
       nf = nrow(lambda)
       lPi = Pi[,r]
-      P = sparseMatrix(i=1:ny,j=lPi)
-
-      iD05Lamt = matrix(sqrt(id),ns,nf)*t(lambda)
       LamiD = lambda*matrix(id,nf,ns,byrow=TRUE)
-      LamiD05 = t(iD05Lamt)
       LamiDLam = tcrossprod(lambda*matrix(sqrt(id),nf,ns,byrow=TRUE))
-      PtX = Matrix::crossprod(P, X)
-      colSumP = Matrix::colSums(P)
-      PtP = Diagonal(x=colSumP)
-      LamiDLam_PtP = kronecker(LamiDLam, PtP)
-      LamiD_PtX = kronecker(LamiD, PtX)
-      LamiDT_PtX = kronecker(LamiD%*%Tr,PtX)
       XtS = crossprod(X,S)
 
-      if(rL[[r]]$sDim == 0){
-         if(np == ny){
+      if(rL[[r]]$sDim == 0){ # non-spatial level
+         if(np[r] == ny){ # observation-corresponding LF
             W0 = LamiDLam + diag(nf)
             RW0 = chol(W0)
             iW0 = chol2inv(RW0)
@@ -72,19 +62,56 @@ updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,
             me = tcrossprod(S1,LamiD) %*% iW0
             Eta[[r]] = matrix(NA,ny,nf)
             Eta[[r]][lPi,] = me + t(backsolve(RW0,matrix(rnorm(ny*nf),nf,ny)))
-         } else{
-            # unK = unique(colSumP)
-            # dfUnK = data.frame(ind=1:length(unK), k=k)
-            # dfColSumP = merge(data.frame(k=colSumP), dfUnK)
-            # iWk = vector("list", length(unK))
-            # RWk = vector("list", length(unK))
-            # for(u in 1:length(unK)){
-            #    RWk[[u]] = chol(unK[u]*LamiDLam + diag(nf))
-            # }
-            # aaaaaaa
-            # RW = sparseMatrix()
+         } else{ # non-observation-corresponding LF
+            P = sparseMatrix(i=1:ny,j=lPi)
+            PtX = Matrix::crossprod(P, X)
+            colSumP = Matrix::colSums(P)
+            PtP = Diagonal(x=colSumP)
+            LamiDLam_PtP = kronecker(LamiDLam, PtP)
+            LamiD_PtX = kronecker(LamiD, PtX)
+
+            W = Diagonal(nf*np[r]) + LamiDLam_PtP
+            RW = chol(W)
+            # iLW.LamiD_PtX = Matrix::solve(t(RW), LamiD_PtX)
+            iLW.LamiD_PtX = backsolve(RW,LamiD_PtX,transpose=TRUE)
+            iDLamt_XtP.iW.LamiD_PtX = Matrix::crossprod(iLW.LamiD_PtX)
+            tmp1 = kronecker(iD,XtX) - iDLamt_XtP.iW.LamiD_PtX
+            M = iA + tmp1
+            RM = chol(M)
+
+            mb10 = as.vector(XtS * matrix(id,nc,ns,byrow=TRUE))
+            mb21 = as.vector(Matrix::tcrossprod(Matrix::crossprod(P,S), LamiD))
+            mb22 = as.vector(Matrix::solve(RW, Matrix::solve(t(RW),mb21)))
+            mb20 = as.vector(Matrix::crossprod(PtX,matrix(mb22,np[r],nf)) %*% LamiD)
+            mb31 = backsolve(RM, backsolve(RM, mb10-mb20, transpose=TRUE))
+            mb30 = tmp1 %*% mb31
+            mb = A %*% (mb10-mb20-mb30)
+            Beta = matrix(mb + backsolve(RM,rnorm(nc*ns)),nc,ns)
+
+            # update Gamma conditional on Beta
+            R = chol(iU + kronecker(crossprod(backsolve(RQ,Tr,transpose=TRUE)), iV))
+            mg = chol2inv(R) %*% as.vector((iV%*%Beta)%*%(iQ%*%Tr))
+            Gamma = matrix(mg + backsolve(R,rnorm(nc*nt)),nc,nt)
+
+            # update Eta conditional on Beta, S
+            S1 = S - X%*%Beta
+            PtS1 = Matrix::crossprod(P,S1)
+            me10 = as.vector(Matrix::tcrossprod(PtS1,LamiD))
+            me21 = as.vector(Matrix::solve(RW, Matrix::solve(t(RW),me10)))
+            me20 = as.vector(PtP %*% matrix(me21,np[r],nf) %*% LamiDLam)
+            me = me10 - me20
+            Eta[[r]] = matrix(me + backsolve(RW,rnorm(np[r]*nf)), np[r],nf)
          }
-      } else{
+      } else{ # spatial level
+         P = sparseMatrix(i=1:ny,j=lPi)
+         iD05Lamt = matrix(sqrt(id),ns,nf)*t(lambda)
+         PtX = Matrix::crossprod(P, X)
+         colSumP = Matrix::colSums(P)
+         PtP = Diagonal(x=colSumP)
+         LamiDLam_PtP = kronecker(LamiDLam, PtP)
+         LamiD_PtX = kronecker(LamiD, PtX)
+         LamiDT_PtX = kronecker(LamiD%*%Tr,PtX)
+
          K = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$Wg[,,Alpha[[r]][x]]))
          iK = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$iWg[,,Alpha[[r]][x]]))
 
@@ -118,7 +145,7 @@ updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,
          iG = iG1 + iG2 - iG3
 
          m = as.vector(rbind(mg,me))
-         gammaEta = m + backsolve(chol(iG), rnorm(nc*nt+np*nf))
+         gammaEta = m + backsolve(chol(iG), rnorm(nc*nt+np[r]*nf))
 
          Gamma = matrix(gammaEta[1:(nc*nt)],nc,nt)
          Eta[[r]] = matrix(gammaEta[(nc*nt+1):(nc*nt+np[r]*nf)],np[r],nf)
