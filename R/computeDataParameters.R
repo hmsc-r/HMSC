@@ -21,7 +21,7 @@ computeDataParameters = function(hM){
    if(!is.null(hM$C)){
       Qg = array(NA, c(hM$ns,hM$ns,nrow(hM$rhopw)))
       iQg = array(NA, c(hM$ns,hM$ns,nrow(hM$rhopw)))
-      RiQg = array(NA, c(hM$ns,hM$ns,nrow(hM$rhopw)))
+      RQg = array(NA, c(hM$ns,hM$ns,nrow(hM$rhopw)))
       detQg = rep(NA, nrow(hM$rhopw))
       if(any(hM$rhopw[,1] < 0))
          iC = chol2inv(chol(hM$C))
@@ -36,14 +36,14 @@ computeDataParameters = function(hM){
          Qg[,,rg] = Q
          RQ = chol(Q);
          iQg[,,rg] = chol2inv(RQ)
-         RiQg[,,rg] = t(backsolve(RQ, diag(hM$ns)))
+         RQg[,,rg] = RQ
          detQg[rg] = 2*sum(log(diag(RQ)))
       }
    } else{
       Qg = array(diag(hM$ns), c(hM$ns,hM$ns,1))
       iQg = array(diag(hM$ns), c(hM$ns,hM$ns,1))
       detQg = 0
-      RiQg = array(diag(hM$ns), c(hM$ns,hM$ns,1))
+      RQg = array(diag(hM$ns), c(hM$ns,hM$ns,1))
    }
 
    rLPar = vector("list", hM$nr)
@@ -79,7 +79,7 @@ computeDataParameters = function(hM){
    }
    parList$Qg = Qg
    parList$iQg = iQg
-   parList$RiQg = RiQg
+   parList$RQg = RQg
    parList$detQg = detQg
    parList$rLPar = rLPar
 

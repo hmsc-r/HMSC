@@ -50,7 +50,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, verbose=sa
       dataParList = computeDataParameters(hM)
    Qg = dataParList$Qg
    iQg = dataParList$iQg
-   RiQg = dataParList$RiQg
+   RQg = dataParList$RQg
    detQg = dataParList$detQg
    rLPar = dataParList$rLPar
 
@@ -85,13 +85,11 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, verbose=sa
                Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,Tr=Tr,C=C, iQg=iQg,
                mGamma=mGamma,iUGamma=iUGamma)
 
-         if(!identical(updater$GammaEta, FALSE) && hM$nr>0){
-            if(all(unlist(lapply(hM$rL, function(a) a$sDim)))){ # temporary patch for models with non-spatial levels
-               GammaEtaList = updateGammaEta(Z=Z,V=chol2inv(chol(iV)),iV=iV,id=iSigma,
-                  Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,Tr=Tr,rL=hM$rL, rLPar=rLPar,Q=Qg[,,rho],iQ=iQg[,,rho],U=hM$UGamma,iU=iUGamma)
-               Gamma = GammaEtaList$Gamma
-               Eta = GammaEtaList$Eta
-            }
+         if(!identical(updater$GammaEta, FALSE) && hM$nr>0 && identical(mGamma,rep(0,hM$nc*hM$nt))){ # assumes mGamma = 0
+            GammaEtaList = updateGammaEta(Z=Z,Gamma=Gamma,V=chol2inv(chol(iV)),iV=iV,id=iSigma,
+               Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,Tr=Tr,rL=hM$rL, rLPar=rLPar,Q=Qg[,,rho],iQ=iQg[,,rho],RQ=RQg[,,rho],U=hM$UGamma,iU=iUGamma)
+            Gamma = GammaEtaList$Gamma
+            Eta = GammaEtaList$Eta
          }
 
          if(!identical(updater$BetaLambda, FALSE)){
@@ -104,13 +102,13 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, verbose=sa
 
          if(!identical(updater$GammaV, FALSE)){
             GammaVList = updateGammaV(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho,
-               iQg=iQg, Tr=Tr,C=C, mGamma=mGamma,iUGamma=iUGamma,V0=V0,f0=f0)
+               iQg=iQg,RQg=RQg, Tr=Tr,C=C, mGamma=mGamma,iUGamma=iUGamma,V0=V0,f0=f0)
             Gamma = GammaVList$Gamma
             iV = GammaVList$iV
          }
 
          if(!is.null(hM$C) && !identical(updater$Rho, FALSE)){
-            rho = updateRho(Beta=Beta,Gamma=Gamma,iV=iV, RiQg=RiQg,
+            rho = updateRho(Beta=Beta,Gamma=Gamma,iV=iV, RQg=RQg,
                detQg=detQg, Tr=Tr, rhopw=rhopw)
             # print(rho)
          }
@@ -169,7 +167,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, verbose=sa
       clusterExport(cl, c("hM","nChains","transient","samples","thin","adaptNf","initSeed","initPar",
          "X", "Tr", "Y", "distr", "Pi", "C", "nr",
          "mGamma", "iUGamma", "V0", "f0", "aSigma", "bSigma", "rhopw",
-         "Qg", "iQg", "RiQg", "detQg", "rLPar"), envir=environment())
+         "Qg", "iQg", "RQg", "detQg", "rLPar"), envir=environment())
 
       clusterEvalQ(cl, {
          library(mvtnorm);

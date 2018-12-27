@@ -1,6 +1,6 @@
 # id = diagonal of inverse residual variations
 
-updateGammaEta = function(Z,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,iQ,U,iU){
+updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,iQ,RQ,U,iU){
    ny = nrow(Z)
    ns = ncol(Z)
    nr = ncol(Pi)
@@ -31,31 +31,119 @@ updateGammaEta = function(Z,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,iQ,U,i
       lambda = Lambda[[r]]
       nf = nrow(lambda)
       lPi = Pi[,r]
+      LamiD = lambda*matrix(id,nf,ns,byrow=TRUE)
+      LamiDLam = tcrossprod(lambda*matrix(sqrt(id),nf,ns,byrow=TRUE))
+      XtS = crossprod(X,S)
 
-      if(rL[[r]]$sDim == 0){
-         cat("HMSC.updateGammaEta to be implemented for non-structured latent factors\n")
-      } else{
-         K = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$Wg[,,Alpha[[r]][x]]))
-         iK = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$iWg[,,Alpha[[r]][x]]))
+      if(rL[[r]]$sDim == 0){ # non-spatial level
+         if(np[r] == ny){ # observation-corresponding LF
+            W0 = LamiDLam + diag(nf)
+            RW0 = chol(W0)
+            iW0 = chol2inv(RW0)
+            iLW0LamiD = backsolve(RW0,LamiD,transpose=TRUE)
+            tmp1 = diag(id) - crossprod(iLW0LamiD)
+            M = iA + kronecker(tmp1, XtX)
+            RM = chol(M)
+
+            mb10 = as.vector(XtS * matrix(id,nc,ns,byrow=TRUE))
+            mb20 = as.vector((tcrossprod(XtS, LamiD) %*% iW0) %*% LamiD)
+            mb31 = backsolve(RM, backsolve(RM, mb10-mb20, transpose=TRUE))
+            mb30 = kronecker(tmp1, XtX) %*% mb31
+            mb = A %*% (mb10-mb20-mb30)
+            Beta = matrix(mb + backsolve(RM,rnorm(nc*ns)),nc,ns)
+
+            # update Gamma conditional on Beta
+            R = chol(iU + kronecker(crossprod(backsolve(RQ,Tr,transpose=TRUE)), iV))
+            mg = chol2inv(R) %*% as.vector((iV%*%Beta)%*%(iQ%*%Tr))
+            Gamma = matrix(mg + backsolve(R,rnorm(nc*nt)),nc,nt)
+
+            # update Eta conditional on Beta, S
+            S1 = S - X%*%Beta
+            me = tcrossprod(S1,LamiD) %*% iW0
+            Eta[[r]] = matrix(NA,ny,nf)
+            Eta[[r]][lPi,] = me + t(backsolve(RW0,matrix(rnorm(ny*nf),nf,ny)))
+         } else{ # non-observation-corresponding LF
+            P = sparseMatrix(i=1:ny,j=lPi)
+            PtX = Matrix::crossprod(P, X)
+            colSumP = Matrix::colSums(P)
+            PtP = Diagonal(x=colSumP)
+            LamiDLam_PtP = kronecker(LamiDLam, PtP)
+            LamiD_PtX = kronecker(LamiD, PtX)
+
+            # W = Diagonal(nf*np[r]) + LamiDLam_PtP
+            # RW = chol(W)
+            # iW = Matrix::chol2inv(RW)
+
+            WList = vector("list",np)
+            RWList = vector("list",np)
+            iWList = vector("list",np)
+            LiWList = vector("list",np)
+            for(p in 1:np){
+               WList[[p]] = diag(nf) + colSumP[p]*LamiDLam
+               RWList[[p]] = chol(WList[[p]])
+               iWList[[p]] = chol2inv(RWList[[p]])
+               LiWList[[p]] = solve(RWList[[p]])
+            }
+            indR = rep((0:(nf-1))*np, nf*np) + rep(rep(1:np,each=nf),nf)
+            indC = rep(1:(nf*np), each=nf)
+            W = sparseMatrix(indR, indC, x=as.vector(Reduce(rbind, WList)))
+            # RW = sparseMatrix(indR, indC, x=as.vector(Reduce(rbind, RWList)))
+            iW = sparseMatrix(indR, indC, x=as.vector(Reduce(rbind, iWList)))
+            LiW = sparseMatrix(indR, indC, x=as.vector(Reduce(rbind, LiWList)))
+
+            # iLW.LamiD_PtX = Matrix::solve(t(RW), LamiD_PtX)
+            # iLW.LamiD_PtX = backsolve(RW,LamiD_PtX,transpose=TRUE)
+            iLW.LamiD_PtX = as.matrix(Matrix::crossprod(LiW, LamiD_PtX))
+            iDLamt_XtP.iW.LamiD_PtX = crossprod(iLW.LamiD_PtX)
+            tmp1 = kronecker(diag(id),XtX) - iDLamt_XtP.iW.LamiD_PtX
+            M = iA + tmp1
+            RM = chol(M)
+
+            mb10 = as.vector(XtS * matrix(id,nc,ns,byrow=TRUE))
+            mb21 = as.vector(Matrix::tcrossprod(Matrix::crossprod(P,S), LamiD))
+            # mb22 = as.vector(Matrix::solve(RW, Matrix::solve(t(RW),mb21)))
+            mb22 = as.vector(iW %*% mb21)
+            mb20 = as.vector(Matrix::crossprod(PtX,matrix(mb22,np[r],nf)) %*% LamiD)
+            mb31 = backsolve(RM, backsolve(RM, mb10-mb20, transpose=TRUE))
+            mb30 = tmp1 %*% mb31
+            mb = A %*% (mb10-mb20-mb30)
+            Beta = matrix(mb + backsolve(RM,rnorm(nc*ns)),nc,ns)
+
+            # update Gamma conditional on Beta
+            R = chol(iU + kronecker(crossprod(backsolve(RQ,Tr,transpose=TRUE)), iV))
+            mg = chol2inv(R) %*% as.vector((iV%*%Beta)%*%(iQ%*%Tr))
+            Gamma = matrix(mg + backsolve(R,rnorm(nc*nt)),nc,nt)
+
+            # update Eta conditional on Beta, S
+            S1 = S - X%*%Beta
+            PtS1 = Matrix::crossprod(P,S1)
+            me10 = as.vector(Matrix::tcrossprod(PtS1,LamiD))
+            # me21 = as.vector(Matrix::solve(RW, Matrix::solve(t(RW),me10)))
+            me21 = as.vector(iW %*% me10)
+            me20 = as.vector(PtP %*% matrix(me21,np[r],nf) %*% LamiDLam)
+            me = me10 - me20
+            # Eta[[r]] = matrix(me + backsolve(RW,rnorm(np[r]*nf)), np[r],nf)
+            Eta[[r]] = matrix(me + LiW %*% rnorm(np[r]*nf), np[r],nf)
+         }
+      } else{ # spatial level
          P = sparseMatrix(i=1:ny,j=lPi)
-
          iD05Lamt = matrix(sqrt(id),ns,nf)*t(lambda)
-         LamiD = lambda*matrix(id,nf,ns,byrow=TRUE)
-         LamiD05 = t(iD05Lamt)
-         LamiDLam = tcrossprod(lambda*matrix(sqrt(id),nf,ns,byrow=TRUE))
          PtX = Matrix::crossprod(P, X)
-         PtP = Diagonal(x=Matrix::colSums(P))
+         colSumP = Matrix::colSums(P)
+         PtP = Diagonal(x=colSumP)
          LamiDLam_PtP = kronecker(LamiDLam, PtP)
          LamiD_PtX = kronecker(LamiD, PtX)
          LamiDT_PtX = kronecker(LamiD%*%Tr,PtX)
-         XtS = crossprod(X,S)
+
+         K = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$Wg[,,Alpha[[r]][x]]))
+         iK = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$iWg[,,Alpha[[r]][x]]))
 
          W = iK + LamiDLam_PtP
          RW = chol(W)
 
          iLW.LamiD_PtX = backsolve(RW, LamiD_PtX, transpose=TRUE)
          iDLamt_XtP.iW.LamiD_PtX = crossprod(iLW.LamiD_PtX)
-         M = iA + kronecker(iD,XtX) - iDLamt_XtP.iW.LamiD_PtX
+         M = iA + kronecker(diag(id),XtX) - iDLamt_XtP.iW.LamiD_PtX
          RM = chol(M)
 
          mg10 = as.vector(XtS %*% iDT)
@@ -80,10 +168,11 @@ updateGammaEta = function(Z,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,iQ,U,i
          iG = iG1 + iG2 - iG3
 
          m = as.vector(rbind(mg,me))
-         gammaEta = m + backsolve(chol(iG), rnorm(nc*nt+np*nf))
+         gammaEta = m + backsolve(chol(iG), rnorm(nc*nt+np[r]*nf))
+
+         Gamma = matrix(gammaEta[1:(nc*nt)],nc,nt)
+         Eta[[r]] = matrix(gammaEta[(nc*nt+1):(nc*nt+np[r]*nf)],np[r],nf)
       }
-      Gamma = matrix(gammaEta[1:(nc*nt)],nc,nt)
-      Eta[[r]] = matrix(gammaEta[(nc*nt+1):(nc*nt+np[r]*nf)],np[r],nf)
       LRan[[r]] = Eta[[r]][Pi[,r],,drop=FALSE]%*%Lambda[[r]]
    }
    return(list(Gamma=Gamma, Eta=Eta))
