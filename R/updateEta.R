@@ -4,7 +4,16 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,rL){
    nr = ncol(Pi)
    np = apply(Pi, 2, function(a) length(unique(a)))
 
-   LFix = X%*%Beta
+   switch(X,
+      matrix = {
+         LFix = X%*%Beta
+      },
+      list = {
+         LFix = matrix(NA,ny,ns)
+         for(j in 1:ns)
+            LFix[,j] = X[[j]]%*%Beta[,j]
+      }
+   )
    LRan = vector("list", nr)
    for(r in seq_len(nr)){
       LRan[[r]] = Eta[[r]][Pi[,r],,drop=FALSE] %*% Lambda[[r]]

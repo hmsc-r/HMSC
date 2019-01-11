@@ -79,13 +79,13 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, verbose=sa
       Z = parList$Z
 
       postList = vector("list", samples)
-      for(iter in 1:(transient+samples*thin)){ #  the parallel version fails on this line
-         if(!identical(updater$Gamma2, FALSE))
+      for(iter in 1:(transient+samples*thin)){
+         if(!identical(updater$Gamma2, FALSE) && is.matrix(X))
             Gamma = updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,
                Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,Tr=Tr,C=C, iQg=iQg,
                mGamma=mGamma,iUGamma=iUGamma)
 
-         if(!identical(updater$GammaEta, FALSE) && hM$nr>0 && identical(mGamma,rep(0,hM$nc*hM$nt))){ # assumes mGamma = 0
+         if(!identical(updater$GammaEta, FALSE) && hM$nr>0 && identical(mGamma,rep(0,hM$nc*hM$nt)) && is.matrix(X)){ # assumes mGamma = 0
             GammaEtaList = updateGammaEta(Z=Z,Gamma=Gamma,V=chol2inv(chol(iV)),iV=iV,id=iSigma,
                Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,Tr=Tr,rL=hM$rL, rLPar=rLPar,Q=Qg[,,rho],iQ=iQg[,,rho],RQ=RQg[,,rho],U=hM$UGamma,iU=iUGamma)
             Gamma = GammaEtaList$Gamma
@@ -110,7 +110,6 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, verbose=sa
          if(!is.null(hM$C) && !identical(updater$Rho, FALSE)){
             rho = updateRho(Beta=Beta,Gamma=Gamma,iV=iV, RQg=RQg,
                detQg=detQg, Tr=Tr, rhopw=rhopw)
-            # print(rho)
          }
 
          if(!identical(updater$LambdaPriors, FALSE)){

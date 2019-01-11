@@ -5,7 +5,16 @@ updateInvSigma = function(Y,Z,Beta,iSigma,Eta,Lambda, distr,X,Pi, aSigma,bSigma)
       ns = ncol(Z)
       nr = ncol(Pi)
 
-      LFix = X%*%Beta
+      switch(X,
+         matrix = {
+            LFix = X%*%Beta
+         },
+         list = {
+            LFix = matrix(NA,ny,ns)
+            for(j in 1:ns)
+               LFix[,j] = X[[j]]%*%Beta[,j]
+         }
+      )
       LRan = vector("list", nr)
       for(r in seq_len(nr)){
          LRan[[r]] = Eta[[r]][Pi[,r],]%*%Lambda[[r]]

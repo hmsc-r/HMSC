@@ -26,7 +26,7 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
    Yc=NULL, mcmcStep=1, expected=FALSE, predictEtaMean=FALSE){
 
    if(!is.null(XData) && !is.null(X)){
-      stop("hMsc.predict: nly single of XData and X arguments can be specified")
+      stop("hMsc.predict: only single of XData and X arguments can be specified")
    }
    if(!is.null(XData)){
       xlev = lapply(hM$XData, levels)[unlist(lapply(hM$XData, is.factor))]

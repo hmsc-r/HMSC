@@ -22,7 +22,14 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,C
       }
       nfSum = sum(nf)
       EtaSt = matrix(unlist(EtaFull),ny,nfSum)
-      XEta = cbind(X,EtaSt)
+      switch(X,
+         matrix = {
+            XEta = cbind(X,EtaSt)
+         },
+         list = {
+            XEta = lapply(X, cbind, EtaSt)
+         }
+      )
 
       psiSt = matrix(unlist(lapply(Psi, t)),nfSum,ns,byrow=TRUE)
       Tau = lapply(Delta, function(a) apply(a,2,cumprod))
@@ -33,10 +40,20 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,C
       XEta = X
       priorLambda = matrix(numeric(0),0,ns)
    }
-   XEtatXEta = crossprod(XEta)
 
    Mu = rbind(tcrossprod(Gamma,Tr), matrix(0,nfSum,ns))
-   isXTS = crossprod(XEta,S) * matrix(iSigma,nc+nfSum,ns,byrow=TRUE)
+   switch(X,
+      matrix = {
+         XEtatXEta = crossprod(XEta)
+         isXTS = crossprod(XEta,S) * matrix(iSigma,nc+nfSum,ns,byrow=TRUE)
+      },
+      list = {
+         XEtatXEta = lapply(XEta, crossprod)
+         isXTS = matrix(NA,nc+nfSum,ns)
+         for(j in 1:ns)
+            isXTS[,j] = crossprod(XEta,S[,j]) * iSigma[j]
+      }
+   )
 
    if(is.null(C)){
       # no phylogeny information
@@ -52,7 +69,14 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,C
       for(j in which(indColFull)){ # test whether worthy to rewrite with tensorA?
          P = P0
          diag(P) = c(diagiV, priorLambda[,j])
-         iU = P + XEtatXEta*iSigma[j]
+         switch(X,
+            matrix = {
+               iU = P + XEtatXEta*iSigma[j]
+            },
+            list = {
+               iU = P + XEtatXEta[[j]]*iSigma[j]
+            }
+         )
          RiU = chol(iU)
          U = chol2inv(RiU)
          m = U %*% (P%*%Mu[,j] + isXTS[,j]);
@@ -60,8 +84,16 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,C
       }
       for(j in which(indColNA)){
          indObs = Yx[,j]
-         XEtatXEta = crossprod(XEta[indObs,,drop=FALSE])
-         isXTS = crossprod(XEta[indObs,,drop=FALSE],S[indObs,j]) * iSigma[j]
+         switch(X,
+            matrix = {
+               XEtatXEta = crossprod(XEta[indObs,,drop=FALSE])
+               isXTS = crossprod(XEta[indObs,,drop=FALSE],S[indObs,j]) * iSigma[j]
+            },
+            list = {
+               XEtatXEta = crossprod(XEta[[j]][indObs,,drop=FALSE])
+               isXTS = crossprod(XEta[[j]][indObs,,drop=FALSE],S[indObs,j]) * iSigma[j]
+            }
+         )
          P = P0
          diag(P) = c(diagiV, priorLambda[,j])
          iU = P + XEtatXEta*iSigma[j]
@@ -74,7 +106,15 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,C
    } else{
       # available phylogeny information
       P = bdiag(kronecker(iV,iQ), Diagonal(x=t(priorLambda)))
-      RiU = chol(kronecker(XEtatXEta,diag(iSigma)) + P)
+      switch(X,
+         matrix = {
+            RiU = chol(kronecker(XEtatXEta,diag(iSigma)) + P)
+         },
+         list = {
+            tmp = lapply(XEtatXEta, function(a,b) return(a*b), as.list(iSigma))
+            RiU = chol(matrix(bdiag(tmp)) + P)
+         }
+      )
       # U = chol2inv(RiU)
       # m = U %*% (P%*%as.vector(t(Mu)) + as.vector(t(isXTS)))
       # BetaLambda = matrix(m + backsolve(RiU, rnorm(ns*(nc+nfSum))), nc+nfSum, ns, byrow=TRUE)

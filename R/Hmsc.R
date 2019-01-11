@@ -102,32 +102,83 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    hM$spNames = colnames(hM$Y)
 
    # linear regression covariates
-   if(!xor(is.null(XData),is.null(X))){
+   if(!is.null(XData) && !is.null(X)){
       stop("Hmsc.setData: only single of XData and X arguments must be specified")
    }
    if(!is.null(XData)){
-      if(nrow(XData) != hM$ny){
-         stop("Hmsc.setData: the number of rows in XData should be equal to number of rows in Y")
-      }
-      if(any(is.na(XData))){
-         stop("Hmsc.setData: XData parameter must not contain any NA values")
-      }
-      hM$XData = XData
-      hM$XFormula = XFormula
-      hM$X = model.matrix(XFormula, XData)
+      switch(class(XData),
+         list={
+            if(length(XData) != hM$ns){
+               stop("Hmsc.setData: the length of XData list argument must be equal to the number of speices")
+            }
+            if(any(unlist(lapply(X, class)) != "data.frame")){
+               stop("Hmsc.setData: each element of X list must be a data.frame")
+            }
+            if(any(unlist(lapply(XData, function(a) nrow(a) != hM$ny)))){
+               stop("Hmsc.setData: for each element of XData list the number of rows must be equal to the number of sampling units")
+            }
+            if(any(unlist(lapply(XData, function(a) any(is.na(a)))))){
+               stop("Hmsc.setData: all elements of XData list must contain no NA values")
+            }
+            hM$XData = XData
+            hM$XFormula = XFormula
+            hM$X = lapply(XData, function(a) model.matrix(XFormula, a))
+         },
+         data.frame={
+            if(nrow(XData) != hM$ny){
+               stop("Hmsc.setData: the number of rows in XData must be equal to the number of sampling units")
+            }
+            if(any(is.na(XData))){
+               stop("Hmsc.setData: XData must contain no NA values")
+            }
+            hM$XData = XData
+            hM$XFormula = XFormula
+            hM$X = model.matrix(XFormula, XData)
+         },
+         {
+            stop("Hmsc.setData: XData must either a data.frame or a list of data.frame objects")
+         }
+      )
    }
    if(!is.null(X)){
-      if(!is.matrix(X)){
-         stop("Hmsc.setData: X must be a matrix")
-      }
-      if(nrow(X) != hM$ny){
-         stop("Hmsc.setData: the number of rows in X should be equal to number of rows in Y")
-      }
-      if(any(is.na(X))){
-         stop("Hmsc.setData: X parameter must not contain any NA values")
-      }
-      hM$XData = NULL
-      hM$X = as.matrix(X)
+      switch(class(XData),
+         list={
+            if(length(XData) != hM$ns){
+               stop("Hmsc.setData: the length of XData list argument must be equal to the number of speices")
+            }
+            if(any(unlist(lapply(X, class)) != "matrix")){
+               stop("Hmsc.setData: each element of X list must be a matrix")
+            }
+            if(any(unlist(lapply(XData, function(a) nrow(a) != hM$ny)))){
+               stop("Hmsc.setData: for each element of XData list the number of rows must be equal to the number of sampling units")
+            }
+            if(any(unlist(lapply(XData, function(a) any(is.na(a)))))){
+               stop("Hmsc.setData: all elements of XData list must contain no NA values")
+            }
+            hM$XData = XData
+            hM$XFormula = XFormula
+            hM$X = lapply(XData, function(a) model.matrix(XFormula, a))
+         },
+         data.frame={
+            if(!is.matrix(X)){
+               stop("Hmsc.setData: X must be a matrix")
+            }
+            if(nrow(X) != hM$ny){
+               stop("Hmsc.setData: the number of rows in X should be equal to number of rows in Y")
+            }
+            if(any(is.na(X))){
+               stop("Hmsc.setData: X parameter must not contain any NA values")
+            }
+            hM$XData = NULL
+            hM$X = as.matrix(X)
+         },
+         {
+            stop("Hmsc.setData: XData must either a data.frame or a list of data.frame objects")
+         }
+      )
+   }
+   if(is.null(XData) && is.null(X)){
+      X = matrix(NA,hM$ny,0)
    }
    hM$nc = ncol(hM$X)
    if(is.null(colnames(hM$X))){
