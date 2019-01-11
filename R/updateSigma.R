@@ -5,7 +5,7 @@ updateInvSigma = function(Y,Z,Beta,iSigma,Eta,Lambda, distr,X,Pi, aSigma,bSigma)
       ns = ncol(Z)
       nr = ncol(Pi)
 
-      switch(X,
+      switch(class(X),
          matrix = {
             LFix = X%*%Beta
          },

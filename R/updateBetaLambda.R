@@ -22,7 +22,7 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,C
       }
       nfSum = sum(nf)
       EtaSt = matrix(unlist(EtaFull),ny,nfSum)
-      switch(X,
+      switch(class(X),
          matrix = {
             XEta = cbind(X,EtaSt)
          },
@@ -42,7 +42,7 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,C
    }
 
    Mu = rbind(tcrossprod(Gamma,Tr), matrix(0,nfSum,ns))
-   switch(X,
+   switch(class(X),
       matrix = {
          XEtatXEta = crossprod(XEta)
          isXTS = crossprod(XEta,S) * matrix(iSigma,nc+nfSum,ns,byrow=TRUE)
@@ -51,7 +51,7 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,C
          XEtatXEta = lapply(XEta, crossprod)
          isXTS = matrix(NA,nc+nfSum,ns)
          for(j in 1:ns)
-            isXTS[,j] = crossprod(XEta,S[,j]) * iSigma[j]
+            isXTS[,j] = crossprod(XEta[[j]],S[,j]) * iSigma[j]
       }
    )
 
@@ -69,7 +69,7 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,C
       for(j in which(indColFull)){ # test whether worthy to rewrite with tensorA?
          P = P0
          diag(P) = c(diagiV, priorLambda[,j])
-         switch(X,
+         switch(class(X),
             matrix = {
                iU = P + XEtatXEta*iSigma[j]
             },
@@ -84,7 +84,7 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,C
       }
       for(j in which(indColNA)){
          indObs = Yx[,j]
-         switch(X,
+         switch(class(X),
             matrix = {
                XEtatXEta = crossprod(XEta[indObs,,drop=FALSE])
                isXTS = crossprod(XEta[indObs,,drop=FALSE],S[indObs,j]) * iSigma[j]
@@ -106,13 +106,19 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,C
    } else{
       # available phylogeny information
       P = bdiag(kronecker(iV,iQ), Diagonal(x=t(priorLambda)))
-      switch(X,
+      switch(class(X),
          matrix = {
             RiU = chol(kronecker(XEtatXEta,diag(iSigma)) + P)
          },
          list = {
-            tmp = lapply(XEtatXEta, function(a,b) return(a*b), as.list(iSigma))
-            RiU = chol(matrix(bdiag(tmp)) + P)
+            tmp = vector("list",ns)
+            for(j in 1:ns)
+               tmp[[j]] = XEtatXEta[[j]] * iSigma[j]
+            tmpMat = Reduce(rbind, tmp)
+            ind1 = rep(rep(1:ns,each=nc+nfSum)+ns*rep(0:(nc+nfSum-1),ns), nc+nfSum)
+            ind2 = rep(1:((nc+nfSum)*ns), each=nc+nfSum)
+            mat = sparseMatrix(ind1, ind2, x=as.vector(tmpMat))
+            RiU = chol(as.matrix(mat) + P)
          }
       )
       # U = chol2inv(RiU)

@@ -21,12 +21,20 @@ computeInitialParameters = function(hM, initPar){
       cat("Hmsc::computeInitialParameter - initializing fixed effects with SSDM estimates\n")
       Beta = matrix(NA,hM$nc,hM$ns)
       for(j in 1:hM$ns){
+         switch(class(hM$X),
+            matrix = {
+              XEff = hM$X
+            },
+            list = {
+               XEff = hM$X[[j]]
+            }
+         )
          if(hM$distr[j,1] == 1)
-            fm = lm.fit(hM$X, hM$Y[,j])
+            fm = lm.fit(XEff, hM$Y[,j])
          if(hM$distr[j,1] == 2)
-            fm = glm.fit(hM$X, hM$Y[,j], family=binomial(link="probit"))
+            fm = glm.fit(XEff, hM$Y[,j], family=binomial(link="probit"))
          if(hM$distr[j,1] == 3)
-            fm = glm.fit(hM$X, hM$Y[,j], family=poisson())
+            fm = glm.fit(XEff, hM$Y[,j], family=poisson())
          Beta[,j] = coef(fm)
       }
       Gamma = matrix(NA,hM$nc,hM$nt)
@@ -158,7 +166,16 @@ computeInitialParameters = function(hM, initPar){
       rho = 1
    }
 
-   LFix = hM$X%*%Beta
+   switch(class(hM$X),
+      matrix = {
+         LFix = hM$X %*% Beta
+      },
+      list = {
+         LFix = matrix(NA,hM$ny,hM$ns)
+         for(j in 1:hM$ns)
+            LFix[,j] = hM$X[[j]] %*% Beta[,j]
+      }
+   )
    LRan = vector("list", hM$nr)
    for(r in seq_len(hM$nr)){
       LRan[[r]] = Eta[[r]][hM$Pi[,r],]%*%Lambda[[r]]

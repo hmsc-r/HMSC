@@ -5,7 +5,7 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,distr, ind){
    nr = ncol(Pi)
    np = apply(Pi, 2, function(a) length(unique(a)))
 
-   switch(X,
+   switch(class(X),
       matrix = {
          LFix = X%*%Beta
       },

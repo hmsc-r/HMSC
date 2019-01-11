@@ -36,7 +36,17 @@ computePredictedValues = function(hM, partition=NULL, start=1, Yc=NULL, mcmcStep
          for(r in seq_len(hM$nr)){
             dfPi[,r] = factor(hM$dfPi[train,r])
          }
-         hM1 = Hmsc(Y=as.matrix(hM$Y[train,]), X=as.matrix(hM$X[train,]), Xs=as.matrix(hM$Xs[train,]), Xv=as.matrix(hM$Xv[train,]), dist="probit", studyDesign=dfPi, Tr=hM$Tr, C=hM$C, ranLevels=hM$rL)
+         switch(class(hM$X),
+            matrix = {
+               XTrain = hM$X[train,,drop=FALSE]
+               XVal = hM$X[val,,drop=FALSE]
+            },
+            list = {
+               XTrain = lapply(hM$X, function(a) a[train,,drop=FALSE])
+               XVal = lapply(hM$X, function(a) a[val,,drop=FALSE])
+            }
+         )
+         hM1 = Hmsc(Y=hM$Y[train,,drop=FALSE], X=XTrain, Xs=hM$Xs[train,,drop=FALSE], Xv=hM$Xv[train,,drop=FALSE], dist="probit", studyDesign=dfPi, Tr=hM$Tr, C=hM$C, ranLevels=hM$rL)
          hM1$distr = hM$distr
          # HOW TO BETTER SET THE DISTRIBUTION?
          # NEED TO INHERIT PRIORS, SCALINGS ETC. FROM hM
@@ -47,7 +57,7 @@ computePredictedValues = function(hM, partition=NULL, start=1, Yc=NULL, mcmcStep
          for (r in seq_len(hM$nr)){
             dfPi[,r] = factor(hM$dfPi[val,r])
          }
-         pred1 = predict(hM1, post=postList, X=as.matrix(hM$X[val,,drop=FALSE]), studyDesign=dfPi, Yc=Yc[val,,drop=FALSE], mcmcStep=mcmcStep, expected=expected)
+         pred1 = predict(hM1, post=postList, X=XVal, studyDesign=dfPi, Yc=Yc[val,,drop=FALSE], mcmcStep=mcmcStep, expected=expected)
          predArray[val,,] = abind(pred1,along=3)
       }
    }

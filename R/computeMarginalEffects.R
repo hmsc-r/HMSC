@@ -31,7 +31,7 @@ computeMarginalEffects = function(hM, ngrid=20, prob=c(0.025,0.5,0.975), clist=1
 
       for(j in 1:hM$nc){
          if(j!=i){
-            xv = hM$X[,2]
+            xv = hM$X[,2] # OTSO - THIS LOOKS QUITE STRANGE. PLEASE CHECK THE IMPLEMENTED LOGIC!
             yv = hM$X[,j]
             mylm = lm(yv~xv)
             yy = predict(mylm, newdata=data.frame(xv=xx))

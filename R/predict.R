@@ -26,20 +26,37 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
    Yc=NULL, mcmcStep=1, expected=FALSE, predictEtaMean=FALSE){
 
    if(!is.null(XData) && !is.null(X)){
-      stop("hMsc.predict: only single of XData and X arguments can be specified")
+      stop("Hmsc.predict: only single of XData and X arguments can be specified")
    }
    if(!is.null(XData)){
-      xlev = lapply(hM$XData, levels)[unlist(lapply(hM$XData, is.factor))]
-      X = model.matrix(hM$XFormula, XData, xlev=xlev)
+      switch(class(XData),
+         list={
+            xlev = lapply(Reduce(rbind,hM$XData), levels)[unlist(lapply(Reduce(rbind,hM$XData), is.factor))]
+            X = lapply(XData, function(a) model.matrix(hM$XFormula, a, xlev=xlev))
+         },
+         data.frame={
+            xlev = lapply(hM$XData, levels)[unlist(lapply(hM$XData, is.factor))]
+            X = model.matrix(hM$XFormula, XData, xlev=xlev)
+         }
+      )
    } else{
       if(is.null(X))
          X = hM$X
    }
+   switch(class(X),
+      list={
+         nyNew = nrow(X[[1]])
+      },
+      matrix={
+         nyNew = nrow(X)
+      }
+   )
+
    if(!is.null(Yc)){
       if(ncol(Yc) != hM$ns){
          stop("hMsc.predict: number of columns in Yc must be equal to ns")
       }
-      if(nrow(Yc) != nrow(X)){
+      if(nrow(Yc) != nyNew){
          stop("hMsc.predict: number of rows in Yc and X must be equal")
       }
    }
@@ -67,7 +84,16 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
    pred = vector("list",predN)
    for(pN in 1:predN){
       sam = post[[pN]]
-      LFix = X %*% sam$Beta
+      switch(class(X),
+         matrix = {
+            LFix = X %*% sam$Beta
+         },
+         list = {
+            LFix = matrix(NA,nyNew,hM$ns)
+            for(j in 1:hM$ns)
+               LFix[,j] = X[[j]]%*%sam$Beta[,j]
+         }
+      )
       LRan = vector("list",hM$nr)
       Eta = vector("list",hM$nr)
       for(r in seq_len(hM$nr)){

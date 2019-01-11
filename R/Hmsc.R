@@ -123,6 +123,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
             hM$XData = XData
             hM$XFormula = XFormula
             hM$X = lapply(XData, function(a) model.matrix(XFormula, a))
+            hM$nc = ncol(hM$X[[1]])
          },
          data.frame={
             if(nrow(XData) != hM$ny){
@@ -134,6 +135,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
             hM$XData = XData
             hM$XFormula = XFormula
             hM$X = model.matrix(XFormula, XData)
+            hM$nc = ncol(hM$X)
          },
          {
             stop("Hmsc.setData: XData must either a data.frame or a list of data.frame objects")
@@ -141,48 +143,58 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       )
    }
    if(!is.null(X)){
-      switch(class(XData),
+      switch(class(X),
          list={
-            if(length(XData) != hM$ns){
-               stop("Hmsc.setData: the length of XData list argument must be equal to the number of speices")
+            if(length(X) != hM$ns){
+               stop("Hmsc.setData: the length of X list argument must be equal to the number of speices")
             }
             if(any(unlist(lapply(X, class)) != "matrix")){
                stop("Hmsc.setData: each element of X list must be a matrix")
             }
-            if(any(unlist(lapply(XData, function(a) nrow(a) != hM$ny)))){
-               stop("Hmsc.setData: for each element of XData list the number of rows must be equal to the number of sampling units")
+            if(any(unlist(lapply(X, function(a) nrow(a) != hM$ny)))){
+               stop("Hmsc.setData: for each element of X list the number of rows must be equal to the number of sampling units")
             }
-            if(any(unlist(lapply(XData, function(a) any(is.na(a)))))){
-               stop("Hmsc.setData: all elements of XData list must contain no NA values")
-            }
-            hM$XData = XData
-            hM$XFormula = XFormula
-            hM$X = lapply(XData, function(a) model.matrix(XFormula, a))
-         },
-         data.frame={
-            if(!is.matrix(X)){
-               stop("Hmsc.setData: X must be a matrix")
-            }
-            if(nrow(X) != hM$ny){
-               stop("Hmsc.setData: the number of rows in X should be equal to number of rows in Y")
-            }
-            if(any(is.na(X))){
-               stop("Hmsc.setData: X parameter must not contain any NA values")
+            if(any(unlist(lapply(X, function(a) any(is.na(a)))))){
+               stop("Hmsc.setData: all elements of X list must contain no NA values")
             }
             hM$XData = NULL
-            hM$X = as.matrix(X)
+            hM$XFormula = NULL
+            hM$X = X
+            hM$nc = ncol(hM$X[[1]])
+         },
+         matrix={
+            if(nrow(X) != hM$ny){
+               stop("Hmsc.setData: the number of rows in X must be equal to the number of sampling units")
+            }
+            if(any(is.na(X))){
+               stop("Hmsc.setData: X must contain no NA values")
+            }
+            hM$XData = NULL
+            hM$XFormula = NULL
+            hM$X = X
+            hM$nc = ncol(hM$X)
          },
          {
-            stop("Hmsc.setData: XData must either a data.frame or a list of data.frame objects")
+            stop("Hmsc.setData: X must either a matrix or a list of matrix objects")
          }
       )
    }
    if(is.null(XData) && is.null(X)){
       X = matrix(NA,hM$ny,0)
+      hM$nc = 0
    }
-   hM$nc = ncol(hM$X)
+
    if(is.null(colnames(hM$X))){
-      colnames(hM$X) = sprintf(sprintf("cov%%.%dd",ceiling(log10(hM$nc))), 1:hM$nc)
+      switch(class(X),
+         matrix = {
+            colnames(hM$X) = sprintf(sprintf("cov%%.%dd",ceiling(log10(hM$nc))), 1:hM$nc)
+         },
+         list = {
+            for(j in 1:hM$ns)
+               colnames(hM$X[[j]]) = sprintf(sprintf("cov%%.%dd",ceiling(log10(hM$nc))), 1:hM$nc)
+         }
+      )
+
    }
    hM$covNames = colnames(hM$X)
 
@@ -191,11 +203,19 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       hM$XScaled = hM$X
       hM$XInterceptInd = NULL
    } else{
-      XInterceptInd = which(colnames(hM$X) %in% c("Intercept","(Intercept)"))
+      switch(class(hM$X),
+         matrix = {
+            XStack = hM$X
+         },
+         list = {
+            XStack = Reduce(rbind, hM$X)
+         }
+      )
+      XInterceptInd = which(colnames(XStack) %in% c("Intercept","(Intercept)"))
       if(length(XInterceptInd)>1){
          stop("Hmsc.setData: only one column of X matrix could be named Intercept or (Intercept)")
       }
-      if(!all(hM$X[,XInterceptInd] == 1)){
+      if(!all(XStack[,XInterceptInd] == 1)){
          stop("Hmsc.setData: intercept column in X matrix must be a column of ones")
       }
       if(length(XInterceptInd)==1){
@@ -203,23 +223,30 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       } else
          hM$XInterceptInd = NULL
       XScalePar = rbind(rep(0,hM$nc), rep(1,hM$nc))
-      XScaled = hM$X
+      XScaled = XStack
       if(identical(XScale,TRUE)){
-         scaleInd = apply(hM$X, 2, function(a) !all(a %in% c(0,1)))
+         scaleInd = apply(XStack, 2, function(a) !all(a %in% c(0,1)))
       } else{
          scaleInd = XScale
       }
       scaleInd[XInterceptInd] = FALSE
       if(length(XInterceptInd)>0){
-         sc = scale(hM$X)
+         sc = scale(XStack)
          XScalePar[,scaleInd] = rbind(attr(sc,"scaled:center"), attr(sc,"scaled:scale"))[,scaleInd]
       } else{
-         sc = scale(hM$X, center=FALSE)
+         sc = scale(XStack, center=FALSE)
          XScalePar[2,scaleInd] = attr(sc,"scaled:scale")[scaleInd]
       }
       XScaled[,scaleInd] = sc[,scaleInd]
       hM$XScalePar = XScalePar
-      hM$XScaled = XScaled
+      switch(class(hM$X),
+         matrix = {
+            hM$XScaled = XScaled
+         },
+         list = {
+            hM$XScaled = lapply(split(XStack,rep(1:hM$ns,each=hM$ny)), function(a) matrix(a,hM$ny,hM$nc))
+         }
+      )
    }
 
    # traits
