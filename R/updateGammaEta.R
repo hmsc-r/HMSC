@@ -74,18 +74,18 @@ updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,
             # RW = chol(W)
             # iW = Matrix::chol2inv(RW)
 
-            WList = vector("list",np)
-            RWList = vector("list",np)
-            iWList = vector("list",np)
-            LiWList = vector("list",np)
-            for(p in 1:np){
+            WList = vector("list",np[r])
+            RWList = vector("list",np[r])
+            iWList = vector("list",np[r])
+            LiWList = vector("list",np[r])
+            for(p in 1:np[r]){
                WList[[p]] = diag(nf) + colSumP[p]*LamiDLam
                RWList[[p]] = chol(WList[[p]])
                iWList[[p]] = chol2inv(RWList[[p]])
                LiWList[[p]] = solve(RWList[[p]])
             }
-            indR = rep((0:(nf-1))*np, nf*np) + rep(rep(1:np,each=nf),nf)
-            indC = rep(1:(nf*np), each=nf)
+            indR = rep((0:(nf-1))*np[r], nf*np[r]) + rep(rep(1:np[r],each=nf),nf)
+            indC = rep(1:(nf*np[r]), each=nf)
             W = sparseMatrix(indR, indC, x=as.vector(Reduce(rbind, WList)))
             # RW = sparseMatrix(indR, indC, x=as.vector(Reduce(rbind, RWList)))
             iW = sparseMatrix(indR, indC, x=as.vector(Reduce(rbind, iWList)))
