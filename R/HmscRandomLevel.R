@@ -17,26 +17,35 @@
 #'
 #' @export
 
-HmscRandomLevel = function(data=NULL, N=NULL, pi=NULL, priors=NULL){
-   rL = structure(list(pi=NULL, s=NULL, sDim=NULL, N=NULL, #
+HmscRandomLevel = function(data=NULL, distMat=NULL, units=NULL, N=NULL, priors=NULL){
+   rL = structure(list(pi=NULL, s=NULL, sDim=NULL, N=NULL, distMat=NULL, #
       nfMax=NULL, nfMin=NULL, nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, alphapw=NULL), class="HmscRandomLevel")
    if(nargs()==0)
       stop("HmscRandomLevel: At least one argumnet should be specified")
+   if(!is.null(distMat) && !is.null(data)){
+      stop("HmscRandomLevel: both data and distMat arguments cannot be specified")
+   }
    if(!is.null(data)){
       rL$s = data
       rL$N = nrow(data)
       rL$pi = rownames(data)
       rL$sDim = ncol(data)
    }
-   if(!is.null(pi)){
-      if(!is.null(rL$pi) && rL$pi != pi)
-         stop("!!!Write some mistake output!!!. Specified names for units at latent factors' level must
-                  conside with rows of data")
-      rL$pi = as.factor(pi)
-      rL$N = length(pi)
+   if(!is.null(distMat)){
+      rL$N = nrow(distMat)
+      rL$pi = rownames(distMat)
+      rL$sDim = Inf
+   }
+   if(!is.null(units)){
+      if(!is.null(rL$pi))
+         stop("HmscRandomLevel: duplicated specification of units names")
+      rL$pi = as.factor(units)
+      rL$N = length(units)
       rL$sDim = 0
    }
    if(!is.null(N)){
+      if(!is.null(rL$pi))
+         stop("HmscRandomLevel: duplicated specification of the number of units")
       rL$N = N
       rL$pi = as.factor(1:N)
       rL$sDim = 0

@@ -140,6 +140,6 @@ constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid
     rLNew[[r]] = rL1
   }
 
-  Gradient = list(XDataNew=XDataNew, dfPiNew=dfPiNew, rLNew=rLNew)
+  Gradient = list(XDataNew=XDataNew, studyDesignNew=dfPiNew, rLNew=rLNew)
   return(Gradient)
 }

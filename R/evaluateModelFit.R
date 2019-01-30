@@ -1,8 +1,8 @@
 #' @title Hmsc$evaluateModelFit
 #'
 #' @description Computes several measures of model fit
-#'
 #' @param predY array of predictions, typically posterior sample
+#'
 #'
 #' @return
 #'
@@ -15,7 +15,7 @@
 #' @export
 
 evaluateModelFit = function(hM, predY){
-
+  
   computeRMSE = function(Y, predY){
     ny=dim(Y)[1]
     ns = dim(Y)[2]
@@ -32,7 +32,7 @@ evaluateModelFit = function(hM, predY){
     RMSE = list(S=RMSES, Y=RMSEY, A=RMSEA)
     return(RMSE)
   }
-
+  
   computeR2 = function(Y, predY, method="pearson"){
     ny=dim(Y)[1]
     ns = dim(Y)[2]
@@ -49,7 +49,7 @@ evaluateModelFit = function(hM, predY){
     R2 = list(S=R2S, Y=R2Y, A=R2A)
     return(R2)
   }
-
+  
   computeAUC = function(Y, predY){
     ny=dim(Y)[1]
     ns = dim(Y)[2]
@@ -67,7 +67,7 @@ evaluateModelFit = function(hM, predY){
     AUC = list(S=AUCS, Y=AUCY, A=AUCA)
     return(AUC)
   }
-
+  
   computeTjurR2 = function(Y, predY){
     ny=dim(Y)[1]
     ns = dim(Y)[2]
@@ -84,26 +84,33 @@ evaluateModelFit = function(hM, predY){
     R2 = list(S=R2S, Y=R2Y, A=R2A)
     return(R2)
   }
-
+  
+  median2 = function(x){return (median(x,na.rm=TRUE))}
+  mean2 = function(x){return (mean(x,na.rm=TRUE))}
+  
   MF = NA
-  mPredY = apply(abind(predY,along=3),c(1,2),mean)
-
+  if(sum(m$distr[,1]==3)==m$ns){
+    mPredY = apply(abind(predY,along=3),c(1,2),median2)
+  } else {
+    mPredY = apply(abind(predY,along=3),c(1,2),mean2)
+  }
+  
   if(sum(m$distr[,1]==1)==m$ns){
     R2 = computeR2(hM$Y, mPredY)
     RMSE = computeRMSE(hM$Y, mPredY)
     MF = list(R2=R2, RMSE=RMSE)
   }
-
+  
   if(sum(m$distr[,1]==2)==m$ns){
     AUC = computeAUC(hM$Y, mPredY)
     TjurR2 = computeTjurR2(hM$Y, mPredY)
     RMSE = computeRMSE(hM$Y, mPredY)
     MF = list(AUC=AUC, TjurR2=TjurR2, RMSE=RMSE)
   }
-
+  
   if(sum(m$distr[,1]==3)==m$ns){
     predO = 1*(predY>0)
-    mPredO = apply(abind(predO,along=3),c(1,2),mean)
+    mPredO = apply(abind(predO,along=3),c(1,2),mean2)
     mPredCY = mPredY/mPredO
     SR2 = computeR2(hM$Y, mPredY, method="spearman")
     RMSE = computeRMSE(hM$Y, mPredY)
@@ -116,6 +123,6 @@ evaluateModelFit = function(hM, predY){
     C.RMSE = computeRMSE(CY, mPredCY)
     MF = list(SR2=SR2, RMSE=RMSE, O.AUC=O.AUC, O.TjurR2=O.TjurR2, O.RMSE=O.RMSE, C.SR2=C.SR2, C.RMSE=C.RMSE)
   }
-
+  
   return(MF)
 }
