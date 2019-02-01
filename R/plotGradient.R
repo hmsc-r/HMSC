@@ -38,8 +38,25 @@ plotGradient = function(hM, Gradient, pred, measure, index=1, prob=c(0.025,0.5,0
     ylabel = hM$trNames[[index]]
   }
 
-  xlabel = colnames(Gradient$XDataNew)[[1]]
-  xx = Gradient$XDataNew[,1]
+  switch(class(Gradient$XDataNew),
+         "matrix" = {
+           xlabel = colnames(Gradient$XDataNew)[[1]]
+           xx = Gradient$XDataNew[,1]
+         },
+         "list" = {
+           xlabel = colnames(Gradient$XDataNew[[1]])[[1]]
+           if(measure == "Y"){
+             xx = Gradient$XDataNew[[index]][,1]
+           } else {
+             xx = Gradient$XDataNew[[1]][,1]
+             if (!is.factor(xx)){
+               for(j in 2:hM$ns){xx = xx + Gradient$XDataNew[[j]][,1]}
+               xx = xx/hM$ns
+             }
+           }
+         }
+  )
+  
   if (is.factor(xx)){
     lo = qpred[1,]
     hi = qpred[3,]

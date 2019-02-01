@@ -196,7 +196,10 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       )
 
    }
-   hM$covNames = colnames(hM$X)
+   switch (class(hM$X),
+     "matrix" = {hM$covNames = colnames(hM$X)},
+     "list" = {hM$covNames = colnames(hM$X[[1]])}
+     )
 
    if(identical(XScale,FALSE)){
       hM$XScalePar = rbind(rep(0,hM$nc), rep(1,hM$nc))
@@ -289,7 +292,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    if(is.null(colnames(hM$Tr))){
       colnames(hM$Tr) = sprintf(sprintf("tr%%.%dd",ceiling(log10(hM$nt))), 1:hM$nt)
    }
-   hM$traitNames = colnames(hM$Tr)
+   hM$trNames = colnames(hM$Tr)
 
    if(identical(TrScale,FALSE)){
       hM$TrScalePar = rbind(rep(0,hM$nt), rep(1,hM$nt))

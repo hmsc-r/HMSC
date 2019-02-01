@@ -31,6 +31,16 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
   SpeciesOrder = "Original", SpVector = NULL, covOrder="Original",
   covVector=NULL, spNamesNumbers = c(T,T), covNamesNumbers = c(T,T),
   supportLevel = 0.9, split = 0.3, cex = c(0.7,0.7,0.8)){
+  
+
+  switch(class(hM$X),
+         matrix = {
+           ncolsX = ncol(hM$X)
+         },
+         list = {
+           ncolsX = ncol(hM$X[[1]])
+         }
+  )  
 
    if(plotTree){
       tree = hM$phyloTree
@@ -70,7 +80,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
    if(!plotTree & SpeciesOrder=="Tree"){order=match(tree$tip.label,hM$spNames)}
 
    if(covOrder=="Vector"){covorder=covVector}
-   if(covOrder=="Original"){covorder=1:ncol(hM$X)}
+   if(covOrder=="Original"){covorder=1:ncolsX}
 
    mbeta=post$mean
    betaP=post$support
@@ -78,13 +88,13 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
    if(param=="Beta"){
       toPlot = mbeta
       toPlot = toPlot * ((betaP>supportLevel) + (betaP<(1-supportLevel))>0)
-      betaMat = matrix(toPlot, nrow=ncol(hM$X), ncol=ncol(hM$Y))
+      betaMat = matrix(toPlot, nrow=ncolsX, ncol=ncol(hM$Y))
    }
    else{
       if(param=="Support"){
          toPlot = 2*betaP-1
          toPlot = toPlot * ((betaP>supportLevel) + (betaP<(1-supportLevel))>0)
-         betaMat = matrix(toPlot, nrow=ncol(hM$X), ncol=ncol(hM$Y))
+         betaMat = matrix(toPlot, nrow=ncolsX, ncol=ncol(hM$Y))
       }}
 
    rownames(betaMat) = covNames

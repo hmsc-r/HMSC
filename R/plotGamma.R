@@ -26,6 +26,15 @@
 plotGamma=function(hM, post, param = "Gamma", trOrder="Original",
   trVector= NULL, covOrder="Original",covVector=NULL, trNamesNumbers=c(T,T),
   covNamesNumbers=c(T,T),supportLevel=.9,cex=c(.8,.8,.8)){
+  
+  switch(class(hM$X),
+         matrix = {
+           ncolsX = ncol(hM$X)
+         },
+         list = {
+           ncolsX = ncol(hM$X[[1]])
+         }
+  )  
 
    covNames = character(hM$nc)
    for (i in 1:hM$nc) {
@@ -54,7 +63,7 @@ plotGamma=function(hM, post, param = "Gamma", trOrder="Original",
 
 
    if(covOrder=="Vector"){covorder=covVector}
-   if(covOrder=="Original"){covorder=1:ncol(hM$X)}
+   if(covOrder=="Original"){covorder=1:ncolsX}
 
    if(trOrder=="Vector"){trorder=trVector}
    if(trOrder=="Original"){trorder=1:ncol(hM$Tr)}
@@ -66,13 +75,13 @@ plotGamma=function(hM, post, param = "Gamma", trOrder="Original",
    if(param=="Gamma"){
       toPlot = mgamma
       toPlot = toPlot * ((gammaP>supportLevel) + (gammaP<(1-supportLevel))>0)
-      gammaMat = matrix(toPlot, nrow=ncol(hM$X), ncol=ncol(hM$Tr))
+      gammaMat = matrix(toPlot, nrow=ncolsX, ncol=ncol(hM$Tr))
    }
    else{
       if(param=="Support"){
          toPlot = 2*gammaP-1
          toPlot = toPlot * ((gammaP>supportLevel) + (gammaP<(1-supportLevel))>0)
-         gammaMat = matrix(toPlot, nrow=ncol(hM$X), ncol=ncol(hM$Tr))
+         gammaMat = matrix(toPlot, nrow=ncolsX, ncol=ncol(hM$Tr))
       }}
 
    rownames(gammaMat) = covNames

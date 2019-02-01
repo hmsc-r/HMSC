@@ -29,15 +29,40 @@ computeVariancePartitioning = function(hM, group, groupnames, start=1){
    fixedsplit = matrix(0,nrow=ns,ncol=ngroups);
    random = matrix(0,nrow=ns,ncol=nr);
    traitR2 = 0
-   cM = cov(hM$X)
-
+   
+   switch(class(hM$X),
+          matrix = {
+            cMA = cov(hM$X)
+          },
+          list = {
+            cMA = lapply(hM$X, cov)
+          }
+   )
+   
    postList=poolMcmcChains(hM$postList, start=start)
 
-   geta = function(a)
-      return(hM$X%*%(t(hM$Tr%*%t(a$Gamma))))
+   geta = function(a){
+     switch(class(hM$X),
+            matrix = {res = hM$X%*%(t(hM$Tr%*%t(a$Gamma)))},
+            list = {
+              res = matrix(NA,hM$ny,hM$ns)
+              for(j in 1:hM$ns) res[,j] =  hM$X[[j]]%*%(t(hM$Tr[j,]%*%t(postList[[1]]$Gamma)))
+            }
+     )
+     return(res)
+   }
    la=lapply(postList, geta)
-   getf = function(a)
-      return(hM$X%*%(a$Beta))
+   
+   getf = function(a){
+     switch(class(hM$X),
+            matrix = {res = hM$X%*%(a$Beta)},
+            list = {
+             res = matrix(NA,hM$ny,hM$ns)
+             for(j in 1:hM$ns) res[,j] = hM$X[[j]]%*%a$Beta[,j]
+            }
+     )
+     return(res)
+   }
    lf=lapply(postList, getf)
 
    for (i in 1:hM$samples){
@@ -56,6 +81,7 @@ computeVariancePartitioning = function(hM, group, groupnames, start=1){
       res2 = sum((rowSums((a*a))/(hM$ns-1))*(rowSums((f*f))/(hM$ns-1)))
       traitR2 = traitR2 + res1/res2
       for (j in 1:ns){
+         switch(class(hM$X), matrix = {cM = cMA}, list = {cM = cMA[[j]]})
          ftotal = t(Beta[,j])%*%cM%*%Beta[,j]
          fixed1[j] = fixed1[j] + ftotal
          for (k in 1:ngroups){
