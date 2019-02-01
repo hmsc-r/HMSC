@@ -1,4 +1,4 @@
-updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,distr, ind){
+updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,distr,rL, ind){
    ZPrev = Z
    ny = nrow(Y)
    ns = ncol(Y)
@@ -17,7 +17,13 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,distr, ind){
    )
    LRan = vector("list", nr)
    for(r in seq_len(nr)){
-      LRan[[r]] = Eta[[r]][Pi[,r],]%*%Lambda[[r]]
+      if(rL[[r]]$xDim == 0){
+         LRan[[r]] = Eta[[r]][Pi[,r],]%*%Lambda[[r]]
+      } else{
+         LRan[[r]] = matrix(0,ny,ns)
+         for(k in 1:rL[[r]]$xDim)
+            LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[Pi[,r],k]) %*% Lambda[[r]][,,k]
+      }
    }
    if(nr > 0){
       E = LFix + Reduce("+", LRan)

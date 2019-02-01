@@ -17,31 +17,66 @@
 
 setPriors.HmscRandomLevel = function(rL, priors=NULL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=NULL, alphapw=NULL, nfMax=NULL, nfMin=NULL, setDefault=FALSE){
    stopifnot(class(rL) == "HmscRandomLevel")
-
+   xDim = max(rL$xDim, 1)
    if(!is.null(nu)){
-      rL$nu = nu
+      if(length(nu) == 1){
+         rL$nu = rep(nu, xDim)
+      } else{
+         if(length(nu) == xDim){
+            rL$nu = nu
+         } else
+            stop("HmscRandomLevel.setPriors: length of nu argument must be either 1 or rL$xDim")
+      }
    } else if(setDefault){
-      rL$nu = 3
+      rL$nu = rep(3, xDim)
    }
    if(!is.null(a1)){
-      rL$a1 = a1
+      if(length(a1) == 1){
+         rL$a1 = rep(a1, xDim)
+      } else{
+         if(length(a1) == xDim){
+            rL$a1 = a1
+         } else
+            stop("HmscRandomLevel.setPriors: length of a1 argument must be either 1 or rL$xDim")
+      }
    } else if(setDefault){
-      rL$a1 = 50
+      rL$a1 = rep(50, xDim)
    }
    if(!is.null(b1)){
-      rL$b1 = b1
+      if(length(b1) == 1){
+         rL$b1 = rep(b1, xDim)
+      } else{
+         if(length(b1) == xDim){
+            rL$b1 = b1
+         } else
+            stop("HmscRandomLevel.setPriors: length of b1 argument must be either 1 or rL$xDim")
+      }
    } else if(setDefault){
-      rL$b1 = 1
+      rL$b1 = rep(1, xDim)
    }
    if(!is.null(a2)){
-      rL$a2 = a2
+      if(length(a2) == 1){
+         rL$a2 = rep(a2, xDim)
+      } else{
+         if(length(a2) == xDim){
+            rL$a2 = a2
+         } else
+            stop("HmscRandomLevel.setPriors: length of a2 argument must be either 1 or rL$xDim")
+      }
    } else if(setDefault){
-      rL$a2 = 50
+      rL$a2 = rep(50, xDim)
    }
    if(!is.null(b2)){
-      rL$b2 = b2
+      if(length(b2) == 1){
+         rL$b2 = rep(b2, xDim)
+      } else{
+         if(length(b2) == xDim){
+            rL$b2 = b2
+         } else
+            stop("HmscRandomLevel.setPriors: length of b2 argument must be either 1 or rL$xDim")
+      }
    } else if(setDefault){
-      rL$b2 = 1
+      rL$b2 = rep(1, xDim)
    }
    if(!is.null(alphapw)){
       if(rL$sDim == 0)

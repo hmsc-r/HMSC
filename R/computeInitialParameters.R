@@ -86,6 +86,7 @@ computeInitialParameters = function(hM, initPar){
    }
 
    nf = rep(NA, hM$nr)
+   ncr = rep(NA, hM$nr)
    Delta = vector("list", hM$nr)
    Psi = vector("list", hM$nr)
    Lambda = vector("list", hM$nr)
@@ -118,17 +119,31 @@ computeInitialParameters = function(hM, initPar){
       if(is.na(nf[r]))
          nf[r] = 2
 
+      ncr[r] = hM$rL[[r]]$xDim
       if(is.null(initPar$Delta[[r]])){
-         Delta[[r]] = matrix(c(rgamma(1,hM$rL[[r]]$a1,hM$rL[[r]]$b1), rgamma(nf[r]-1,hM$rL[[r]]$a2,hM$rL[[r]]$b2)))
+         if(ncr[r] == 0){
+            Delta[[r]] = matrix(c(rgamma(1,hM$rL[[r]]$a1,hM$rL[[r]]$b1), rgamma(nf[r]-1,hM$rL[[r]]$a2,hM$rL[[r]]$b2)))
+         } else
+            Delta[[r]] = matrix(c(rgamma(ncr[r],hM$rL[[r]]$a1,hM$rL[[r]]$b1), rgamma(ncr[r]*(nf[r]-1),hM$rL[[r]]$a2,hM$rL[[r]]$b2)), nf[r],ncr[r],byrow=TRUE)
       }
       if(is.null(initPar$Psi[[r]])){
-         Psi[[r]] = matrix(rgamma(nf[r]*hM$ns, hM$rL[[r]]$nu/2, hM$rL[[r]]$nu/2), nf[r], hM$ns)
+         if(ncr[r] == 0){
+            Psi[[r]] = matrix(rgamma(nf[r]*hM$ns, hM$rL[[r]]$nu/2, hM$rL[[r]]$nu/2), nf[r], hM$ns)
+         } else
+            Psi[[r]] = array(rgamma(nf[r]*hM$ns*ncr[r], hM$rL[[r]]$nu/2, hM$rL[[r]]$nu/2), dim=c(nf[r],hM$ns,ncr[r]))
       }
       if(is.null(initPar$Lambda[[r]])){
-         tau = apply(Delta[[r]], 2, cumprod)
-         tauMat = matrix(tau,nf[r],hM$ns)
-         mult = sqrt(Psi[[r]]*tauMat)^-1
-         Lambda[[r]] = matrix(rnorm(nf[r]*hM$ns)*mult, nf[r], hM$ns)
+         if(ncr[r] == 0){
+            tau = apply(Delta[[r]], 2, cumprod)
+            tauMat = matrix(tau,nf[r],hM$ns)
+            mult = sqrt(Psi[[r]]*tauMat)^-1
+            Lambda[[r]] = matrix(rnorm(nf[r]*hM$ns)*mult, nf[r], hM$ns)
+         } else{
+            tau = apply(Delta[[r]], c(2), cumprod)
+            tauArray = array(tau,dim=c(nf[r],1,ncr[r]))[,rep(1,hM$ns),]
+            mult = sqrt(Psi[[r]]*tauArray)^-1
+            Lambda[[r]] = array(rnorm(nf[r]*hM$ns*ncr[r])*mult, dim=c(nf[r],hM$ns,ncr[r]))
+         }
       }
    }
 
@@ -178,14 +193,20 @@ computeInitialParameters = function(hM, initPar){
    )
    LRan = vector("list", hM$nr)
    for(r in seq_len(hM$nr)){
-      LRan[[r]] = Eta[[r]][hM$Pi[,r],]%*%Lambda[[r]]
+      if(hM$rL[[r]]$xDim == 0){
+         LRan[[r]] = Eta[[r]][hM$Pi[,r],]%*%Lambda[[r]]
+      } else{
+         LRan[[r]] = matrix(0,hM$ny,hM$ns)
+         for(k in 1:hM$rL[[r]]$xDim)
+            LRan[[r]] = LRan[[r]] + (Eta[[r]][hM$Pi[,r],]*hM$rL[[r]]$x[hM$Pi[,r],r]) %*% Lambda[[r]][,,k]
+      }
    }
    if(hM$nr > 0){
       Z = LFix + Reduce("+", LRan)
    } else
       Z = LFix
 
-   Z = updateZ(Y=hM$Y,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=hM$X,Pi=hM$Pi,distr=hM$distr)
+   Z = updateZ(Y=hM$Y,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=hM$X,Pi=hM$Pi,distr=hM$distr,rL=hM$rL)
 
    parList$Gamma = Gamma
    parList$V = V

@@ -1,6 +1,6 @@
 # updating Gamma after marginalizing Beta
 
-updateGamma2 = function(Z,Gamma,iV,iSigma,Eta,Lambda, X,Pi,Tr,C, iQg, mGamma,iUGamma){
+updateGamma2 = function(Z,Gamma,iV,iSigma,Eta,Lambda, X,Pi,Tr,C,rL, iQg, mGamma,iUGamma){
    ns = ncol(Z)
    nc = nrow(iV)
    nt = ncol(Tr)
@@ -13,13 +13,18 @@ updateGamma2 = function(Z,Gamma,iV,iSigma,Eta,Lambda, X,Pi,Tr,C, iQg, mGamma,iUG
       return(t(chol(A)))
    }
 
-   LFix = 0
    LRan = vector("list", nr)
    for(r in seq_len(nr)){
-      LRan[[r]] = Eta[[r]][Pi[,r],]%*%Lambda[[r]]
+      if(rL[[r]]$xDim == 0){
+         LRan[[r]] = Eta[[r]][Pi[,r],]%*%Lambda[[r]]
+      } else{
+         LRan[[r]] = matrix(0,ny,ns)
+         for(k in 1:rL[[r]]$xDim)
+            LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[Pi[,r],k]) %*% Lambda[[r]][,,k]
+      }
    }
    if(nr > 0){
-      S = Z - (LFix + Reduce("+", LRan))
+      S = Z - Reduce("+", LRan)
    } else
       S = Z
 

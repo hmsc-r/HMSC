@@ -61,8 +61,8 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
             nr = NULL,
             nt = NULL,
             nf = NULL,
+            ncr = NULL,
             ncs = NULL,
-            ncv = NULL,
             np = NULL,
 
             # names

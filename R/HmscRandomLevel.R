@@ -17,25 +17,39 @@
 #'
 #' @export
 
-HmscRandomLevel = function(data=NULL, distMat=NULL, units=NULL, N=NULL, priors=NULL){
-   rL = structure(list(pi=NULL, s=NULL, sDim=NULL, N=NULL, distMat=NULL, #
+HmscRandomLevel = function(sData=NULL, distMat=NULL, XData=NULL, XFormula=NULL, xData=NULL, units=NULL, N=NULL, priors=NULL){
+   rL = structure(list(pi=NULL, s=NULL, sDim=NULL, x=NULL, xDim=NULL, N=NULL, distMat=NULL, #
       nfMax=NULL, nfMin=NULL, nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, alphapw=NULL), class="HmscRandomLevel")
    if(nargs()==0)
       stop("HmscRandomLevel: At least one argumnet should be specified")
-   if(!is.null(distMat) && !is.null(data)){
-      stop("HmscRandomLevel: both data and distMat arguments cannot be specified")
+   if(!is.null(distMat) && !is.null(sData)){
+      stop("HmscRandomLevel: both sData and distMat arguments cannot be specified")
    }
-   if(!is.null(data)){
-      rL$s = data
-      rL$N = nrow(data)
-      rL$pi = rownames(data)
-      rL$sDim = ncol(data)
-   }
+   if(!is.null(sData)){
+      rL$s = sData
+      rL$N = nrow(sData)
+      rL$pi = sort(rownames(sData))
+      rL$sDim = ncol(sData)
+   } else
+      rL$sDim = 0
    if(!is.null(distMat)){
       rL$N = nrow(distMat)
-      rL$pi = rownames(distMat)
+      rL$pi = sort(rownames(distMat))
       rL$sDim = Inf
    }
+   if(!is.null(xData)){
+      if(!is.null(rL$pi)){
+         if(any(!(rownames(xData)%in%rL$pi)))
+            stop("HmscRandomLevel: duplicated specification of units names")
+      } else{
+         rL$pi = sort(rownames(xData))
+         rL$N = nrow(xData)
+      }
+      rL$xDim = ncol(xData)
+      rL$x = xData
+   } else
+      rL$xDim = 0
+
    if(!is.null(units)){
       if(!is.null(rL$pi))
          stop("HmscRandomLevel: duplicated specification of units names")

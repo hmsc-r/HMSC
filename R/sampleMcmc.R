@@ -82,7 +82,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, verbose=sa
       for(iter in 1:(transient+samples*thin)){
          if(!identical(updater$Gamma2, FALSE) && is.matrix(X))
             Gamma = updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,
-               Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,Tr=Tr,C=C, iQg=iQg,
+               Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,Tr=Tr,C=C,rL=rL, iQg=iQg,
                mGamma=mGamma,iUGamma=iUGamma)
 
          if(!identical(updater$GammaEta, FALSE) && hM$nr>0 && identical(mGamma,rep(0,hM$nc*hM$nt)) && is.matrix(X)){ # assumes mGamma = 0
@@ -95,7 +95,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, verbose=sa
          if(!identical(updater$BetaLambda, FALSE)){
             BetaLambdaList = updateBetaLambda(Y=Y,Z=Z,Gamma=Gamma,iV=iV,
                iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta, iQ=iQg[,,rho],
-               X=X,Tr=Tr,Pi=Pi,C=C)
+               X=X,Tr=Tr,Pi=Pi,C=C,rL=hM$rL)
             Beta = BetaLambdaList$Beta
             Lambda = BetaLambdaList$Lambda
          }
@@ -127,10 +127,10 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, verbose=sa
 
          if(!identical(updater$InvSigma, FALSE))
             iSigma = updateInvSigma(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,
-               Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi, aSigma=aSigma,bSigma=bSigma)
+               Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi,rL=rL, aSigma=aSigma,bSigma=bSigma)
 
          if(!identical(updater$Z, FALSE))
-            Z = updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,distr=distr)
+            Z = updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,distr=distr,rL=hM$rL)
 
          for(r in seq_len(nr)){
             if(iter <= adaptNf[r]){
