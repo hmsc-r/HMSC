@@ -51,9 +51,9 @@ computeDataParameters = function(hM){
       if(hM$rL[[r]]$sDim > 0){
          alphapw = hM$rL[[r]]$alphapw
          np = hM$np[r]
+         alphaN = nrow(alphapw)
          if(is.null(hM$rL[[r]]$distMat)){
             s = hM$rL[[r]]$s[levels(hM$dfPi[,r]),]
-            alphaN = nrow(alphapw)
             distance = as.matrix(dist(s))
          } else{
             distance = hM$rL[[r]]$distMat[levels(hM$dfPi[,r]),levels(hM$dfPi[,r])]

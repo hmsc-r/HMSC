@@ -51,7 +51,11 @@ setPriors.HmscRandomLevel = function(rL, priors=NULL, nu=NULL, a1=NULL, a2=NULL,
       rL$alphapw = alphapw
    } else if(setDefault && rL$sDim>0){
       alphaN = 100
-      enclosingRectDiag = sqrt(sum(apply(rL$s, 2, function(c) diff(range(c)))^2))
+      if(is.null(rL$distMat)){
+         enclosingRectDiag = sqrt(sum(apply(rL$s, 2, function(c) diff(range(c)))^2))
+      } else {
+         enclosingRectDiag = max(rL$distMat)
+      }
       rL$alphapw = cbind(enclosingRectDiag*c(0:alphaN)/alphaN, c(0.5,rep(0.5/alphaN,alphaN)))
    }
    if(!is.null(nfMax)){

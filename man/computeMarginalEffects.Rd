@@ -5,7 +5,7 @@
 \title{Hmsc$computeMarginalEffects}
 \usage{
 computeMarginalEffects(hM, ngrid = 20, prob = c(0.025, 0.5, 0.975),
-  clist = 1:self$nc)
+  clist = 1:hM$nc)
 }
 \arguments{
 \item{clist}{}
