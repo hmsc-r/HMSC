@@ -42,7 +42,8 @@ computeInitialParameters = function(hM, initPar){
          fm = lm.fit(hM$Tr, Beta[k,])
          Gamma[k,] = coef(fm)
       }
-      V = cov(t(Beta - tcrossprod(Gamma, hM$Tr)))
+      V = rowSums(abind(cov(t(Beta-tcrossprod(Gamma,hM$Tr))), diag(rep(1,hM$nc)), along=3), na.rm=TRUE, dims=2)
+
       initPar = NULL
    } else{
 
