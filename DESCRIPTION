@@ -1,7 +1,7 @@
 Package: Hmsc
 Title: Demonstrates the potential user interface and distribution of HMSC package
 Type: Package
-Version: 0.3.8.1
+Version: 0.3.8.2
 Author: Gleb Tikhonov
 Maintainer: Gleb Tikhonov <gleb.tikhonov@helsinki.fi>
 Description: Hierarchical Modelling of Species Communities (HMSC) is
