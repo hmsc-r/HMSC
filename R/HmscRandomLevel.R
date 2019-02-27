@@ -33,6 +33,7 @@ HmscRandomLevel = function(sData=NULL, distMat=NULL, XData=NULL, XFormula=NULL, 
    } else
       rL$sDim = 0
    if(!is.null(distMat)){
+      rL$distMat = distMat
       rL$N = nrow(distMat)
       rL$pi = sort(rownames(distMat))
       rL$sDim = Inf
@@ -57,6 +58,7 @@ HmscRandomLevel = function(sData=NULL, distMat=NULL, XData=NULL, XFormula=NULL, 
       rL$N = length(units)
       rL$sDim = 0
    }
+
    if(!is.null(N)){
       if(!is.null(rL$pi))
          stop("HmscRandomLevel: duplicated specification of the number of units")

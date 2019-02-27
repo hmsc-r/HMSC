@@ -4,7 +4,8 @@
 \alias{HmscRandomLevel}
 \title{Create single level of random factors in HMSC}
 \usage{
-HmscRandomLevel(data = NULL, N = NULL, pi = NULL, priors = NULL)
+HmscRandomLevel(data = NULL, distMat = NULL, units = NULL,
+  N = NULL, priors = NULL)
 }
 \arguments{
 \item{N}{number of unique units on this level}
