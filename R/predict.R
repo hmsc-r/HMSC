@@ -70,10 +70,10 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
       stop("hMsc.predict: rL does not contain all the necessary named levels")
    }
 
-   if(is.null(studyDesign)){
+   if(!is.null(studyDesign)){
       dfPiNew = studyDesign[,hM$rLNames,drop=FALSE]
    } else
-      dfPiNew = matrix[NA,nyNew,0]
+      dfPiNew = matrix(NA,nyNew,0)
    rL = ranLevels[hM$rLNames]
 
    predN = length(post)
