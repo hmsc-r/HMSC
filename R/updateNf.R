@@ -12,8 +12,8 @@ updateNf = function(eta,lambda,alpha,psi,delta, rL, iter){
    prob = 1/exp(c0 + c1*iter)                # probability of adapting
 
    if(runif(1) < prob){
-      ns = dim(lambda)[1]
-      nf = dim(lambda)[2]
+      ns = dim(lambda)[2]
+      nf = dim(lambda)[1]
       np = nrow(eta)
 
       small = abs(lambda) < epsilon;
@@ -37,11 +37,11 @@ updateNf = function(eta,lambda,alpha,psi,delta, rL, iter){
             deltaNew[nf,] = rgamma(1,a2,b2)
          } else{
             ncr = dim(lambda)[3]
-            lambdaNew = abind(lambda, array(0,c(1,ns,ncr)))
+            lambdaNew = abind(lambda, array(0,c(1,ns,ncr)), along=1)
             psiNew = array(NA,c(nf,ns,ncr))
             psiNew[1:(nf-1),,] = psi
             psiNew[nf,,] = rgamma(ns*ncr,nu/2,nu/2)
-            deltaNew = array(NA,nf,ncr)
+            deltaNew = matrix(NA,nf,ncr)
             deltaNew[1:(nf-1),] = delta
             deltaNew[nf,] = rgamma(ncr,a2,b2)
          }

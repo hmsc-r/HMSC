@@ -46,7 +46,7 @@ computePredictedValues = function(hM, partition=NULL, start=1, Yc=NULL, mcmcStep
                XVal = lapply(hM$X, function(a) a[val,,drop=FALSE])
             }
          )
-         hM1 = Hmsc(Y=hM$Y[train,,drop=FALSE], X=XTrain, Xs=hM$Xs[train,,drop=FALSE], Xv=hM$Xv[train,,drop=FALSE], dist="probit", studyDesign=dfPi, Tr=hM$Tr, C=hM$C, ranLevels=hM$rL)
+         hM1 = Hmsc(Y=hM$Y[train,,drop=FALSE], X=XTrain, dist="probit", studyDesign=dfPi, Tr=hM$Tr, C=hM$C, ranLevels=hM$rL)
          hM1$distr = hM$distr
          # HOW TO BETTER SET THE DISTRIBUTION?
          # NEED TO INHERIT PRIORS, SCALINGS ETC. FROM hM

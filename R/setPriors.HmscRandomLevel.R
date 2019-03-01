@@ -2,7 +2,7 @@
 #'
 #' @description Sets or resets priors to the Hmsc object
 #'
-#' @param priors
+#' @param nu
 #'
 #'
 #' @return Modified HmscRandomLevel object
@@ -15,7 +15,7 @@
 #'
 #' @export
 
-setPriors.HmscRandomLevel = function(rL, priors=NULL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=NULL, alphapw=NULL, nfMax=NULL, nfMin=NULL, setDefault=FALSE){
+setPriors.HmscRandomLevel = function(rL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=NULL, alphapw=NULL, nfMax=NULL, nfMin=NULL, setDefault=FALSE){
    stopifnot(class(rL) == "HmscRandomLevel")
    xDim = max(rL$xDim, 1)
    if(!is.null(nu)){
@@ -103,7 +103,7 @@ setPriors.HmscRandomLevel = function(rL, priors=NULL, nu=NULL, a1=NULL, a2=NULL,
          stop("HmscRandomLevel.setPriors: nfMin must be not greater than nfMax")
       rL$nfMin = nfMin
    } else if(setDefault){
-      rL$nfMin = 1
+      rL$nfMin = 2
    }
    return(rL)
 }

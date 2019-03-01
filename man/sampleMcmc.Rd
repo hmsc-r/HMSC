@@ -6,32 +6,71 @@
 \usage{
 sampleMcmc(hM, samples, transient = 0, thin = 1, initPar = NULL,
   verbose = samples * thin/100, adaptNf = rep(transient, hM$nr),
-  nChains = 1, nCores = 1, dataParList = NULL, updater = list())
+  nChains = 1, nParallel = 1, dataParList = NULL, updater = list())
 }
 \arguments{
-\item{samples}{number of MCMC steps to be recorded}
+\item{samples}{the number of MCMC samples to be obtained in each chain}
 
-\item{thin}{thinning between recorded MCMC samples}
+\item{transient}{the number of MCMC steps that are executed before starting recording posterior samples}
 
-\item{initPar}{initial parameters value}
+\item{thin}{the number of MCMC steps between recording samples to the posterior}
 
-\item{verbose}{at which steps should model progress be displayed (default = samples*thin / 100)}
+\item{initPar}{a named list with parameter values that is used for initialization of MCMC states}
 
-\item{nChains}{number of MCMC chains to run}
+\item{verbose}{the interval between MCMC steps, when the MCMC progress is printed to the console}
 
-\item{updater}{}
+\item{adaptNf}{a vector of length \eqn{n_r} with number of MCMC steps at which the adaptation of the number of latent
+factors is conducted}
 
-\item{saveToDisk}{whether to save replicates to the disk once they are ready and discard them from RAM memory}
+\item{nChains}{number of independent MCMC chains to run}
+
+\item{nParallel}{number of parallel processes that the chains are executed among}
+
+\item{dataParList}{a named list with pre-computed \code{Qg}, \code{iQg}, \code{RQg}, \code{detQg}, \code{rLPar}
+parameters}
+
+\item{updater}{a named list, specifying which conditional updaters should be ommitted}
 }
 \value{
-
+an \class{Hmsc}-class object with chains of posterior samples added to the \code{postList} field
 }
 \description{
 Samples the posterior with block-conditional Gibbs MCMC sampler
 }
+\details{
+The exact number of samples to be recorded in order to get a proper estimate of the full posterior with
+  Gibbs MCMC algorithms, as well as the required thinning and cut-off of transient is very problem-specific and
+  depends both on the model structure and the data itself. Therefore, in general it is very cahllenging to a priori
+  provide an informed recommendation on what values should be used for a particular problem. A common recommended
+  strategy involves executing the posterior sampling with MCMC with some guess of the values for these arguments,
+  checking the properties of the obtained samples (primarily potential scale reduction factor and effective sample
+  size), and adjusting the guess accordingly.
+
+  The value of 1 for \code{thin} argument means that at each MCMC step after the transient a sample is recorded.
+
+  Typically, the vlaue of \code{nParallel} equal to \code{nChains} leads to most efficient usage of available
+  parallelization capacities. However, this may be not the case if the R is configured with multi-tread linear
+  algebra libraries. For debug and test purposes, the \code{nParallel} shall be set to 1, since only in this case a
+  detailization of the potentially encountered errors would be available.
+
+  The \code{dataParList} argument may be handy for large problems that needed to be refitted multiple times, e.g.
+  with different prior values. In that case, the data parameters that are precomputed for Hmsc sampling scheme may
+  require undesirably lot of storage space if they are saved for each of the model. Instead, they could be computed
+  only once and then directly reused, therefore reducing the storing redundancy.
+
+  Some of available conditional updaters partially duplicate each other. In certain cases, the usage of all of them
+  may lead to subotpimal performance, compared some subset of those. Then, it is possible to manually disable some of
+  them, by adding a \code{$UPDATER_NAME=FALSE} pair to the {updater} argument. Another usage of this argument
+  involves cases when some of the model parameters are known and have to be fixed. However, such tweaks of the
+  sampling scheme should be done with caution, as if compromized they would lead to erroneuos results.
+}
 \examples{
+Y = matrix(rnorm(100*10),100,10,dimnames=list(NULL,letters[1:10]))
+X = matrix(rnorm(100*3),100,3,dimnames=list(NULL,sprintf("cov\%d",1:3)))
+m = Hmsc(Y=Y, XData=as.data.frame(X), XFormula=~cov1+cov3)
+m = sampleMcmc(m, 100)
 
 }
 \seealso{
-
+\code{\link{Hmsc}}
 }

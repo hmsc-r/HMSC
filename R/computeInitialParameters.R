@@ -42,7 +42,7 @@ computeInitialParameters = function(hM, initPar){
          fm = lm.fit(hM$Tr, Beta[k,])
          Gamma[k,] = coef(fm)
       }
-      V = rowSums(abind(cov(t(Beta-tcrossprod(Gamma,hM$Tr))), diag(rep(1,hM$nc)), along=3), na.rm=TRUE, dims=2)
+      V = rowSums(abind(cov(t(Beta-tcrossprod(Gamma,hM$Tr))), diag(hM$nc), along=3), na.rm=TRUE, dims=2)
 
       initPar = NULL
    } else{
@@ -91,6 +91,8 @@ computeInitialParameters = function(hM, initPar){
    Delta = vector("list", hM$nr)
    Psi = vector("list", hM$nr)
    Lambda = vector("list", hM$nr)
+   Eta = vector("list", hM$nr)
+   np = hM$np
    if(!is.null(initPar$Delta)){
       Delta = initPar$Delta
    } else{
@@ -106,6 +108,11 @@ computeInitialParameters = function(hM, initPar){
    } else{
       Lambda = vector("list", hM$nr)
    }
+   if(!is.null(initPar$Eta)){
+      Eta = initPar$Eta
+   } else{
+      Eta = vector("list", hM$nr)
+   }
 
    for(r in seq_len(hM$nr)){
       if(!is.null(initPar$Delta[[r]])){
@@ -117,45 +124,40 @@ computeInitialParameters = function(hM, initPar){
       if(!is.null(initPar$Lambda[[r]])){
          nf[r] = nrow(Lambda[[r]])
       }
+      if(!is.null(initPar$Eta[[r]])){
+         nf[r] = ncol(Eta[[r]])
+      }
       if(is.na(nf[r]))
-         nf[r] = 2
+         nf[r] = hM$rL[[r]]$nfMin
 
-      ncr[r] = hM$rL[[r]]$xDim
+      ncr[r] = max(hM$rL[[r]]$xDim, 1)
       if(is.null(initPar$Delta[[r]])){
-         if(ncr[r] == 0){
+         if(hM$rL[[r]]$xDim == 0){
             Delta[[r]] = matrix(c(rgamma(1,hM$rL[[r]]$a1,hM$rL[[r]]$b1), rgamma(nf[r]-1,hM$rL[[r]]$a2,hM$rL[[r]]$b2)))
          } else
             Delta[[r]] = matrix(c(rgamma(ncr[r],hM$rL[[r]]$a1,hM$rL[[r]]$b1), rgamma(ncr[r]*(nf[r]-1),hM$rL[[r]]$a2,hM$rL[[r]]$b2)), nf[r],ncr[r],byrow=TRUE)
       }
       if(is.null(initPar$Psi[[r]])){
-         if(ncr[r] == 0){
+         if(hM$rL[[r]]$xDim == 0){
             Psi[[r]] = matrix(rgamma(nf[r]*hM$ns, hM$rL[[r]]$nu/2, hM$rL[[r]]$nu/2), nf[r], hM$ns)
          } else
             Psi[[r]] = array(rgamma(nf[r]*hM$ns*ncr[r], hM$rL[[r]]$nu/2, hM$rL[[r]]$nu/2), dim=c(nf[r],hM$ns,ncr[r]))
       }
       if(is.null(initPar$Lambda[[r]])){
-         if(ncr[r] == 0){
-            tau = apply(Delta[[r]], 2, cumprod)
+         tau = matrix(apply(Delta[[r]], 2, cumprod), nf[r], ncr[r])
+         if(hM$rL[[r]]$xDim == 0){
             tauMat = matrix(tau,nf[r],hM$ns)
             mult = sqrt(Psi[[r]]*tauMat)^-1
             Lambda[[r]] = matrix(rnorm(nf[r]*hM$ns)*mult, nf[r], hM$ns)
          } else{
-            tau = apply(Delta[[r]], c(2), cumprod)
-            tauArray = array(tau,dim=c(nf[r],1,ncr[r]))[,rep(1,hM$ns),]
+            tauArray = array(tau,dim=c(nf[r],1,ncr[r]))[,rep(1,hM$ns),,drop=FALSE]
             mult = sqrt(Psi[[r]]*tauArray)^-1
             Lambda[[r]] = array(rnorm(nf[r]*hM$ns*ncr[r])*mult, dim=c(nf[r],hM$ns,ncr[r]))
          }
       }
    }
 
-   Eta = vector("list", hM$nr)
-   np = hM$np
 
-   if(!is.null(initPar$Eta)){
-      Eta = initPar$Eta
-   } else{
-      Eta = vector("list", hM$nr)
-   }
    for(r in seq_len(hM$nr)){
       if(!is.null(initPar$Eta[[r]])){
          Eta[[r]] = initPar$Eta[[r]]
@@ -199,7 +201,7 @@ computeInitialParameters = function(hM, initPar){
       } else{
          LRan[[r]] = matrix(0,hM$ny,hM$ns)
          for(k in 1:hM$rL[[r]]$xDim)
-            LRan[[r]] = LRan[[r]] + (Eta[[r]][hM$Pi[,r],]*hM$rL[[r]]$x[hM$Pi[,r],r]) %*% Lambda[[r]][,,k]
+            LRan[[r]] = LRan[[r]] + (Eta[[r]][hM$Pi[,r],,drop=FALSE]*hM$rL[[r]]$x[hM$Pi[,r],r]) %*% Lambda[[r]][,,k]
       }
    }
    if(hM$nr > 0){

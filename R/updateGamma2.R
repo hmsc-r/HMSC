@@ -2,6 +2,7 @@
 
 updateGamma2 = function(Z,Gamma,iV,iSigma,Eta,Lambda, X,Pi,Tr,C,rL, iQg, mGamma,iUGamma){
    ns = ncol(Z)
+   ny = nrow(Z)
    nc = nrow(iV)
    nt = ncol(Tr)
    nr = ncol(Pi)

@@ -1,5 +1,5 @@
 updateAlpha = function(Eta ,rL, rLPar){
-   nr = length(Eta)
+   nr = length(rL)
 
    Alpha = vector("list", nr)
    for(r in seq_len(nr)){

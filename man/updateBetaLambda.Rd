@@ -5,7 +5,7 @@
 \title{updateBetaLambda}
 \usage{
 updateBetaLambda(Y, Z, Gamma, iV, iSigma, Eta, Psi, Delta, rho, iQ, X, Tr,
-  Pi, C)
+  Pi, C, rL)
 }
 \description{
 updates beta lambda

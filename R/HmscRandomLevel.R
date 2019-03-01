@@ -1,23 +1,34 @@
 #' @title Create single level of random factors in HMSC
 #'
-#' @description Specifies the structure for the single level of random factors, whether the level
-#'  is assumed to be spatial or not, the spatial coordinates and the covariate-dependent nonstationarity.
+#' @description Specifies the structure for a single level of random factors, including whether the level is assumed to
+#'   be spatial or not, the spatial coordinates and the potential structure of covariate-dependent nonstationarity.
 #'
 #'
-#' @param pi determines the unique IDs for the distinct units on this level of random factors
-#' @param s matrix of coordinates in the
-#' @param sDim number of spatial dimensions
+#' @param sData a dataframe containing spatial or temporal coordinates of units of the random level
+#' @param distMat a distance matrix containing the distances between units of the random level
+#' @param xData a dataframe containing the covariates measured at the units of the random level for covariate-dependent
+#'   associations
+#' @param units a vector, specifying the names of the units of a non-structured level
 #' @param N number of unique units on this level
 #'
-#' @return
+#' @return a \code{HmscRandomLevel}-class object that can be used for \code{Hmsc}-class object construction
+#'
+#' @details Only one of \code{sData}, \code{distMat}, \code{xData}, \code{units} and \code{N} arguments shall be
+#'   provided (implmentation for \code{sData} and \code{xData} is coming later).
+#'
+#'   As a good practice we recommend to specify all available units for a random level, even if some of those are not
+#'   used for training the model.
+#'
+#'
+#' @seealso [setPriors.Hmsc()]
 #'
 #' @examples
-#' HmscRandomLevel$new(data.frame(s1=c(1:10),s2=c(10:1)))
-#' HmscRandomLevel$new(pi=as.factor(1:10))
+#' rL = HmscRandomLevel(sData=data.frame(s1=c(1:10),s2=c(10:1)))
+#' rL = HmscRandomLevel(units=as.factor(1:10))
 #'
 #' @export
 
-HmscRandomLevel = function(sData=NULL, distMat=NULL, XData=NULL, XFormula=NULL, xData=NULL, units=NULL, N=NULL, priors=NULL){
+HmscRandomLevel = function(sData=NULL, distMat=NULL, xData=NULL, units=NULL, N=NULL){
    rL = structure(list(pi=NULL, s=NULL, sDim=NULL, x=NULL, xDim=NULL, N=NULL, distMat=NULL, #
       nfMax=NULL, nfMin=NULL, nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, alphapw=NULL), class="HmscRandomLevel")
    if(nargs()==0)
@@ -67,10 +78,6 @@ HmscRandomLevel = function(sData=NULL, distMat=NULL, XData=NULL, XFormula=NULL, 
       rL$sDim = 0
    }
 
-   if(!is.null(priors)){
-      rL = setPriors(rL, priors=priors, setDefault=TRUE)
-   } else{
-      rL = setPriors(rL, setDefault=TRUE)
-   }
+   rL = setPriors(rL, setDefault=TRUE)
    return(rL)
 }

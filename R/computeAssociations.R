@@ -3,7 +3,7 @@
 #' @description Computes the species association matrices
 #' @param start index of first MCMC sample included
 #'
-#' @return list of association matrices ($\omega$) corresponding to each random level in the model
+#' @return list of association matrices (\eqn{\omega}) corresponding to each random level in the model
 #'
 #'
 #' @seealso

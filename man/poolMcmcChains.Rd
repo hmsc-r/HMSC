@@ -17,14 +17,8 @@ poolMcmcChains(postList, chainIndex = 1:length(postList), start = 1,
 \item{thin}{thinning between included MCMC samples}
 }
 \value{
-
+a list with combined MCMC samples
 }
 \description{
-Combines a list MCMC chains into single chain and
-}
-\examples{
-
-}
-\seealso{
-
+Combines a list of single or several MCMC chains into a single chain
 }

@@ -76,7 +76,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,rL){
                for(q in 1:np[r]){
                   rows = which(lPi==unLPi[q])
                   if(all(Yx[rows,])){
-                     iV = diag(nf) + LamInvSigLam*sum(rows)
+                     iV = diag(nf) + LamInvSigLam*length(rows)
                      RiV = chol(iV)
                      V = chol2inv(RiV)
                      mu = tcrossprod(apply(S[rows,,drop=FALSE],2,sum), lambda*matrix(iSigma,nf,ns,byrow=TRUE)) %*% V

@@ -4,7 +4,7 @@
 \alias{getPostEstimate}
 \title{Hmsc$getPostEstimate}
 \usage{
-getPostEstimate(hM, parName, r = 1, q = c(),
+getPostEstimate(hM, parName, r = 1, x = NULL, q = c(),
   chainIndex = 1:length(hM$postList))
 }
 \arguments{
@@ -18,7 +18,7 @@ model's baseline parameters, "Omega" or "OmegaCor".}
 \item{chainIndex}{Which posterir chains to use for summarization (defaults to all)}
 }
 \value{
-
+A named list of posterior quantities. Element mean
 }
 \description{
 Calculates mean, support and other posterior quantities for model parameter

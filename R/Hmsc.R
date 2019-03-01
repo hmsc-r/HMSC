@@ -1,32 +1,59 @@
 #' @title Hmsc
 #'
-#' @description Creates a Hmsc object
+#' @description Creates a \code{Hmsc}-class object
 #'
-#' @param Y matrix of species occurences or abundances
-#' @param XFormula formula for linear regression component of HMSC
-#' @param XData dataframe of measured covariates for formula-based specification
-#' @param X matrix of measured covariates for direct specification
-#' @param XScale (boolean; default is TRUE) whether to scale values in X matrix
-#' @param studyDesign data frame of correspondence between sampling units and units on
-#'  different levels of latent factors
-#' @param ranLevelsUsed vector with names of levels of latent factors that are used in the analysis, subset of colnames(dfPi)
-#' @param ranLevels list of HmscRandomLevel objects, specifying the structure and data for random levels
-#' @param Xs
-#' @param Xv
-#' @param TrFormula formula for linear regression dependence of Beta coefficeints on provided traits
-#' @param TrData dataframe of measured traits for formula-based specification
-#' @param Tr matrix of measured traits for direct specification
-#' @param TrScale (boolean; default is TRUE) whether to scale values in the Tr matrix
-#' @param phyloTree
-#' @param C
-#' @param distr string shortcut or $n_s \times 4$ matrix specifying the observation models
+#' @param Y a matrix of species occurences or abundances
+#' @param XFormula a formula-class object for fixed effects (linear regression) component of HMSC
+#' @param XData a dataframe of measured covariates for fixed effects with formula-based specification
+#' @param X a matrix of measured covariates for fixed effects with direct specification
+#' @param XScale a boolean flag whether to scale covariates for the fixed effects
+#' @param studyDesign a dataframe of correspondence between sampling units and units on different levels of latent
+#'   factors
+#' @param ranLevels a named list of \code{HmscRandomLevel}-class objects, specifying the structure and data for random
+#'   levels
+#' @param ranLevelsUsed a vector with names of levels of latent factors that are used in the analysis
+#' @param TrFormula a formula-class object for regression dependence of \eqn{\Beta_{kj}} coefficeints on species traits
+#' @param TrData a dataframe of measured species traits for formula-based specification
+#' @param Tr a matrix of measured traits for direct specification
+#' @param TrScale a boolean flag whether to scale values of species traits
+#' @param phyloTree an object of class \code{phylo} or \code{corPhyl} containing the phylogenic tree of the modelled
+#'   species
+#' @param C a matrix of phylogenic similaririties between mofelled species
+#' @param distr a string shortcut or \eqn{n_s \times 4} matrix specifying the observation models
 #'
 #'
-#' @return
-#' Object of Hmsc class
+#' @return an object of Hmsc class without any posterior samples
 #'
-#' @seealso
+#' @details Matrix \eqn{Y} may cointain arbitrary amount of missing values, but it is not recommended to add a
+#'   species/sampling units with fully missing data, since those do not bring any new additional information.
 #'
+#'   Only one of \code{XFormula}-\code{XData} and \code{X} arguments shall be specified. Similar requirement applies to
+#'   \code{TrFormula}-\code{TrData} and \code{Tr}. It is recommended to use the specification with formula-class
+#'   objects, since that information enables additional features for postprocessing of the model fit.
+#'
+#'   The effective random levels are specified by \code{ranLevels} and \code{ranLevelsUsed} arguments. The
+#'   correspondenve between units of each random level and rows of \code{Y} must be specified by a column of
+#'   \code{studyDesign} argument, which column name coincides with the name of list item in \code{ranLevels}. Yet, it is
+#'   possible to provide arbitrary number of columns in \code{studyDesign} that are not listed in \code{ranLevels}.
+#'   These do not affect the rigid model formulation or fitting scheme, but can be utilized during certain functions
+#'   postprocessing the results of statistical model fit.
+#'
+#'   The \code{distr} argument may be either a matrix or a string literal. In former case, the dimesion must be \eqn{n_s
+#'   \times 4}, where the first column defines the family of observation model and second argument defines the
+#'   dispertion property. The elements of the first column shall take values 1-normal, 2-probit and 3-Poisson with log
+#'   link function. The second argument stands for the dispersion parameter being fixed (0) or estimated (1). The
+#'   default fixed values of the dispersion parameters are 1 for normal and probit, and 0.01 for Poisson (imlplemented
+#'   as a limiting case of lognormally-overdispersed Poisson). The matrix argument allows to specify different observation
+#'   models for different species. Alternatively, a string literal shortcut can be given as a value to the \code{distr}
+#'   argument, simultaniously specifying similar class of observation models for all species. The available shortcuts are
+#'   \code{"normal"}, \code{"probit"}, \code{"poisson"}, \code{"lognormal poisson"}.
+#'
+#'
+#'   By default this constructor assignes default priors to the latent factors. Those priors are desighned to be
+#'   reasonably flat assuming that the covariates and species traits are scaled. In case when other priors needed to be
+#'   specified, a call of \code{setPriors.Hmsc} methods should be made, where the particular priors may be specified.
+#'
+#' @seealso \code{\link{HmscRandomLevel}}, \code{\link{sampleMcmc}}, \code{\link{setPriors.Hmsc}}
 #'
 #' @examples
 #' Y = matrix(rnorm(100*10),100,10,dimnames=list(NULL,letters[1:10]))
@@ -37,19 +64,16 @@
 
 
 Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
-   studyDesign=NULL, ranLevels=NULL, ranLevelsUsed=names(ranLevels), Xs=NULL, Xv=NULL,
+   studyDesign=NULL, ranLevels=NULL, ranLevelsUsed=names(ranLevels),
    TrFormula=NULL, TrData=NULL, Tr=NULL, TrScale=TRUE,
    phyloTree=NULL, C=NULL,
-   distr="normal",
-   priors=NULL){
+   distr="normal"){
 
    hM = structure(list(
             Y = NULL,
             XData=NULL, XFormula=NULL, X=NULL, XScaled=NULL, XInterceptInd=NULL,
             studyDesign=NULL, ranLevels=NULL, ranLevelsUsed=NULL,
             dfPi = NULL, rL=NULL, Pi=NULL,
-            Xs = NULL,
-            Xv = NULL,
             TrData=NULL, TrFormula=NULL, Tr=NULL, TrScaled=NULL, TrInterceptInd=NULL,
             C=NULL, phyloTree=NULL,
             distr = NULL,

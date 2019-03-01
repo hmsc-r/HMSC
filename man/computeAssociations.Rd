@@ -10,7 +10,7 @@ computeAssociations(hM, start = 1)
 \item{start}{index of first MCMC sample included}
 }
 \value{
-list of association matrices ($\omega$) corresponding to each random level in the model
+list of association matrices (\eqn{\omega}) corresponding to each random level in the model
 }
 \description{
 Computes the species association matrices

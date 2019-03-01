@@ -4,27 +4,40 @@
 \alias{HmscRandomLevel}
 \title{Create single level of random factors in HMSC}
 \usage{
-HmscRandomLevel(data = NULL, distMat = NULL, units = NULL,
-  N = NULL, priors = NULL)
+HmscRandomLevel(sData = NULL, distMat = NULL, xData = NULL,
+  units = NULL, N = NULL)
 }
 \arguments{
+\item{sData}{a dataframe containing spatial or temporal coordinates of units of the random level}
+
+\item{distMat}{a distance matrix containing the distances between units of the random level}
+
+\item{xData}{a dataframe containing the covariates measured at the units of the random level for covariate-dependent
+associations}
+
+\item{units}{a vector, specifying the names of the units of a non-structured level}
+
 \item{N}{number of unique units on this level}
-
-\item{pi}{determines the unique IDs for the distinct units on this level of random factors}
-
-\item{s}{matrix of coordinates in the}
-
-\item{sDim}{number of spatial dimensions}
 }
 \value{
-
+a \code{HmscRandomLevel}-class object that can be used for \code{Hmsc}-class object construction
 }
 \description{
-Specifies the structure for the single level of random factors, whether the level
- is assumed to be spatial or not, the spatial coordinates and the covariate-dependent nonstationarity.
+Specifies the structure for a single level of random factors, including whether the level is assumed to
+  be spatial or not, the spatial coordinates and the potential structure of covariate-dependent nonstationarity.
+}
+\details{
+Only one of \code{sData}, \code{distMat}, \code{xData}, \code{units} and \code{N} arguments shall be
+  provided (implmentation for \code{sData} and \code{xData} is coming later).
+
+  As a good practice we recommend to specify all available units for a random level, even if some of those are not
+  used for training the model.
 }
 \examples{
-HmscRandomLevel$new(data.frame(s1=c(1:10),s2=c(10:1)))
-HmscRandomLevel$new(pi=as.factor(1:10))
+rL = HmscRandomLevel(sData=data.frame(s1=c(1:10),s2=c(10:1)))
+rL = HmscRandomLevel(units=as.factor(1:10))
 
+}
+\seealso{
+[setPriors.Hmsc()]
 }

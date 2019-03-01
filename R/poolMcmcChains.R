@@ -1,6 +1,6 @@
 #' @title poolMcmcChains
 #'
-#' @description Combines a list MCMC chains into single chain and
+#' @description Combines a list of single or several MCMC chains into a single chain
 #'
 #' @param postList list of posterior chains
 #' @param chainIndex index of chains to be included
@@ -8,18 +8,11 @@
 #' @param thin thinning between included MCMC samples
 #'
 #'
-#' @return
-#'
-#'
-#' @seealso
-#'
-#' 
-#' @examples
+#' @return a list with combined MCMC samples
 #'
 #' @export
 
-poolMcmcChains = function(postList, chainIndex=1:length(postList), 
-  start=1, thin=1){
+poolMcmcChains = function(postList, chainIndex=1:length(postList), start=1, thin=1){
    post = list()
    for(i in chainIndex){
       chain = postList[[i]]

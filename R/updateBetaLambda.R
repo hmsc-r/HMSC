@@ -148,9 +148,9 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,C
    nfCumSum = c(0,cumsum(nf*ncr)) + nc
    for(r in seq_len(nr)){
       if(rL[[r]]$xDim == 0){
-         Lambda[[r]] = BetaLambda[nfCumSum[r]:(nfCumSum[r+1]-1),,drop=FALSE]
+         Lambda[[r]] = BetaLambda[(nfCumSum[r]+1):(nfCumSum[r+1]),,drop=FALSE]
       } else
-         Lambda[[r]] = array(BetaLambda[nfCumSum[r]:(nfCumSum[r+1]-1),,drop=FALSE], c(nf[r],ns,ncr))
+         Lambda[[r]] = aperm(array(BetaLambda[(nfCumSum[r]+1):(nfCumSum[r+1]),,drop=FALSE], c(nf[r],ncr[r],ns)),c(1,3,2))
    }
    return(list(Beta=Beta, Lambda=Lambda))
 }

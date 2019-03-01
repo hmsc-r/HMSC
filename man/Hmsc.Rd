@@ -6,43 +6,79 @@
 \usage{
 Hmsc(Y, XFormula = ~., XData = NULL, X = NULL, XScale = TRUE,
   studyDesign = NULL, ranLevels = NULL,
-  ranLevelsUsed = names(ranLevels), Xs = NULL, Xv = NULL,
-  TrFormula = NULL, TrData = NULL, Tr = NULL, TrScale = TRUE,
-  phyloTree = NULL, C = NULL, distr = "normal", priors = NULL)
+  ranLevelsUsed = names(ranLevels), TrFormula = NULL, TrData = NULL,
+  Tr = NULL, TrScale = TRUE, phyloTree = NULL, C = NULL,
+  distr = "normal")
 }
 \arguments{
-\item{Y}{matrix of species occurences or abundances}
+\item{Y}{a matrix of species occurences or abundances}
 
-\item{XFormula}{formula for linear regression component of HMSC}
+\item{XFormula}{a formula-class object for fixed effects (linear regression) component of HMSC}
 
-\item{XData}{dataframe of measured covariates for formula-based specification}
+\item{XData}{a dataframe of measured covariates for fixed effects with formula-based specification}
 
-\item{X}{matrix of measured covariates for direct specification}
+\item{X}{a matrix of measured covariates for fixed effects with direct specification}
 
-\item{XScale}{(boolean; default is TRUE) whether to scale values in X matrix}
+\item{XScale}{a boolean flag whether to scale covariates for the fixed effects}
 
-\item{studyDesign}{data frame of correspondence between sampling units and units on
-different levels of latent factors}
+\item{studyDesign}{a dataframe of correspondence between sampling units and units on different levels of latent
+factors}
 
-\item{ranLevels}{list of HmscRandomLevel objects, specifying the structure and data for random levels}
+\item{ranLevels}{a named list of \code{HmscRandomLevel}-class objects, specifying the structure and data for random
+levels}
 
-\item{ranLevelsUsed}{vector with names of levels of latent factors that are used in the analysis, subset of colnames(dfPi)}
+\item{ranLevelsUsed}{a vector with names of levels of latent factors that are used in the analysis}
 
-\item{TrFormula}{formula for linear regression dependence of Beta coefficeints on provided traits}
+\item{TrFormula}{a formula-class object for regression dependence of \eqn{\Beta_{kj}} coefficeints on species traits}
 
-\item{TrData}{dataframe of measured traits for formula-based specification}
+\item{TrData}{a dataframe of measured species traits for formula-based specification}
 
-\item{Tr}{matrix of measured traits for direct specification}
+\item{Tr}{a matrix of measured traits for direct specification}
 
-\item{TrScale}{(boolean; default is TRUE) whether to scale values in the Tr matrix}
+\item{TrScale}{a boolean flag whether to scale values of species traits}
 
-\item{distr}{string shortcut or $n_s \times 4$ matrix specifying the observation models}
+\item{phyloTree}{an object of class \code{phylo} or \code{corPhyl} containing the phylogenic tree of the modelled
+species}
+
+\item{C}{a matrix of phylogenic similaririties between mofelled species}
+
+\item{distr}{a string shortcut or \eqn{n_s \times 4} matrix specifying the observation models}
 }
 \value{
-Object of Hmsc class
+an object of Hmsc class without any posterior samples
 }
 \description{
-Creates a Hmsc object
+Creates a \code{Hmsc}-class object
+}
+\details{
+Matrix \eqn{Y} may cointain arbitrary amount of missing values, but it is not recommended to add a
+  species/sampling units with fully missing data, since those do not bring any new additional information.
+
+  Only one of \code{XFormula}-\code{XData} and \code{X} arguments shall be specified. Similar requirement applies to
+  \code{TrFormula}-\code{TrData} and \code{Tr}. It is recommended to use the specification with formula-class
+  objects, since that information enables additional features for postprocessing of the model fit.
+
+  The effective random levels are specified by \code{ranLevels} and \code{ranLevelsUsed} arguments. The
+  correspondenve between units of each random level and rows of \code{Y} must be specified by a column of
+  \code{studyDesign} argument, which column name coincides with the name of list item in \code{ranLevels}. Yet, it is
+  possible to provide arbitrary number of columns in \code{studyDesign} that are not listed in \code{ranLevels}.
+  These do not affect the rigid model formulation or fitting scheme, but can be utilized during certain functions
+  postprocessing the results of statistical model fit.
+
+  The \code{distr} argument may be either a matrix or a string literal. In former case, the dimesion must be \eqn{n_s
+  \times 4}, where the first column defines the family of observation model and second argument defines the
+  dispertion property. The elements of the first column shall take values 1-normal, 2-probit and 3-Poisson with log
+  link function. The second argument stands for the dispersion parameter being fixed (0) or estimated (1). The
+  default fixed values of the dispersion parameters are 1 for normal and probit, and 0.01 for Poisson (imlplemented
+  as a limiting case of lognormally-overdispersed Poisson). The matrix argument allows to specify different observation
+  models for different species. Alternatively, a string literal shortcut can be given as a value to the \code{distr}
+  argument, simultaniously specifying similar class of observation models for all species. The available shortcuts are
+  \code{"normal"}, \code{"probit"}, \code{"poisson"}, \code{"lognormal poisson"}.
+
+
+  By default this constructor assignes default priors to the latent factors. Those priors are desighned to be
+  reasonably flat assuming that the covariates and species traits are scaled. In case when other priors needed to be
+  specified, a call of \code{setPriors.Hmsc} methods should be made, where the particular priors may be specified.
 }
 \examples{
 Y = matrix(rnorm(100*10),100,10,dimnames=list(NULL,letters[1:10]))
@@ -51,5 +87,5 @@ m = Hmsc(Y=Y, XData=as.data.frame(X), XFormula=~cov1+cov3)
 
 }
 \seealso{
-
+\code{\link{HmscRandomLevel}}, \code{\link{sampleMcmc}}, \code{\link{setPriors.Hmsc}}
 }
