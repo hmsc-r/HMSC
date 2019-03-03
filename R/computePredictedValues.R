@@ -15,7 +15,7 @@
 #'
 #' @export
 
-computePredictedValues = function(hM, partition=NULL, start=1, Yc=NULL, mcmcStep=1, expected=TRUE, initPar=NULL, nCores=1){
+computePredictedValues = function(hM, partition=NULL, start=1, Yc=NULL, mcmcStep=1, expected=TRUE, initPar=NULL, nParallel=1){
    if(is.null(partition)){
       postList = poolMcmcChains(hM$postList, start=start)
       pred = predict(hM, post=postList, Yc=Yc, mcmcStep=1, expected=expected)
@@ -50,7 +50,7 @@ computePredictedValues = function(hM, partition=NULL, start=1, Yc=NULL, mcmcStep
          hM1$distr = hM$distr
          # HOW TO BETTER SET THE DISTRIBUTION?
          # NEED TO INHERIT PRIORS, SCALINGS ETC. FROM hM
-         hM1 = sampleMcmc(hM1, samples=hM$samples, thin=hM$thin, transient=hM$transient, adaptNf=hM$adaptNf, initPar=initPar, nChains=length(hM$postList), nCores=nCores)
+         hM1 = sampleMcmc(hM1, samples=hM$samples, thin=hM$thin, transient=hM$transient, adaptNf=hM$adaptNf, initPar=initPar, nChains=length(hM$postList), nParallel=nParallel)
          postList = poolMcmcChains(hM1$postList, start=start)
          dfPi = as.data.frame(matrix(NA,sum(val),hM$nr))
          colnames(dfPi) = hM$rLNames
