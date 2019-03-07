@@ -24,7 +24,8 @@
 #'
 #' @export
 
-predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL,
+
+predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL, # this has to be updated to cov-dependent associations
    studyDesign=hM$studyDesign, ranLevels=hM$ranLevels,
    Yc=NULL, mcmcStep=1, expected=FALSE, predictEtaMean=FALSE){
 
@@ -148,3 +149,5 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
    }
    return(pred)
 }
+
+# a test change
