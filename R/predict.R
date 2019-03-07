@@ -151,3 +151,4 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
 }
 
 # a test change
+# a second test change
