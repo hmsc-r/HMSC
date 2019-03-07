@@ -24,7 +24,7 @@
 #'
 #' @export
 
-predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL,
+predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL, #A comment to the world
    studyDesign=hM$studyDesign, ranLevels=hM$ranLevels,
    Yc=NULL, mcmcStep=1, expected=FALSE, predictEtaMean=FALSE){
 
@@ -75,6 +75,8 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
    } else
       dfPiNew = matrix(NA,nyNew,0)
    rL = ranLevels[hM$rLNames]
+
+   # test comment by Oystein
 
    predN = length(post)
    predPostEta = vector("list", hM$nr)
