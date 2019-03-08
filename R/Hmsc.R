@@ -476,7 +476,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, YScale = FALSE,
 
    #scaling of response
    if(identical(YScale,FALSE)){
-      hM$YScalePar = rbind(rep(0,hM$nt), rep(1,hM$nt))
+      hM$YScalePar = rbind(rep(0,hM$ns), rep(1,hM$ns))
       hM$YScaled = hM$Y
    } else{
       scaleInd = which(hM$distr[,1]==1)
