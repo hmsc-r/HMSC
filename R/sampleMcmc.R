@@ -64,7 +64,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, verbose=sa
 
    X = hM$XScaled
    Tr = hM$TrScaled
-   Y = hM$Y
+   Y = hM$YScaled
    distr = hM$distr
    Pi = hM$Pi
    C = hM$C

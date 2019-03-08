@@ -146,6 +146,15 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
          }
       }
       colnames(Z) = hM$spNames
+
+      for(i in 1:hM$ns){
+         m = hM$YScalePar[1,i]
+         s = hM$YScalePar[2,i]
+         if(m!=0 || s!=1){
+            Z[,i] = Z[,i]*s + m
+         }
+      }
+
       pred[[pN]] = Z
    }
    return(pred)

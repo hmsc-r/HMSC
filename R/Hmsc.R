@@ -6,7 +6,8 @@
 #' @param XFormula a formula-class object for fixed effects (linear regression) component of HMSC
 #' @param XData a dataframe of measured covariates for fixed effects with formula-based specification
 #' @param X a matrix of measured covariates for fixed effects with direct specification
-#' @param XScale a boolean flag whether to scale covariates for the fixed effects
+#' @param XScale a boolean flag whether to scale covariates for the fixed effects.
+#' @param YScale a boolean flag whether to scale responses for which normal distribution is assumed
 #' @param studyDesign a dataframe of correspondence between sampling units and units on different levels of latent
 #'   factors
 #' @param ranLevels a named list of \code{HmscRandomLevel}-class objects, specifying the structure and data for random
@@ -31,6 +32,14 @@
 #'   \code{TrFormula}-\code{TrData} and \code{Tr}. It is recommended to use the specification with formula-class
 #'   objects, since that information enables additional features for postprocessing of the model fit.
 #'
+#'   As default, scaling is applied for X and Tr matrices, but not for Y matrix. If X and/or Tr matrices are
+#'   scaled, the estimated parameters are back-transformed so that the estimated parameters correspond to the original
+#'   X and Tr matrices, not the scaled ones. In contrast, if Y is scaled, the estimated parameters are not
+#'   back-transformed because doing so is not possible for all model parameters. Thus, the estimated parameters
+#'   correspond to the scaled Y matrix, not the original one. If the Y matrix is scaled  this case, the predictions
+#'   (done with the predict function) are back-transformed, so the predicted Y matrices are directly comparable
+#'   to the original Y matrix. If default priors are assumed, it is recommended that all matrices (X, Tr and Y) are scaled.
+#'
 #'   The effective random levels are specified by \code{ranLevels} and \code{ranLevelsUsed} arguments. The
 #'   correspondenve between units of each random level and rows of \code{Y} must be specified by a column of
 #'   \code{studyDesign} argument, which column name coincides with the name of list item in \code{ranLevels}. Yet, it is
@@ -38,19 +47,20 @@
 #'   These do not affect the rigid model formulation or fitting scheme, but can be utilized during certain functions
 #'   postprocessing the results of statistical model fit.
 #'
-#'   The \code{distr} argument may be either a matrix or a string literal. In former case, the dimesion must be \eqn{n_s
+#'   The \code{distr} argument may be either a matrix or a string literal. In former case, the dimension must be \eqn{n_s
 #'   \times 4}, where the first column defines the family of observation model and second argument defines the
 #'   dispertion property. The elements of the first column shall take values 1-normal, 2-probit and 3-Poisson with log
 #'   link function. The second argument stands for the dispersion parameter being fixed (0) or estimated (1). The
-#'   default fixed values of the dispersion parameters are 1 for normal and probit, and 0.01 for Poisson (imlplemented
+#'   default fixed values of the dispersion parameters are 1 for normal and probit, and 0.01 for Poisson (implemented
 #'   as a limiting case of lognormally-overdispersed Poisson). The matrix argument allows to specify different observation
 #'   models for different species. Alternatively, a string literal shortcut can be given as a value to the \code{distr}
 #'   argument, simultaniously specifying similar class of observation models for all species. The available shortcuts are
 #'   \code{"normal"}, \code{"probit"}, \code{"poisson"}, \code{"lognormal poisson"}.
 #'
 #'
-#'   By default this constructor assignes default priors to the latent factors. Those priors are desighned to be
-#'   reasonably flat assuming that the covariates and species traits are scaled. In case when other priors needed to be
+#'   By default this constructor assignes default priors to the latent factors. Those priors are designed to be
+#'   reasonably flat assuming that the covariates, species traits and normally distributed responses are scaled.
+#'   In case when other priors needed to be
 #'   specified, a call of \code{setPriors.Hmsc} methods should be made, where the particular priors may be specified.
 #'
 #' @seealso \code{\link{HmscRandomLevel}}, \code{\link{sampleMcmc}}, \code{\link{setPriors.Hmsc}}
@@ -63,7 +73,7 @@
 #' @export
 
 
-Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
+Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, YScale = FALSE,
    studyDesign=NULL, ranLevels=NULL, ranLevelsUsed=names(ranLevels),
    TrFormula=NULL, TrData=NULL, Tr=NULL, TrScale=TRUE,
    phyloTree=NULL, C=NULL,
@@ -71,7 +81,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
 
    hM = structure(list(
             Y = NULL,
-            XData=NULL, XFormula=NULL, X=NULL, XScaled=NULL, XInterceptInd=NULL,
+            XData=NULL, XFormula=NULL, X=NULL, XScaled=NULL, YScaled=NULL, XInterceptInd=NULL,
             studyDesign=NULL, ranLevels=NULL, ranLevelsUsed=NULL,
             dfPi = NULL, rL=NULL, Pi=NULL,
             TrData=NULL, TrFormula=NULL, Tr=NULL, TrScaled=NULL, TrInterceptInd=NULL,
@@ -96,7 +106,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
             rLNames = NULL,
 
             # scaling
-            XScalePar=NULL, TrScalePar=NULL,
+            XScalePar=NULL, YScalePar=NULL, TrScalePar=NULL,
 
             # priors
             V0=NULL, f0=NULL,
@@ -432,6 +442,23 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    )
    colnames(distr) = c("family","variance","link","something")
    hM$distr = distr
+
+   #scaling of response
+   if(identical(YScale,FALSE)){
+      hM$YScalePar = rbind(rep(0,hM$nt), rep(1,hM$nt))
+      hM$YScaled = hM$Y
+   } else{
+      scaleInd = which(hM$distr[,1]==1)
+      YScalePar = rbind(rep(0,hM$ns), rep(1,hM$ns))
+      YScaled = hM$Y
+      if(length(scaleInd)>0){
+         sc = scale(hM$Y)
+         YScalePar[,scaleInd] = rbind(attr(sc,"scaled:center"), attr(sc,"scaled:scale"))[,scaleInd]
+         YScaled[,scaleInd] = sc[,scaleInd]
+      }
+     hM$YScalePar = YScalePar
+     hM$YScaled = YScaled
+   }
 
    hM = setPriors(hM, setDefault=TRUE)
 
