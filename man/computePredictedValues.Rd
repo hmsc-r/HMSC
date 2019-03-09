@@ -4,13 +4,22 @@
 \alias{computePredictedValues}
 \title{computePredictedValues}
 \usage{
-computePredictedValues(hM, partition = NULL, start = 1, Yc = NULL,
-  mcmcStep = 1, expected = TRUE, initPar = NULL, nParallel = 1)
+computePredictedValues(hM, partition = NULL, partition.sp = NULL,
+  start = 1, Yc = NULL, mcmcStep = 1, expected = TRUE,
+  initPar = NULL, nParallel = 1)
 }
 \arguments{
 \item{partition}{vector of observations partitioning for cross-validation}
 
+\item{partition.sp}{vector of species partitioning for conditional cross-validation}
+
 \item{start}{index of first MCMC sample included}
+
+\item{Yc}{response matrix on which the predictions are to be conditioned on}
+
+\item{mcmcStep}{number of MCMC steps used to make conditional predictions}
+
+\item{expected}{whether expected values (TRUE) or realizations (FALSE) are to be predicted}
 }
 \value{
 
@@ -18,7 +27,30 @@ computePredictedValues(hM, partition = NULL, start = 1, Yc = NULL,
 \description{
 Computes predicted values from the trained model
 }
+\details{
+If the option partition is not used, the posterior predictive distribution is based on the model
+fitted to the full data. If the option partition is used but partition.sp is not used, the  posterior predictive distribution
+is based on cross-validation over the sampling units. If partition.sp is additionally used, when predictions are made for
+each fold of the sampling units, the predictions are done separately for each fold of species. When making the predictions
+for one fold of species, the predictions are conditional on known occurrences (those observed in the data) of the species
+belonging to the other folds. If partition.sp is used, the parameter mcmcStep should be set to high enough value to obtain
+appropriate conditional predictions. The option Yc can be used alternatively to partition.sp if the conditioning is to be done
+to a fixed set of data (independent on which sampling unit and species the predictions are made for).
+}
 \examples{
+
+preds = computePredictedValues(m)
+MF = evaluateModelFit(hM=m, predY=preds)
+
+partition = createPartition(m, nfolds = 2)
+predsCV1 = computePredictedValues(m,partition=partition)
+MFCV1 = evaluateModelFit(hM=m, predY=predsCV1)
+
+predsCV2 = computePredictedValues(m, partition = partition, partition.sp = 1:m$ns, mcmcStep = 100)
+MFCV2 = evaluateModelFit(hM=m, predY=predsCV2)
+
+# Here it is expectd that the measures of model fit be highest for MF,
+# second highest for MFCV2, and lowest for MFCV1
 
 }
 \seealso{

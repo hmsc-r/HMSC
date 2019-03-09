@@ -35,6 +35,9 @@ For Poisson models, the observed and predicted data are also subsetted to condit
 for which subset the root-mean-square error  and pseudo-R2 based on  squared spearman correlatio
 are computed (C.RMSE, C.SR2).
 
+The measures O.RMSE, O.AUC, O.TjurR2, C.RMSE and C.SR2 can be computed only if the option
+expected=FALSE has been used when making the predictions
+
 If the model involves a mixture of response variable types, the resulting measures of model fit
 contain NA:s for those response variables for which they cannot be computed.
 }
