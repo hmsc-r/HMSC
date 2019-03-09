@@ -21,10 +21,16 @@ createPartition = function(hM, nfolds=10, column=NULL){
       if(np < nfolds){
          stop("HMSC.createPartition: nfolds must be no bigger than number of units in specified random level")
       }
-      tmp1 = data.frame(col=unique(hM$studyDesign[,column]), partition=sample(rep(1:nfolds,ceiling(np/nfolds)),np))
-      colnames(tmp1)[1] = colnames(hM$studyDesign[,column,drop=FALSE])
-      tmp2 = merge(hM$studyDesign[,column,drop=FALSE], tmp1, all.x=TRUE, sort=FALSE)
-      part = tmp2$partition
+      level = hM$studyDesign[,column]
+      levels = unique(hM$studyDesign[,column])
+      partition1 = sample(rep(1:nfolds,ceiling(np/nfolds)),np)
+      part= rep(NA,hM$ny)
+      for (i in 1:nfolds){
+         sel = levels[partition1==i]
+         for (lev in sel){
+            part[level==lev] = i
+         }
+      }
    }
    else{
       part=sample(rep(1:nfolds,ceiling(hM$ny/nfolds)),hM$ny)

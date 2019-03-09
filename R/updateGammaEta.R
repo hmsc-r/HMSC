@@ -148,7 +148,7 @@ updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,
             W = iK + LamiDLam_PtP
             RW = chol(W)
 
-            iLW.LamiD_PtX = backsolve(RW, LamiD_PtX, transpose=TRUE)
+            iLW.LamiD_PtX = as.matrix(backsolve(RW, LamiD_PtX, transpose=TRUE))
             iDLamt_XtP.iW.LamiD_PtX = crossprod(iLW.LamiD_PtX)
             M = iA + kronecker(diag(id,ns),XtX) - iDLamt_XtP.iW.LamiD_PtX
             RM = chol(M)
@@ -165,13 +165,17 @@ updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,
 
             me10 = mg21
             me20 = LamiDLam_PtP %*% mg22
-            me30 = LamiD_PtX %*% mg32 - LamiDLam_PtP %*% backsolve(RW, iLW.LamiD_PtX %*% mg32)
+            me30 = LamiD_PtX %*% mg32 - LamiDLam_PtP %*% backsolve(RW, iLW.LamiD_PtX %*% mg32) # CHECK TYPE OF iLW.LamiD_PtX
             me = K %*% (me10 - me20 - me30)
 
             H = kronecker(iQ, iV) + as(kronecker(iD,XtX), "symmetricMatrix")
             iG1 = bdiag(iU, iK)
             iG2 = Matrix::crossprod(cbind(kronecker(iD05T,X), kronecker(iD05Lamt,P)))
-            iG3 = crossprod(backsolve(Matrix::chol(H), cbind(iDT_XtX, Matrix::t(LamiD_PtX)), transpose=TRUE))
+            tmp = backsolve(Matrix::chol(H), cbind(iDT_XtX, Matrix::t(LamiD_PtX)), transpose=TRUE)
+            iG3 = crossprod(tmp)
+            if(dim(iG3)[1]==1){
+               iG3 = crossprod(t(as.matrix(tmp)))
+            }
             iG = iG1 + iG2 - iG3
 
             m = as.vector(rbind(mg,me))
