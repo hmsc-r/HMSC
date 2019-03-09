@@ -10,12 +10,38 @@ evaluateModelFit(hM, predY)
 \item{predY}{array of predictions, typically posterior sample}
 }
 \value{
-
+a list of measures of model fit
 }
 \description{
 Computes several measures of model fit
 }
+\details{
+All measures of model fit are based on comparing posterior predictive distribution (\code{predY)})
+to observed values (\code{hM$Y}). The predicted distribution is first summarized to
+a single matrix of predicted values by taking the posterior mean (for normal and probit models)
+or posterior median (for Poisson models). All measures of model fit are given as vectors which have
+one value for each species.
+
+The types of measures of model fit depend on the type of response variable.
+For all types of response variables, root-mean-square error (RMSE) between predicted
+and observed values is computed.
+For normal models, R2 is computed as squared pearson
+correlation between observed and predicted values. For probit models, TjurR2 and AUC are
+computed. For Poisson models, a pseudo-R2 is computed as
+squared spearman correlation between observed and predicted values (SR2).
+For Poisson models, the observed and predicted data are also truncated to occurrences (presence-absences),
+for which the same measures are given as for the probit models (O.RMSE, O.AUC and O.TjurR2).
+For Poisson models, the observed and predicted data are also subsetted to conditional on presence,
+for which subset the root-mean-square error  and pseudo-R2 based on  squared spearman correlatio
+are computed (C.RMSE, C.SR2).
+
+If the model involves a mixture of response variable types, the resulting measures of model fit
+contain NA:s for those response variables for which they cannot be computed.
+}
 \examples{
+
+preds = computePredictedValues(m)
+MF = evaluateModelFit(hM=m, predY=preds)
 
 }
 \seealso{

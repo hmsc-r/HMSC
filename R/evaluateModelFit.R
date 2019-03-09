@@ -4,7 +4,30 @@
 #' @param predY array of predictions, typically posterior sample
 #'
 #'
-#' @return
+#' @return a list of measures of model fit
+#'
+#' @details All measures of model fit are based on comparing posterior predictive distribution (\code{predY)})
+#' to observed values (\code{hM$Y}). The predicted distribution is first summarized to
+#' a single matrix of predicted values by taking the posterior mean (for normal and probit models)
+#' or posterior median (for Poisson models). All measures of model fit are given as vectors which have
+#' one value for each species.
+#'
+#' The types of measures of model fit depend on the type of response variable.
+#' For all types of response variables, root-mean-square error (RMSE) between predicted
+#' and observed values is computed.
+#' For normal models, R2 is computed as squared pearson
+#' correlation between observed and predicted values. For probit models, TjurR2 and AUC are
+#' computed. For Poisson models, a pseudo-R2 is computed as
+#' squared spearman correlation between observed and predicted values (SR2).
+#' For Poisson models, the observed and predicted data are also truncated to occurrences (presence-absences),
+#' for which the same measures are given as for the probit models (O.RMSE, O.AUC and O.TjurR2).
+#' For Poisson models, the observed and predicted data are also subsetted to conditional on presence,
+#' for which subset the root-mean-square error  and pseudo-R2 based on  squared spearman correlatio
+#' are computed (C.RMSE, C.SR2).
+#'
+#' If the model involves a mixture of response variable types, the resulting measures of model fit
+#' contain NA:s for those response variables for which they cannot be computed.
+#'
 #'
 #'
 #' @seealso
@@ -12,117 +35,118 @@
 #'
 #' @examples
 #'
+#' preds = computePredictedValues(m)
+#' MF = evaluateModelFit(hM=m, predY=preds)
+#'
 #' @export
 
 evaluateModelFit = function(hM, predY){
 
-  computeRMSE = function(Y, predY){
-    ny=dim(Y)[1]
-    ns = dim(Y)[2]
-    RMSES = rep(NA,ns)
-    RMSEY = rep(NA,ny)
-    RMSEA = NA
-    for (i in 1:ns){
-      RMSES[i] = sqrt(mean((Y[,i]-predY[,i])^2, na.rm=TRUE))
-    }
-    for (i in 1:ny){
-      RMSEY[i] = sqrt(mean((Y[i,]-predY[i,])^2, na.rm=TRUE))
-    }
-    RMSEA=sqrt(mean((as.vector(Y)-as.vector(predY))^2, na.rm=TRUE))
-    RMSE = list(S=RMSES, Y=RMSEY, A=RMSEA)
-    return(RMSE)
-  }
+   computeRMSE = function(Y, predY){
+      ns = dim(Y)[2]
+      RMSE = rep(NA,ns)
+      for (i in 1:ns){
+         RMSE[i] = sqrt(mean((Y[,i]-predY[,i])^2, na.rm=TRUE))
+      }
+      return(RMSE)
+   }
 
-  computeR2 = function(Y, predY, method="pearson"){
-    ny=dim(Y)[1]
-    ns = dim(Y)[2]
-    R2S = rep(NA,ns)
-    R2Y = rep(NA,ny)
-    R2A = NA
-    for (i in 1:ns){
-      R2S[i] = cor(Y[,i], predY[,i], method=method, use='pairwise')^2
-    }
-    for (i in 1:ny){
-      R2Y[i] = cor(Y[i,], predY[i,], method=method, use='pairwise')^2
-    }
-    R2A=cor(as.vector(Y), as.vector(predY), method=method, use='pairwise')^2
-    R2 = list(S=R2S, Y=R2Y, A=R2A)
-    return(R2)
-  }
+   computeR2 = function(Y, predY, method="pearson"){
+      ns = dim(Y)[2]
+      R2 = rep(NA,ns)
+      for (i in 1:ns){
+         R2[i] = cor(Y[,i], predY[,i], method=method, use='pairwise')^2
+      }
+      return(R2)
+   }
 
-  computeAUC = function(Y, predY){
-    ny=dim(Y)[1]
-    ns = dim(Y)[2]
-    AUCS = rep(NA,ns)
-    AUCY = rep(NA,ny)
-    AUCA = NA
-    for (i in 1:ns){
-      if(length(unique(Y[,i]))==2) {AUCS[i] = auc(Y[,i],predY[,i])}
-    }
-    for (i in 1:ny){
-      if(length(unique(Y[i,]))==2) {AUCY[i] = auc(Y[i,],predY[i,])}
-    }
-    resp = as.vector(Y)
-    if (length(unique(resp))==2) {AUCA = auc(resp,as.vector(predY))}
-    AUC = list(S=AUCS, Y=AUCY, A=AUCA)
-    return(AUC)
-  }
+   computeAUC = function(Y, predY){
+      ns = dim(Y)[2]
+      AUC = rep(NA,ns)
+      for (i in 1:ns){
+         if(length(unique(Y[,i]))==2) {AUC[i] = auc(Y[,i],predY[,i])}
+      }
+      return(AUC)
+   }
 
-  computeTjurR2 = function(Y, predY){
-    ny=dim(Y)[1]
-    ns = dim(Y)[2]
-    R2S = rep(NA,ns)
-    R2Y = rep(NA,ny)
-    R2A = NA
-    for (i in 1:ns){
-      R2S[i] = mean(predY[Y[,i]==1,i]) - mean(predY[Y[,i]==0,i])
-    }
-    for (i in 1:ny){
-      R2Y[i] = mean(predY[i,Y[i,]==1]) - mean(predY[i,Y[i,]==0])
-    }
-    R2A = mean(as.vector(predY[as.vector(Y==1)])) - mean(as.vector(predY[as.vector(Y==0)]))
-    R2 = list(S=R2S, Y=R2Y, A=R2A)
-    return(R2)
-  }
+   computeTjurR2 = function(Y, predY){
+      ns = dim(Y)[2]
+      R2 = rep(NA,ns)
+      for (i in 1:ns){
+         R2[i] = mean(predY[Y[,i]==1,i]) - mean(predY[Y[,i]==0,i])
+      }
+      return(R2)
+   }
 
-  median2 = function(x){return (median(x,na.rm=TRUE))}
-  mean2 = function(x){return (mean(x,na.rm=TRUE))}
+   median2 = function(x){return (median(x,na.rm=TRUE))}
+   mean2 = function(x){return (mean(x,na.rm=TRUE))}
 
-  MF = NA
-  if(sum(hM$distr[,1]==3)==hM$ns){
-    mPredY = apply(abind(predY,along=3),c(1,2),median2)
-  } else {
-    mPredY = apply(abind(predY,along=3),c(1,2),mean2)
-  }
+   mPredY = matrix(NA, nrow=hM$ny, ncol=hM$ns)
+   sel = hM$distr[,1]==3
+   if (sum(sel)>0){
+      mPredY[,sel] = as.matrix(apply(abind(predY[,sel,,drop=F],along=3),c(1,2),median2))
+   }
+   sel = !hM$distr[,1]==3
+   if (sum(sel)>0){
+      mPredY[,sel] = as.matrix(apply(abind(predY[,sel,,drop=F],along=3),c(1,2),mean2))
+   }
 
-  if(sum(hM$distr[,1]==1)==hM$ns){
-    R2 = computeR2(hM$Y, mPredY)
-    RMSE = computeRMSE(hM$Y, mPredY)
-    MF = list(R2=R2, RMSE=RMSE)
-  }
+   RMSE = computeRMSE(hM$Y, mPredY)
+   R2 = NULL
+   AUC = NULL
+   TjurR2 = NULL
+   SR2 = NULL
+   O.AUC = NULL
+   O.TjurR2 = NULL
+   O.RMSE = NULL
+   C.SR2 = NULL
+   C.RMSE = NULL
 
-  if(sum(hM$distr[,1]==2)==hM$ns){
-    AUC = computeAUC(hM$Y, mPredY)
-    TjurR2 = computeTjurR2(hM$Y, mPredY)
-    RMSE = computeRMSE(hM$Y, mPredY)
-    MF = list(AUC=AUC, TjurR2=TjurR2, RMSE=RMSE)
-  }
+   sel = hM$distr[,1]==1
+   if (sum(sel)>0){
+      R2 = rep(NA,hM$ns)
+      R2[sel] = computeR2(hM$Y[,sel,drop=F],mPredY[,sel,drop=F])
+   }
 
-  if(sum(hM$distr[,1]==3)==hM$ns){
-    predO = 1*(predY>0)
-    mPredO = apply(abind(predO,along=3),c(1,2),mean2)
-    mPredCY = mPredY/mPredO
-    SR2 = computeR2(hM$Y, mPredY, method="spearman")
-    RMSE = computeRMSE(hM$Y, mPredY)
-    O.AUC = computeAUC(1*(hM$Y>0), mPredO)
-    O.TjurR2 = computeTjurR2(1*(hM$Y>0), mPredO)
-    O.RMSE = computeRMSE(1*(hM$Y>0), mPredO)
-    CY=hM$Y
-    CY[CY==0]=NA
-    C.SR2 = computeR2(CY, mPredCY, method="spearman")
-    C.RMSE = computeRMSE(CY, mPredCY)
-    MF = list(SR2=SR2, RMSE=RMSE, O.AUC=O.AUC, O.TjurR2=O.TjurR2, O.RMSE=O.RMSE, C.SR2=C.SR2, C.RMSE=C.RMSE)
-  }
+   sel = hM$distr[,1]==2
+   if (sum(sel)>0){
+      AUC = rep(NA,hM$ns)
+      TjurR2 = rep(NA,hM$ns)
+      AUC[sel] = computeAUC(hM$Y[,sel,drop=F], mPredY[,sel,drop=F])
+      TjurR2[sel] = computeTjurR2(hM$Y[,sel,drop=F], mPredY[,sel,drop=F])
+   }
 
-  return(MF)
+   sel = hM$distr[,1]==3
+   if (sum(sel)>0){
+      SR2 = rep(NA,hM$ns)
+      O.AUC = rep(NA,hM$ns)
+      O.TjurR2 = rep(NA,hM$ns)
+      O.RMSE = rep(NA,hM$ns)
+      C.SR2 = rep(NA,hM$ns)
+      C.RMSE = rep(NA,hM$ns)
+      SR2[sel] = computeR2(hM$Y[,sel,drop=F],mPredY[,sel,drop=F], method="spearman")
+      predO = 1*(predY[,sel,,drop=F]>0)
+      mPredO = as.matrix(apply(abind(predO,along=3),c(1,2),mean2))
+      O.AUC[sel] = computeAUC(1*(hM$Y[,sel,drop=F]>0),mPredO)
+      O.TjurR2[sel] = computeTjurR2(1*(hM$Y[,sel,drop=F]>0), mPredO)
+      O.RMSE[sel] = computeRMSE(1*(hM$Y[,sel,drop=F]>0), mPredO)
+      mPredCY = mPredY[,sel,drop=F]/mPredO
+      CY=hM$Y[,sel,drop=F]
+      CY[CY==0]=NA
+      C.SR2[sel] = computeR2(CY, mPredCY, method="spearman")
+      C.RMSE[sel] = computeRMSE(CY, mPredCY)
+   }
+
+   MF = list(RMSE=RMSE)
+   if (!is.null(R2)){MF$R2 = R2}
+   if (!is.null(AUC)){MF$AUC = AUC}
+   if (!is.null(TjurR2)){MF$TjurR2 = TjurR2}
+   if (!is.null(SR2)){MF$SR2 = SR2}
+   if (!is.null(O.AUC)){MF$O.AUC = O.AUC}
+   if (!is.null(O.TjurR2)){MF$O.TjurR2 = O.TjurR2}
+   if (!is.null(O.RMSE)){MF$O.RMSE = O.RMSE}
+   if (!is.null(C.SR2)){MF$C.SR2 = C.SR2}
+   if (!is.null(C.RMSE)){MF$C.RMSE = C.RMSE}
+
+   return(MF)
 }
