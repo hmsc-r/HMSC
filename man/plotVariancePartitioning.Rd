@@ -7,13 +7,17 @@
 plotVariancePartitioning(hM, VP, ...)
 }
 \arguments{
+\item{hM}{A fitted HMSC model}
+
+\item{VP}{A HMSC variance partitioning produced by `HMSC::computeVariancePartitioning`}
+
 \item{...}{other parameters passed to the barplot function}
 }
 \value{
 
 }
 \description{
-Plots ...
+Plots the results of variance partitioning of a HMSC model produced by `HMSC::computeVariancePartitioning` as a barplot
 }
 \examples{
 
