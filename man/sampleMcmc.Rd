@@ -6,7 +6,8 @@
 \usage{
 sampleMcmc(hM, samples, transient = 0, thin = 1, initPar = NULL,
   verbose = samples * thin/100, adaptNf = rep(transient, hM$nr),
-  nChains = 1, nParallel = 1, dataParList = NULL, updater = list())
+  nChains = 1, nParallel = 1, dataParList = NULL, updater = list(),
+  fromPrior = FALSE)
 }
 \arguments{
 \item{samples}{the number of MCMC samples to be obtained in each chain}
@@ -30,6 +31,8 @@ factors is conducted}
 parameters}
 
 \item{updater}{a named list, specifying which conditional updaters should be ommitted}
+
+\item{fromPrior}{whether prior (TRUE) or posterior (FALSE) is to be sampled}
 }
 \value{
 an \class{Hmsc}-class object with chains of posterior samples added to the \code{postList} field

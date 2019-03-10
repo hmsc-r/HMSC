@@ -14,6 +14,7 @@
 #' @param dataParList a named list with pre-computed \code{Qg}, \code{iQg}, \code{RQg}, \code{detQg}, \code{rLPar}
 #'   parameters
 #' @param updater a named list, specifying which conditional updaters should be ommitted
+#' @param fromPrior whether prior (TRUE) or posterior (FALSE) is to be sampled
 #'
 #' @return an \class{Hmsc}-class object with chains of posterior samples added to the \code{postList} field
 #'
@@ -55,7 +56,12 @@
 #'
 #' @export
 
-sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, verbose=samples*thin/100, adaptNf=rep(transient,hM$nr), nChains=1, nParallel=1, dataParList=NULL, updater=list()){
+sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
+                      verbose=samples*thin/100, adaptNf=rep(transient,hM$nr),
+                      nChains=1, nParallel=1, dataParList=NULL, updater=list(),
+                      fromPrior = FALSE){
+   if(fromPrior)
+      nParallel = 1
    force(adaptNf)
    if(nParallel > nChains){
       warning('number of cores cannot be more than number of chains')
@@ -211,12 +217,19 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL, verbose=sa
          library(Hmsc)})
       hM$postList = clusterApplyLB(cl, 1:nChains, fun=sampleChain)
       stopCluster(cl)
-   } else{
+   } else {
       for(chain in 1:nChains){
-         hM$postList[[chain]] = sampleChain(chain)
+         if (fromPrior){
+            postList = vector("list", samples)
+            for (iter in 1:samples){
+               postList[[iter]] = samplePrior(hM,dataParList = dataParList)
+            }
+            hM$postList[[chain]] = postList
+         } else {
+            hM$postList[[chain]] = sampleChain(chain)
+         }
       }
    }
-
 
    hM$samples = samples
    hM$transient = transient

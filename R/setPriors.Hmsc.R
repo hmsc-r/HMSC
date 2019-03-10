@@ -2,8 +2,8 @@
 #'
 #' @description Sets or resets priors to the Hmsc object
 #'
-#' @param V0 scale matrix in the Wishart prior distribution for the Beta parameters
-#' @param f0 number of degreees of freedom in the Wishart prior distribution for the Beta parameters
+#' @param V0 scale matrix in the Wishart prior distribution for the V matrix
+#' @param f0 number of degreees of freedom in the Wishart prior distribution for the V matrix
 #' @param mGamma mean for the prior multivariate Gaussian distribution for Gamma parameters
 #' @param UGamma covariance matrix for the prior multivariate Gaussian distribution for Gamma parameters
 #' @param aSigma

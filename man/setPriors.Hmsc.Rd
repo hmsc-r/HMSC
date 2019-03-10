@@ -10,9 +10,9 @@
   setDefault = FALSE)
 }
 \arguments{
-\item{V0}{scale matrix in the Wishart prior distribution for the Beta parameters}
+\item{V0}{scale matrix in the Wishart prior distribution for the V matrix}
 
-\item{f0}{number of degreees of freedom in the Wishart prior distribution for the Beta parameters}
+\item{f0}{number of degreees of freedom in the Wishart prior distribution for the V matrix}
 
 \item{mGamma}{mean for the prior multivariate Gaussian distribution for Gamma parameters}
 
