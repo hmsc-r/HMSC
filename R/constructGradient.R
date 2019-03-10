@@ -1,19 +1,35 @@
 #' @title hM$sc$constructGradient
 #'
-#' @description Computes ...
+#' @description Constructs an environmental gradient over one of the variables included in \code{XData}
 #' @param focalVariable
 #' @param non.focalVariable
 #' @param ngrid
 #'
 #'
-#' @return
+#' @return a named list with members \code{XDataNew}, \code{studyDesignNew} and \code{rLNew}
 #'
+#' @details
+#'
+#' non.focalVariables is a list, of which each element is of form variable=list(type,value).
+#' where variable is one of the non-focal variables, and the value is needed only if type = 3
+#' type = 1 sets the values of the non-focal variable
+#' to the most likely value (defined as expected value for covarites, mode for factors)
+#' type = 2 sets the values of the non-focal variable to most likely value, given the value of focal variable,
+#' based on linear relationship
+#' type = 3 fixes to the value given.
+#' if a non.focalVariable is not listed, type=2 is used as default
+#' note that if focal variable is continuous, selecting type 2 for a non-focal categorical variable can cause abrupt changes in response
 #'
 #' @seealso
 #'
+#' \code{\link{plotGradient}}
 #'
 #' @examples
 #'
+#' Gradient = constructGradient(hM=m, focalVariable="x2", non.focalVariables=list(x1=list(3,1),x3=list(1)))
+#' predY = predict(m, XData=Gradient$XDataNew, studyDesign=Gradient$studyDesignNew, ranLevels=Gradient$rLNew)
+#' plotGradient(m, Gradient, pred=predY, measure="S")
+
 #' @export
 
 constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid=20){
