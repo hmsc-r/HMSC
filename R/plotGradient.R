@@ -112,11 +112,6 @@ plotGradient=function (hM, Gradient, pred, measure, index = 1, prob = c(0.025, 0
       plot(pl)
    } else {
       plot(xx, qpred[2, ], ylim = c(lo1, hi1), type = "l", xlab = xlabel, ylab = ylabel, ...)
-      polygon(c(xx, rev(xx)), c(qpred[1, ], rev(qpred[3, ])),
-              col = "grey75", border = FALSE)
-      lines(xx, qpred[2, ], lwd = 2)
-      lines(xx, qpred[1, ], col = "red", lty = 2)
-      lines(xx, qpred[3, ], col = "red", lty = 2)
       if(showData){
          if (jigger>0){
             de=(hi1-lo1)*jigger
@@ -125,6 +120,9 @@ plotGradient=function (hM, Gradient, pred, measure, index = 1, prob = c(0.025, 0
          dataToPlot = cbind(pX,pY)
          points(dataToPlot)
       }
+      polygon(c(xx, rev(xx)), c(qpred[1, ], rev(qpred[3, ])),
+              col = rgb(0,0,1,alpha=.5), border = FALSE)
+      lines(xx, qpred[2, ], lwd = 2)
 
    }
 }
