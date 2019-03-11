@@ -118,7 +118,7 @@ plotGradient=function (hM, Gradient, pred, measure, index = 1, prob = c(0.025, 0
             pY = lo1 + de + (hi1-lo1-2*de)*(pY-lo1)/(hi1-lo1) + runif(n =length(pY),min = -jigger, max = jigger)
          }
          dataToPlot = cbind(pX,pY)
-         points(dataToPlot)
+         points(dataToPlot, pch = 16, col = "lightgrey")
       }
       polygon(c(xx, rev(xx)), c(qpred[1, ], rev(qpred[3, ])),
               col = rgb(0,0,1,alpha=.5), border = FALSE)
