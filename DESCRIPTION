@@ -24,6 +24,7 @@ Depends:
    nnet,
    parallel,
    pROC,
+   ggplot2,
    phytools,
    tensorA,
    truncnorm,

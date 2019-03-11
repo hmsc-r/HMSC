@@ -5,20 +5,50 @@
 \title{Hmsc$plotGradient}
 \usage{
 plotGradient(hM, Gradient, pred, measure, index = 1, prob = c(0.025,
-  0.5, 0.975), ...)
+  0.5, 0.975), showData = FALSE, jigger = 0, ...)
 }
 \arguments{
-\item{prob}{}
+\item{Gradient}{an object returned by the function \code{\link{constructGradient}}}
+
+\item{pred}{an object returned by applying the function \code{\link{predict}} to \code{Gradient}}
+
+\item{measure}{whether plotted is species richness ("S"), an individual species ("Y") or community-weighted mean trait ("T")}
+
+\item{index}{which species or trait is plotted}
+
+\item{prob}{quantiles of the credibility interval plotted}
+
+\item{showData}{whether raw data are plotted as well}
+
+\item{jigger}{the amount by which the raw data are to be jiggered in x-direction (for factors) or y-direction (for continuous covariates)}
 }
 \value{
 
 }
 \description{
-Plots ...
+Plots an environmental gradient over one of the variables included in \code{XData}
+}
+\details{
+For \code{measure}="Y", \code{index} selects which species to plot from \code{hM$spNames}.
+For \code{measure}="T", \code{index} selects which trait to plot from \code{hM$trNames}.
+Whith \code{measure}="S" plotted is the row sum of \code{pred},
+and thus the interpretation of "species richness" holds only for probit models.
+For Poisson models "S" shows the total count,
+whereas for normal models it shows the summed response.
+For \code{measure}="T",
+in probit model the weighting is over species occurrences,
+whereas in count models it is over individuals.
+In normal models, some of the weights can be negative,
+and thus interpretation is not straightforward.
 }
 \examples{
 
+Gradient = constructGradient(hM=m, focalVariable="x1")
+predY = predict(m, XData=Gradient$XDataNew, studyDesign=Gradient$studyDesignNew, ranLevels=Gradient$rLNew)
+plotGradient(m, Gradient, pred=predY, measure="S")
+plotGradient(m, Gradient, pred=predY, measure="Y", index = 2, showData = TRUE, jigger = 0.05)
+
 }
 \seealso{
-
+\code{\link{constructGradient}}, \code{\link{predict}}
 }

@@ -8,10 +8,14 @@ constructGradient(hM, focalVariable, non.focalVariables = list(),
   ngrid = 20)
 }
 \arguments{
-\item{ngrid}{}
+\item{focalVariable}{focal variable over which the gradient is constructed}
+
+\item{ngrid}{number of points along the gradient (for continuous focal variable)}
+
+\item{non.focalVariable}{assumptions on how non-focal variables co-vary with the focal variable}
 }
 \value{
-a named list with members \code{XDataNew}, \code{studyDesignNew} and \code{LNew}
+a named list with members \code{XDataNew}, \code{studyDesignNew} and \code{rLNew}
 }
 \description{
 Constructs an environmental gradient over one of the variables included in \code{XData}
@@ -34,5 +38,5 @@ predY = predict(m, XData=Gradient$XDataNew, studyDesign=Gradient$studyDesignNew,
 plotGradient(m, Gradient, pred=predY, measure="S")
 }
 \seealso{
-\code{\link{plotGradient}}
+\code{\link{plotGradient}}, \code{\link{predict}}
 }

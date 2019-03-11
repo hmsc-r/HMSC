@@ -1,9 +1,9 @@
 #' @title hM$sc$constructGradient
 #'
 #' @description Constructs an environmental gradient over one of the variables included in \code{XData}
-#' @param focalVariable
-#' @param non.focalVariable
-#' @param ngrid
+#' @param focalVariable focal variable over which the gradient is constructed
+#' @param non.focalVariable assumptions on how non-focal variables co-vary with the focal variable
+#' @param ngrid number of points along the gradient (for continuous focal variable)
 #'
 #'
 #' @return a named list with members \code{XDataNew}, \code{studyDesignNew} and \code{rLNew}
@@ -22,7 +22,7 @@
 #'
 #' @seealso
 #'
-#' \code{\link{plotGradient}}
+#' \code{\link{plotGradient}}, \code{\link{predict}}
 #'
 #' @examples
 #'
