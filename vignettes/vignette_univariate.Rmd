@@ -58,30 +58,30 @@ To fit the analogous model with HMSC, we first construct the model as
 ```{r}
 Y=as.matrix(y)
 XData = data.frame(x=x)
-m.hmsc = Hmsc(Y=Y, XData=XData, XFormula=~x)
+m = Hmsc(Y=Y, XData=XData, XFormula=~x)
 ```
 
 While the `lm` function constructs the model and fits it at the same time, the `Hmsc` function only constructs the model object. To fit the model (with Bayesian inference), we write
 
 ```{r}
-m.hmsc = sampleMcmc(m.hmsc, thin = 2, samples = 1000, transient = 500,
+m = sampleMcmc(m, thin = 2, samples = 1000, transient = 500,
                     nChains = 2, verbose = 500)
 ```
 
-Here we have selected some parameters (`thin`, `samples`, `transient`, `nChains`) that control how the parameters are estimated (more precisely, how the posterior distribution is sampled). We will ignore these for a moment but return to their meaning soon. The main thing is that now the model object `m.hmsc` also included estimated parameters, in the same way as the object `m.lm` includes the parameters estimated by the `lm` function.
+Here we have selected some parameters (`thin`, `samples`, `transient`, `nChains`) that control how the parameters are estimated (more precisely, how the posterior distribution is sampled). We will ignore these for a moment but return to their meaning soon. The main thing is that now the model object `m` also included estimated parameters, in the same way as the object `m.lm` includes the parameters estimated by the `lm` function.
 
 To see the parameter estimates, we may e.g. extract the posterior distribution from the model object and convert it as a coda object. 
 
 ```{r}
-mpost = convertToCodaObject(m.hmsc)
+mpost = convertToCodaObject(m)
 summary(mpost$Beta)
 ```
 
 To assess model fit in terms of $R^2$, we can first computed the posterior predictive distribution, and then evaluate the model fit with the help of that.
 
 ```{r}
-preds.hmsc.posterior = computePredictedValues(m.hmsc)
-evaluateModelFit(hM=m.hmsc, predY=preds.hmsc.posterior)
+preds.hmsc.posterior = computePredictedValues(m)
+evaluateModelFit(hM=m, predY=preds.hmsc.posterior)
 ```
 
 Note that the parameter estimates and $R^2$ given by HMSC are consisted with those given by the lm function. We however note that the two approaches are not identical as lm applies the maximum likelihood framework (and thus e.g. yields confidence intervals) whereas HMSC applies the Bayesian framework (and thus e.g. assumes prior distributions and yields credible intervals). The other measure of model fit 'RMSE' refer to root-mean-square error.
@@ -141,13 +141,13 @@ These diagnostic plots are essentially identical to those obtained for the linea
 While many kinds of generalized linear models is quite straightforward in the univariate framework, the multivariate and hierarchical nature of HMSC makes it quite challenging to implement link functions and error distributions. For this reason, HMSC-R 3.0 allows only four types of response variables. The first one is the assumption of linear model with normally distributed residuals. As this has been set as the default option, we defined our model above simply as
 
 ```{r}
-m.hmsc = Hmsc(Y=Y, XData=XData, XFormula=~x)
+m = Hmsc(Y=Y, XData=XData, XFormula=~x)
 ```
 
 whereas the full version that makes the assumption of normality transparent would be
 
 ```{r}
-m.hmsc = Hmsc(Y=Y, XData=XData, XFormula=~x, distr = "normal")
+m = Hmsc(Y=Y, XData=XData, XFormula=~x, distr = "normal")
 ```
 
 ## Probit model for presence-absence data
@@ -158,15 +158,15 @@ A very typical case with community data is that of presence-absence data, in whi
 y = 1*(L+ rnorm(n, sd = 1)>0)
 plot(x,y)
 Y=as.matrix(y)
-m.hmsc = Hmsc(Y=Y, XData=XData, XFormula=~x, distr="probit")
-m.hmsc = sampleMcmc(m.hmsc, thin = 2, samples = 1000, transient = 500,
+m = Hmsc(Y=Y, XData=XData, XFormula=~x, distr="probit")
+m = sampleMcmc(m, thin = 2, samples = 1000, transient = 500,
                     nChains = 2, verbose = 500)
-mpost = convertToCodaObject(m.hmsc)
+mpost = convertToCodaObject(m)
 summary(mpost$Beta)
 effectiveSize(mpost$Beta)
 gelman.diag(mpost$Beta,multivariate=FALSE)$psrf
-preds.hmsc.posterior = computePredictedValues(m.hmsc)
-evaluateModelFit(hM=m.hmsc, predY=preds.hmsc.posterior)
+preds.hmsc.posterior = computePredictedValues(m)
+evaluateModelFit(hM=m, predY=preds.hmsc.posterior)
 ```
 
 Compared to the case of the linear model, we observe that the effective sample size is somewhat (achieving MCMC convergence is generally more challenging in non-normal models), and the parameter estimates include more uncertainty (0/1 data are less informative than normally distributed data). We further note that instead of the $R^2$ of the linear model, model fit is now evaluated in terms of `AUC` and Tjur $R^2$.
@@ -179,15 +179,15 @@ Another typical case with community data is that of count data, in which case th
 y = y = rpois(n, lambda = exp(L))
 plot(x,y)
 Y=as.matrix(y)
-m.hmsc = Hmsc(Y=Y, XData=XData, XFormula=~x, distr="poisson")
-m.hmsc = sampleMcmc(m.hmsc, thin = 2, samples = 1000, transient = 500,
+m = Hmsc(Y=Y, XData=XData, XFormula=~x, distr="poisson")
+m = sampleMcmc(m, thin = 2, samples = 1000, transient = 500,
                     nChains = 2, verbose = 500)
-mpost = convertToCodaObject(m.hmsc)
+mpost = convertToCodaObject(m)
 summary(mpost$Beta)
 effectiveSize(mpost$Beta)
 gelman.diag(mpost$Beta,multivariate=FALSE)$psrf
-preds.hmsc.posterior = computePredictedValues(m.hmsc, expected = FALSE)
-evaluateModelFit(hM=m.hmsc, predY=preds.hmsc.posterior)
+preds.hmsc.posterior = computePredictedValues(m, expected = FALSE)
+evaluateModelFit(hM=m, predY=preds.hmsc.posterior)
 ```
 
 In this case, the MCMC diagnostics are much worse than for the probit model. Unfortunately, achieving mixing for Poisson model in the HMSC context is highly challenging. To get results that can be trusted, one should increase the thinning and run the model longer.
@@ -203,15 +203,15 @@ The Poisson model is often not a good model for ecological count data as it does
 y = rpois(n, lambda = exp(L+rnorm(n, sd=2)))
 plot(x,y)
 Y=as.matrix(y)
-m.hmsc = Hmsc(Y=Y, XData=XData, XFormula=~x, distr="lognormal poisson")
-m.hmsc = sampleMcmc(m.hmsc, thin = 2, samples = 1000, transient = 500,
+m = Hmsc(Y=Y, XData=XData, XFormula=~x, distr="lognormal poisson")
+m = sampleMcmc(m, thin = 2, samples = 1000, transient = 500,
                     nChains = 2, verbose = 500)
-mpost = convertToCodaObject(m.hmsc)
+mpost = convertToCodaObject(m)
 summary(mpost$Beta)
 effectiveSize(mpost$Beta)
 gelman.diag(mpost$Beta,multivariate=FALSE)$psrf
-preds.hmsc.posterior = computePredictedValues(m.hmsc, expected = FALSE)
-evaluateModelFit(hM=m.hmsc, predY=preds.hmsc.posterior)
+preds.hmsc.posterior = computePredictedValues(m, expected = FALSE)
+evaluateModelFit(hM=m, predY=preds.hmsc.posterior)
 ```
 
 We note that the output is similar to that given for the standard Poisson model.
@@ -222,9 +222,162 @@ Ecological data are often dominated by zeros, i.e. they are zero-inflated. HMSC 
 
 ## How to select the best model?
 
-When fitting generalized linear models with the maximum likelihood framework, a common way of comparing models is to use AIC. For example, in case of count data, AIC could be used to compare the Poisson model, the Negative Binomial model, and the Zero-Inflated Poisson model. In case of HMSC-R, model selection is recommended to be conducted through evaluating predictive performance through cross-validation approaches. We refer to the more advanced vignettes for how to do so in practice.
+When fitting generalized linear models with the maximum likelihood framework, a common way of comparing models is to use AIC. For example, in case of count data, AIC could be used to compare the Poisson model, the Negative Binomial model, and the Zero-Inflated Poisson model. In case of HMSC-R, model selection is recommended to be conducted through evaluating predictive performance through cross-validation approaches. We illustrate cross-validation strategies below in the context of mixed models.
 
-# Mixed models
+# Random effects
 
-xxx
+We next turn to mixed models, i.e. models with both fixed and random effects. For simplicity, we consider here linear models only, even if similar analyses could be done with probit, Poisson or log-normal Poisson models.
 
+## Hierarchical structure: sampling units within plots
+
+We first consider a hierarhical study design in which 100 sampling units belong to a discrete set of `np=10`plots. We assume that the plots have an additive effect to the response variable.
+
+```{r}
+   n = 100
+   x = rnorm(n)
+   alpha = 0
+   beta = 1
+   sigma = 1
+   L = alpha + beta*x
+   np = 10
+   sigma.plot = 1
+   sample.id = 1:n
+   plot.id = sample(1:np,n,replace = TRUE)
+   ap = rnorm(np, sd = sigma.plot)
+   a = ap[plot.id]
+   y = L + a + rnorm(n, sd = sigma)
+   plot.id = as.factor(plot.id)
+   plot(x,y,col=plot.id)
+```
+
+With the maximum likelihood framework, one standard option for fitting a mixed model to these data would be to apply the `lmer`function as `lmer(y~x+(1|plot.id),data=da)`. Fitting a similar model with HMSC can be done as follows. 
+
+```{r}
+Y=as.matrix(y)
+XData = data.frame(x=x)
+
+studyDesign = data.frame(sample = as.factor(sample.id), plot = as.factor(plot.id))
+rL = HmscRandomLevel(units = studyDesign$plot)
+rL$nfMin = 1
+rL$nfMax = 1
+m = Hmsc(Y=Y, XData=XData, XFormula=~x, studyDesign=studyDesign, ranLevels=list("plot"=rL))
+m = sampleMcmc(m, thin = 1, samples = 1000, transient = 500,
+                    nChains = 1, verbose = 500)
+```
+
+Here we have included two new input parameters. First, `studyDesign` defines the nature of the study design, here the individuals sampling units and and the plots to which the sampling units belong to. Second, `ranLevels` includes a list of those structures of the study design to which a random effect will be included, here the plot. The object `rL` was created with the function `HmscRandomLevel` assuming the default options except that with `rL$nfMin = 1`and `rL$nfMax = 1` we have fixed the number of the underlying latent factors to one. This is because we assume a univariate model, and thus it is not meaningful to have several latent variables. In usual applications of HMSC, the data are multivariate, and the latent factor approach is used to reduce the dimensionality by having a much smaller number of latent factors than what is the number of species.
+
+Note that we have decreased here the MCMC sampling by including only a single chain with thinning of 1. This is not at all recommended, as it prevents comparison among chains and compromises the reliability of the results. We have done so only to make the markdown file behind the vignette to evaluate fast so that the reader can reproduce the results without too much waiting.
+
+Let us then evaluate model fit as we have done above.
+
+```{r}
+preds = computePredictedValues(m)
+MF = evaluateModelFit(hM=m, predY=preds)
+MF$R2
+```
+
+What is predicted here are the same data that were used to fit the model, and thus $R^2$ measures explanatory power rather than predictive power. If we would add more predictors, we could make $R^2$ approach to one even if the predictors would represent just random noise, which phenomenon is known as overfitting. For this reason, the preditive power of the model should be evaluated more critically by cross-validation. To apply cross-validation, we first assing the samples into a number of folds. For example, we may apply two-fold cross-validation across the samples by making the following partition
+
+```{r}
+partition = createPartition(m, nfolds = 2, column = "sample")
+partition
+```
+
+The idea of cross-validation is that when making predictions for a particular fold, data from that fold is not used for parameter estimation to avoid good model fit due to overfitting. Model fitting and predictions are made separately for each fold, so that in the end a prediction is obtained for each sampling unit.
+
+```{r}
+preds = computePredictedValues(m,partition=partition)
+MF = evaluateModelFit(hM=m, predY=preds)
+MF$R2
+```
+
+As expected, the cross-validation based predictive $R^2$ is lower than the explanatory $R^2$. However, it is still relatively high, meaning that the model has substantial power to predict the value of the response variable $y$ in a sampling unit not seen when when fitting the model to training data.
+
+Making the two-fold cross-validation required fitting the model twice, and more generally performing an k-fold cross-validation requires fitting the model k times, s it can be computationally intensive. For this reason, we have applied here two-fold cross-validation rather than e.g. leave-one-out cross-validation. Increasing the number of folds means that more data are available for fitting the model, which can be expected to lead to greater predictive performance. In this sense, the predictive power estimated by two-fold cross-validation is likely to underestimate the true predictive power of the model when fitted to all data.
+
+Cross-validation can be made in many ways, and how exactly it should be done depends on which aspect of predictive power one wishes to measure. To illustrate, let us partition the plots rather than the sampling units into different folds.
+
+```{r}
+partition = createPartition(m, nfolds = 2, column = "plot")
+t(cbind(plot.id,partition)[1:15,])
+```
+
+As seen by examining the correspondence between plots and the partition (shown here for the first 15 samplig units), now all sampling units for a certain plot have been included in the same fold.
+
+```{r}
+preds = computePredictedValues(m,partition=partition)
+MF = evaluateModelFit(hM=m, predY=preds)
+MF$R2
+```
+The predictive power of the model is smaller when assigning entire plots rather than individual sampling units into folds. This is because the prediction task is now more difficult: when making a prediction for a particular sampling unit, the model was now fitted without including data from any other sampling units from the same plot. Thus it has no possibility to estimate the actual random effect for the focal plot, and thus now predictive power is based solely on the fixed effects.
+
+## Spatial structure: including coordinates of sampling units
+
+We next consider spatial data by assuming that each sampling unit is associated with two-dimensional spatial coordinates. We generate the data by assuming a spatially structured residual with exponentially decreasing spatial covariance function.
+
+```{r}
+   sigma.spatial = 1
+   alpha.spatial = 1
+   xycoords = matrix(runif(2*n), ncol=2)
+   rownames(xycoords) = sample.id
+   colnames(xycoords) = c("x-coordinate","y-coordinate")
+   a = mvrnorm(mu=rep(0,n),Sigma = sigma.spatial*exp(-as.matrix(dist(xycoords))/alpha.spatial))
+   L = L + a
+   y = L + a + rnorm(n, sd = sigma)
+   colfunc = colorRampPalette(c("cyan", "red"))
+   ncols = 100
+   cols = colfunc(100)
+   for (i in 1:2){
+      if (i==1) value = x
+      if (i==2) value = y
+      value = value-min(value)
+      value = 1+(ncols-1)*value/max(value)
+      plot(xycoords[,1],xycoords[,2],col=cols[value],pch=16,main=c("x","y")[i])
+   }
+```
+
+The spatial structure are visible in the data by nearby sampling units having similar responses `y`, even if the predictor `x` is not (due to our assumptions) spatially autocorrelated.
+
+To fit a spatial model with HMSC, we construct the random effect using the sData input argument.
+
+```{r}
+studyDesign = data.frame(sample = as.factor(sample.id))
+rL = HmscRandomLevel(sData = as.data.frame(xycoords))
+rL$nfMin = 1
+rL$nfMax = 1
+m = Hmsc(Y=Y, XData=XData, XFormula=~x, studyDesign=studyDesign, ranLevels=list("sample"=rL))
+```
+
+Again, we fixed the number of latent factors to one because we consider here a univariate model. Model fitting and evaluation of explanatory and predictive powers can be done as usually.
+
+```{r}
+m = sampleMcmc(m, thin = 1, samples = 1000, transient = 500,
+                    nChains = 1, verbose = 500)
+preds = computePredictedValues(m)
+MF = evaluateModelFit(hM=m, predY=preds)
+MF$R2
+```
+
+```{r}
+partition = createPartition(m, nfolds = 2, column = "sample")
+preds = computePredictedValues(m,partition=partition)
+MF = evaluateModelFit(hM=m, predY=preds)
+MF$R2
+```
+
+As the model includes a spatially structured random effects, its predictive power is based on both the fixed and the random effects. Concerning the latter, the model can utilize observed data from nearby sampling units included in model fitting when predicting the response for a focal sampling unit that is not included in model fitting.
+
+For comparison, let us fit a non-spatial model to the same data.
+
+```{r}
+m = Hmsc(Y=Y, XData=XData, XFormula=~x)
+m = sampleMcmc(m, thin = 1, samples = 1000, transient = 500,
+                    nChains = 1, verbose = 500)
+MF$R2
+preds = computePredictedValues(m,partition=partition)
+MF = evaluateModelFit(hM=m, predY=preds)
+MF$R2
+```
+
+We observe that both the explanatory as well as the predictive power is lower than for the model with a spatial random effect.

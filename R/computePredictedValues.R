@@ -75,7 +75,8 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
          hM1$distr = hM$distr
          # HOW TO BETTER SET THE DISTRIBUTION?
          # NEED TO INHERIT PRIORS, SCALINGS ETC. FROM hM
-         hM1 = sampleMcmc(hM1, samples=hM$samples, thin=hM$thin, transient=hM$transient, adaptNf=hM$adaptNf, initPar=initPar, nChains=length(hM$postList), nParallel=nParallel)
+         hM1 = sampleMcmc(hM1, samples=hM$samples, thin=hM$thin, transient=hM$transient, adaptNf=hM$adaptNf,
+                          initPar=initPar, nChains=length(hM$postList), nParallel=nParallel, verbose = hM$verbose)
          postList = poolMcmcChains(hM1$postList, start=start)
          dfPi = as.data.frame(matrix(NA,sum(val),hM$nr))
          colnames(dfPi) = hM$rLNames

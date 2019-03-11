@@ -234,6 +234,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
    hM$samples = samples
    hM$transient = transient
    hM$thin = thin
+   hM$verbose = verbose
    hM$adaptNf = adaptNf
 
    return(hM)
