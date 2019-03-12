@@ -64,11 +64,11 @@ m = Hmsc(Y=Y, XData=XData, XFormula=~x)
 While the `lm` function constructs the model and fits it at the same time, the `Hmsc` function only constructs the model object. To fit the HMSC model with Bayesian inference, we use the `sampleMcmc` function.
 
 ```{r}
-thin = 2
 nChains = 2
-samples = 500
-transient = 250
-verbose = 250
+thin = 5
+samples = 1000
+transient = 500
+verbose = 500
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
                     nChains = nChains, verbose = verbose)
 ```
