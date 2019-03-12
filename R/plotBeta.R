@@ -1,20 +1,19 @@
 #' @title plotBeta
 #'
-#' @description Plots betas
-#' @param post
-#' @param param
-#' @param plotTree
-#' @param SpeciesOrder
-#' @param SpVector
-#' @param covOrder
-#' @param covVector
-#' @param spNamesNumbers
-#' @param covNamesNumbers
-#' @param supportLevel
-#' @param split
-#' @param cex
+#' @description Plots heatmaps of parameter estimates or posterior support values of species' environmental responses, i.e. how species in \code{Y} responds to covariates in \code{X}
+#' @param post Posterior summary of Beta parameters obtained from \code{\link{getPostEstimate}}
+#' @param param Controls which parameter is plotted, current options include "Beta" for parameter estimates and "Support" for posterior support
+#' @param plotTree Logical. Whether species' environmental responses is to be mapped onto the phylogeny used in model fitting
+#' @param SpeciesOrder Controls the ordering of species, current options are "Original", "Tree", and "Vector". If SpeciesOrder = "Vector", an ordering vector must be provided (see SpVector). If plotTree = T, SpeciesOrder is ignored
+#' @param SpVector Controls the ordering of species if SpeciesOrder = "Vector". If a subset of species are listed, only those will be plotted. For alphabetic ordering, try \code{match(1:hM$ns, as.numeric(as.factor(colnames(hM$Y))))}
+#' @param covOrder Controls the ordering of covariates, current options are "Original" and "Vector". If covOrder = "Vector", an ordering vector must be provided (see covVector)
+#' @param covVector Controls the ordering of covariates if covOrder = "Vector". If a subset of covariates are listed, only those will be plotted
+#' @param spNamesNumbers Logical of length 2, where first entry controls whether species names are added to axes, and second entry controls whether species numbers are added
+#' @param covNamesNumbers Logical of length 2, where first entry controls whether covariate names are added to axes, and second entry controls whether covariate numbers are added
+#' @param supportLevel Controls threshold posterior support for plotting
+#' @param split If plotTree = T, controls the division of the plotting window between the tree and the heatmap.
+#' @param cex Controls character expansion (font size). Three values, controlling covariate names, species names, and color legend axis labels
 #'
-#' @notes developed by Oystein
 #'
 #' @return
 #'
@@ -24,6 +23,9 @@
 #'
 #' @examples
 #'
+#' betaPost=getPostEstimate(hM, "Beta")
+#' plotBeta(hM, post = betaPost, param = "Support)
+#'
 #' @export
 
 
@@ -31,7 +33,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
   SpeciesOrder = "Original", SpVector = NULL, covOrder="Original",
   covVector=NULL, spNamesNumbers = c(T,T), covNamesNumbers = c(T,T),
   supportLevel = 0.9, split = 0.3, cex = c(0.7,0.7,0.8)){
-  
+
 
   switch(class(hM$X),
          matrix = {
@@ -40,7 +42,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
          list = {
            ncolsX = ncol(hM$X[[1]])
          }
-  )  
+  )
 
    if(plotTree){
       tree = hM$phyloTree
