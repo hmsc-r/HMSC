@@ -4,8 +4,8 @@ title:  |
 author: "Gleb Tikhonov, Oystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen & Otso Ovaskainen"
 date: "11 March 2019"
 output:
-  word_document: default
   pdf_document: default
+  word_document: default
   html_document: default
 ---
 
@@ -59,9 +59,9 @@ Thus, with the XFormula, we have specified that we assume additive effects of th
 
 ```{r}
 nChains = 2
-thin = 1
-samples = 100
-transient = 50
+thin = 10
+samples = 1000
+transient = 500
 verbose = 0
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
                     nChains = nChains, verbose = verbose)
