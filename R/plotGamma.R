@@ -1,16 +1,16 @@
-#' @title plotBeta
+#' @title plotGamma
 #'
-#' @description Plots betas
-#' @param post
-#' @param param
-#' @param trOrder
-#' @param trVector
-#' @param covOrder
-#' @param covVector
-#' @param trNamesNumbers
-#' @param covNamesNumbers
-#' @param supportLevel
-#' @param cex
+#' @description Plots heatmaps of parameter estimates or posterior support values of trait effects on species' environmental responses, i.e. how environmental responses in \code{Beta} responds to covariates in \code{X}
+#' @param post Posterior summary of Gamma parameters obtained from \code{\link{getPostEstimate}}
+#' @param param Controls which parameter is plotted, current options include "Beta" for parameter estimates and "Support" for posterior support
+#' @param trOrder Controls the ordering of traits, current options are "Original", and "Vector". If trOrder = "Vector", an ordering vector must be provided (see trVector)
+#' @param trVector Controls the ordering of traits if trOrder = "Vector". If a subset of traits are listed, only those will be plotted
+#' @param covOrder Controls the ordering of covariates, current options are "Original" and "Vector". If covOrder = "Vector", an ordering vector must be provided (see covVector)
+#' @param covVector Controls the ordering of covariates if covOrder = "Vector". If a subset of covariates are listed, only those will be plotted
+#' @param trNamesNumbers Logical of length 2, where first entry controls whether trait names are added to axes, and second entry controls whether traits numbers are added
+#' @param covNamesNumbers Logical of length 2, where first entry controls whether covariate names are added to axes, and second entry controls whether covariate numbers are added
+#' @param supportLevel Controls threshold posterior support for plotting
+#' @param cex Controls character expansion (font size). Three values, controlling covariate names, trait names, and color legend axis labels
 #'
 #'
 #' @return
@@ -21,12 +21,15 @@
 #'
 #' @examples
 #'
+#' gammaPost=getPostEstimate(hM, "Gamma")
+#' plotGamma(hM, post = gammaPost, param = "Support)
+#'
 #' @export
 
 plotGamma=function(hM, post, param = "Gamma", trOrder="Original",
   trVector= NULL, covOrder="Original",covVector=NULL, trNamesNumbers=c(T,T),
   covNamesNumbers=c(T,T),supportLevel=.9,cex=c(.8,.8,.8)){
-  
+
   switch(class(hM$X),
          matrix = {
            ncolsX = ncol(hM$X)
@@ -34,7 +37,7 @@ plotGamma=function(hM, post, param = "Gamma", trOrder="Original",
          list = {
            ncolsX = ncol(hM$X[[1]])
          }
-  )  
+  )
 
    covNames = character(hM$nc)
    for (i in 1:hM$nc) {

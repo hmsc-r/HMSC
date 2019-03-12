@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotGamma.R
 \name{plotGamma}
 \alias{plotGamma}
-\title{plotBeta}
+\title{plotGamma}
 \usage{
 plotGamma(hM, post, param = "Gamma", trOrder = "Original",
   trVector = NULL, covOrder = "Original", covVector = NULL,
@@ -10,16 +10,31 @@ plotGamma(hM, post, param = "Gamma", trOrder = "Original",
   supportLevel = 0.9, cex = c(0.8, 0.8, 0.8))
 }
 \arguments{
-\item{cex}{}
+\item{post}{Posterior summary of Gamma parameters obtained from \code{\link{getPostEstimate}}}
+
+\item{param}{Controls which parameter is plotted, current options include "Beta" for parameter estimates and "Support" for posterior support}
+
+\item{trOrder}{Controls the ordering of traits, current options are "Original", and "Vector". If trOrder = "Vector", an ordering vector must be provided (see trVector)}
+
+\item{trVector}{Controls the ordering of traits if trOrder = "Vector". If a subset of traits are listed, only those will be plotted}
+
+\item{covOrder}{Controls the ordering of covariates, current options are "Original" and "Vector". If covOrder = "Vector", an ordering vector must be provided (see covVector)}
+
+\item{covVector}{Controls the ordering of covariates if covOrder = "Vector". If a subset of covariates are listed, only those will be plotted}
+
+\item{trNamesNumbers}{Logical of length 2, where first entry controls whether trait names are added to axes, and second entry controls whether traits numbers are added}
+
+\item{covNamesNumbers}{Logical of length 2, where first entry controls whether covariate names are added to axes, and second entry controls whether covariate numbers are added}
+
+\item{supportLevel}{Controls threshold posterior support for plotting}
+
+\item{cex}{Controls character expansion (font size). Three values, controlling covariate names, trait names, and color legend axis labels}
 }
 \value{
 
 }
 \description{
-Plots betas
-}
-\examples{
-
+Plots heatmaps of parameter estimates or posterior support values of trait effects on species' environmental responses, i.e. how environmental responses in \code{Beta} responds to covariates in \code{X}
 }
 \seealso{
 
