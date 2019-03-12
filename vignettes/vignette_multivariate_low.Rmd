@@ -1,0 +1,279 @@
+---
+title:  |
+  | HMSC-R 3.0: Getting started with HMSC-R: low-dimensional multivariate models
+author: "Gleb Tikhonov, Oystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen & Otso Ovaskainen"
+date: "11 March 2019"
+output:
+  pdf_document: default
+  word_document: default
+  html_document: default
+---
+
+# Introduction
+The Hierarchical Modelling of Species Communities (HMSC) framework is a statistical framework for analysis of multivariate data, typically from species communities. We assume that the reader has gone through the vignette "HMSC-R 3.0: Getting started with HMSC-R: multivariate models", and here we demonstrate how to get started with multivariate analyses. We consider here the low-dimensional case, i.e. the case where the number of species is small, whereas the high-dimensional case with many species is considered in another vignette.
+
+To get HMSC in use, you need to first install it [https://github.com/hmsc-r/HMSC] and then load it.
+
+```{r message = F}
+library(Hmsc)
+library(corrplot)
+set.seed(1)
+```
+
+We also loaded the library corrplot as we will make plots with that, and we set the random number seed to make the results presented here reproducible.
+
+# Linear model with five species
+As the first case study, we use HMSC to fit a multivariate linear model.
+
+## Generating simulated data
+For illustrative purposes, we use simulated data for which we know the parameter values.
+
+```{r}
+set.seed(1)
+n = 100
+x1 = rnorm(n)
+x2 = rnorm(n)
+XData = data.frame(x1=x1,x2=x2)
+alpha = c(0,0,0,0,0)
+beta1 = c(1,1,-1,-1,0)
+beta2 = c(1,-1,1,-1,0)
+sigma = c(1,1,1,1,1)
+L = matrix(NA,nrow=n,ncol=5)
+Y = matrix(NA,nrow=n,ncol=5)
+for (j in 1:5){
+   L[,j] = alpha[j] + beta1[j]*x1 + beta2[j]*x2
+   Y[,j] = L[,j] + rnorm(n, sd = sigma[j])
+}
+```
+
+Here we have generated data for five species, `n` is the number of datapoints, `x1` and `x2` are continuous covariates, `alpha`, `beta1` and `beta2` are the true parameters for intercept and slope, `L` is the matrix linear predictors, and `Y` is the matrix of response variables. Indexing the species $j$ and the sampling units by $i$, we can write down the model that generated the data as $y_{ij} = \alpha_j + \beta_{1j} x_{1i} +\beta_{2j} x_{2i} + \epsilon_{ij}$, where $\epsilon_{ij}\sim N(0,\sigma_j^2)$. We have assumed that species 1 and 2 respond positively to the covariate $x_1$ whereas species 3 and 4 respond negatively to it. We have further assumed that species 1 and 3 respond positively to the covariate $x_2$ whereas species 2 and 4 respond negatively to it. Species five differs from all others in not responding at all the environmental variation. All species are assumed to show the same amount of residual variation.
+
+## Estimating environmental responses
+To analyze these data with HMSC, we construct the model as
+
+```{r}
+m = Hmsc(Y=Y, XData=XData, XFormula=~x1+x2)
+```
+
+Thus, with the XFormula, we have specified that we assume additive effects of the two covariates $x_1$ and $x_2$, i.e. we assume the same model that we used to generate the data. We next fit the model as
+
+```{r}
+nChains = 2
+thin = 1
+samples = 1000
+transient = 500
+verbose = 0
+m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
+                    nChains = nChains, verbose = verbose)
+```
+
+Note that we set `verbose` to zero to suppress the output showing how sampling of the chains is proceeding. This was done here just to avoid printing many extra lines to the vignette. We expect that normally the user wishes to see the progress, especially if fitting the model requires a long computation.
+
+As usually, we should check MCMC convergence diagnostics.
+
+```{r}
+mpost = convertToCodaObject(m)
+effectiveSize(mpost$Beta)
+gelman.diag(mpost$Beta,multivariate=FALSE)$psrf
+
+```
+
+As there are five species and three regression parameters per species (including the intercept), there are fifteen parameters for which convergence diagnostics are shown. All looks good: effective sample sizes are high, and potential scale reduction factors are close to one. If there are many parameters, it can be more convenient to look at the convergence diagnostics  graphically.
+
+```{r}
+par(mfrow=c(1,2))
+hist(effectiveSize(mpost$Beta), main="ess(beta)")
+hist(gelman.diag(mpost$Beta,multivariate=FALSE)$psrf, main="psrf(beta)")
+
+```
+
+We note that we have examine MCMC convergence only for the $\beta$-parameters but the HMSC model has also many other kinds of parameters, and MCMC convergence should be check for those as well. We will return to this topic below.
+
+To assess the model's explanatory power, we apply the `evaluateModelFit` function to posterior predictive distribution computed by the function `computePredictedValues`.
+
+```{r}
+preds = computePredictedValues(m)
+evaluateModelFit(hM=m, predY=preds)
+```
+
+The model fit is given in terms of $R^2$ and mean-root-square error 'MRSE' for each of the five species. As expected, the explanatory power is poor for the species number five as variation in that species is not related to environmental covariates. The root-mean-square error is close to one for all species, reflecting the fact that we assumed that the standard deviation of unexplained residual variation is one for each species. Let us then compute the predictive power in terms of two-fold cross validation.
+
+```{r}
+partition = createPartition(m, nfolds = 2)
+preds = computePredictedValues(m,partition=partition)
+evaluateModelFit(hM=m, predY=preds)
+```
+
+The predictive power is not much worse than the explanatory power, as even with cross-validation there is sufficient amount of training data to learn about the environmental responses.
+
+Let us then look at the estimates of the $\beta$ parameters. We may do so visually by applying the plotBeta function.
+
+```{r}
+postBeta = getPostEstimate(m, parName="Beta")
+plotBeta(m, post=postBeta, param="Support", supportLevel = 0.95)
+```
+
+
+What are plotted here by red are those parameters for which the poterior probability for the parameter being positive is greater than 0.95 (the chosen support level), whereas what are plotted by blue are those parameters for which the poterior probability for the parameter being negative is greater than 0.95. The remaining parameters are shown by white. The plot shows that we were able to estimate from the data the parameters that we assumed when generating the data: species 1 and 2 respond positively to the covariate $x_1$ whereas species 3 and 4 respond negatively to it; species 1 and 3 respond positively to the covariate $x_2$ whereas species 2 and 4 respond negatively to it;species 5 does not respond to either of the covariates. As usually, the estimate of the intercept is of lesser interest, as that relates to the mean abundance of each species.
+
+## Estimating species-to-species associations
+
+One major advantages of HMSC is that it allows one to estimate species-to-species residual associations through a latent factor approach. We will next add such a component to our model. To do so, we need to declare a random effect at the level of the sampling unit. We note that in a univariate model, such a random effect would not make sense, as the random effect would be fully confounded with residual. However, in a multivariate model it is possible to have a random effect at the sampling unit level, as that random effect models correlated variation among the species.
+
+```{r}
+studyDesign = data.frame(sample = as.factor(1:n))
+rL = HmscRandomLevel(units = studyDesign$sample)
+m = Hmsc(Y=Y, XData=XData, XFormula=~x1+x2, 
+         studyDesign=studyDesign, ranLevels=list("sample"=rL))
+m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
+                    nChains = nChains, verbose = verbose)
+```
+
+Let us look at the convergence diagnostics.
+
+```{r}
+mpost = convertToCodaObject(m)
+par(mfrow=c(2,2))
+hist(effectiveSize(mpost$Beta), main="ess(beta)")
+hist(gelman.diag(mpost$Beta,multivariate=FALSE)$psrf, main="psrf(beta)")
+hist(effectiveSize(mpost$Omega[[1]]), main="ess(omega)")
+hist(gelman.diag(mpost$Omega[[1]],multivariate=FALSE)$psrf, main="psrf(omega)")
+
+```
+
+Now we have shown the convergence diagnostics not only for the $\beta$ parameters, but also for the $\Omega$ parameters, i.e. the elements of the species-to-species residual covariance matrix estimated by the random effect.
+
+```{r}
+postBeta = getPostEstimate(m, parName="Beta")
+plotBeta(m, post=postBeta, param="Support", supportLevel = 0.95)
+```
+
+The estimates of the $\beta$ parameters look the same as before. As a new component, we can now look at the estimate species-to-species associatons. To convert the covariances into a more convenient scale of correlations, we first apply the `computeAssociations` function. We then choose to plot only those assocations for which the posterior support for being negative or positive is at least 0.95. We generate the plot with the `corrplot` function, as there is no specific function for plotting species-to-speces associations in HMSC.
+
+```{r}
+OmegaCor = computeAssociations(m)
+supportLevel = 0.95
+toPlot = ((OmegaCor[[1]]$support>supportLevel) 
+          + (OmegaCor[[1]]$support<(1-supportLevel))>0)*OmegaCor[[1]]$mean
+corrplot(toPlot, method = "color", 
+         col=colorRampPalette(c("blue","white","red"))(200),
+         title=paste("random effect level:",m$rLNames[1]), mar=c(0,0,1,0))
+```
+
+The only assoociations that are visible in this plot are the within-species associations, for which the correlations are always by definition one. This result is actually fully in line with what we assumed when simulating the data, as we simulated the residuals independently for each species. To make this more transparent, we note that our assumption of $\epsilon_{ij}\sim N(0,\sigma_j^2)$ can be written in the multivariate notation as $\epsilon_{i\cdot}\sim N(0,\Sigma)$, where $\Sigma$ is a diagonal matrix with the species-specific variances $\sigma_j$ at the diagonal, and zeros at the off-diagonal.
+
+Let us then re-fit the model so that we do not include the covariate $x_2$. The motivation for dropping $x_2$ from the model is that often many covariates that do influence the data in reality are missing from the data analysis. For example, it might be that the researcher analyzing the data did not think that this covariate might influence the species abundances, or that it was not possible to measure this covariate.
+
+```{r}
+m = Hmsc(Y=Y, XData=XData, XFormula=~x1, 
+         studyDesign=studyDesign, ranLevels=list("sample"=rL))
+m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
+                    nChains = nChains, verbose = verbose)
+postBeta = getPostEstimate(m, parName="Beta")
+plotBeta(m, post=postBeta, param="Support", supportLevel = 0.95)
+OmegaCor = computeAssociations(m)
+supportLevel = 0.95
+toPlot = ((OmegaCor[[1]]$support>supportLevel) 
+          + (OmegaCor[[1]]$support<(1-supportLevel))>0)*OmegaCor[[1]]$mean
+corrplot(toPlot, method = "color", 
+         col=colorRampPalette(c("blue","white","red"))(200),
+         title=paste("random effect level:",m$rLNames[1]), mar=c(0,0,1,0))
+```
+
+The estimates of the $\beta$ parameters shows the same responses to $x_1$ as before. The association matrix shows now residual correlations among the species: species 1 and 3 are positively correlate with each other, and so are species 2 and 4, but these two groups of species are negatively correlated with each other. In contrast, species 5 is not correlated with any other species. The reason for these correlations is the responses of the species to the covariate $x_2$, which is missing from the model, and thus its influence is seen in the residual associations. As species 1 and 3 responded similarly (both positively) to the missing covariate, this creates a positive association among them. As species 1 and 2 responded dissimilarly (one posively and one negatively) to the missing covariate, they show a negative association.
+
+In general, residual associations among species can be generated by correlated responses to missing covariates, or by ecological interactions. While HMSC analyses can identify residual associations among the species, they cannot tell whether the associations are due to missing covariates or due to ecological interactions among the species. This is not a limitation of HMSC *per se*, but a limitation of the type of data that is used as input. To tell whether the identified associations are due to missing covariates or ecological interactions, some other type of data would be needed, such as experiments where the fitnesses of the species are measured when they are and are not allowed to interact with each other. In the absence of such experimental data, the best that can be done is to control in the model for those environmental covariates that can be expected (or are shown by cross-validation) to be relevant, and then interprete the remainig residual associations with the help of ecological knowledge of the system.
+
+## Explanatory power, predictive power, and conditional predictive power
+
+Let us then examine the explanatory power of this model.
+
+```{r}
+preds = computePredictedValues(m)
+evaluateModelFit(hM=m, predY=preds)
+```
+We note that the explanatory power of the present model (that has only $x_1$ as the covariate) is not much lower than the explanatory power of the full model (that has both $x_1$ and $x_2$ as covariates). This may appear surprising, as we assumed while generating the data that the species respond equqlly strongly to the missing covariate $x_2$ than they did to the covariate $x_1$ that is included in the model. This is because the random effect part of the model also contributes to the explanatory power. The underlying latent variable approach can actually be viewed to *estimate* missings covariates (latent variables) and species responses to them (latent loadings). Thus the fitted model has information about the values of the missing covariates in the sampling units used for model fitting, and thus they can be utilized in prediction. 
+
+Let us next evaluate the predictive power of the model by cross-validation.
+
+```{r}
+preds = computePredictedValues(m,partition=partition)
+evaluateModelFit(hM=m, predY=preds)
+```
+We see that the predictive power is much lower than the explanatory power. This is because the fitted model cannot know the values of the missing covariates (more precisely the latent variables) for the sampling units not included in model fitting, and thus the predictive power of the model is based on the covariate $x_1$ only.
+
+
+With the multivariate model, it is possible to generate also conditional predictions. What is meant by this is that when generating predictions for a focal species, the occurrences (or abundances or whatever is the response variable) of another species can be assumed to be known. If the focal species and the other species show residual associations, knowing the occurrence of the other species can help to make improved predictions. The possibility of making conditional predictions has been implemented in the `computePredictedValues` function. In addition to the `partition` among the sampling units, we now apply also `partition.sp` over the species. 
+
+```{r}
+preds = computePredictedValues(m, partition=partition,
+                               partition.sp=c(1,2,3,4,5), mcmcStep=10)
+evaluateModelFit(hM=m, predY=preds)
+```
+
+By writing `partition.sp=c(1,2,3,4,5)` we chose to do the full leave-one-out cross validation across the species, in combination with the two-fold cross validation (defined by `partition`) over the sampling units. What happened when the predictive values were computed was the following. First, the fold 1 of sampling units is considered as the focal fold for which predictions are to be generated. Thus the model is fitted so that only sampling units from fold 2 are used as training data. When predictions are made with this model for the sampling units of fold 1, the each species is considered in turn as the focal species. When predictions are to be generated for species 1, they are made conditional on the observed data for the other species 2-5. How this is done in practice is that the model uses knowledge on the occurrences of the species 2-5 estimate the values of the latent variables (here, effectively the value of the missing covariate $x_2$) for the focal sampling unit. The response of the focal species 1 to the latent variables was estimated when fitting the model to training data from fold 2, and thus it can be used to generate the predictions. As the end result, the predictions based on conditional cross-validation are better than the predictions based on the usual cross-validation.
+
+Making conditional predictions (and thus conditional cross-validations) requires estimation of the latent variables for the sampling units for which the predictions are to be generated. This requires MCMC sampling, for which reasons the parameter `mcmcStep` is needed in the function call. We have here selected to do the conditional predictions with 10 MCMC iterations. There is no rule on how many are sufficient, and thus the user is recommended to set `mcmcStep` first e.g. to 10 and then set it to 100 to see if the results improve.
+
+We note that the conditional cross-validation is conceptually similar to fitting species-specific models where the non-focal species would be used as predictions, so that the model formula e.g. for species 1 would be `y1~x1+x2+y2+y3+y4+y5`. While including the other species are predictions would have indeed been possible in the current case study with five species, it is not a viable option when there are tens or hundreds of species. In contrast, conditional predictions can be made also in the case of large species communities.
+
+# Non-linear model with four species
+As the second case study, we use HMSC to fit a multivariate non-linear model. While typically a single HMSC model might include only single type of response variable, we will assume for illustrative purposes that the reponse variables show a mix of responses. To do so, we assume the same environmental covariates and the same linear predictors as we did for species 1-4 in the example above, but we apply four different link functions and error distributions. More precisely, we will assume that species 1 follows the normal model, species 2 the probit model, species 3 the Poisson model, and species 4 the log-normal Poisson model. Perhaps we have data on the abundance of species 1 measured biomass and the abundances of species 3 and 4 as counts of individuals, whereas for species 2 only presence-absence data are available.
+
+```{r}
+set.seed(1)
+alpha = c(0,0,0,0)
+beta1 = c(1,1,-1,-1)
+beta2 = c(1,-1,1,-1)
+sigma = c(1,NA,NA,1)
+L = matrix(NA,nrow=n,ncol=4)
+Y = matrix(NA,nrow=n,ncol=4)
+for (j in 1:4){
+   L[,j] = alpha[j] + beta1[j]*x1 + beta2[j]*x2
+}
+Y[,1] = L[,1] + rnorm(n, sd = sigma[1])
+Y[,2] = 1*(L[,2] + rnorm(n, sd = 1)>0)
+Y[,3] = rpois(n, lambda = exp(L[,3]))
+Y[,4] = rpois(n, lambda = exp(L[,4] + rnorm(n, sd = sigma[4])))
+```
+
+Note that we have not defined the residual variance `sigma` for species 2 and 3 because this parameter is irrelevant for the probit and Poisson models. Let us illustrate the nature of the data by viewing it for the first 10 sampling units
+
+```{r}
+Y[1:10,]
+```
+
+While we could repeat for these data all the analyses that we did for the linear model of five species, we will perform only the most basic analyses. We thus constuct the HMSC model without random effect as
+
+```{r}
+m = Hmsc(Y=Y, XData=XData, XFormula=~x1+x2, distr=c("normal","probit","poisson","lognormal poisson"))
+```
+
+If all response variables would follow the same error distribution, it would be sufficient to declare it only once, e.g. as ´distr="probit"'. Now that we assumed different types of response variables, we define ´distr´ as a vector where each element corresponds to each species. Let us then fit the model and check its MCMC diagnostics.
+
+```{r}
+m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
+                    nChains = nChains, verbose = verbose)
+mpost = convertToCodaObject(m)
+effectiveSize(mpost$Beta)
+gelman.diag(mpost$Beta,multivariate=FALSE)$psrf
+```
+
+As expected from the corresponding resuts from the univariate analyses, the MCMC covergence is the best for the normally distributed response variable and the wrost for the Poisson distributed response variable.
+
+We next masure the model's explanatory power with the function `evaluateModelFit`.
+
+```{r}
+preds = computePredictedValues(m, expected = FALSE)
+evaluateModelFit(hM=m, predY=preds)
+```
+
+As discussed with the vignette on univariate models, the types of performance measures that can be computed depend on the nature of the response data. For this reason, many of the performance measures can not be evaluated for all species, and thus their values are missing ('NA').
+
+Even if the species follow different error distributions, they all have the underlying linear predictor at the same scale. Thus we may for example view the $\beta$ parameters of all the four species simultaneously.
+
+```{r}
+postBeta = getPostEstimate(m, parName="Beta")
+plotBeta(m, post=postBeta, param="Support", supportLevel = 0.95)
+```
+
