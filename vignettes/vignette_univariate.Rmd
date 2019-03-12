@@ -185,7 +185,7 @@ Compared to the case of the linear model, we observe that the effective sample s
 In another common case with community ecology data the response variable is a non-negative integer 0,1,2,3,..., representing the count of indivuals. In HMSC-R, such data can be modelled with Poisson regression. We next repeat the above exercise but do so for data that conform the assumptions of Poisson regression.
  
 ```{r}
-y = y = rpois(n, lambda = exp(L))
+y = rpois(n, lambda = exp(L))
 plot(x,y)
 Y=as.matrix(y)
 m = Hmsc(Y=Y, XData=XData, XFormula=~x, distr="poisson")
