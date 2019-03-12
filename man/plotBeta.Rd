@@ -10,16 +10,35 @@ plotBeta(hM, post, param = "Support", plotTree = F,
   T), supportLevel = 0.9, split = 0.3, cex = c(0.7, 0.7, 0.8))
 }
 \arguments{
-\item{cex}{}
+\item{post}{Posterior summary of Beta parameters obtained from \code{\link{getPostEstimate}}}
+
+\item{param}{Controls which parameter is plotted, current options include "Beta" for parameter estimates and "Support" for posterior support}
+
+\item{plotTree}{Logical. Whether species' environmental responses is to be mapped onto the phylogeny used in model fitting}
+
+\item{SpeciesOrder}{Controls the ordering of species, current options are "Original", "Tree", and "Vector". If SpeciesOrder = "Vector", an ordering vector must be provided (see SpVector). If plotTree = T, SpeciesOrder is ignored}
+
+\item{SpVector}{Controls the ordering of species if SpeciesOrder = "Vector". If a subset of species are listed, only those will be plotted. For alphabetic ordering, try \code{match(1:hM$ns, as.numeric(as.factor(colnames(hM$Y))))}}
+
+\item{covOrder}{Controls the ordering of covariates, current options are "Original" and "Vector". If covOrder = "Vector", an ordering vector must be provided (see covVector)}
+
+\item{covVector}{Controls the ordering of covariates if covOrder = "Vector". If a subset of covariates are listed, only those will be plotted}
+
+\item{spNamesNumbers}{Logical of length 2, where first entry controls whether species names are added to axes, and second entry controls whether species numbers are added}
+
+\item{covNamesNumbers}{Logical of length 2, where first entry controls whether covariate names are added to axes, and second entry controls whether covariate numbers are added}
+
+\item{supportLevel}{Controls threshold posterior support for plotting}
+
+\item{split}{If plotTree = T, controls the division of the plotting window between the tree and the heatmap.}
+
+\item{cex}{Controls character expansion (font size). Three values, controlling covariate names, species names, and color legend axis labels}
 }
 \value{
 
 }
 \description{
-Plots betas
-}
-\examples{
-
+Plots heatmaps of parameter estimates or posterior support values of species' environmental responses, i.e. how species in \code{Y} responds to covariates in \code{X}
 }
 \seealso{
 
