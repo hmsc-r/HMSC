@@ -66,10 +66,10 @@ While the `lm` function constructs the model and fits it at the same time, the `
 
 ```{r VI}
 nChains = 2
-thin = 5
+thin = 1
 samples = 10
 transient = 5
-verbose = 5
+verbose = 10
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
                     nChains = nChains, verbose = verbose)
 ```
