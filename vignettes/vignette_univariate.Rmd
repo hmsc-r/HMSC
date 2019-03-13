@@ -66,10 +66,10 @@ While the `lm` function constructs the model and fits it at the same time, the `
 
 ```{r VI}
 nChains = 2
-thin = 5
-samples = 1000
-transient = 500
-verbose = 500
+thin = 1
+samples = 10
+transient = 5
+verbose = 10
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
                     nChains = nChains, verbose = verbose)
 ```
@@ -185,15 +185,9 @@ Compared to the case of the linear model, we observe that the effective sample s
 
 In another common case with community ecology data the response variable is a non-negative integer 0,1,2,3,..., representing the count of indivuals. In HMSC-R, such data can be modelled with Poisson regression. We next repeat the above exercise but do so for data that conform the assumptions of Poisson regression.
  
-<<<<<<< HEAD
 ```{r XVI, fig.height=4, fig.width=4, fig.cap="\\label{fig: XVI} Scatterplot of simulated count data"}
-y = y = rpois(n, lambda = exp(L))
-plot(x,y, las = 1)
-=======
-```{r}
 y = rpois(n, lambda = exp(L))
-plot(x,y)
->>>>>>> e9dbf1875dda4554e59db2da928ec5a211d8bc61
+plot(x,y,las=1)
 Y=as.matrix(y)
 m = Hmsc(Y=Y, XData=XData, XFormula=~x, distr="poisson")
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
