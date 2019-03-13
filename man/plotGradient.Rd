@@ -38,8 +38,7 @@ whereas for normal models it shows the summed response.
 For \code{measure}="T",
 in probit model the weighting is over species occurrences,
 whereas in count models it is over individuals.
-In normal models, some of the weights can be negative,
-and thus interpretation is not straightforward.
+In normal models, the weights are exp-transformed predictors to avoid negative weights
 }
 \examples{
 
