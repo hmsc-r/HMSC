@@ -23,8 +23,8 @@
 #' For \code{measure}="T",
 #' in probit model the weighting is over species occurrences,
 #' whereas in count models it is over individuals.
-#' In normal models, some of the weights can be negative,
-#' and thus interpretation is not straightforward.
+#' In normal models, the weights are exp-transformed predictors to avoid negative weights
+#'
 #'
 #' @seealso
 #'
@@ -60,8 +60,13 @@ plotGradient=function (hM, Gradient, pred, measure, index = 1, prob = c(0.025, 0
       ylabel = hM$spNames[[index]]
    }
    if (measure == "T") {
-      predT = lapply(predY, function(a) (a %*% hM$Tr)/matrix(rep(rowSums(a),
-                                                                 hM$nt), ncol = hM$nt))
+      if (all(hM$distr[,1]==1)){
+         predT = lapply(predY, function(a) (exp(a) %*% hM$Tr)/matrix(rep(rowSums(exp(a)),
+                                                                         hM$nt), ncol = hM$nt))
+      } else {
+         predT = lapply(predY, function(a) (a %*% hM$Tr)/matrix(rep(rowSums(a),
+                                                                    hM$nt), ncol = hM$nt))
+      }
       qpred = apply(abind(predT, along = 3), c(1, 2), quantile,
                     prob = prob, na.rm = TRUE)
       qpred = qpred[, , index]
@@ -85,7 +90,12 @@ plotGradient=function (hM, Gradient, pred, measure, index = 1, prob = c(0.025, 0
          pY = hM$Y[,index]
       }
       if (measure == "T") {
-         tmp = (hM$Y %*% hM$Tr)/matrix(rep(rowSums(hM$Y),hM$nt), ncol = hM$nt)
+         if (all(hM$distr[,1]==1)){
+            tmp = (exp(hM$Y) %*% hM$Tr)/matrix(rep(rowSums(exp(hM$Y)),hM$nt), ncol = hM$nt)
+
+         } else {
+            tmp = (hM$Y %*% hM$Tr)/matrix(rep(rowSums(hM$Y),hM$nt), ncol = hM$nt)
+         }
          pY = tmp[,index]
       }
       pX = hM$XData[,XDatacol]
