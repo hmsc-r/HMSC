@@ -23,6 +23,7 @@ Depends:
    mvtnorm,
    nnet,
    parallel,
+   pdist,
    pROC,
    ggplot2,
    phytools,

@@ -7,28 +7,31 @@
 \method{predict}{Hmsc}(hM, post = poolMcmcChains(hM$postList),
   XData = NULL, X = NULL, studyDesign = hM$studyDesign,
   ranLevels = hM$ranLevels, Yc = NULL, mcmcStep = 1,
-  expected = FALSE, predictEtaMean = FALSE)
+  expected = FALSE, predictEtaMean = FALSE,
+  predictEtaMeanField = FALSE)
 }
 \arguments{
-\item{hM}{A fitted HMSC model.}
+\item{hM}{a fitted HMSC model.}
 
-\item{post}{A list of posterior samples of the HMSC model. By default uses all samples from the pulled posterior of the hM object.}
+\item{post}{a list of posterior samples of the HMSC model. By default uses all samples from the pulled posterior of the hM object.}
 
-\item{XData}{A dataframe specifying the unpreprocessed covariates for the predictions to be made. Works only if the \code{XFormula} argument was specified in the \code{Hmsc()} model constructor call. Requirements are similar to those in the Hmsc() model constructor.}
+\item{XData}{a dataframe specifying the unpreprocessed covariates for the predictions to be made. Works only if the \code{XFormula} argument was specified in the \code{Hmsc()} model constructor call. Requirements are similar to those in the Hmsc() model constructor.}
 
-\item{X}{A matrix specifying the covariates for the predictions to be made. Only one of XData and X arguments may be provided.}
+\item{X}{a matrix specifying the covariates for the predictions to be made. Only one of XData and X arguments may be provided.}
 
-\item{studyDesign}{A matrix, specifying the structure of the study design for the prediction. Requirements are similar to those of the \code{Hmsc()} constructor. By default this argument is assighned with the study design of the training data in the fitted Hmsc model.}
+\item{studyDesign}{a matrix, specifying the structure of the study design for the prediction. Requirements are similar to those of the \code{Hmsc()} constructor. By default this argument is assighned with the study design of the training data in the fitted Hmsc model.}
 
-\item{Yc}{A matrix of the outcomes that are assumed to be known for conditional predictions.}
+\item{Yc}{a matrix of the outcomes that are assumed to be known for conditional predictions.}
 
-\item{mcmcStep}{The number of extra mcmc steps used for updating the random effects (Eta parameters) starting from the samples of the fitted Hmsc model in order to account for the conditional infromation provided in the Yc argument. The higher this number is, the more the obtained updated samples are unaffected by the posterior estimates of latent factors in the model fitted to the training data and more resembles the true conditional posterior. However, the elapsed time for conditional prediction grows approximately linearly as this parameter increases. The exact number for sufficient is problem-dependent and should be assessed by e.g. gradually increasing this parameter till the stationarity of the produced predictions .}
+\item{mcmcStep}{the number of extra mcmc steps used for updating the random effects (Eta parameters) starting from the samples of the fitted Hmsc model in order to account for the conditional infromation provided in the Yc argument. The higher this number is, the more the obtained updated samples are unaffected by the posterior estimates of latent factors in the model fitted to the training data and more resembles the true conditional posterior. However, the elapsed time for conditional prediction grows approximately linearly as this parameter increases. The exact number for sufficient is problem-dependent and should be assessed by e.g. gradually increasing this parameter till the stationarity of the produced predictions .}
 
-\item{expected}{Boolean flag whether to return the location parameter of the observation models or sample the values from those.}
+\item{expected}{boolean flag whether to return the location parameter of the observation models or sample the values from those.}
 
-\item{predictEtaMean}{Boolean flag whether to use the estimated mean values of posterior predictive distribution for random effets corresponding for the new units or properly acount for the uncertainty of those.}
+\item{predictEtaMean}{boolean flag whether to use the estimated mean values of posterior predictive distribution for random effets corresponding for the new units.}
 
-\item{rL}{A list of HmscRandomLevel objects, futher specifying the structure of random levels. Requirements are similar to those of the \code{Hmsc()} constructor. Each level must cover all units, specified in the correspondingly named column of studyDesign argument. By default this argument is assigned with the list of HmscRandomLevel objects, specified for fitting Hmsc model.}
+\item{predictEtaMeanField}{boolean flag whether to use draws from the mean-field of the posterior predictive distribution for random effets corresponding for the new units.}
+
+\item{rL}{a list of HmscRandomLevel objects, futher specifying the structure of random levels. Requirements are similar to those of the \code{Hmsc()} constructor. Each level must cover all units, specified in the correspondingly named column of studyDesign argument. By default this argument is assigned with the list of HmscRandomLevel objects, specified for fitting Hmsc model.}
 }
 \value{
 A list of length \code{length(post)}, each element of which contains a sample from posterior predictive distribution (given the sample of the Hmsc model parameters in the corresponding element of the \code{post} argument)
