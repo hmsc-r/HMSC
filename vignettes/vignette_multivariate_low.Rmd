@@ -1,12 +1,13 @@
 ---
 title:  |
   | HMSC-R 3.0: Getting started with HMSC-R: low-dimensional multivariate models
-author: "Gleb Tikhonov, Oystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen & Otso Ovaskainen"
-date: "13 March 2019"
+author: "Gleb Tikhonov, Øystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen & Otso Ovaskainen"
+date: "14 March 2019"
 output:
   pdf_document: default
   word_document: default
   html_document: default
+fig_caption: yes
 ---
 
 # Introduction
@@ -59,9 +60,9 @@ Thus, with the XFormula, we have specified that we assume additive effects of th
 
 ```{r IV}
 nChains = 2
-thin = 1
-samples = 10
-transient = 5
+thin = 10
+samples = 100
+transient = 500
 verbose = 0
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
                     nChains = nChains, verbose = verbose)
@@ -205,6 +206,7 @@ The explanatory power of the reduced model (that has only $x_1$ as the covariate
 preds = computePredictedValues(m, partition = partition)
 evaluateModelFit(hM = m, predY = preds)
 ```
+
 The predictive power is much lower than the explanatory power. This is because the fitted model cannot know the values of the missing covariates (technically, the latent variables) for the sampling units not included in model fitting, and thus the predictive power of the model to new sampling units is based on the covariate $x_1$ only.
 
 With the multivariate model, it is also possible to generate conditional predictions. When generating conditional predictions for a focal species, the observed data for some other species are assumed to be known. If the focal species and the other species show residual associations, knowing the observed data for the other species can help to make improved predictions for the focal species. The possibility of making conditional predictions in the context of cross-validation has been implemented in the `computePredictedValues` function. In addition to the `partition` among the sampling units, we now apply also `partition.sp` over the species. 
@@ -222,6 +224,48 @@ First, the fold 1 of sampling units is considered as the focal fold for which pr
 Making conditional predictions (and thus conditional cross-validations) requires the estimation of the latent variables for the sampling units for which the predictions are to be generated. This can in practice be done with the help of MCMC sampling, which is why the parameter `mcmcStep` is included in the function call. We have here selected to do the conditional predictions by updating the latent variables with 10 MCMC iterations. There is no general rule on how many MCMC iterations will be  sufficient, and thus the user is recommended to set `mcmcStep` first e.g. to 10 and then to 100 to see if the results improve. As always, running more MCMC iterations means a longer computational time.
 
 We note that conditional prediction is conceptually similar to using non-focal species as predictors. For example, the conditional predictions by the multivariate model for species 1 are very similar to what would be predicted by the univariate model `y1~x1+y2+y3+y4+y5`. While including the other species as predictors is a viable option for communities with small number of species, it is not straightforward to do if there are tens or hundreds of species. In contrast, as we will show in the vignette "HMSC-R 3.0: Getting started with HMSC-R: high-dimensional multivariate models", conditional predictions can be made also for large species communities.
+
+
+#Model-based ordination
+
+Another way to visualize the responses of the species to the latent variables is to construct a biplot, as commonly done in ordination analyses. First, we fit the model without any covariates, and the number of latent factors constrained to 2.
+
+```{r E1, fig.height=5, fig.width =5}
+rL$nfMin=2
+rL$nfMax=2
+
+m = Hmsc(Y=Y, XData=XData, XFormula=~1, 
+         studyDesign=studyDesign, ranLevels=list("sample"=rL))
+m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
+                    nChains = nChains, verbose = verbose)
+```
+
+We now extract the posterior means of the $\eta$ and $\lambda$ parameters, which represent the site loadings ($\eta$) and species loadings ($\lambda$) on the latent factors. We then assign colors to the site loadings according to the value of the covariate x2 used in simulating the data (but that was not used in model fitting).
+
+```{r E2, include=F}
+#DEFINING THE biPlot FUNCTION
+biPlot=function(hM, etaPost, lambdaPost, factors=c(1,2), colVar="x1"){
+         if(colVar!="n"){
+            cols=colorRampPalette(c("blue","white","red"))(100)
+            plotorder=order(hM$XData[,which(colnames(m$XData)==colVar)])
+            }
+            else{
+               cols="grey"   
+               plotorder=1:nrow(hM$XData)
+            }
+   plot(etaPost$mean[,factors[1]][plotorder], etaPost$mean[,factors[2]][plotorder],pch=16, col=cols,
+     xlab=paste("Latent variable", factors[1]), ylab=paste("Latent variable", factors[2]))
+   points(lambdaPost$mean[factors[1],], lambdaPost$mean[factors[2],],pch=17, cex=1)
+   text(lambdaPost$mean[factors[1],], lambdaPost$mean[factors[2],], m$spNames, pos=1, cex=1)
+}
+```
+
+```{r E3, fig.height=5, fig.width =5}
+etaPost=getPostEstimate(m, "Eta")
+lambdaPost=getPostEstimate(m, "Lambda")
+
+biPlot(m, etaPost = etaPost, lambdaPost = lambdaPost, factors = c(1,2), colVar = "x2")
+```
 
 # Non-linear model for a community of four species
 As the second case study, we use HMSC to fit a multivariate non-linear model. While all species are typically assumed to follow the same error distribution, HMSC allows also for mixtures of them. To illustrate, we assume the same environmental covariates and the same linear predictors as we did for species 1-4 in the example above, but we apply four different link functions and error distributions. More precisely, we will assume that species 1 follows the normal model, species 2 the probit model, species 3 the Poisson model, and species 4 the log-normal Poisson model. Perhaps we have measured the abundance of species 1 as biomass and the abundances of species 3 and 4 as counts of individuals, whereas for species 2 only presence-absence data are available.

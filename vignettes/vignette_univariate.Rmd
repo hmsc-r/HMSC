@@ -2,7 +2,7 @@
 title:  |   
   | HMSC-R 3.0: Getting started with HMSC-R: univariate models
 author: "Gleb Tikhonov, Øystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen & Otso Ovaskainen"
-date: "12 March 2019"
+date: "14 March 2019"
 output:
   pdf_document: default
   html_document: default
