@@ -267,15 +267,13 @@ In the maximum likelihood framework, one option for fitting a mixed model would 
 ```{r XIX}
 studyDesign = data.frame(sample = as.factor(sample.id), plot = as.factor(plot.id))
 rL = HmscRandomLevel(units = studyDesign$plot)
-rL$nfMin = 1
-rL$nfMax = 1
 m = Hmsc(Y=Y, XData=XData, XFormula=~x, 
          studyDesign=studyDesign, ranLevels=list("plot"=rL))
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
                     nChains = nChains, verbose = verbose)
 ```
 
-Here we have included two new input parameters. First, `studyDesign` defines the nature of the study design, here the individual sampling units and the plots to which the sampling units belong. Second, `ranLevels` includes a list of those aspects of the study design to which a random effect will be included, here the plot. The object `rL` was created with the function `HmscRandomLevel` assuming the default options except that with `rL$nfMin = 1`and `rL$nfMax = 1` we have fixed the number of the underlying latent factors to one. This is because we assume a univariate model, and thus it is not meaningful to have several latent variables. We note that in usual applications of HMSC, the data are multivariate, and the latent factor approach is used to reduce the dimensionality by having a smaller number of latent factors than the number of species.
+Here we have included two new input parameters. First, `studyDesign` defines the nature of the study design, here the individual sampling units and the plots to which the sampling units belong. Second, `ranLevels` includes a list of those aspects of the study design to which a random effect will be included, here the plot. The random effect object `rL` was created with the function `HmscRandomLevel` assuming the default options for latent variables. We note that in usual applications of HMSC, the data are multivariate, and the latent factor approach is used to reduce the dimensionality by having a smaller number of latent factors than the number of species. As we assume a univariate model, it is not necessary to have several latent variables, or in general it is not necessary to have more latent variables than there are species, as having the same number of latent variables as species already generates a full rank matrix. For this reason, when calling `Hmsc`, the default option is to reduce the maximal number of factors to be at most the number of species, and thus in the univariate case the above script fixes the number of the underlying latent factors to one.
 
 Let us now evaluate model fit as we have done above.
 

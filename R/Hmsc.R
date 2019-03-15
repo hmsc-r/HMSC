@@ -21,7 +21,7 @@
 #'   species
 #' @param C a matrix of phylogenic similaririties between mofelled species
 #' @param distr a string shortcut or \eqn{n_s \times 4} matrix specifying the observation models
-#'
+#' @param truncateNumberOfFactors reduces the maximal number of latent factor to be at most the number of species
 #'
 #' @return an object of Hmsc class without any posterior samples
 #'
@@ -79,7 +79,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, YScale = FALSE,
                 studyDesign=NULL, ranLevels=NULL, ranLevelsUsed=names(ranLevels),
                 TrFormula=NULL, TrData=NULL, Tr=NULL, TrScale=TRUE,
                 phyloTree=NULL, C=NULL,
-                distr="normal"){
+                distr="normal", truncateNumberOfFactors=TRUE){
 
    hM = structure(list(
       Y = NULL,
@@ -418,6 +418,12 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, YScale = FALSE,
          hM$Pi[,r] = as.numeric(hM$dfPi[,r])
       hM$np = apply(hM$Pi, 2, function(a) return(length(unique(a))))
       hM$nr = ncol(hM$Pi)
+      if (truncateNumberOfFactors){
+         for (r in 1:hM$nr){
+            hM$rL[[r]]$nfMax = min(hM$rL[[r]]$nfMax,hM$ns)
+            hM$rL[[r]]$nfMin = min(hM$rL[[r]]$nfMin,hM$rL[[r]]$nfMax)
+         }
+      }
    }
 
    if(length(distr)==1){

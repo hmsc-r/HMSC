@@ -8,7 +8,7 @@ Hmsc(Y, XFormula = ~., XData = NULL, X = NULL, XScale = TRUE,
   YScale = FALSE, studyDesign = NULL, ranLevels = NULL,
   ranLevelsUsed = names(ranLevels), TrFormula = NULL, TrData = NULL,
   Tr = NULL, TrScale = TRUE, phyloTree = NULL, C = NULL,
-  distr = "normal")
+  distr = "normal", truncateNumberOfFactors = TRUE)
 }
 \arguments{
 \item{Y}{a matrix of species occurences or abundances}
@@ -45,6 +45,8 @@ species}
 \item{C}{a matrix of phylogenic similaririties between mofelled species}
 
 \item{distr}{a string shortcut or \eqn{n_s \times 4} matrix specifying the observation models}
+
+\item{truncateNumberOfFactors}{reduces the maximal number of latent factor to be at most the number of species}
 }
 \value{
 an object of Hmsc class without any posterior samples
