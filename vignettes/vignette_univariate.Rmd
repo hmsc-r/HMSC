@@ -244,7 +244,7 @@ preds = computePredictedValues(m, expected = FALSE)
 evaluateModelFit(hM=m, predY=preds)
 ```
 
-We note that the MCCM mixing for the lognormal Poisson model is better than for the baseline Poisson model, which is a positive feature, as we expect the lognormal Poisson model to be generally more applicable to ecological data than the baseline Poisson model. As illustrated above, the same types of output can be given for the lognormal Poisson model as for the standard Poisson model.
+We note that the MCCM mixing for the lognormal Poisson model is again much worse that for the normal model. As illustrated above, the same types of output can be given for the lognormal Poisson model as for the standard Poisson model.
 
 ## Hurdle models
 
