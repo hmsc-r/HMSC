@@ -1,18 +1,20 @@
 ---
-title:  |   
+title: |
   | HMSC-R 3.0: Getting started with HMSC-R: univariate models
-author: "Gleb Tikhonov, Øystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen & Otso Ovaskainen"
+author: Gleb Tikhonov, Ã˜ystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen & Otso
+  Ovaskainen
 date: "14 March 2019"
 output:
   pdf_document: default
+  word_document: default
   html_document: default
 fig_caption: yes
 ---
 
 # Introduction
-The Hierarchical Modelling of Species Communities (HMSC) framework is a statistical framework for analysis of multivariate data, typically from species communities. Here, we demonstrate how to get started with HMSC. While HMSC is primarily meant for multivariate data, this vignette illustrates the basics with univariate models.
+The Hierarchical Modelling of Species Communities (HMSC) framework is a statistical framework for analysis of multivariate data, typically from species communities. Here, we demonstrate how to get started with HMSC-R. While HMSC is primarily meant for multivariate data, this vignette illustrates the basics with univariate models.
 
-To get HMSC in use, you need to first install it [https://github.com/hmsc-r/HMSC] and then load it.
+To get HMSC-R in use, you need to first install it [https://github.com/hmsc-r/HMSC] and then load it.
 
 ```{r I, message = F}
 library(Hmsc)
@@ -30,7 +32,7 @@ As the first case study, we use HMSC to fit a univariate linear model. To relate
 ## Generating simulated data
 For illustrative purposes, we use simulated data for which we know the parameter values.
 
-```{r III, fig.height=4, fig.width=4, fig.cap="\\label{fig: I} Scatterplot of simulated data"}
+```{r III, fig.height=4, fig.width=4, fig.cap="\\label{fig: I} Scatterplot of simulated data."}
 n = 50
 x = rnorm(n)
 alpha = 0
@@ -41,10 +43,10 @@ y = L + rnorm(n, sd = sigma)
 plot(x,y, las=1)
 ```
 
-Here `n` is the number of datapoints, `x` is a continuous covariate, `alpha` and `beta` are the true parameters for intercept and slope, `L` is the linear predictor, and `y` is the response variable. We note that the data are simulated by the standard linear model with normally distributed residuals, $y_i = \alpha + \beta x_i + \epsilon_i$, where $\epsilon_i\sim N(0,\sigma^2)$.
+Here `n` is the number of data points, `x` is a continuous covariate, `alpha` and `beta` are the true parameters for intercept and slope, `L` is the linear predictor, and `y` is the response variable. We note that the data are simulated by the standard linear model with normally distributed residuals, $y_i = \alpha + \beta x_i + \epsilon_i$, where $\epsilon_i\sim N(0,\sigma^2)$.
 
 ## Fitting models and looking at parameter estimates
-The standard way to analyze these kinds of data with maximum likelihood inference is to use the `lm` function:
+The standard way to analyse these kinds of data with maximum likelihood inference is to use the `lm` function:
 
 ```{r IV}
 df = data.frame(x,y)
@@ -62,21 +64,36 @@ XData = data.frame(x = x)
 m = Hmsc(Y = Y, XData = XData, XFormula = ~x)
 ```
 
-While the `lm` function constructs the model and fits it at the same time, the `Hmsc` function only constructs the model object. To fit the HMSC model with Bayesian inference, we use the `sampleMcmc` function.
+While the `lm` function constructs the model and fits it at the same time, the `Hmsc` function only constructs the model object. To fit the HMSC model with Bayesian inference, we use the `sampleMcmc` function. When calling `sampleMcmc`, we need to decide how many chains to sample (`nChains`), how many samples to obtain per chain (`samples`), how long transient (also called burn-in) to include (`transient`), and how frequently we wish to see the progress of the MCMC sampling (`verbose`). MCMC sampling can take a lot of time, so we have included two options below. By setting `test.run = TRUE`, the user can fast run the entire .Rmd version of the vignette, but the parameter estimates will not be reliable. However, that does not matter if the aim of running the vignette is e.g. to get familiar with the syntax of HMSC-R, to examine the structure of the constructed objects and the inputs and outputs of the functions. When setting `test.run = FALSE`, a much larger amount of MCMC sampling is conducted, and running the .Rmd version of the vignette will reproduce the results shown in the .pdf version of the vignette. 
+
+```{r}
+nChains = 2
+test.run = TRUE
+if (test.run){
+   #with this option, the vignette runs fast but results are not reliable 
+   thin = 1
+   samples = 10
+   transient = 5
+   verbose = 5
+} else {
+   #with this option, the vignette evaluates slow but it reproduces the results of the .pdf version
+   thin = 5
+   samples = 1000
+   transient = 500*thin
+   verbose = 500*thin
+}
+```
+
+We are now ready to call `sampleMcmc` and thus estimate the model parameters.
 
 ```{r VI}
-nChains = 2
-thin = 1
-samples = 10
-transient = 5
-verbose = 10
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
                     nChains = nChains, verbose = verbose)
 ```
 
-Here we have set some parameters (`thin`, `samples`, `transient`, `nChains`) that control how the parameters are estimated (more precisely, how the posterior distribution is sampled). We will ignore these for a moment but return to their meaning soon. The main thing is that now the model object `m` also includes estimated parameters, in the same way as the object `m.lm` includes the parameters estimated by the `lm` function.
+As briefly explained above, the parameters (`thin`, `samples`, `transient`, `nChains`) control how the posterior distribution is sampled with the MCMC method. We will return to this issue soon. But the main thing is that now the model object `m` also includes estimated parameters, in the same way as the object `m.lm` includes the parameters estimated by the `lm` function.
 
-To see the parameter estimates, we may e.g. extract the posterior distribution from the model object and convert it into a `coda` object. 
+To look at the parameter estimates, we may extract the posterior distribution from the model object and convert it into a `coda` object. 
 
 ```{r VII}
 mpost = convertToCodaObject(m)
@@ -98,13 +115,13 @@ Model fit can be evaluated in many ways. The second measure of model fit returne
 
 Let us now return to the parameters that guide posterior sampling in the MCMC algorithm. We first plot the trace plots of the $\beta$-parameters.
 
-```{r IX,  fig.height=7, fig.width=7, fig.cap="\\label{fig: IX} Posterior trace plots of Beta parameters"}
+```{r IX,  fig.height=7, fig.width=7, fig.cap="\\label{fig: IX} Posterior trace plots of Beta parameters."}
 plot(mpost$Beta)
 ```
 
-The black and red lines show the two (`nChains=``r nChains`) independent MCMC chains. Both chains start from iteration `r transient+1`, as by setting `transient=``r transient` we have chosen to ignore iterations before that as a possible transient. The chains have run in total `r transient+thin*samples` iterations each, as we selected to obtain `r samples` samples, and we have recorded only every `r thin`:th step (`thin=``r thin`) of the iterations.
+The black and red lines show the two (`nChains=``r nChains`) independent MCMC chains. Both chains start from iteration `r transient+1`, as by setting `transient=``r transient` we have chosen to ignore iterations before that as a possible transient. The chains have run in total `r transient+thin*samples` iterations each, as we selected to obtain `r samples` samples, and we have recorded every `r thin`:th step (`thin=``r thin`) of the iterations.
 
-These trace-plots look essentially as good as they can ever look like. First of all, the two chains yield essentially identical results. Second, the chains mix very well, i.e. they go fast up and down without any apparent autocorrelation. Third, they seem to have reached a stationary distribution, as e.g. the first half of the recorded iterations looks statistically identical to the second half of the recorded iterations.
+If running the 'test.run = FALSE' version of the vignette, the trace-plots look essentially as good as they can ever look like. First of all, the two chains yield essentially identical results. Second, the chains mix very well, i.e. they go fast up and down without any apparent autocorrelation. Third, they seem to have reached a stationary distribution, as e.g. the first half of the recorded iterations looks statistically identical to the second half of the recorded iterations.
 
 We may also evaluate MCMC convergence more quantitatively in terms of effective sample sizes and potential scale reduction factors.
 
@@ -115,13 +132,13 @@ gelman.diag(mpost$Beta,multivariate=FALSE)$psrf
 
 We observe that the effective sample sizes are very close to the theoretical value of the actual number of samples, which is `r nChains*samples` (`r samples` per chain). This indicates that there is very little autocorrelation among consecutive samples. The potential scale reduction factors are very close to one, which indicates that two chains gave consistent results, as suggested by visual inspection of the trace plots.
 
-In summary, the MCMC diagnostics did not indicate any problems with MCMC convergence. This means that the posterior sample is likely to be representative of the true posterior distribution, and thus the inference from the model can be trusted. If the MCMC convergence would have indicated problems, we should have refitted the model using different parameters. If the trace-plots would have suggested the presence of a transient (the early iterations would have looked different from the later iterations), we should have increased the amount of transient (also called burn-in) iterations to be discarded. If the chains would have shown autocorrelations and/or differed from each other, we should have increased the number of iterations. This can be done by increasing either the number of samples, or by keeping the number of samples fixed but increasing thinning. We recommend the latter, as increasing the number of samples can make the model objects very big and lead to computationally expensive postprocessing. If one needs to run a million iterations, we recommend doing so by `samples=1000` and `thin=1000` rather than `samples=1000000` and `thin=1`. In our view, 1000 samples are typically sufficient to evaluate e.g. posterior means and credible intervals with sufficient accuracy.
+In summary, the MCMC diagnostics did not indicate any problems with MCMC convergence. This means that the posterior sample is likely to be representative of the true posterior distribution, and thus the inference from the model can be trusted. If the MCMC convergence would have indicated problems, we should have refitted the model using different parameters. If the trace-plots would have suggested the presence of a transient (the early iterations would have looked different from the later iterations), we should have increased the amount of transient iterations to be discarded. If the chains would have shown autocorrelations and/or differed from each other, we should have increased the number of iterations. This can be done by increasing either the number of samples, or by keeping the number of samples fixed but increasing thinning. We recommend the latter, as increasing the number of samples can make the model objects very big and lead to computationally expensive post processing. If one needs to run a million iterations, we recommend doing so by `samples=1000` and `thin=1000` rather than `samples=1000000` and `thin=1`. In our view, 1000 samples are typically sufficient to evaluate e.g. posterior means and credible intervals with sufficient accuracy.
 
 ## Checking the assumptions of the linear model
 
 When applying the linear model, it is a good practice to examine if the assumptions of the linear model are upheld. In the context of the `lm` function, this can be done e.g. by constructing the following diagnostic plots.
 
-```{r XI,  fig.height=4, fig.width=7, fig.cap="\\label{fig: XI} Residuals of the linear model fitted with the lm() function, shown as a histogram and as a function of the fitted values"}
+```{r XI,  fig.height=4, fig.width=7, fig.cap="\\label{fig: XI} Residuals of the linear model fitted with the lm() function, shown as a histogram and as a function of the fitted values."}
 nres.lm = rstandard(m.lm)
 preds.lm = fitted.values(m.lm)
 par(mfrow=c(1,2))
@@ -130,11 +147,11 @@ plot(preds.lm,nres.lm, las = 1)
 abline(a=0,b=0)
 ```
 
-The first plot shows that the residuals conform well to the assumtion of normality, and the second plot shows that the residuals are homoscedastic. This is not surprising, as the data were simulated from the linear model.
+The first plot shows that the residuals conform well to the assumption of normality, and the second plot shows that the residuals are homoscedastic. This is not surprising, as the data were simulated from the linear model.
 
-Structral model assumptions can be checked with HMSC basically in the same way as with the standard linear model. However, while for models fitted with the `lm` function simply typing `plot(m.lm)` would provide many diagnostic plots "automatically", with HMSC there is no such built-in functionality. This is because typical applications of HMSC relate to much more complex models where it is not straightforward to decide what a "standard" diagnostic plot should be. To generate diagnostic plots with HMSC, we first summarize the posterior predictive distribution into posterior mean and then extract and standardize the residuals.
+Structural model assumptions can be checked with HMSC basically in the same way as with the standard linear model. However, while for models fitted with the `lm` function simply typing `plot(m.lm)` would provide many diagnostic plots "automatically", with HMSC there is no such built-in functionality. This is because typical applications of HMSC relate to much more complex models where it is not straightforward to decide what a "standard" diagnostic plot should be. To generate diagnostic plots with HMSC, we first summarize the posterior predictive distribution into posterior mean and then extract and standardize the residuals.
 
-```{r XII,  fig.height=4, fig.width=7, fig.cap="\\label{fig: XII} Residuals of the linear model fitted with HMSC, shown as a histogram and as a function of the fitted values"}
+```{r XII,  fig.height=4, fig.width=7, fig.cap="\\label{fig: XII} Residuals of the linear model fitted with HMSC, shown as a histogram and as a function of the fitted values."}
 preds.mean = apply(preds, FUN=mean, MARGIN=1)
 nres = scale(y-preds.mean)
 par(mfrow=c(1,2))
@@ -158,17 +175,18 @@ whereas the full version that makes the assumption of normality transparent woul
 m = Hmsc(Y=Y, XData=XData, XFormula=~x, distr = "normal")
 ```
 
-In addition to the normal distribution, HMSC-R 3.0 allows three other types of link functions and error distributions: probit model for presence-absence data, and Poisson and log-normal Poisson models for count data. We note that while also many other kinds of link functions and error distributions can be quite straightforwardly implemented in the univariate framework, this is not the case for HMSC due to its multivariate and hierarchical nature. Thus, implementing other kinds of link functions and error distributions is a challenge for the future.
+In addition to the normal distribution, HMSC-R 3.0 allows three other types of link functions and error distributions: probit model for presence-absence data, and Poisson and lognormal Poisson models for count data. We note that while also many other kinds of link functions and error distributions can be quite straightforwardly implemented in the univariate framework, this is not the case for HMSC due to its multivariate and hierarchical nature. Thus, implementing other kinds of link functions and error distributions is a challenge for the future.
 
 ## Probit model for presence-absence data
 
 A common case with community ecology data is that of presence-absence data, meaning that the response variable is either 0 (the species is absent) or 1 (the species is present). In HMSC-R, such data can be modelled with probit regression. For those readers not familiar with probit regression, we note that it is similar to logistic regression, it just applies a slightly different link-function (probit instead of logit). We next repeat the above exercise but do so for data that conform to the assumptions of probit regression.
  
-```{r XV, fig.height=4, fig.width=4, fig.cap="\\label{fig: XV} Scatterplot of simulated binary data"}
+```{r XV, fig.height=4, fig.width=4, fig.cap="\\label{fig: XV} Scatterplot of simulated binary data."}
 y = 1*(L+ rnorm(n, sd = 1)>0)
 plot(x,y, las = 1)
 Y=as.matrix(y)
 m = Hmsc(Y=Y, XData=XData, XFormula=~x, distr="probit")
+verbose = 0
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
                     nChains = nChains, verbose = verbose)
 mpost = convertToCodaObject(m)
@@ -179,13 +197,15 @@ preds = computePredictedValues(m)
 evaluateModelFit(hM=m, predY=preds)
 ```
 
+We note that we have now set `verbose = 0` to suppress the output on progress of MSMC sampling. Generally we recommend the user not to set `verbose = 0` to see that MCMC sampling is moving as it should and to be able to estimate how long it will take before the sampling finishes. We have suppressed the output just to make the vignette a bit more compact.
+
 Compared to the case of the linear model, we observe that the effective sample size is somewhat smaller (achieving MCMC convergence is generally more challenging in non-normal models), and the parameter estimates include more uncertainty (0/1 data are less informative than normally distributed data). We further note that instead of the $R^2$ of the linear model, model fit is now evaluated in terms of `AUC` and Tjur $R^2$.
 
 ## Poisson model for count data
 
-In another common case with community ecology data the response variable is a non-negative integer 0,1,2,3,..., representing the count of indivuals. In HMSC-R, such data can be modelled with Poisson regression. We next repeat the above exercise but do so for data that conform the assumptions of Poisson regression.
+In another common case with community ecology data the response variable is a non-negative integer 0,1,2,3,..., representing the count of individuals. In HMSC-R, such data can be modelled with Poisson regression. We next repeat the above exercise but do so for data that conform the assumptions of Poisson regression.
  
-```{r XVI, fig.height=4, fig.width=4, fig.cap="\\label{fig: XVI} Scatterplot of simulated count data"}
+```{r XVI, fig.height=4, fig.width=4, fig.cap="\\label{fig: XVI} Scatterplot of simulated count data."}
 y = rpois(n, lambda = exp(L))
 plot(x,y,las=1)
 Y=as.matrix(y)
@@ -200,16 +220,16 @@ preds = computePredictedValues(m, expected = FALSE)
 evaluateModelFit(hM=m, predY=preds)
 ```
 
-In this case, the MCMC diagnostics are much worse than for the probit model. Unfortunately, achieving MCMC convergence for a Poisson model in the HMSC context is highly challenging. To get results that can be trusted, one should increase the thinning and thus run the model longer.
+In this case, the MCMC diagnostics are much worse than for the probit model. Unfortunately, achieving MCMC convergence for a Poisson model in the HMSC context is highly challenging. To get an unbiased sample from the posterior and results that can be fully trusted, one should increase the thinning and thus run the model longer.
 
-For the Poisson model, many kinds of measures of model fit are given. The measure `SR2` can be viewed as a pseudo-$R^2$. Whereas the $R^2$ of a linear model can be computed as the squared pearson correlation between predicted and true values, we have computed `SR2` as the squared spearman correlation between observed and predicted values. As the Poisson model predicts counts, it can be used to separate whether a species is present (count>0) or absent (count=0). For evaluating how well species occurrences (indicated by `O.`) are predicted, the same measures (`AUC` and Tjur $R^2$) can be computed as for the probit model. Sometimes it is also of interest to examine how well the model is able to predict abundance variation in cases where the species is present, and thus ignoring absences. This is done with the measures indicated by `C.`, where C refers to "conditional on presence". Note that here we have generated the predictions with the option `expected = FALSE`. In this case, the predictions are not expected values (e.g. on average we expect to see 2.3 individuals), but a posterior predictive distribution of data (i.e., actual counts 0,1,2,3,... that include the Poisson error). We have selected `expected = FALSE` so that presence-absences can be inferred from the predictions, enabling us to compute also the `O.`and `C.` variants of measures of model fit.
+For the Poisson model, many kinds of measures of model fit are given. The measure `SR2` can be viewed as a pseudo-$R^2$. Whereas the $R^2$ of a linear model can be computed as the squared Pearson correlation between predicted and true values, we have computed `SR2` as the squared Spearman correlation between observed and predicted values. As the Poisson model predicts counts, it can be used to separate whether a species is present (count>0) or absent (count=0). For evaluating how well species occurrences (indicated by `O.`) are predicted, the same measures (`AUC` and Tjur $R^2$) can be computed as for the probit model. It is also of interest to examine how well the model is able to predict abundance variation in cases where the species is present, and thus ignoring absences. This is done with the measures indicated by `C.`, where C refers to "conditional on presence". Note that here we have generated the predictions with the option `expected = FALSE`. In this case, the predictions are not expected values (e.g. on average we expect to see 2.3 individuals), but a posterior predictive distribution of data, i.e., actual counts 0,1,2,3,... that include the Poisson sampling error. We have selected `expected = FALSE` so that presence-absences can be inferred from the predictions, enabling us to compute also the `O.`and `C.` variants of measures of model fit.
 
-## Log-normal Poisson model for count data
+## Lognormal Poisson model for count data
 
-The Poisson model is often not a good model for ecological count data as it does not allow sufficient amount of variation around the expectation. To allow for more variation, HMSC-R includes the possibility to fit a log-normal Poisson model. We note that another standard option would be to fit the Negative Binomial model, but this model is not included currently in HMSC-R. We next repeat the above exercise but do so for data that conform to the assumptions of log-normal Poisson regression.
+The Poisson model is often not a good model for ecological count data as it does not allow sufficient amount of variation around the expectation. To allow for more variation, HMSC-R includes the possibility to fit a lognormal Poisson model. We note that another standard option would be to fit the Negative Binomial model, but this model is not included currently in HMSC-R. We next repeat the above exercise but do so for data that conform to the assumptions of lognormal Poisson regression.
  
  
-```{r XVII, fig.height=4, fig.width=4, fig.cap="\\label{fig: XVII} Scatterplot of simulated log-normal count data"}
+```{r XVII, fig.height=4, fig.width=4, fig.cap="\\label{fig: XVII} Scatterplot of simulated lognormal count data."}
 y = rpois(n, lambda = exp(L+rnorm(n, sd=2)))
 plot(x,y, las = 1)
 Y=as.matrix(y)
@@ -224,25 +244,25 @@ preds = computePredictedValues(m, expected = FALSE)
 evaluateModelFit(hM=m, predY=preds)
 ```
 
-We note that the output is similar to that given for the standard Poisson model.
+We note that the MCCM mixing for the lognormal Poisson model is better than for the baseline Poisson model, which is a positive feature, as we expect the lognormal Poisson model to be generally more applicable to ecological data than the baseline Poisson model. As illustrated above, the same types of output can be given for the lognormal Poisson model as for the standard Poisson model.
 
 ## Hurdle models
 
-Ecological count data are often dominated by zeros, i.e. they are zero-inflated. One standard model that can be fitted to such data is the Zero-Inflated Poisson model. While HMSC-R 3.0 does not include this or other zero-inflated models, we note that it is always possible to apply the closely-related Hurdle approach, i.e. to  analyze separately occurrence data `1*(Y>0)`by probit regression, and abundance conditional on presence `Y[Y==0] = NA` by a suitable model of abundance. We note that these two aspects of the data (occurrence and abundance conditional on presence) are statistically independent of each other, and thus it is interesting to compare results obtained for them, e.g. to see if variation in occurrence and variation in abundance are explained by the same environmental covariates.
+Ecological count data are often dominated by zeros, i.e. they are zero-inflated. One standard model that can be fitted to such data is the Zero-Inflated Poisson model. While HMSC-R 3.0 does not include this or other zero-inflated models, we note that it is always possible to apply the closely-related Hurdle approach. In the Hurdle model, one analyses separately occurrence data `1*(Y>0)` and abundance conditional on presence `Y[Y==0] = NA`. We note that these two aspects of the data (occurrence and abundance conditional on presence) are statistically independent of each other, and thus it is interesting to compare results obtained for them, e.g. to see if variation in occurrence and variation in abundance are explained by the same environmental covariates. In HMSC-R 3.0, occurrence data are analysed by the probit model, whereas the best model for abundance (conditional on presence) depends on the type of the data.
 
 ## How to select the best model?
 
-When fitting generalized linear models with the maximum likelihood framework, a common way of comparing models is to use AIC. For example, in the case of count data, AIC could be used to compare the Poisson model, the Negative Binomial model, and the Zero-Inflated Poisson model. In the case of HMSC-R, model selection is recommended to be conducted through evaluating predictive performance through cross-validation. We illustrate cross-validation strategies below in the context of mixed models.
+When fitting generalized linear models in the maximum likelihood framework, a common way of comparing models is to use AIC or some other information criteria. For example, in the case of count data, AIC could be used to compare the Poisson model, the Negative Binomial model, and the Zero-Inflated Poisson model. In the case of HMSC-R, model selection is recommended to be conducted through evaluating predictive performance through cross-validation. We illustrate cross-validation strategies below in the context of mixed models.
 
 # Mixed models: fixed and random effects
 
-We next turn to mixed models, i.e. models with both fixed and random effects. For simplicity, we consider here linear models only, even if similar analyses could be done with probit, Poisson or log-normal Poisson models.
+We next turn to mixed models, i.e. models with both fixed and random effects. For simplicity, we consider here linear models only, even if similar analyses could be done with probit, Poisson or lognormal Poisson models.
 
 ## Hierarchical structure: sampling units within plots
 
-We first consider a hierarhical study design in which 100 sampling units belong to a discrete set of `np=10` plots. We assume that the plots have an additive effect to the response variable, i.e. we consider a random intercept model.
+We first consider a hierarchical study design in which 100 sampling units belonging to a discrete set of `np=10` plots. We assume that the plots have an additive effect to the response variable, i.e. we consider a random intercept model.
 
-```{r XVIII, fig.height=4, fig.width=4, fig.cap="\\label{fig: XVIII} Scatterplot of simulated data belonging to ten groups indicated by colors"}
+```{r XVIII, fig.height=4, fig.width=4, fig.cap="\\label{fig: XVIII} Scatterplot of simulated data originating from ten plots, as indicated by colors."}
    n = 100
    x = rnorm(n)
    alpha = 0
@@ -273,7 +293,7 @@ m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
                     nChains = nChains, verbose = verbose)
 ```
 
-Here we have included two new input parameters. First, `studyDesign` defines the nature of the study design, here the individual sampling units and the plots to which the sampling units belong. Second, `ranLevels` includes a list of those aspects of the study design to which a random effect will be included, here the plot. The random effect object `rL` was created with the function `HmscRandomLevel` assuming the default options for latent variables. We note that in usual applications of HMSC, the data are multivariate, and the latent factor approach is used to reduce the dimensionality by having a smaller number of latent factors than the number of species. As we assume a univariate model, it is not necessary to have several latent variables, or in general it is not necessary to have more latent variables than there are species, as having the same number of latent variables as species already generates a full rank matrix. For this reason, when calling `Hmsc`, the default option is to reduce the maximal number of factors to be at most the number of species, and thus in the univariate case the above script fixes the number of the underlying latent factors to one.
+Here we have included two new input parameters. First, `studyDesign` defines the nature of the study design, here the individual sampling units and the plots to which the sampling units belong. Second, `ranLevels` includes a list of those aspects of the study design to which a random effect will be included, here the plot. The random effect object `rL` was created with the function `HmscRandomLevel` assuming the default options for latent variables. We note that in usual applications of HMSC, the data are multivariate, and the latent factor approach is used to reduce dimensionality of residual association matrices by having a smaller number of latent factors than the number of species. As we assume a univariate model, it is not necessary to have more than one latent variable, and in general it is not necessary to have more latent variables than there are speciess. This is because having the same number of latent variables as species is sufficient to generate a full rank species association matrix. For this reason, when calling `Hmsc`, the default option is to reduce the maximal number of factors to be at most the number of species, and thus in the univariate case the above script fixes the number of the underlying latent factors to one.
 
 Let us now evaluate model fit as we have done above.
 
@@ -283,7 +303,7 @@ MF = evaluateModelFit(hM=m, predY=preds)
 MF$R2
 ```
 
-Here, we have predicted the same data that were used to fit the model, and thus $R^2$ measures explanatory power rather than predictive power. If we would add more predictors, we could make $R^2$ approach one even if the predictors would represent just random noise, a phenomenon known as overfitting. For this reason, the preditive power of the model should be evaluated more critically by cross-validation.
+Here, we have predicted the same data that were used to fit the model, and thus $R^2$ measures explanatory power rather than predictive power. If we would add more predictors, we could make $R^2$ approach one even if the predictors would represent just random noise, a phenomenon known as overfitting. For this reason, the predictive power of the model should be evaluated more critically by cross-validation.
 
 ### Examples of cross-validation strategies
 
@@ -304,7 +324,7 @@ MF$R2
 
 As expected, the cross-validation-based predictive $R^2$ is lower than the explanatory $R^2$.
 
-Performing the two-fold cross-validation required fitting the model twice, and more generally performing $k$-fold cross-validation requires fitting the model $k$ times, which can become computationally intensive. For this reason, we have applied here two-fold cross-validation rather than e.g. leave-one-out cross-validation. Increasing the number of folds means that more data are available for fitting the model, which can be expected to lead to greater predictive performance. In this sense, the predictive power estimated by two-fold cross-validation is likely to underestimate the true predictive power of the full model fitted to all data.
+Performing the two-fold cross-validation required fitting the model twice, and more generally performing $k$-fold cross-validation requires fitting the model $k$ times, which can become computationally intensive. For this reason, we have applied here two-fold cross-validation rather than e.g. leave-one-out cross-validation. Increasing the number of folds means that more data are available for fitting the model, which can be expected to lead to greater predictive performance. For this reason, the predictive power estimated by two-fold cross-validation is likely to underestimate the true predictive power of the full model fitted to all data.
 
 Cross-validation can be performed in many ways, and how exactly it should be performed depends on which aspect of predictive power one wishes to measure. To illustrate, let us partition the plots rather than the sampling units into different folds.
 
@@ -313,7 +333,7 @@ partition = createPartition(m, nfolds = 2, column = "plot")
 t(cbind(plot.id,partition)[1:15,])
 ```
 
-As seen by examining the correspondence between plots and the partition (shown here for the first 15 samplig units), now all sampling units belonging to a particular plot have been included in the same fold.
+As seen by examining the correspondence between plots and the partition (shown here for the first 15 sampling units), now all sampling units belonging to a particular plot have been included in the same fold.
 
 ```{r XXIV}
 preds = computePredictedValues(m,partition=partition)
@@ -321,13 +341,13 @@ MF = evaluateModelFit(hM=m, predY=preds)
 MF$R2
 ```
 
-The predictive power of the model is smaller when assigning entire plots rather than individual sampling units into folds. This is because the prediction task is now more difficult: when making a prediction for a particular sampling unit, the model was now fitted without training data from any other sampling units in the same plot. Thus the model has no possibility to estimate the actual random effect for the focal plot, and thus its predictive power is based solely on the fixed effects.
+The predictive power of the model is smaller when assigning entire plots rather than individual sampling units into different cross-validation folds. This is because the prediction task is now more difficult: when making a prediction for a particular sampling unit, the model was fitted without training data from any other sampling units in the same plot. Thus the model has no possibility to estimate the actual random effect for the focal plot, and thus its predictive power is based solely on the fixed effects.
 
 ## Spatial structure: including coordinates of sampling units
 
 We next consider spatial data by assuming that each sampling unit is associated with two-dimensional spatial coordinates. We generate the data by assuming spatially structured residuals with an exponentially decreasing spatial covariance function.
 
-```{r XXV, fig.height=8, fig.width=4, fig.cap="\\label{fig: XXV} Plots of simulated spatially structured data"}
+```{r XXV, fig.height=4, fig.width=7, fig.cap="\\label{fig: XXV} Plots of simulated spatially structured data."}
    sigma.spatial = 2
    alpha.spatial = 0.5
    sample.id = rep(NA,n)
@@ -339,12 +359,13 @@ We next consider spatial data by assuming that each sampling unit is associated 
    rownames(xycoords) = sample.id
    colnames(xycoords) = c("x-coordinate","y-coordinate")
    a = mvrnorm(mu=rep(0,n),
-               Sigma = sigma.spatial*exp(-as.matrix(dist(xycoords))/alpha.spatial))
+               Sigma = sigma.spatial^2*exp(-as.matrix(dist(xycoords))/alpha.spatial))
    y =  L + a + rnorm(n, sd = sigma)
    Y=as.matrix(y) 
    colfunc = colorRampPalette(c("cyan", "red"))
    ncols = 100
    cols = colfunc(100)
+   par(mfrow=c(1,2))
    for (i in 1:2){
       if (i==1) value = x
       if (i==2) value = y
@@ -361,13 +382,11 @@ To fit a spatially explicit model with HMSC, we construct the random effect usin
 ```{r XXVI}
 studyDesign = data.frame(sample = sample.id)
 rL = HmscRandomLevel(sData = xycoords)
-rL$nfMin = 1
-rL$nfMax = 1
 m = Hmsc(Y=Y, XData=XData, XFormula=~x, 
          studyDesign=studyDesign, ranLevels=list("sample"=rL))
 ```
 
-Again, we fix the number of latent factors to one because we consider here a univariate model. Model fitting and evaluation of explanatory and predictive powers can be done as before.
+Model fitting and evaluation of explanatory and predictive powers can be done as before.
 
 ```{r XXVII}
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
@@ -384,11 +403,11 @@ MF = evaluateModelFit(hM=m, predY=preds)
 MF$R2
 ```
 
-As the model includes a spatially structured random effect, it's predictive power is based on both the fixed and the random effects. Concerning the latter, the model can utilize observed data from nearby sampling units included in model fitting when predicting the response for a focal sampling unit that is not included in model fitting.
+As the model includes a spatially structured random effect, its predictive power is based on both the fixed and the random effects. Concerning the latter, the model can utilize observed data from nearby sampling units included in model fitting when predicting the response for a focal sampling unit that is not included in model fitting.
 
 The estimated spatial scale of the estimated random effect is given by the parameter `Alpha[[1]]`, for which we show the MCMC trace plot.
 
-```{r XXIX, fig.height=4, fig.width=7, fig.cap="\\label{fig: XXIX} Posterior trace plot of the spatial scale parameter"}
+```{r XXIX, fig.height=4, fig.width=7, fig.cap="\\label{fig: XXIX} Posterior trace plot of the spatial scale parameter."}
 mpost = convertToCodaObject(m)
 plot(mpost$Alpha[[1]])
 summary(mpost$Alpha[[1]])
