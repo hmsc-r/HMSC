@@ -419,7 +419,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, YScale = FALSE,
       hM$np = apply(hM$Pi, 2, function(a) return(length(unique(a))))
       hM$nr = ncol(hM$Pi)
       if (truncateNumberOfFactors){
-         for (r in 1:hM$nr){
+         for (r in  seq_len(hM$nr)){
             hM$rL[[r]]$nfMax = min(hM$rL[[r]]$nfMax,hM$ns)
             hM$rL[[r]]$nfMin = min(hM$rL[[r]]$nfMin,hM$rL[[r]]$nfMax)
          }

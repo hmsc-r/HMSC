@@ -40,7 +40,9 @@
 #'
 #' @export
 
-computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1, Yc=NULL, mcmcStep=1, expected=TRUE, initPar=NULL, nParallel=1, verbose = hM$verbose){
+computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1,
+                                  Yc=NULL, mcmcStep=1, expected=TRUE, initPar=NULL,
+                                  nParallel=1, verbose = hM$verbose){
    if(is.null(partition)){
       postList = poolMcmcChains(hM$postList, start=start)
       pred = predict(hM, post=postList, Yc=Yc, mcmcStep=1, expected=expected)
