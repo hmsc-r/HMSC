@@ -34,7 +34,7 @@ note that if focal variable is continuous, selecting type 2 for a non-focal cate
 \examples{
 
 Gradient = constructGradient(hM=m, focalVariable="x2", non.focalVariables=list(x1=list(3,1),x3=list(1)))
-predY = predict(m, XData=Gradient$XDataNew, studyDesign=Gradient$studyDesignNew, ranLevels=Gradient$rLNew)
+predY = predict(m, Gradient=Gradient)
 plotGradient(m, Gradient, pred=predY, measure="S")
 }
 \seealso{

@@ -33,7 +33,7 @@
 #' @examples
 #'
 #' Gradient = constructGradient(hM=m, focalVariable="x1")
-#' predY = predict(m, XData=Gradient$XDataNew, studyDesign=Gradient$studyDesignNew, ranLevels=Gradient$rLNew)
+#' predY = predict(m, Gradient=Gradient)
 #' plotGradient(m, Gradient, pred=predY, measure="S")
 #' plotGradient(m, Gradient, pred=predY, measure="Y", index = 2, showData = TRUE, jigger = 0.05)
 #'
