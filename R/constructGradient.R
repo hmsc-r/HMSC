@@ -1,4 +1,4 @@
-#' @title hM$sc$constructGradient
+#' @title hM$constructGradient
 #'
 #' @description Constructs an environmental gradient over one of the variables included in \code{XData}
 #' @param focalVariable focal variable over which the gradient is constructed
