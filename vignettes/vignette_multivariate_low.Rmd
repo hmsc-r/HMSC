@@ -62,7 +62,7 @@ To fit the HMSC model with Bayesian inference, we use the `sampleMcmc` function.
 
 ```{r IIIb}
 nChains = 2
-test.run = TRUE
+test.run = FALSE
 if (test.run){
    #with this option, the vignette runs fast but results are not reliable 
    thin = 1
