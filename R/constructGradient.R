@@ -183,7 +183,9 @@ constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid
       if (!is.null(xydata)){
          nxy = dim(xydata)[1]
          xydata1 = matrix(NA,nrow = nxy+1, ncol = rL1$sDim)
-         xydata1[1:nxy,] = xydata
+         for (j in 1:rL1$sDim){
+            xydata1[1:nxy,j] = xydata[,j]
+         }
          xydata1[nxy+1,] = colMeans(xydata)
          rownames(xydata1) = units1
          colnames(xydata1) = colnames(xydata)

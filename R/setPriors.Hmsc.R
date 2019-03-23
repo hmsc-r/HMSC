@@ -73,7 +73,7 @@ setPriors.Hmsc = function(hM, V0=NULL, f0=NULL, mGamma=NULL,
    if(!is.null(bSigma)){
       hM$bSigma = bSigma
    } else if(setDefault){
-      hM$bSigma = rep(0.3, hM$ns)
+      hM$bSigma = rep(5, hM$ns)
    }
 
    if(!is.null(rhopw)){
