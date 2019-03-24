@@ -21,7 +21,7 @@ plotVariancePartitioning=function (hM,VP, ...)
    ng = dim(VP$vals)[1]
    leg = VP$groupnames
    for (r in 1:m$nr) {
-      leg = c(leg, paste("Random: ", hM$levelNames[r], sep = ""))
+      leg = c(leg, paste("Random: ", hM$rLNames[r], sep = ""))
    }
    means = round(100 * rowMeans(VP$vals), 1)
    for (i in 1:ng) {
