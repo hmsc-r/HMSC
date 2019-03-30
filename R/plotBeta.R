@@ -2,7 +2,7 @@
 #'
 #' @description Plots heatmaps of parameter estimates or posterior support values of species' environmental responses, i.e. how species in \code{Y} responds to covariates in \code{X}
 #' @param post Posterior summary of Beta parameters obtained from \code{\link{getPostEstimate}}
-#' @param param Controls which parameter is plotted, current options include "Beta" for parameter estimates and "Support" for posterior support
+#' @param param Controls which parameter is plotted, current options include "Mean" for posterior mean estimate and "Support" for the level of statistical support measured by posterior probability for a positive or negative response
 #' @param plotTree Logical. Whether species' environmental responses is to be mapped onto the phylogeny used in model fitting
 #' @param SpeciesOrder Controls the ordering of species, current options are "Original", "Tree", and "Vector". If SpeciesOrder = "Vector", an ordering vector must be provided (see SpVector). If plotTree = T, SpeciesOrder is ignored
 #' @param SpVector Controls the ordering of species if SpeciesOrder = "Vector". If a subset of species are listed, only those will be plotted. For alphabetic ordering, try \code{match(1:hM$ns, as.numeric(as.factor(colnames(hM$Y))))}
@@ -87,7 +87,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
    mbeta=post$mean
    betaP=post$support
 
-   if(param=="Beta"){
+   if(param=="Mean"){
       toPlot = mbeta
       toPlot = toPlot * ((betaP>supportLevel) + (betaP<(1-supportLevel))>0)
       betaMat = matrix(toPlot, nrow=ncolsX, ncol=ncol(hM$Y))
