@@ -81,11 +81,12 @@ computeVariancePartitioning = function(hM, group, groupnames, start=1){
    }
    lf=lapply(postList, getf)
 
-   lmu=lapply(postList, gemu)
    gemu = function(a){
       res = t(hM$Tr%*%t(a$Gamma))
       return(res)
    }
+   lmu=lapply(postList, gemu)
+
 
       gebeta = function(a){
       res = a$Beta
