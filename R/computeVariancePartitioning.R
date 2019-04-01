@@ -150,7 +150,6 @@ computeVariancePartitioning = function(hM, group, groupnames, start=1){
    R2T.Y = R2T.Y/hM$samples
    R2T.Beta = R2T.Beta/hM$samples
 
-
    vals = matrix(0,nrow=ngroups+nr,ncol=ns)
    for (i in 1:ngroups){
       vals[i,] = fixed*fixedsplit[,i]
