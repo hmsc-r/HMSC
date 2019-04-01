@@ -39,12 +39,12 @@
 #'
 #' @export
 
-plotGradient=function (hM, Gradient, pred, measure, index = 1, prob = c(0.025, 0.5, 0.975), showData = FALSE, jigger = 0,...){
+plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 0.5, 0.975), showData = FALSE, jigger = 0,...){
 
    if (measure == "S") {
       predS = lapply(predY, rowSums)
       qpred = apply(abind(predS, along = 2), c(1), quantile,
-                    prob = prob)
+                    prob = prob, na.rm=TRUE)
       ylabel = "Summed response"
       if (all(hM$distr[,1]==2)){
          ylabel = "Species richness"
@@ -55,7 +55,7 @@ plotGradient=function (hM, Gradient, pred, measure, index = 1, prob = c(0.025, 0
    }
    if (measure == "Y") {
       qpred = apply(abind(predY, along = 3), c(1, 2), quantile,
-                    prob = prob)
+                    prob = prob, na.rm=TRUE)
       qpred = qpred[, , index]
       ylabel = hM$spNames[[index]]
    }
