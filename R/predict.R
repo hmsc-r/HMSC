@@ -111,8 +111,8 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
       LRan = vector("list",hM$nr)
       Eta = vector("list",hM$nr)
       for(r in seq_len(hM$nr)){
-         LRan[[r]] = predPostEta[[r]][[pN]][dfPiNew[,r],] %*% sam$Lambda[[r]]
          Eta[[r]] = predPostEta[[r]][[pN]]
+         LRan[[r]] = Eta[[r]][dfPiNew[,r],] %*% sam$Lambda[[r]]
       }
       if(hM$nr > 0){L = LFix + Reduce("+", LRan)} else L = LFix
 
@@ -124,17 +124,15 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
             Z = updateZ(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda, X=X,Pi=PiNew,distr=hM$distr,rL=rL)
          }
          for(r in seq_len(hM$nr)){
-            LRan[[r]] = predPostEta[[r]][[pN]][dfPiNew[,r],] %*% sam$Lambda[[r]]
+            LRan[[r]] = Eta[[r]][dfPiNew[,r],] %*% sam$Lambda[[r]]
          }
          if(hM$nr > 0){L = LFix + Reduce("+", LRan)} else L = LFix
-      } else {
-         if(!expected){
-            Z = L + matrix(sqrt(sam$sigma),nrow(L),hM$ns,byrow=TRUE) * matrix(rnorm(nrow(L)*hM$ns),nrow(L),hM$ns)
-         } else{
-            Z = L
-         }
       }
-
+      if(!expected){
+         Z = L + matrix(sqrt(sam$sigma),nrow(L),hM$ns,byrow=TRUE) * matrix(rnorm(nrow(L)*hM$ns),nrow(L),hM$ns)
+      } else{
+         Z = L
+      }
       for(j in 1:hM$ns){
          if(hM$distr[j,"family"] == 2){ # probit
             if(expected){
