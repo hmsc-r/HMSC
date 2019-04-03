@@ -59,7 +59,7 @@ predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predict
                s1 = rL$s[units,]
                s2 = rL$s[unitsPred[indNew],]
                D11 = as.matrix(dist(s1))
-               D12 = pdist(s1,s2)
+               D12 = as.matrix(pdist(s1,s2))
                for(h in 1:nf){
                   if(alphapw[alpha[h],1] > 0){
                      K11 = exp(-D11/alphapw[alpha[h],1])
