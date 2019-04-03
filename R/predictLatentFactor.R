@@ -12,7 +12,8 @@
 #' @param predictMeanField a boolean flag indicating whether to return the samples from the mean-field distribution of
 #'   the predictive Gaussian process distribution
 #'
-#' @return a list of random effect samples at \code{unitsPred} from its predictive distribution conditional on the v
+#' @return a list of length \code{length(postEta)} containing samples of random factors at \code{unitsPred} from their
+#'   predictive distribution conditional on the values at \code{units}
 #'
 #' @details Length of \code{units} vector and number of rows in \code{postEta} matrix shall be equal. The method assumes
 #'   that the i-th row of \code{postEta} correspond to i-th element of \code{units}.

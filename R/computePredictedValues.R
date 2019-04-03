@@ -17,14 +17,13 @@
 #' belonging to the other folds. If partition.sp is used, the parameter mcmcStep should be set to high enough value to obtain
 #' appropriate conditional predictions. The option Yc can be used alternatively to partition.sp if the conditioning is to be done
 #' to a fixed set of data (independent on which sampling unit and species the predictions are made for).
+#'
 #' @return
 #'
 #'
-#' @seealso
-#'
+#' @seealso \code{\link{predict.Hmsc}}
 #'
 #' @examples
-#'
 #' preds = computePredictedValues(m)
 #' MF = evaluateModelFit(hM=m, predY=preds)
 #'

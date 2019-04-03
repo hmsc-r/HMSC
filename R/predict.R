@@ -16,8 +16,7 @@
 #'
 #' @return A list of length \code{length(post)}, each element of which contains a sample from posterior predictive distribution (given the sample of the Hmsc model parameters in the corresponding element of the \code{post} argument)
 #'
-#' @seealso
-#' Hmsc()
+#' @seealso \code{\link{predictLatentFactor}}
 #'
 #' @examples
 #'
