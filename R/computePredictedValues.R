@@ -34,12 +34,14 @@
 #' predsCV2 = computePredictedValues(m, partition = partition, partition.sp = 1:m$ns, mcmcStep = 100)
 #' MFCV2 = evaluateModelFit(hM=m, predY=predsCV2)
 #'
-#' # Here it is expectd that the measures of model fit be highest for MF,
+#' # Here it is expected that the measures of model fit be highest for MF,
 #' # second highest for MFCV2, and lowest for MFCV1
 #'
 #' @export
 
-computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1, Yc=NULL, mcmcStep=1, expected=TRUE, initPar=NULL, nParallel=1, verbose = hM$verbose){
+computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1,
+                                  Yc=NULL, mcmcStep=1, expected=TRUE, initPar=NULL,
+                                  nParallel=1, verbose = hM$verbose){
    if(is.null(partition)){
       postList = poolMcmcChains(hM$postList, start=start)
       pred = predict(hM, post=postList, Yc=Yc, mcmcStep=1, expected=expected)

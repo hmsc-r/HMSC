@@ -2,7 +2,7 @@
 #'
 #' @description Plots heatmaps of parameter estimates or posterior support values of trait effects on species' environmental responses, i.e. how environmental responses in \code{Beta} responds to covariates in \code{X}
 #' @param post Posterior summary of Gamma parameters obtained from \code{\link{getPostEstimate}}
-#' @param param Controls which parameter is plotted, current options include "Beta" for parameter estimates and "Support" for posterior support
+#' @param param Controls which parameter is plotted, current options include "Mean" for posterior mean estimate and "Support" for the level of statistical support measured by posterior probability for a positive or negative response
 #' @param trOrder Controls the ordering of traits, current options are "Original", and "Vector". If trOrder = "Vector", an ordering vector must be provided (see trVector)
 #' @param trVector Controls the ordering of traits if trOrder = "Vector". If a subset of traits are listed, only those will be plotted
 #' @param covOrder Controls the ordering of covariates, current options are "Original" and "Vector". If covOrder = "Vector", an ordering vector must be provided (see covVector)
@@ -75,7 +75,7 @@ plotGamma=function(hM, post, param = "Gamma", trOrder="Original",
    mgamma=post$mean
    gammaP=post$support
 
-   if(param=="Gamma"){
+   if(param=="Mean"){
       toPlot = mgamma
       toPlot = toPlot * ((gammaP>supportLevel) + (gammaP<(1-supportLevel))>0)
       gammaMat = matrix(toPlot, nrow=ncolsX, ncol=ncol(hM$Tr))

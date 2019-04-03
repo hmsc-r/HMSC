@@ -1,4 +1,4 @@
-#' @title hM$sc$constructGradient
+#' @title hM$constructGradient
 #'
 #' @description Constructs an environmental gradient over one of the variables included in \code{XData}
 #' @param focalVariable focal variable over which the gradient is constructed
@@ -27,7 +27,7 @@
 #' @examples
 #'
 #' Gradient = constructGradient(hM=m, focalVariable="x2", non.focalVariables=list(x1=list(3,1),x3=list(1)))
-#' predY = predict(m, XData=Gradient$XDataNew, studyDesign=Gradient$studyDesignNew, ranLevels=Gradient$rLNew)
+#' predY = predict(m, Gradient=Gradient)
 #' plotGradient(m, Gradient, pred=predY, measure="S")
 
 #' @export
@@ -183,7 +183,9 @@ constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid
       if (!is.null(xydata)){
          nxy = dim(xydata)[1]
          xydata1 = matrix(NA,nrow = nxy+1, ncol = rL1$sDim)
-         xydata1[1:nxy,] = xydata
+         for (j in 1:rL1$sDim){
+            xydata1[1:nxy,j] = xydata[,j]
+         }
          xydata1[nxy+1,] = colMeans(xydata)
          rownames(xydata1) = units1
          colnames(xydata1) = colnames(xydata)

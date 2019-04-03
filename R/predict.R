@@ -8,6 +8,7 @@
 #' @param X a matrix specifying the covariates for the predictions to be made. Only one of XData and X arguments may be provided.
 #' @param studyDesign a matrix, specifying the structure of the study design for the prediction. Requirements are similar to those of the \code{Hmsc()} constructor. By default this argument is assighned with the study design of the training data in the fitted Hmsc model.
 #' @param rL a list of HmscRandomLevel objects, futher specifying the structure of random levels. Requirements are similar to those of the \code{Hmsc()} constructor. Each level must cover all units, specified in the correspondingly named column of studyDesign argument. By default this argument is assigned with the list of HmscRandomLevel objects, specified for fitting Hmsc model.
+#' @param Gradient is an object returned by \code{\link{contructGradient}}. Providing \code{Gradient} is an alternative for providing \code{XData}, \code{studyDesign} and \code{rL}
 #' @param Yc a matrix of the outcomes that are assumed to be known for conditional predictions.
 #' @param mcmcStep the number of extra mcmc steps used for updating the random effects (Eta parameters) starting from the samples of the fitted Hmsc model in order to account for the conditional infromation provided in the Yc argument. The higher this number is, the more the obtained updated samples are unaffected by the posterior estimates of latent factors in the model fitted to the training data and more resembles the true conditional posterior. However, the elapsed time for conditional prediction grows approximately linearly as this parameter increases. The exact number for sufficient is problem-dependent and should be assessed by e.g. gradually increasing this parameter till the stationarity of the produced predictions .
 #' @param expected boolean flag whether to return the location parameter of the observation models or sample the values from those.
@@ -23,13 +24,19 @@
 #' @export
 
 predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL, # this has to be updated to cov-dependent associations
-                        studyDesign=hM$studyDesign, ranLevels=hM$ranLevels,
+                        studyDesign=hM$studyDesign, ranLevels=hM$ranLevels, Gradient=NULL,
                         Yc=NULL, mcmcStep=1, expected=FALSE, predictEtaMean=FALSE, predictEtaMeanField=FALSE){
+
+   if(!is.null(Gradient)){
+      XData=Gradient$XDataNew
+      studyDesign=Gradient$studyDesignNew
+      ranLevels=Gradient$rLNew
+   }
 
    if(!is.null(XData) && !is.null(X)){
       stop("Hmsc.predict: only single of XData and X arguments can be specified")
    }
-   if(predictMean==TRUE && predictMeanField==TRUE)
+   if(predictEtaMean==TRUE && predictMeanField==TRUE)
       stop("Hmsc.predict: predictEtaMean and predictEtaMeanField arguments cannot be TRUE simultanuisly")
    if(!is.null(XData)){
       switch(class(XData),
@@ -103,8 +110,8 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
       LRan = vector("list",hM$nr)
       Eta = vector("list",hM$nr)
       for(r in seq_len(hM$nr)){
-         LRan[[r]] = predPostEta[[r]][[pN]][dfPiNew[,r],] %*% sam$Lambda[[r]]
          Eta[[r]] = predPostEta[[r]][[pN]]
+         LRan[[r]] = Eta[[r]][dfPiNew[,r],] %*% sam$Lambda[[r]]
       }
       if(hM$nr > 0){L = LFix + Reduce("+", LRan)} else L = LFix
 
@@ -116,17 +123,15 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
             Z = updateZ(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda, X=X,Pi=PiNew,distr=hM$distr,rL=rL)
          }
          for(r in seq_len(hM$nr)){
-            LRan[[r]] = predPostEta[[r]][[pN]][dfPiNew[,r],] %*% sam$Lambda[[r]]
+            LRan[[r]] = Eta[[r]][dfPiNew[,r],] %*% sam$Lambda[[r]]
          }
          if(hM$nr > 0){L = LFix + Reduce("+", LRan)} else L = LFix
-      } else {
-         if(!expected){
-            Z = L + matrix(sqrt(sam$sigma),nrow(L),hM$ns,byrow=TRUE) * matrix(rnorm(nrow(L)*hM$ns),nrow(L),hM$ns)
-         } else{
-            Z = L
-         }
       }
-
+      if(!expected){
+         Z = L + matrix(sqrt(sam$sigma),nrow(L),hM$ns,byrow=TRUE) * matrix(rnorm(nrow(L)*hM$ns),nrow(L),hM$ns)
+      } else{
+         Z = L
+      }
       for(j in 1:hM$ns){
          if(hM$distr[j,"family"] == 2){ # probit
             if(expected){
