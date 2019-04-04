@@ -283,7 +283,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, YScale = FALSE,
                 hM$XScaled = XScaled
              },
              list = {
-                hM$XScaled = lapply(split(XStack,rep(1:hM$ns,each=hM$ny)), function(a) matrix(a,hM$ny,hM$nc))
+                hM$XScaled = lapply(split(XScaled,rep(1:hM$ns,each=hM$ny)), function(a) matrix(a,hM$ny,hM$nc))
              }
       )
    }

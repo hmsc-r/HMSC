@@ -38,7 +38,7 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
       stop("Hmsc.predict: only single of XData and X arguments can be specified")
    }
    if(predictEtaMean==TRUE && predictMeanField==TRUE)
-      stop("Hmsc.predict: predictEtaMean and predictEtaMeanField arguments cannot be TRUE simultanuisly")
+      stop("Hmsc.predict: predictEtaMean and predictEtaMeanField arguments cannot be TRUE simultaneously")
    if(!is.null(XData)){
       switch(class(XData),
              list={

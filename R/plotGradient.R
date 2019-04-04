@@ -72,8 +72,28 @@ plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 
       qpred = qpred[, , index]
       ylabel = hM$trNames[[index]]
    }
-   xlabel = colnames(Gradient$XDataNew)[[1]]
-   xx = Gradient$XDataNew[, 1]
+   switch(class(hM$X),
+          matrix = {
+             xlabel = colnames(Gradient$XDataNew)[[1]]
+             },
+          list = {
+             xlabel = colnames(Gradient$XDataNew[[1]])[[1]]
+             }
+   )
+
+   switch(class(hM$X),
+          matrix = {
+             xx = Gradient$XDataNew[, 1]
+          },
+          list = {
+             if (measure == "Y") {
+                xx = Gradient$XDataNew[[index]][, 1]
+             } else {
+                xx = Gradient$XDataNew[[1]][, 1]
+             }
+          }
+   )
+
    lo = qpred[1, ]
    hi = qpred[3, ]
    me = qpred[2, ]
@@ -82,7 +102,14 @@ plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 
    hi1 = max(hi)
 
    if(showData){
-      XDatacol = which(colnames(Gradient$XDataNew)[[1]]==colnames(hM$XData))
+      switch(class(hM$X),
+             matrix = {
+                XDatacol = which(colnames(Gradient$XDataNew)[[1]]==colnames(hM$XData))
+             },
+             list = {
+                XDatacol = which(colnames(Gradient$XDataNew[[1]])[[1]]==colnames(hM$XData[[1]]))
+             }
+      )
       if (measure == "S") {
          pY = rowSums(hM$Y)
       }
@@ -121,7 +148,12 @@ plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 
       }
       plot(pl)
    } else {
-      plot(xx, qpred[2, ], ylim = c(lo1, hi1), type = "l", xlab = xlabel, ylab = ylabel, ...)
+      if (class(hM$X)=="list" & (!measure=="Y")){
+         plot(xx, qpred[2, ], ylim = c(lo1, hi1), type = "l", xaxt = "n", xlab = xlabel, ylab = ylabel, ...)
+         axis(1,c(min(xx),(min(xx)+max(xx))/2,max(xx)),c("min","mean","max"))
+      } else {
+         plot(xx, qpred[2, ], ylim = c(lo1, hi1), type = "l", xlab = xlabel, ylab = ylabel, ...)
+      }
       if(showData){
          if (jigger>0){
             de=(hi1-lo1)*jigger
