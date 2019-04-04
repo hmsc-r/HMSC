@@ -89,7 +89,6 @@ Matrix \eqn{Y} may cointain arbitrary amount of missing values, but it is not re
   The matrix argument and the vector of string literals argument allow to specify different observation
   models for different species.
 
-
   By default this constructor assignes default priors to the latent factors. Those priors are designed to be
   reasonably flat assuming that the covariates, species traits and normally distributed responses are scaled.
   In case when other priors needed to be

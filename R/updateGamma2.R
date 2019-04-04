@@ -1,6 +1,6 @@
 # updating Gamma after marginalizing Beta
 
-updateGamma2 = function(Z,Gamma,iV,iSigma,Eta,Lambda, X,Pi,Tr,C,rL, iQg, mGamma,iUGamma){
+updateGamma2 = function(Z,Gamma,iV,iSigma,Eta,Lambda, X,Pi,dfPi,Tr,C,rL, iQg, mGamma,iUGamma){
    ns = ncol(Z)
    ny = nrow(Z)
    nc = nrow(iV)
@@ -21,7 +21,7 @@ updateGamma2 = function(Z,Gamma,iV,iSigma,Eta,Lambda, X,Pi,Tr,C,rL, iQg, mGamma,
       } else{
          LRan[[r]] = matrix(0,ny,ns)
          for(k in 1:rL[[r]]$xDim)
-            LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[Pi[,r],k]) %*% Lambda[[r]][,,k]
+            LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),k]) %*% Lambda[[r]][,,k]
       }
    }
    if(nr > 0){

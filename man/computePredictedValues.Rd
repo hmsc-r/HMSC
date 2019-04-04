@@ -38,7 +38,7 @@ appropriate conditional predictions. The option Yc can be used alternatively to 
 to a fixed set of data (independent on which sampling unit and species the predictions are made for).
 }
 \examples{
-
+\dontrun{
 preds = computePredictedValues(m)
 MF = evaluateModelFit(hM=m, predY=preds)
 
@@ -49,10 +49,11 @@ MFCV1 = evaluateModelFit(hM=m, predY=predsCV1)
 predsCV2 = computePredictedValues(m, partition = partition, partition.sp = 1:m$ns, mcmcStep = 100)
 MFCV2 = evaluateModelFit(hM=m, predY=predsCV2)
 
-# Here it is expectd that the measures of model fit be highest for MF,
+# Here it is expected that the measures of model fit be highest for MF,
 # second highest for MFCV2, and lowest for MFCV1
+}
 
 }
 \seealso{
-
+\code{\link{predict.Hmsc}}
 }

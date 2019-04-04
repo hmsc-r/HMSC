@@ -25,7 +25,8 @@ distribution}
 the predictive Gaussian process distribution}
 }
 \value{
-a list of random effect samples at \code{unitsPred} from its predictive distribution conditional on the v
+a list of length \code{length(postEta)} containing samples of random factors at \code{unitsPred} from their
+  predictive distribution conditional on the values at \code{units}
 }
 \description{
 Draws samples from the conditional predictive distribution of latent factors

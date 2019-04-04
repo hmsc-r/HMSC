@@ -30,12 +30,6 @@ plotGamma(hM, post, param = "Gamma", trOrder = "Original",
 
 \item{cex}{Controls character expansion (font size). Three values, controlling covariate names, trait names, and color legend axis labels}
 }
-\value{
-
-}
 \description{
 Plots heatmaps of parameter estimates or posterior support values of trait effects on species' environmental responses, i.e. how environmental responses in \code{Beta} responds to covariates in \code{X}
-}
-\seealso{
-
 }

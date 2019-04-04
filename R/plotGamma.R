@@ -13,16 +13,11 @@
 #' @param cex Controls character expansion (font size). Three values, controlling covariate names, trait names, and color legend axis labels
 #'
 #'
-#' @return
-#'
-#'
-#' @seealso
-#'
-#'
 #' @examples
-#'
+#' \dontrun{
 #' gammaPost=getPostEstimate(hM, "Gamma")
 #' plotGamma(hM, post = gammaPost, param = "Support)
+#' }
 #'
 #' @export
 

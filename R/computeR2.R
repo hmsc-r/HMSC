@@ -3,12 +3,7 @@
 #' @description Computes explainatory R2 measure based on predicted species abundance matrix
 #' @param predY vector of predictions from the trained model
 #'
-#'
 #' @return
-#'
-#'
-#' @seealso
-#'
 #'
 #' @examples
 #'

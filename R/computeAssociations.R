@@ -5,10 +5,6 @@
 #'
 #' @return list of association matrices (\eqn{\omega}) corresponding to each random level in the model
 #'
-#'
-#' @seealso
-#'
-#'
 #' @examples
 #'
 #' @export

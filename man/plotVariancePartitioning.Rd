@@ -13,15 +13,9 @@ plotVariancePartitioning(hM, VP, ...)
 
 \item{...}{other parameters passed to the barplot function}
 }
-\value{
-
-}
 \description{
 Plots the results of variance partitioning of a HMSC model produced by `HMSC::computeVariancePartitioning` as a barplot
 }
 \examples{
-
-}
-\seealso{
 
 }

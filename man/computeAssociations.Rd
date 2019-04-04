@@ -18,6 +18,3 @@ Computes the species association matrices
 \examples{
 
 }
-\seealso{
-
-}

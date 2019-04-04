@@ -1,4 +1,4 @@
-updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,rL){
+updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
    ny = nrow(Z)
    ns = ncol(Z)
    nr = ncol(Pi)
@@ -22,7 +22,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,rL){
       } else{
          LRan[[r]] = matrix(0,ny,ns)
          for(k in 1:rL[[r]]$xDim)
-            LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[Pi[,r],r]) %*% Lambda[[r]][,,r]
+            LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),r]) %*% Lambda[[r]][,,r]
       }
    }
 
@@ -36,12 +36,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,rL){
       lambda = Lambda[[r]]
       nf = dim(lambda)[1]
       lPi = Pi[,r]
-      if(rL[[r]]$xDim > 0){
-         ncr = rL[[r]]$xDim
-         lambdaList = vector("list", np[r])
-         for(q in 1:np[r])
-            lambdaList[[q]] = lambda * array(rep(rL[[r]]$x[q,],each=nf*ns), c(nf,ns,ncr))
-      }
+      ldfPi = dfPi[,r]
       if(rL[[r]]$sDim == 0){
          eta = matrix(NA,np[r],nf)
          if(rL[[r]]$xDim == 0){
@@ -96,8 +91,9 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,rL){
          } else{
             ncr = rL[[r]]$xDim
             unLPi = unique(lPi)
+            unLdfPi = unique(as.character(ldfPi))
             for(q in 1:np[r]){
-               lambdaLocal = rowSums(lambda * array(rep(rL[[r]]$x[unLPi[q],],each=nf*ns), c(nf,ns,ncr)), dims=2)
+               lambdaLocal = rowSums(lambda * array(rep(rL[[r]]$x[unLdfPi[q],],each=nf*ns), c(nf,ns,ncr)), dims=2)
                rows = which(lPi==unLPi[q])
                LiSL = matrix(0,nf,nf)
                for(p in 1:length(rows))
@@ -142,7 +138,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,rL){
          } else{
             LRan[[r]] = matrix(0,ny,ns)
             for(k in 1:rL[[r]]$xDim)
-               LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[Pi[,r],r]) %*% Lambda[[r]][,,r]
+               LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),r]) %*% Lambda[[r]][,,r]
          }
       }
    }

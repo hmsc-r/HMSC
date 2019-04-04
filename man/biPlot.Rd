@@ -15,17 +15,12 @@ biPlot(hM, etaPost, lambdaPost, factors = c(1, 2), colVar = NULL, ...)
 
 \item{colvar}{The environmental covariate from XData according to which the sites are to be coloured}
 }
-\value{
-
-}
 \description{
 Constructs a ordination biplot based on the fitted model
 }
 \examples{
-
+\dontrun{
 biPlot(m, etaPost = getPostEstimate(m, "Eta"), lambdaPost=getPostEstimate(m, "Lambda"), factors=c(1,2))
-
 }
-\seealso{
 
 }

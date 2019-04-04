@@ -6,15 +6,10 @@
 #' @param factors Indices of the two factors to be plotted
 #' @param colvar The environmental covariate from XData according to which the sites are to be coloured
 #'
-#' @return
-#'
-#'
-#' @seealso
-#'
-#'
 #' @examples
-#'
+#' \dontrun{
 #' biPlot(m, etaPost = getPostEstimate(m, "Eta"), lambdaPost=getPostEstimate(m, "Lambda"), factors=c(1,2))
+#' }
 #'
 #' @export
 

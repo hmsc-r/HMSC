@@ -27,10 +27,11 @@ variance among species explained by traits, measured for species niches (\code{V
 (\code{VP$R2T$Y})
 }
 \examples{
-
+\dontrun{
 VP = computeVariancePartitioning(m, group=c(1,1,1,2,2), groupnames = c("habitat quality","climate"))
 VP$R2T
 plotVariancePartitioning(m,VP)
+}
 
 }
 \seealso{

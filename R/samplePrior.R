@@ -129,7 +129,7 @@ samplePrior = function(hM, dataParList=NULL){
       } else{
          LRan[[r]] = matrix(0,hM$ny,hM$ns)
          for(k in 1:hM$rL[[r]]$xDim)
-            LRan[[r]] = LRan[[r]] + (Eta[[r]][hM$Pi[,r],,drop=FALSE]*hM$rL[[r]]$x[hM$Pi[,r],r]) %*% Lambda[[r]][,,k]
+            LRan[[r]] = LRan[[r]] + (Eta[[r]][hM$Pi[,r],,drop=FALSE]*hM$rL[[r]]$x[as.character(hM$dfPi[,r]),r]) %*% Lambda[[r]][,,k]
       }
    }
 

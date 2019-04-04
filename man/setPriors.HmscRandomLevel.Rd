@@ -20,6 +20,3 @@ Sets or resets priors to the Hmsc object
 \examples{
 
 }
-\seealso{
-
-}

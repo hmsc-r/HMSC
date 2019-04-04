@@ -1,6 +1,6 @@
 # id = diagonal of inverse residual variations
 
-updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,iQ,RQ,U,iU){
+updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,dfPi,rL, rLPar,Q,iQ,RQ,U,iU){
    ny = nrow(Z)
    ns = ncol(Z)
    nr = ncol(Pi)
@@ -15,7 +15,7 @@ updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,rL, rLPar,Q,
       } else{
          LRan[[r]] = matrix(0,ny,ns)
          for(k in 1:rL[[r]]$xDim)
-            LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[Pi[,r],k]) %*% Lambda[[r]][,,k]
+            LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),k]) %*% Lambda[[r]][,,k]
       }
    }
 

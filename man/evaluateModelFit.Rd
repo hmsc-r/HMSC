@@ -42,11 +42,9 @@ If the model involves a mixture of response variable types, the resulting measur
 contain NA:s for those response variables for which they cannot be computed.
 }
 \examples{
-
+\dontrun{
 preds = computePredictedValues(m)
 MF = evaluateModelFit(hM=m, predY=preds)
-
 }
-\seealso{
 
 }

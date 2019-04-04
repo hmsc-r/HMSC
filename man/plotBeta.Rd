@@ -34,12 +34,6 @@ plotBeta(hM, post, param = "Support", plotTree = F,
 
 \item{cex}{Controls character expansion (font size). Three values, controlling covariate names, species names, and color legend axis labels}
 }
-\value{
-
-}
 \description{
 Plots heatmaps of parameter estimates or posterior support values of species' environmental responses, i.e. how species in \code{Y} responds to covariates in \code{X}
-}
-\seealso{
-
 }
