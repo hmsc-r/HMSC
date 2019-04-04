@@ -202,7 +202,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
 
    if(nParallel > 1){
       cl = makeCluster(nParallel, type="SOCK")
-      clusterExport(cl, c("hM","nChains","transient","samples","thin","adaptNf","initSeed","initPar","updater",
+      clusterExport(cl, c("hM","nChains","transient","samples","thin","verbose","adaptNf","initSeed","initPar","updater",
          "X", "Tr", "Y", "distr", "Pi", "C", "nr",
          "mGamma", "iUGamma", "V0", "f0", "aSigma", "bSigma", "rhopw",
          "Qg", "iQg", "RQg", "detQg", "rLPar"), envir=environment())
