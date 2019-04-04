@@ -1,4 +1,4 @@
-updateInvSigma = function(Y,Z,Beta,iSigma,Eta,Lambda, distr,X,Pi,rL, aSigma,bSigma){
+updateInvSigma = function(Y,Z,Beta,iSigma,Eta,Lambda, distr,X,Pi,dfPi,rL, aSigma,bSigma){
    indVarSigma = (distr[,2]==1)
    if(any(indVarSigma)){
       ny = nrow(Z)
@@ -22,7 +22,7 @@ updateInvSigma = function(Y,Z,Beta,iSigma,Eta,Lambda, distr,X,Pi,rL, aSigma,bSig
          } else{
             LRan[[r]] = matrix(0,ny,ns)
             for(k in 1:rL[[r]]$xDim)
-               LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[Pi[,r],k]) %*% Lambda[[r]][,,k]
+               LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),k]) %*% Lambda[[r]][,,k]
          }
       }
       if(nr > 0){

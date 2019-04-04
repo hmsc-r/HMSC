@@ -3,7 +3,6 @@
 #' @description Computes several measures of model fit
 #' @param predY array of predictions, typically posterior sample
 #'
-#'
 #' @return a list of measures of model fit
 #'
 #' @details All measures of model fit are based on comparing posterior predictive distribution (\code{predY)})
@@ -31,15 +30,11 @@
 #' If the model involves a mixture of response variable types, the resulting measures of model fit
 #' contain NA:s for those response variables for which they cannot be computed.
 #'
-#'
-#'
-#' @seealso
-#'
-#'
 #' @examples
-#'
+#' \dontrun{
 #' preds = computePredictedValues(m)
 #' MF = evaluateModelFit(hM=m, predY=preds)
+#' }
 #'
 #' @export
 

@@ -18,6 +18,3 @@ Computes explainatory R2 measure based on predicted species abundance matrix
 \examples{
 
 }
-\seealso{
-
-}

@@ -2,7 +2,7 @@
 #'
 #' @description updates beta lambda
 #'
-updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,C,rL){
+updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,dfPi,C,rL){
    ny = nrow(Z)
    ns = ncol(Z)
    nc = nrow(Gamma)
@@ -23,7 +23,7 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,C
          } else{
             EtaFull[[r]] = vector("list", rL[[r]]$xDim)
             for(k in 1:rL[[r]]$xDim)
-               EtaFull[[r]][[k]] = Eta[[r]][Pi[,r],] * rL[[r]]$x[Pi[,r],k]
+               EtaFull[[r]][[k]] = Eta[[r]][Pi[,r],] * rL[[r]]$x[as.character(dfPi[,r]),k]
          }
          nf[r] = ncol(Eta[[r]])
          ncr[r] = max(rL[[r]]$xDim, 1)

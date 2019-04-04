@@ -5,29 +5,24 @@
 #' @param groupnames vector of names for each random and fixed effect
 #' @param start index of first MCMC sample included
 #'
-#'
 #' @return
-#'
 #' returns an object VP with components VP$vals, VP$R2T, VP$group and VP$groupnames.
 #'
 #' @details
-#'
 #' The vector \code{group} has one value for each column of the matrix \code{hM$X}, describing the index of the
 #' group to which this column is to be included. The names of the group are given by \code{groupnames}. The output object
 #' \code{VP$vals} gives the variance proportion for each group and species. The output object \code{VP$R2T} has shows the
 #' variance among species explained by traits, measured for species niches (\code{VP$R2T$Beta}) and species occurrences
 #' (\code{VP$R2T$Y})
 #'
-#'
-#'
 #' @seealso
 #'
-#'
 #' @examples
-#'
+#' \dontrun{
 #' VP = computeVariancePartitioning(m, group=c(1,1,1,2,2), groupnames = c("habitat quality","climate"))
 #' VP$R2T
 #' plotVariancePartitioning(m,VP)
+#' }
 #'
 #' @export
 

@@ -45,5 +45,5 @@ Calculates predicted values using a fitted Hmsc model.
 
 }
 \seealso{
-Hmsc()
+\code{\link{predictLatentFactor}}
 }

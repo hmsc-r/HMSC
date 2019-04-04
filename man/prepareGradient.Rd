@@ -25,9 +25,11 @@ Note that the difference between \code{constructGradient} and \code{prepareGradi
 generates those data to represent a new environmental gradient.
 }
 \examples{
-
+\dontrun{
 Gradient = prepareGradient(hM=m, XDataNew=XDataNew, sDataNew=sDataNew)
 predY = predict(m, Gradient=Gradient)
+}
+
 }
 \seealso{
 \code{\link{constructGradient}}, \code{\link{predict}}

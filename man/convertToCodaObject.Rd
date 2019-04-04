@@ -24,6 +24,3 @@ Converts Hmsc posterior structure into a named list of mcmc.list objects
 \examples{
 
 }
-\seealso{
-
-}

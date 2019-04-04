@@ -16,12 +16,7 @@
 #' @param rhopw
 #' @param setDefault
 #'
-#'
-#' @return
-#'
-#'
-#' @seealso
-#'
+#' @return Modified \code{Hmsc} object
 #'
 #' @examples
 #'

@@ -15,16 +15,11 @@
 #' @param cex Controls character expansion (font size). Three values, controlling covariate names, species names, and color legend axis labels
 #'
 #'
-#' @return
-#'
-#'
-#' @seealso
-#'
-#'
 #' @examples
-#'
+#' \dontrun{
 #' betaPost=getPostEstimate(hM, "Beta")
 #' plotBeta(hM, post = betaPost, param = "Support)
+#' }
 #'
 #' @export
 

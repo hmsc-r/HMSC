@@ -8,7 +8,6 @@
 #' @return a named list with members \code{XDataNew}, \code{studyDesignNew} and \code{rLNew}
 #'
 #' @details
-#'
 #' The dataframe \code{XDataNew} is the for output as for input. The main purpose of this function is to prepare
 #' the study design and random levels ready to be made for prediction with the \code{\link{predict}} function.
 #' Note that the difference between \code{constructGradient} and \code{prepareGradient} is that while
@@ -17,14 +16,14 @@
 #'
 #'
 #' @seealso
-#'
 #' \code{\link{constructGradient}}, \code{\link{predict}}
 #'
 #' @examples
-#'
+#' \dontrun{
 #' Gradient = prepareGradient(hM=m, XDataNew=XDataNew, sDataNew=sDataNew)
 #' predY = predict(m, Gradient=Gradient)
-
+#' }
+#'
 #' @export
 
 prepareGradient = function(hM, XDataNew, sDataNew){

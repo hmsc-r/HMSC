@@ -27,15 +27,15 @@
 #'
 #'
 #' @seealso
-#'
 #' \code{\link{constructGradient}}, \code{\link{predict}}
 #'
 #' @examples
-#'
+#' \dontrun{
 #' Gradient = constructGradient(hM=m, focalVariable="x1")
 #' predY = predict(m, Gradient=Gradient)
 #' plotGradient(m, Gradient, pred=predY, measure="S")
 #' plotGradient(m, Gradient, pred=predY, measure="Y", index = 2, showData = TRUE, jigger = 0.05)
+#' }
 #'
 #' @export
 

@@ -4,13 +4,11 @@
 \alias{plotGradient}
 \title{Hmsc$plotGradient}
 \usage{
-plotGradient(hM, Gradient, pred, measure, index = 1, prob = c(0.025,
+plotGradient(hM, Gradient, predY, measure, index = 1, prob = c(0.025,
   0.5, 0.975), showData = FALSE, jigger = 0, ...)
 }
 \arguments{
 \item{Gradient}{an object returned by the function \code{\link{constructGradient}}}
-
-\item{pred}{an object returned by applying the function \code{\link{predict}} to \code{Gradient}}
 
 \item{measure}{whether plotted is species richness ("S"), an individual species ("Y") or community-weighted mean trait ("T")}
 
@@ -21,6 +19,8 @@ plotGradient(hM, Gradient, pred, measure, index = 1, prob = c(0.025,
 \item{showData}{whether raw data are plotted as well}
 
 \item{jigger}{the amount by which the raw data are to be jiggered in x-direction (for factors) or y-direction (for continuous covariates)}
+
+\item{pred}{an object returned by applying the function \code{\link{predict}} to \code{Gradient}}
 }
 \value{
 
@@ -41,11 +41,12 @@ whereas in count models it is over individuals.
 In normal models, the weights are exp-transformed predictors to avoid negative weights
 }
 \examples{
-
+\dontrun{
 Gradient = constructGradient(hM=m, focalVariable="x1")
 predY = predict(m, Gradient=Gradient)
 plotGradient(m, Gradient, pred=predY, measure="S")
 plotGradient(m, Gradient, pred=predY, measure="Y", index = 2, showData = TRUE, jigger = 0.05)
+}
 
 }
 \seealso{

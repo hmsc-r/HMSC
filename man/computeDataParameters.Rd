@@ -15,9 +15,3 @@ computeDataParameters(hM)
 \description{
 Computes the initial values before the sampling starts
 }
-\examples{
-
-}
-\seealso{
-
-}

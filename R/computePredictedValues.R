@@ -17,14 +17,14 @@
 #' belonging to the other folds. If partition.sp is used, the parameter mcmcStep should be set to high enough value to obtain
 #' appropriate conditional predictions. The option Yc can be used alternatively to partition.sp if the conditioning is to be done
 #' to a fixed set of data (independent on which sampling unit and species the predictions are made for).
+#'
 #' @return
 #'
 #'
-#' @seealso
-#'
+#' @seealso \code{\link{predict.Hmsc}}
 #'
 #' @examples
-#'
+#' \dontrun{
 #' preds = computePredictedValues(m)
 #' MF = evaluateModelFit(hM=m, predY=preds)
 #'
@@ -37,6 +37,7 @@
 #'
 #' # Here it is expected that the measures of model fit be highest for MF,
 #' # second highest for MFCV2, and lowest for MFCV1
+#' }
 #'
 #' @export
 
@@ -73,10 +74,17 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
                    XVal = lapply(hM$X, function(a) a[val,,drop=FALSE])
                 }
          )
-         hM1 = Hmsc(Y=hM$Y[train,,drop=FALSE], X=XTrain, dist="probit", studyDesign=dfPi, Tr=hM$Tr, C=hM$C, ranLevels=hM$rL)
-         hM1$distr = hM$distr
-         # HOW TO BETTER SET THE DISTRIBUTION?
-         # NEED TO INHERIT PRIORS, SCALINGS ETC. FROM hM
+         hM1 = Hmsc(Y=hM$Y[train,,drop=FALSE], X=XTrain, dist=hM$distr, studyDesign=dfPi, Tr=hM$Tr, C=hM$C, ranLevels=hM$rL,)
+         setPriors(hM1, V0=hM$V0, f0=hM$f0, mGamma=hM$mGamma, UGamma=hM$UGamma, aSigma=hM$aSigma, bSigma=hM$bSigma,
+                   nu=hM$nu, a1=hM$a1, b1=hM$b1, a2=hM$a2, b2=hM$b2, rhopw=hM$rhowp)
+         hM1$YScalePar = hM$YScalePar
+         hM1$YScaled = (hM1$Y - matrix(hM1$YScalePar[1,],hM1$ny,hM1$ns,byrow=TRUE)) / matrix(hM1$YScalePar[2,],hM1$ny,hM1$ns,byrow=TRUE)
+         hM1$XInterceptInd = hM$XInterceptInd
+         hM1$XScalePar = hM$XScalePar
+         hM1$XScaled = (hM1$X - matrix(hM1$XScalePar[1,],hM1$ny,hM1$nc,byrow=TRUE)) / matrix(hM1$XScalePar[2,],hM1$ny,hM1$nc,byrow=TRUE)
+         hM1$TrInterceptInd = hM$TrInterceptInd
+         hM1$TrScalePar = hM$TrScalePar
+         hM1$TrScaled = (hM1$Tr - matrix(hM1$TrScalePar[1,],hM1$ns,hM1$nt,byrow=TRUE)) / matrix(hM1TrXScalePar[2,],hM1$ns,hM1$nt,byrow=TRUE)
          hM1 = sampleMcmc(hM1, samples=hM$samples, thin=hM$thin, transient=hM$transient, adaptNf=hM$adaptNf,
                           initPar=initPar, nChains=length(hM$postList), nParallel=nParallel, verbose = verbose)
          postList = poolMcmcChains(hM1$postList, start=start)

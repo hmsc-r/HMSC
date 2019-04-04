@@ -35,7 +35,7 @@ parameters}
 \item{fromPrior}{whether prior (TRUE) or posterior (FALSE) is to be sampled}
 }
 \value{
-an \class{Hmsc}-class object with chains of posterior samples added to the \code{postList} field
+an \code{Hmsc}-class object with chains of posterior samples added to the \code{postList} field
 }
 \description{
 Samples the posterior with block-conditional Gibbs MCMC sampler
