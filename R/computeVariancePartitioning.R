@@ -1,6 +1,6 @@
 #' @title Hmsc$computeVariancePartitioning
 #'
-#' @description Computes variance partitions with respect to given grouping of fixed efffects and levels of random effects
+#' @description Computes variance partitions with respect to given grouping of fixed effects and levels of random effects
 #' @param group vector of numeric values corresponding to group identifiers in groupnames
 #' @param groupnames vector of names for each random and fixed effect
 #' @param start index of first MCMC sample included
@@ -29,7 +29,7 @@ computeVariancePartitioning = function(hM, group, groupnames, start=1){
    fixedsplit = matrix(0,nrow=ns,ncol=ngroups);
    random = matrix(0,nrow=ns,ncol=nr);
    traitR2 = 0
-   
+
    switch(class(hM$X),
           matrix = {
             cMA = cov(hM$X)
@@ -38,7 +38,7 @@ computeVariancePartitioning = function(hM, group, groupnames, start=1){
             cMA = lapply(hM$X, cov)
           }
    )
-   
+
    postList=poolMcmcChains(hM$postList, start=start)
 
    geta = function(a){
@@ -52,7 +52,7 @@ computeVariancePartitioning = function(hM, group, groupnames, start=1){
      return(res)
    }
    la=lapply(postList, geta)
-   
+
    getf = function(a){
      switch(class(hM$X),
             matrix = {res = hM$X%*%(a$Beta)},
