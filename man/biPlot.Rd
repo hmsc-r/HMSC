@@ -4,28 +4,23 @@
 \alias{biPlot}
 \title{biPlot}
 \usage{
-biPlot(hM, etaPost, lambdaPost, factors = c(1, 2), colVar = NULL)
+biPlot(hM, etaPost, lambdaPost, factors = c(1, 2), colVar = NULL, ...)
 }
 \arguments{
 \item{etaPost}{Posterior distribution of site loadings Eta}
 
 \item{lambdaPost}{Posterior distribution of species loadings Lambda}
 
-\item{factors}{the indices of the two factors to be shown}
+\item{factors}{Indices of the two factors to be plotted}
 
-\item{colvar}{the environmental covariate from XData according to which the sites are to be coloured}
-}
-\value{
-
+\item{colvar}{The environmental covariate from XData according to which the sites are to be coloured}
 }
 \description{
-Makes a orindation biPlot based on the fitted model
+Constructs a ordination biplot based on the fitted model
 }
 \examples{
-
+\dontrun{
 biPlot(m, etaPost = getPostEstimate(m, "Eta"), lambdaPost=getPostEstimate(m, "Lambda"), factors=c(1,2))
-
 }
-\seealso{
 
 }

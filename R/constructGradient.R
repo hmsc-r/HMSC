@@ -9,7 +9,6 @@
 #' @return a named list with members \code{XDataNew}, \code{studyDesignNew} and \code{rLNew}
 #'
 #' @details
-#'
 #' non.focalVariables is a list, of which each element is of form variable=list(type,value).
 #' where variable is one of the non-focal variables, and the value is needed only if type = 3
 #' type = 1 sets the values of the non-focal variable
@@ -21,15 +20,15 @@
 #' note that if focal variable is continuous, selecting type 2 for a non-focal categorical variable can cause abrupt changes in response
 #'
 #' @seealso
-#'
 #' \code{\link{plotGradient}}, \code{\link{predict}}
 #'
 #' @examples
-#'
+#' \dontrun{
 #' Gradient = constructGradient(hM=m, focalVariable="x2", non.focalVariables=list(x1=list(3,1),x3=list(1)))
 #' predY = predict(m, Gradient=Gradient)
 #' plotGradient(m, Gradient, pred=predY, measure="S")
-
+#' }
+#'
 #' @export
 
 constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid=20){

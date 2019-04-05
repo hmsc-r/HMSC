@@ -16,7 +16,7 @@
 #' @param updater a named list, specifying which conditional updaters should be ommitted
 #' @param fromPrior whether prior (TRUE) or posterior (FALSE) is to be sampled
 #'
-#' @return an \class{Hmsc}-class object with chains of posterior samples added to the \code{postList} field
+#' @return an \code{Hmsc}-class object with chains of posterior samples added to the \code{postList} field
 #'
 #' @details The exact number of samples to be recorded in order to get a proper estimate of the full posterior with
 #'   Gibbs MCMC algorithms, as well as the required thinning and cut-off of transient is very problem-specific and
@@ -47,7 +47,6 @@
 #'
 #' @seealso \code{\link{Hmsc}}
 #'
-
 #' @examples
 #' Y = matrix(rnorm(100*10),100,10,dimnames=list(NULL,letters[1:10]))
 #' X = matrix(rnorm(100*3),100,3,dimnames=list(NULL,sprintf("cov%d",1:3)))
@@ -73,6 +72,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
    Y = hM$YScaled
    distr = hM$distr
    Pi = hM$Pi
+   dfPi = hM$dfPi
    C = hM$C
    nr = hM$nr
 
@@ -121,12 +121,12 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
 
          if(!identical(updater$Gamma2, FALSE) && is.matrix(X))
             Gamma = updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,
-               Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,Tr=Tr,C=C,rL=hM$rL, iQg=iQg,
+               Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,C=C,rL=hM$rL, iQg=iQg,
                mGamma=mGamma,iUGamma=iUGamma)
 
          if(!identical(updater$GammaEta, FALSE) && hM$nr>0 && identical(mGamma,rep(0,hM$nc*hM$nt)) && is.matrix(X)){ # assumes mGamma = 0
             GammaEtaList = updateGammaEta(Z=Z,Gamma=Gamma,V=chol2inv(chol(iV)),iV=iV,id=iSigma,
-               Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,Tr=Tr,rL=hM$rL, rLPar=rLPar,Q=Qg[,,rho],iQ=iQg[,,rho],RQ=RQg[,,rho],U=hM$UGamma,iU=iUGamma)
+               Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,rL=hM$rL, rLPar=rLPar,Q=Qg[,,rho],iQ=iQg[,,rho],RQ=RQg[,,rho],U=hM$UGamma,iU=iUGamma)
             Gamma = GammaEtaList$Gamma
             Eta = GammaEtaList$Eta
          }
@@ -134,7 +134,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
          if(!identical(updater$BetaLambda, FALSE)){
             BetaLambdaList = updateBetaLambda(Y=Y,Z=Z,Gamma=Gamma,iV=iV,
                iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta, iQ=iQg[,,rho],
-               X=X,Tr=Tr,Pi=Pi,C=C,rL=hM$rL)
+               X=X,Tr=Tr,Pi=Pi,dfPi=dfPi,C=C,rL=hM$rL)
             Beta = BetaLambdaList$Beta
             Lambda = BetaLambdaList$Lambda
          }
@@ -159,17 +159,17 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
 
          if(!identical(updater$Eta, FALSE))
             Eta = updateEta(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
-               Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, X=X,Pi=Pi,rL=hM$rL)
+               Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, X=X,Pi=Pi,dfPi=dfPi,rL=hM$rL)
 
          if(!identical(updater$Alpha, FALSE))
             Alpha = updateAlpha(Eta=Eta, rLPar=rLPar, rL=hM$rL)
 
          if(!identical(updater$InvSigma, FALSE))
             iSigma = updateInvSigma(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,
-               Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi,rL=hM$rL, aSigma=aSigma,bSigma=bSigma)
+               Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi,dfPi=dfPi,rL=hM$rL, aSigma=aSigma,bSigma=bSigma)
 
          if(!identical(updater$Z, FALSE))
-            Z = updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,distr=distr,rL=hM$rL)
+            Z = updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,distr=distr,rL=hM$rL)
 
          for(r in seq_len(nr)){
             if(iter <= adaptNf[r]){
@@ -202,7 +202,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
 
    if(nParallel > 1){
       cl = makeCluster(nParallel, type="SOCK")
-      clusterExport(cl, c("hM","nChains","transient","samples","thin","adaptNf","initSeed","initPar","updater",
+      clusterExport(cl, c("hM","nChains","transient","samples","thin","verbose","adaptNf","initSeed","initPar","updater",
          "X", "Tr", "Y", "distr", "Pi", "C", "nr",
          "mGamma", "iUGamma", "V0", "f0", "aSigma", "bSigma", "rhopw",
          "Qg", "iQg", "RQg", "detQg", "rLPar"), envir=environment())

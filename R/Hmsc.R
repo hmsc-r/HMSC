@@ -59,7 +59,6 @@
 #'   The matrix argument and the vector of string literals argument allow to specify different observation
 #'   models for different species.
 #'
-#'
 #'   By default this constructor assignes default priors to the latent factors. Those priors are designed to be
 #'   reasonably flat assuming that the covariates, species traits and normally distributed responses are scaled.
 #'   In case when other priors needed to be
@@ -283,7 +282,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, YScale = FALSE,
                 hM$XScaled = XScaled
              },
              list = {
-                hM$XScaled = lapply(split(XStack,rep(1:hM$ns,each=hM$ny)), function(a) matrix(a,hM$ny,hM$nc))
+                hM$XScaled = lapply(split(XScaled,rep(1:hM$ns,each=hM$ny)), function(a) matrix(a,hM$ny,hM$nc))
              }
       )
    }
@@ -415,7 +414,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, YScale = FALSE,
 
       hM$Pi = matrix(NA,hM$ny,ncol(hM$dfPi),dimnames=list(NULL,hM$rLNames))
       for(r in seq_len(ncol(hM$dfPi)))
-         hM$Pi[,r] = as.numeric(hM$dfPi[,r])
+         hM$Pi[,r] = as.numeric(as.factor(hM$dfPi[,r]))
       hM$np = apply(hM$Pi, 2, function(a) return(length(unique(a))))
       hM$nr = ncol(hM$Pi)
       if (truncateNumberOfFactors){

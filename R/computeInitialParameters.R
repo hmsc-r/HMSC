@@ -201,7 +201,7 @@ computeInitialParameters = function(hM, initPar){
       } else{
          LRan[[r]] = matrix(0,hM$ny,hM$ns)
          for(k in 1:hM$rL[[r]]$xDim)
-            LRan[[r]] = LRan[[r]] + (Eta[[r]][hM$Pi[,r],,drop=FALSE]*hM$rL[[r]]$x[hM$Pi[,r],r]) %*% Lambda[[r]][,,k]
+            LRan[[r]] = LRan[[r]] + (Eta[[r]][hM$Pi[,r],,drop=FALSE]*hM$rL[[r]]$x[as.character(hM$dfPi[,r]),r]) %*% Lambda[[r]][,,k]
       }
    }
    if(hM$nr > 0){
@@ -209,7 +209,7 @@ computeInitialParameters = function(hM, initPar){
    } else
       Z = LFix
 
-   Z = updateZ(Y=hM$Y,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=hM$X,Pi=hM$Pi,distr=hM$distr,rL=hM$rL)
+   Z = updateZ(Y=hM$Y,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=hM$X,Pi=hM$Pi,dfPi=hM$dfPi,distr=hM$distr,rL=hM$rL)
 
    parList$Gamma = Gamma
    parList$V = V

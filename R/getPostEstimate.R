@@ -12,9 +12,6 @@
 #' @return
 #' A named list of posterior quantities. Element mean
 #'
-#' @seealso
-#'
-#'
 #' @examples
 #'
 #' @export

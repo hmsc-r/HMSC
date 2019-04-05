@@ -12,7 +12,8 @@
 #' @param predictMeanField a boolean flag indicating whether to return the samples from the mean-field distribution of
 #'   the predictive Gaussian process distribution
 #'
-#' @return a list of random effect samples at \code{unitsPred} from its predictive distribution conditional on the v
+#' @return a list of length \code{length(postEta)} containing samples of random factors at \code{unitsPred} from their
+#'   predictive distribution conditional on the values at \code{units}
 #'
 #' @details Length of \code{units} vector and number of rows in \code{postEta} matrix shall be equal. The method assumes
 #'   that the i-th row of \code{postEta} correspond to i-th element of \code{units}.
@@ -58,7 +59,7 @@ predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predict
                s1 = rL$s[units,]
                s2 = rL$s[unitsPred[indNew],]
                D11 = as.matrix(dist(s1))
-               D12 = pdist(s1,s2)
+               D12 = as.matrix(pdist(s1,s2))
                for(h in 1:nf){
                   if(alphapw[alpha[h],1] > 0){
                      K11 = exp(-D11/alphapw[alpha[h],1])

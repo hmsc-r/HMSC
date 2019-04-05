@@ -27,24 +27,24 @@
 #'
 #'
 #' @seealso
-#'
 #' \code{\link{constructGradient}}, \code{\link{predict}}
 #'
 #' @examples
-#'
+#' \dontrun{
 #' Gradient = constructGradient(hM=m, focalVariable="x1")
 #' predY = predict(m, Gradient=Gradient)
 #' plotGradient(m, Gradient, pred=predY, measure="S")
 #' plotGradient(m, Gradient, pred=predY, measure="Y", index = 2, showData = TRUE, jigger = 0.05)
+#' }
 #'
 #' @export
 
-plotGradient=function (hM, Gradient, pred, measure, index = 1, prob = c(0.025, 0.5, 0.975), showData = FALSE, jigger = 0,...){
+plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 0.5, 0.975), showData = FALSE, jigger = 0,...){
 
    if (measure == "S") {
       predS = lapply(predY, rowSums)
       qpred = apply(abind(predS, along = 2), c(1), quantile,
-                    prob = prob)
+                    prob = prob, na.rm=TRUE)
       ylabel = "Summed response"
       if (all(hM$distr[,1]==2)){
          ylabel = "Species richness"
@@ -55,7 +55,7 @@ plotGradient=function (hM, Gradient, pred, measure, index = 1, prob = c(0.025, 0
    }
    if (measure == "Y") {
       qpred = apply(abind(predY, along = 3), c(1, 2), quantile,
-                    prob = prob)
+                    prob = prob, na.rm=TRUE)
       qpred = qpred[, , index]
       ylabel = hM$spNames[[index]]
    }
@@ -72,8 +72,28 @@ plotGradient=function (hM, Gradient, pred, measure, index = 1, prob = c(0.025, 0
       qpred = qpred[, , index]
       ylabel = hM$trNames[[index]]
    }
-   xlabel = colnames(Gradient$XDataNew)[[1]]
-   xx = Gradient$XDataNew[, 1]
+   switch(class(hM$X),
+          matrix = {
+             xlabel = colnames(Gradient$XDataNew)[[1]]
+             },
+          list = {
+             xlabel = colnames(Gradient$XDataNew[[1]])[[1]]
+             }
+   )
+
+   switch(class(hM$X),
+          matrix = {
+             xx = Gradient$XDataNew[, 1]
+          },
+          list = {
+             if (measure == "Y") {
+                xx = Gradient$XDataNew[[index]][, 1]
+             } else {
+                xx = Gradient$XDataNew[[1]][, 1]
+             }
+          }
+   )
+
    lo = qpred[1, ]
    hi = qpred[3, ]
    me = qpred[2, ]
@@ -82,7 +102,14 @@ plotGradient=function (hM, Gradient, pred, measure, index = 1, prob = c(0.025, 0
    hi1 = max(hi)
 
    if(showData){
-      XDatacol = which(colnames(Gradient$XDataNew)[[1]]==colnames(hM$XData))
+      switch(class(hM$X),
+             matrix = {
+                XDatacol = which(colnames(Gradient$XDataNew)[[1]]==colnames(hM$XData))
+             },
+             list = {
+                XDatacol = which(colnames(Gradient$XDataNew[[1]])[[1]]==colnames(hM$XData[[1]]))
+             }
+      )
       if (measure == "S") {
          pY = rowSums(hM$Y)
       }
@@ -121,7 +148,12 @@ plotGradient=function (hM, Gradient, pred, measure, index = 1, prob = c(0.025, 0
       }
       plot(pl)
    } else {
-      plot(xx, qpred[2, ], ylim = c(lo1, hi1), type = "l", xlab = xlabel, ylab = ylabel, ...)
+      if (class(hM$X)=="list" & (!measure=="Y")){
+         plot(xx, qpred[2, ], ylim = c(lo1, hi1), type = "l", xaxt = "n", xlab = xlabel, ylab = ylabel, ...)
+         axis(1,c(min(xx),(min(xx)+max(xx))/2,max(xx)),c("min","mean","max"))
+      } else {
+         plot(xx, qpred[2, ], ylim = c(lo1, hi1), type = "l", xlab = xlabel, ylab = ylabel, ...)
+      }
       if(showData){
          if (jigger>0){
             de=(hi1-lo1)*jigger

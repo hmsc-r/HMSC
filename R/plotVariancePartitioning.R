@@ -6,12 +6,6 @@
 #' @param ... other parameters passed to the barplot function
 #'
 #'
-#' @return
-#'
-#'
-#' @seealso
-#'
-#'
 #' @examples
 #'
 #' @export
@@ -20,7 +14,7 @@ plotVariancePartitioning=function (hM,VP, ...)
 {
    ng = dim(VP$vals)[1]
    leg = VP$groupnames
-   for (r in 1:m$nr) {
+   for (r in 1:hM$nr) {
       leg = c(leg, paste("Random: ", hM$rLNames[r], sep = ""))
    }
    means = round(100 * rowMeans(VP$vals), 1)
@@ -29,8 +23,8 @@ plotVariancePartitioning=function (hM,VP, ...)
                      ")", sep = "")
    }
 
-   mainTitle=substitute(paste("Variance partitioning. ", R^2, "(traits) = ", v), list(v=round(VP$traitR2,2)))
-   barplot(VP$vals, main = mainTitle, xlab= "", ylab = "Variance proportion", las = 1,
+   mainTitle=substitute("Variance partitioning")
+   barplot(VP$vals, main = mainTitle, xlab= "Species", ylab = "Variance proportion", las = 1,
            legend = leg, col = heat.colors(ng, alpha = 1),...)
-   mtext("Species", 1,line = 1)
+#   mtext("Species", 1,line = 1)
 }

@@ -12,7 +12,7 @@ plotBeta(hM, post, param = "Support", plotTree = F,
 \arguments{
 \item{post}{Posterior summary of Beta parameters obtained from \code{\link{getPostEstimate}}}
 
-\item{param}{Controls which parameter is plotted, current options include "Beta" for parameter estimates and "Support" for posterior support}
+\item{param}{Controls which parameter is plotted, current options include "Mean" for posterior mean estimate and "Support" for the level of statistical support measured by posterior probability for a positive or negative response}
 
 \item{plotTree}{Logical. Whether species' environmental responses is to be mapped onto the phylogeny used in model fitting}
 
@@ -34,12 +34,6 @@ plotBeta(hM, post, param = "Support", plotTree = F,
 
 \item{cex}{Controls character expansion (font size). Three values, controlling covariate names, species names, and color legend axis labels}
 }
-\value{
-
-}
 \description{
 Plots heatmaps of parameter estimates or posterior support values of species' environmental responses, i.e. how species in \code{Y} responds to covariates in \code{X}
-}
-\seealso{
-
 }

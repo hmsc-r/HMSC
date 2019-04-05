@@ -20,6 +20,3 @@ Constructs a partition vector given the number of folds and column of study desi
 \examples{
 
 }
-\seealso{
-
-}

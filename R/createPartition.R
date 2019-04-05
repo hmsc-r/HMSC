@@ -4,12 +4,7 @@
 #' @param nfolds number of cross-validation folds
 #' @param column name or index of the column in studyDesign matrix, corresponding to the level, units of which are splitted to folds
 #'
-#'
 #' @return
-#'
-#'
-#' @seealso
-#'
 #'
 #' @examples
 #'

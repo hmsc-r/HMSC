@@ -12,7 +12,7 @@ plotGamma(hM, post, param = "Gamma", trOrder = "Original",
 \arguments{
 \item{post}{Posterior summary of Gamma parameters obtained from \code{\link{getPostEstimate}}}
 
-\item{param}{Controls which parameter is plotted, current options include "Beta" for parameter estimates and "Support" for posterior support}
+\item{param}{Controls which parameter is plotted, current options include "Mean" for posterior mean estimate and "Support" for the level of statistical support measured by posterior probability for a positive or negative response}
 
 \item{trOrder}{Controls the ordering of traits, current options are "Original", and "Vector". If trOrder = "Vector", an ordering vector must be provided (see trVector)}
 
@@ -30,12 +30,6 @@ plotGamma(hM, post, param = "Gamma", trOrder = "Original",
 
 \item{cex}{Controls character expansion (font size). Three values, controlling covariate names, trait names, and color legend axis labels}
 }
-\value{
-
-}
 \description{
 Plots heatmaps of parameter estimates or posterior support values of trait effects on species' environmental responses, i.e. how environmental responses in \code{Beta} responds to covariates in \code{X}
-}
-\seealso{
-
 }

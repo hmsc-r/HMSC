@@ -1,4 +1,4 @@
-updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,distr,rL, ind){
+updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind){
    ZPrev = Z
    ny = nrow(Y)
    ns = ncol(Y)
@@ -22,7 +22,7 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,distr,rL, ind){
       } else{
          LRan[[r]] = matrix(0,ny,ns)
          for(k in 1:rL[[r]]$xDim)
-            LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[Pi[,r],k]) %*% Lambda[[r]][,,k]
+            LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),k]) %*% Lambda[[r]][,,k]
       }
    }
    if(nr > 0){
