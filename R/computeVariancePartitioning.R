@@ -4,6 +4,8 @@
 #' @param group vector of numeric values corresponding to group identifiers in groupnames
 #' @param groupnames vector of names for each random and fixed effect
 #' @param start index of first MCMC sample included
+#' @param na.ignore Logical. If TRUE, covariates are ignored for sites where the focal species is NA when computing variance-covariance matrices for each species
+#'
 #'
 #' @return
 #' returns an object VP with components VP$vals, VP$R2T, VP$group and VP$groupnames.
@@ -26,7 +28,7 @@
 #'
 #' @export
 
-computeVariancePartitioning = function(hM, group, groupnames, start=1){
+computeVariancePartitioning = function(hM, group, groupnames, start=1, na.ignore = F){
    ny = hM$ny
    nc = hM$nc
    nt = hM$nt
@@ -42,14 +44,25 @@ computeVariancePartitioning = function(hM, group, groupnames, start=1){
    R2T.Y = 0
    R2T.Beta = rep(0,nc)
 
-   switch(class(hM$X),
-          matrix = {
-            cMA = cov(hM$X)
-          },
-          list = {
-            cMA = lapply(hM$X, cov)
-          }
-   )
+   #If na.ignore=T, convert XData to a list
+   if(na.ignore){
+      xl=list()
+      for(s in 1:m$ns){
+         xl[[s]]=m$X
+      }
+      hM$X=xl
+   }
+
+   switch(class(hM$X), matrix = {
+      cMA = cov(hM$X)
+   }, list = {
+
+      if(na.ignore){
+         cMA = list()
+         for(s in 1:m$ns){cMA[[s]]=cov(hM$X[[s]][which(hM$Y[,s]>-Inf),])}
+      }
+      else{cMA = lapply(hM$X, cov)}
+   })
 
    postList=poolMcmcChains(hM$postList, start=start)
 
