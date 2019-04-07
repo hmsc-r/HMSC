@@ -25,9 +25,8 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
             LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),r]) %*% Lambda[[r]][,,r]
       }
    }
-
-   Eta = vector("list", nr)
    for(r in seq_len(nr)){
+      rnames=rownames(Eta[[r]])
       if(nr > 1){
          S = Z - (LFix + Reduce("+", LRan[setdiff(1:nr, r)]))
       } else{
@@ -131,6 +130,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
             eta = matrix(feta,np[r],nf);
          }
       }
+      rownames(eta)=rnames
       Eta[[r]] = eta
       if(r < nr){
          if(rL[[r]]$xDim == 0){
