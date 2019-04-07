@@ -62,7 +62,7 @@ To fit the HMSC model with Bayesian inference, we use the `sampleMcmc` function.
 
 ```{r IIIb}
 nChains = 2
-test.run = TRUE
+test.run = FALSE
 if (test.run){
    #with this option, the vignette runs fast but results are not reliable 
    thin = 1
@@ -217,7 +217,7 @@ The model where the responses to a missing covariate are captured by residual as
 preds = computePredictedValues(m)
 evaluateModelFit(hM = m, predY = preds)
 ```
-The explanatory power of the reduced model (that has only $x_1$ as the covariate) is not much lower than the explanatory power of the full model (that has both $x_1$ and $x_2$ as covariates). This may appear surprising, as we generated the data with the assumption that the species respond equally strongly to the missing covariate $x_2$ as to the covariate $x_1$ included in the model. The equally high explanatory power is due to the fact that the random effect part of the model also helps to make the predictions. The underlying latent variable approach can actually be viewed as a way to *estimate* missing covariates (latent variables) and species' responses to them (latent loadings). Thus, the fitted model has information about the values of the missing covariates in the sampling units used for model fitting, and this information can be used when making the predictions.
+The explanatory power of the reduced model (that has only $x_1$ as the covariate) is similar to the explanatory power of the full model (that has both $x_1$ and $x_2$ as covariates). This may appear surprising, as we generated the data with the assumption that the species respond equally strongly to the missing covariate $x_2$ as to the covariate $x_1$ included in the model. The equally high explanatory power is due to the fact that the random effect part of the model also helps to make the predictions. The underlying latent variable approach can actually be viewed as a way to *estimate* missing covariates (latent variables) and species' responses to them (latent loadings). Thus, the fitted model has information about the values of the missing covariates in the sampling units used for model fitting, and this information can be used when making the predictions.
 
 We next evaluate the predictive power of the model by cross-validation.
 
@@ -274,7 +274,7 @@ In the biplot of Fig. \ref{fig: E3}, the sites are clearly ordered by the color,
 As the second case study, we use HMSC to fit a multivariate non-linear model. While all species are typically assumed to follow the same error distribution, HMSC allows also for mixtures of them. To illustrate, we assume the same environmental covariates and the same linear predictors as we did for species 1-4 in the example above, but we apply four different link functions and error distributions. More precisely, we will assume that species 1 follows the normal model, species 2 the probit model, species 3 the Poisson model, and species 4 the log-normal Poisson model. Perhaps we have measured the abundance of species 1 as biomass and the abundances of species 3 and 4 as counts of individuals, whereas for species 2 only presence-absence data are available.
 
 ```{r XIX}
-set.seed(1)
+set.seed(2)
 alpha = c(0,0,0,0)
 beta1 = c(1,1,-1,-1)
 beta2 = c(1,-1,1,-1)
@@ -285,7 +285,7 @@ for (j in 1:4){
    L[,j] = alpha[j] + beta1[j]*x1 + beta2[j]*x2
 }
 Y[,1] = L[,1] + rnorm(n, sd = sigma[1])
-Y[,2] = 1*(L[,2] + rnorm(n, sd = 1)>0)
+Y[,2] = 1*((L[,2] + rnorm(n, sd = 1))>0)
 Y[,3] = rpois(n, lambda = exp(L[,3]))
 Y[,4] = rpois(n, lambda = exp(L[,4] + rnorm(n, sd = sigma[4])))
 ```
