@@ -133,7 +133,7 @@ plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 
 
    if (is.factor(xx)) {
       toPlot = data.frame(xx, me, lo, hi)
-      plot.new()
+#      plot.new()
       pl = ggplot(toPlot, aes_string(x = xx, y = me), fill = supp) + geom_bar(position = position_dodge(),
                                                                               stat = "identity") + xlab(xlabel) + ylab(ylabel) +
          geom_errorbar(aes(ymin = lo, ymax = hi), width = 0.2,

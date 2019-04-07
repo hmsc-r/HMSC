@@ -17,13 +17,18 @@ The main difference between the low- and high-dimensional cases is that only the
 
 To get HMSC in use, you need to first install it [https://github.com/hmsc-r/HMSC] and then load it.
 
+```{r echo=FALSE}
+library(knitr)
+```
+
+
 ```{r I, message = F}
 library(Hmsc)
 library(corrplot)
-set.seed(8)
+set.seed(1)
 ```
 
-We also loaded the library corrplot which will be used for plotting, and we set the random number seed to make the results presented here reproducible. This time we did not choose `set.seed(1)` but instead `set.seed(8)` as that results in a simulated phylogeny that fits better our purpose.
+We also loaded the library corrplot which will be used for plotting, and we set the random number seed with `set.seed(1)` to make the results presented here reproducible.
 
 # Generating simulated data for a large species community
 
@@ -36,44 +41,22 @@ phy = rcoal(n=ns, tip.label = sprintf('species_%.3d',1:ns), br = "coalescent")
 plot(phy, show.tip.label = FALSE, no.margin = TRUE)
 ```
 
-We will next generate simulated trait values for four traits for each of the `r ns` species. For the sake of illustration we call these traits 'habitat preference for forest' (trait 1, to be abbreviated as H), 'thermal optimum' (trait 2, to be abbreviated as T), 'fecundity' (trait 3, to be abbreviated as F) and 'body size' (trait 4, to be abbreviated as B). 
+We will next generate simulated trait values for three traits for each of the `r ns` species. For the sake of illustration we call these traits 'habitat preference for forest' (trait 1, to be abbreviated as H) and 'thermal optimum' (trait 2, to be abbreviated as T).
 
-We assume that the traits 1-3 are phylogenetically constrained so that they have evolved according to the diffusion model of trait evolution. We further assume that traits 2 and 3 are positively correlated with each other so that species with high thermal optimum tend to have high fecundity. These assumptions can be implemented by randomizing the traits from a multivariate normal distribution where the variance-covariance matrix is a Kronecker product between the phylogenetic correlation matrix `C` and a trait-to-trait variance-covariance matrix `V`. The phylogenetic correlation matrix `C` can be generated from the phylogenetic tree using the function `vcv`of the `ape` package.
+We assume that the traits are phylogenetically constrained so that they have evolved according to the diffusion model of trait evolution. These assumptions can be implemented by randomizing the traits from a multivariate normal distribution where the variance-covariance matrix is the phylogenetic correlation matrix `C`. The phylogenetic correlation matrix `C` can be generated from the phylogenetic tree using the function `vcv`of the `ape` package.
 
 ```{r III}
 C = vcv(phy, model = "Brownian", corr = TRUE)
 spnames = colnames(C)
-V = diag(3)
-V[[1]] = 1
-V[[2,3]] = V[[3,2]] = 0.9
-set.seed(1)
-rho = 0.7
-traits = matrix(mvrnorm(n = 1, mu = rep(0,3*ns),
-                        Sigma=kronecker(V,rho*C+(1-rho)*diag(ns))), ncol = 3)
-traits = scale(traits)
-for (i in 1:3){
-   ma = max(traits[,i])
-   mi = min(traits[,i])
-   traits[,i] = 2*(traits[,i]-mi)/(ma-mi)-1
+traits = matrix(NA,ncol =2,nrow = ns)
+for (i in 1:2){
+   traits[,i] = matrix(mvrnorm(n = 1, mu = rep(0,ns), Sigma=C))
 }
 rownames(traits) = spnames
-```
-
-Here the parameter `rho` sets the extent to which the traits are phylogenetically constrained. With `rho` equalling one, the traits would be distributed exactly following the diffusion (Brownian motion) model of trait evolution. Thus, `1-rho` represent species-specific independent residual variation.
-
-Above, we have re-set the random number seed to generate trait values that fit to our purpose. After randomizing the values of the traits from a multivariate normal distribution, we have scaled them so that -1 is the smallest and +1 is the largest value for each trait.
-
-We assume that body size is independent of the phylogeny. This may be the case, for example, if there is strong selection on body size, if the species-specific trait optima for body size are unrelated to the locations of the species on the phylogeny, and if the genetic architecture underlying body size allows for its rapid evolution. We simply randomize body sizes independently from the phylogeny or the other traits. For illustrative purposes, we wish to include in our analyses both continuous and categorical traits. To do so, we assume that body size is classified into three classes: small (-1), intermediate (0) and large (+1).
-
-```{r IV}
-traits=cbind(traits,rnorm(n=ns))
-tmp = traits[,4]
-traits[,4] = 0
-traits[tmp>0.6,4] = 1
-traits[tmp<(-0.6),4] = -1
-colnames(traits) = c("habitat.use","thermal.optimum","fecundity","body.size")
+colnames(traits) = c("habitat.use","thermal.optimum")
 traits = as.data.frame(traits)
 ```
+
 
 We next visualize the trait distributions by plotting them next to the phylogenetic tree.
 
@@ -84,62 +67,42 @@ par(fig = c(0.6,0.9,0.025,0.775), mar=c(6,0,2,0), new=T)
 plot.new()
 image.plot(t(traits),axes=FALSE,legend.width = 3,legend.shrink=1,
            col = colorRampPalette(c("blue","white","red"))(200))
-text(x=0.83,y=0.72,srt = 90,  "H", cex=0.9, pos = 4)
-text(x=0.93,y=0.72,srt = 90,  "T", cex=0.9, pos = 4)
-text(x=1.03,y=0.72,srt = 90,  "F", cex=0.9, pos = 4)
-text(x=1.13,y=0.72,srt = 90,  "B", cex=0.9, pos = 4)
+text(x=1.1,y=0.72,srt = 90,  "H", cex=0.9, pos = 4)
+text(x=1.4,y=0.72,srt = 90,  "T", cex=0.9, pos = 4)
 ```
 
-As expected, the traits 1-3 (H, T and F) show a clear phylogenetic signal, i.e. related species show similar trait values. Additionally, traits T and F are positively correlated to each other. Trait H may appear to be associated with the traits T and F, as e.g. the lower part of the graph includes a large number of species that have simultaneously a high value for H and a low value for T and F. However, we assumed that trait H varies independently of the traits T and F, and hence this apparent association is generated by all the traits H, T and F being phylogenetically constrained. In line with our assumptions, the figure suggests that variation in trait 4 (B) is independent of the phylogeny and of the other traits.
+As expected, both traits show a clear phylogenetic signal, i.e. related species show similar trait values.
 
 ## Simulating environmental and species data
 As the next step, we simulate the environmental and species data. With respect to the environmental conditions, we assume that there is variation in habitat type and in climatic conditions. Concerning habitat, we assume that the sampling units are located either in open habitats or in forested habitats. Concerning climate, we assume that the sampling units differ in their thermal conditions, which we characterize by a continuous covariate.
 
 ```{r VI}
-set.seed(1)
+#set.seed(1)
 n = 200
 habitat = factor(sample(x=c("forest","open"),size=n,replace=TRUE))
 climate = rnorm(n)
 ```
 
-The next step is to define the species niches, i.e. how the species abundances depend on the match between their traits and the environmental conditions. In the script below, we assume that the fecundity of the species has an additive effect on the linear predictor, so that species with higher fecundity will be more abundant. We assume that the trait 'habitat use' measures the preference of the species to forests, so that for forest habitats we add this trait value to the linear predictor whereas for open habitats we subtract it from the linear predictor. We have further subtracted the squared difference between the climatic conditions at the sampling unit and the thermal optimum of the species, making the linear predictor and hence species abundance smaller if these two do not match. 
+The next step is to define the species niches, i.e. how the species abundances depend on the match between their traits and the environmental conditions. In the script below, we assume that the trait 'habitat use' measures the preference of the species to forests, so that for forest habitats we add this trait value to the linear predictor whereas for open habitats we subtract it. We further add the term $-(C_i-T_j)^2/4$ where $C_i$ is the climatic condition at location $i$ and $T_j$ is the thermal optimum of the species $j$. This makes the linear predictor and hence species abundances the largest when the species thermal optimum matches with the climatic conditions. We can write these choices as the equation  $E[L_{ij}]=H_j F_i - H_j (1-F_i)-(C_i-T_j)^2/4$. Here $E[L_{ij}]$ is the expected value of the linear predictor, $H_j$ is the habitat use trait of the species $j$, $F_i=1$ if location $i$ belongs to forest and $F_i=0$ if it belongs to open area. To see how this equation is implemented in the script below, we note that
+$E[L_{ij}]=[-T_j^2/4-H_j ]+[2 H_j] F_i + [T_j/2]C_i+[-1/4]C_i^2$. Note that we have also added some random noise to the species niches $\beta$ so that they are not fully determined by the traits.
 
 ```{r VII}
-L = matrix(0,nrow=n,ncol=ns)
-for (i in 1:n){
-   L[i,] = L[i,] + traits$fecundity
-   L[i,] = L[i,] + (if(habitat[i]=="forest"){1}else{-1})*traits$habitat.use
-   L[i,] = L[i,] - (climate[i]-traits$thermal.optimum)^2/4
-}
+nc = 4
+mu = matrix(0,nrow=nc,ncol=ns)
+#expected niche of each species related to the "covariate" intercept
+mu[1, ] = -traits$thermal.optimum^2/4-traits$habitat.use
+#expected niche of each species related to the covariate forest
+#(open area as reference level, so included in intercept)
+mu[2, ] = 2*traits$habitat.use
+#expected niche of each species related to the covariate climate
+mu[3, ] = traits$thermal.optimum/2
+#expected niche of each species related to the covariate climate*climate
+mu[4, ] = -1/4
+beta=mu + 0.25*matrix(rnorm(n = ns*nc),ncol=ns)
+X = cbind(rep(1,ns),as.numeric(habitat=="forest"),climate,climate*climate)
+L = X%*%beta
 ```
 
-Finally, we assume that body size influences the competition among the species, so that large-bodied species compete for certain types of resources, whereas small-bodied species compete for other types of resources, and species with intermediate body size compete for a third kind of resources. We implement this by assuming that a subset of species pairs belonging to the same body-size class exhibit a negative correlation with each other.
-
-```{r VIII}
-set.seed(1)
-rho = -0.5
-W = diag(ns)
-for(repl in 1:1000){
-   spp = sample(1:ns,2)
-   W1 = W
-   W1[spp[1],spp[2]] = rho
-   W1[spp[2],spp[1]] = rho
-   if(min(eigen(W1)$values)>0){W=W1}
-}
-min(eigen(W)$values)
-print(paste0("number of competing species pairs: ",sum(W==rho)/2))
-```
-
-The reason why we did not assume that all species pairs belonging to the same body size class would exhibit a strong negative correlation with each other is that this would be logically impossible. Thinking in terms of species occurrence, assume that we would like to implement a strong avoidance among species A, B and C. We could start by assuming that the species A and B exhibit competitive exclusion and that they do not occupy the same sampling units, so that a sampling unit is occupied either by species A or by species B. We could likewise assume that also the species B and C exhibit competitive exclusion and thus a given sampling unit is occupied either by species B or by species C. But these two assumptions lead to the situation where the species A and C will necessarily be found in the same sampling units, because they both would be found in those sampling units where species B is not present. Thus, it would not be possible to assume further that due to competitive exclusion between species A and C, these two would also occupy different sampling units. While we could modify this example in many ways to avoid the problem (e.g., one sampling unit can be occupied only by one of the species A, B and C), it makes the point that pair-wise associations among species need to be compatible with each other.
-
-In the above script, we ensure that the smallest eigenvalue of the correlation matrix `W` is positive, i.e. we ensure that matrix `W` remains positive definite. The condition of positive definiteness corresponds to the intuitive assumption that the associations must be logically feasible, in the sense discussed above. In the above script, the more negative the correlation `rho` between a competing species pair is assumed to be, the smaller will be the number of species pairs that can show that negative correlation with each other. We note that the situation is not identical with respect to positive associations. For example, it can be that some sampling units are occupied by all species whereas in other sampling units none of the species are present, creating a strong positive association among all species pairs.
-
-We next simulate the effects of competitive interactions by adding to the linear predictor random deviates from the multivariate normal distribution where the variance-covariance matrix is set to the above constructed correlation matrix.
-
-```{r IX}
-a = mvrnorm(n=n, mu=rep(0,ns), Sigma=W)
-L = L + a
-```
 
 Finally, to generate the species data, we need to decide about the link function and error distribution. For simplicity, we assume here that the data are normally distributed. We thus simply add some independent residual variation, where we assume the variance parameter to be identical for each species. We note that as the elements of the matrix `Y` can include any real numbers, they might measure species abundance e.g. in the units of log-transformed biomass.
 
@@ -153,25 +116,27 @@ colnames(Y) = spnames
 
 We are now ready to analyse the data with HMSC. In this section, we consider the "correct" model for which the assumptions are exactly in line with how we generated the data. Let us note in passing that with real data, the model will always be to some extent misspecified as the underlying mechanisms are not known. In the next sections, we will examine the influence of model misspecification by examining how the results of the analyses change if we e.g. fail to account for some of the traits or environmental covariates.
 
-To define a HMSC model that best corresponds to how the data were simulated, we include as fixed effects the categorical variable of habitat type and the continuous covariate of climate. To allow for the possibility of an intermediate thermal optimum, we also include the squared effect of climate. As species traits, we include habitat use (H), thermal optimum (T) and fecundity (F). We do not include body size into the traits because in the HMSC model the traits are used to model the responses of the species to the environmental covariates, not the species-to-species residual associations. Instead, we attempt to capture the influence of competitive interactions by adding a random effect at the sampling unit level. Further, we include the phylogenetic relationships among the species to estimate the strength of the phylogenetic signal in the data. We thus construct the HMSC model as
+To define a HMSC model that best corresponds to how the data were simulated, we include as fixed effects the categorical variable of habitat type and the continuous covariate of climate. To allow for the possibility of an intermediate thermal optimum, we also include the squared effect of climate. As species traits, we include habitat use (H) and thermal optimum (T). Further, we include the phylogenetic relationships among the species to estimate the strength of the phylogenetic signal in the data. We thus construct the HMSC model as
 
 ```{r XI}
 XData = data.frame(climate = climate, habitat = habitat)
+XFormula = ~habitat + poly(climate,degree = 2,raw = TRUE)
+TrFormula = ~habitat.use + thermal.optimum
 studyDesign = data.frame(sample = sprintf('sample_%.3d',1:n))
 rL = HmscRandomLevel(units = studyDesign$sample)
-XFormula = ~habitat + poly(climate,degree = 2,raw = TRUE)
-TrFormula = ~habitat.use + thermal.optimum + fecundity
 m = Hmsc(Y = Y, XData = XData, XFormula = XFormula,
          TrData = traits, TrFormula = TrFormula,
          phyloTree = phy,
          studyDesign = studyDesign, ranLevels = list(sample = rL))
 ```
 
+In the above model, we included a random effect at the sampling unit level. In the data we simulated, we assumed independent sampling units and no residual associations, and thus the absence of any random effect. Thus, we expect that the random effect will play a minor role also in the fitted model.
+
 We then choose the MCMC sampling parameters and fit the model. If the aim of the reader is to run through the markdown behind the vignette fast to see how the model objects are constructed and how the functions are called, we recommend running minimal amount of MCMC sampling, which can be obtained by setting `test.run = TRUE`. If the aim is to replicate the results that are given in the pdf version of the vignette, the user should increase the amount of MCMC sampling, e.g. by setting `test.run = FALSE`.
 
 ```{r XII}
 nChains = 2
-test.run = TRUE
+test.run = FALSE
 if (test.run){
    #with this option, the vignette evaluates in ca. 10 minutes in a laptop
    thin = 1
@@ -220,7 +185,7 @@ The convergence diagnostics suggest reasonably good MCMC convergence, as most po
 
 ## Model fit and variance partitioning
 
-As usual, we measure the explanatory power of the model by $R^2$.
+With normally distributed data, we measure the explanatory power of the model by $R^2$.
 
 ```{r XIV, fig.height=4, fig.width=4, fig.cap="\\label{fig: XIV} Histogram of species-specific explanatory r2 values"}
 preds = computePredictedValues(m)
@@ -246,7 +211,22 @@ VP = computeVariancePartitioning(m, group = c(1,1,2,2),groupnames=c("habitat","c
 plotVariancePartitioning(m, VP = VP)
 ```
 
-We observe that both components of environmental variation (climate and habitat) explain substantial proportions of the explained variance. In contrast, the random effects explain only a minor part of the variation. The traits explain almost all ($R^2$ = `r round(100*VP$traitR2)`%) of the variation in the species niches. This is because we have included in the HMSC model those traits that truly matter in how species respond to the environmental variation.
+We observe that both components of environmental variation (climate and habitat) explain substantial proportions of the explained variance. Which one of these is more important varies among the species. As expected, the random effect explains next to nothing.
+
+Let us then ask how much the traits explain out of the variation among the species in their responses to environmental covariates.
+
+```{r}
+kable(VP$R2T$Beta)
+```
+
+
+The traits explain a high amount of the variation in the species niches. This is because we have included in the HMSC model those traits that truly matter in how species respond to the environmental variation. We next ask how the influence of traits on species niches propagates into the influence of traits in species abundances.
+
+```{r}
+VP$R2T$Y
+```
+
+The traits explain a high amount of variation also in species abundances.
 
 ## Parameter estimates
 As we have `r ns` species and four species-specific parameters (one for each column of the design matrix), there are `r 4*ns` $\beta$ parameters in total. Thus it is more convenient to look at these as a figure rather than a vast table of numbers. In the function `plotBeta`, we use the option `plotTree = TRUE` to plot the phylogenetic tree next to the parameter estimates.
@@ -266,13 +246,13 @@ postGamma = getPostEstimate(m, parName="Gamma")
 plotGamma(m, post=postGamma, param="Support", supportLevel = 0.95)
 ```
 
-In this figure, the rows correpond to the species traits (more precisely, the columns of the design matrix `Tr` that is derived from `TrData` and `TrFormula`), and the rows to the environmental covariates  (more precisely, the columns of the design matrix `X` illustrated above). This plot yields a compact summary of the results at the community level. First, we observe a negative association between T2 (the trait `habitat.use`) and C2 (the level `open` of the environmental covariate `habitat`), meaning that those species which have a high value of the trait 'habitat use' tend to be less common in open habitats than in the reference habitat (forest). This makes perfect sense, as we assumed that habitat use influences the preference for forests. Second, we observe a positive association between T4 (the trait `thermal.optimum`) and the covariate C3 (the linear effect of the environmental covariate `climate`). This also makes perfect sense, as it means that species with a higher thermal optimum are more abundant in sampling units with warmer climates. Third, we observe a negative association between T1 (the trait `intercept`) and the covariate C4 (`second order response to climate`). This corresponds to the result that we observed already in the `Beta` plot, that all species generally exhibit a negative response to the second-order term of climate, and thus their response curve peaks at some intermediate temperature. Fourth, we observe a positive association between the trait T4 (`fecundity`) and the environmental covariate C1 `intercept`. This means that there is a positive relationship between species overall abundance and fecundity.
+In this figure, the rows correpond to the species traits (more precisely, the columns of the design matrix `Tr` that is derived from `TrData` and `TrFormula`), and the rows to the environmental covariates  (more precisely, the columns of the design matrix `X` illustrated above). This plot yields a compact summary of the results at the community level. First, we observe a negative association between T2 (the trait `habitat.use`) and C2 (the level `open` of the environmental covariate `habitat`), meaning that those species which have a high value of the trait 'habitat use' tend to be less common in open habitats than in the reference habitat (forest). This makes perfect sense, as we assumed that habitat use influences the preference for forests. Second, we observe a positive association between T4 (the trait `thermal.optimum`) and the covariate C3 (the linear effect of the environmental covariate `climate`). This also makes perfect sense, as it means that species with a higher thermal optimum are more abundant in sampling units with warmer climates. Third, we observe a negative association between T1 (the trait `intercept`) and the covariate C4 (`second order response to climate`). This corresponds to the result that we observed already in the `Beta` plot, that all species generally exhibit a negative response to the second-order term of climate, and thus their response curve peaks at some intermediate temperature.
 
-Let us next visualize the estimated residual associations among the species. We set `supportLevel = 0.8` to use a relatively mild threshold level of statistical support in order to avoid missing some of the associations that may show only a weak signal.
+Let us next visualize the estimated residual associations among the species.
 
 ```{r XIX, fig.height=5, fig.width=5, fig.cap="\\label{fig: XIX} Heatmap showing species residual associations"}
 OmegaCor = computeAssociations(m)
-supportLevel = 0.8
+supportLevel = 0.95
 toPlot = ((OmegaCor[[1]]$support>supportLevel) 
           + (OmegaCor[[1]]$support<(1-supportLevel))>0)*OmegaCor[[1]]$mean
 corrplot(toPlot, method = "color", 
@@ -281,31 +261,7 @@ corrplot(toPlot, method = "color",
          title=paste("random effect level:",m$rLNames[1]), mar=c(0,0,1,0))
 ```
 
-We may compare these estimated associations to those that we assumed in generating data. Thus we use `corrplot` to plot the matrix `W` showing which species pairs were assumed to compete with each other.
-
-```{r XX, fig.height=5, fig.width=5, fig.cap="\\label{fig: XX} Heatmap showing species associations assumed when generating data"}
-rownames(W) = spnames
-colnames(W) = spnames
-corrplot(W, method = "color", 
-         col=colorRampPalette(c("blue","white","red"))(200),
-         tl.cex=.6, tl.col="black",
-         title=paste("random effect level:",m$rLNames[1]), mar=c(0,0,1,0))
-```
-
-We observe that the assumed (`W`) and estimated (`Omega`) matrices are consistent in the sense that both contain a small number of negative associations, while the majority of the species pairs have no association. To check how often the estimated negative associations match with the same species pairs for 
-which they were recorded to, we can compute the proportions of "true positives", "false positives", "true negatives" and "false negatives".
-
-```{r XXI}
-neg = OmegaCor[[1]]$support<(1-supportLevel)
-nonneg = !neg
-diag(nonneg)=FALSE
-ma = rbind(c(mean(W[neg]<0),mean(W[neg]==0)),c(mean(W[nonneg]<0),mean(W[nonneg]==0)))
-colnames(ma) = c("W<0","W==0")
-rownames(ma) = c("Omega<0", "Omega>=0")
-kable(ma, caption = "Assumed and observed species associations")
-```
-
-Out of those cases where we estimated a negative association, the underlying true association was negative in `r round(100*ma[1,1])`% of the cases and thus zero in the remaining `r round(100*ma[1,2])`% of the cases. Out of those cases where we did not estimate a negative association, the underlying true association was negative in `r round(100*ma[2,1])`% of the cases and thus zero in the remaining `r round(100*ma[2,2])`% of the cases. The numbers match better than expected by random, but still they show that accurate estimation of a few negatively interacting species pairs is difficult. Actually the latent factor structure of HMSC is perhaps not best suited for this purpose, as in this case the assumption of a sparse interaction matrix would be a better match with the data.
+The fact that there are no associations with high statistical support is in line with how we generated the data.
 
 We finally look at the strength of the phylogenetic signal that was estimated from the data.
 
@@ -313,7 +269,7 @@ We finally look at the strength of the phylogenetic signal that was estimated fr
 summary(mpost$Rho)
 ```
 
-We note that the phylogenetic signal parameter $\rho$ of HMSC does not ask whether the species traits are correlated with the phylogeny, a question that is often in the focus of phylogenetic comparative analyses. Instead, the phylogenetic signal parameter $\rho$ measures whether the species niches (i.e., their responses to the environmental covariates, as measured by the $\beta$ parameters) show phylogenetic correlations. Furthermore, this is evaluated after accounting for the influence of species traits on species niches (as modelled by the $\gamma$ parameters). In the ideal case, we would not see any phylogenetic signal in the present case, because we have propagated the influence of phylogeny solely through those species traits that we included in the HMSC model. Thus, the estimated phylogenetic signal is simply due to the difficulty in separating statistically the influences of phylogenetically structured traits from a potential direct influence of the phylogeny itself.
+We note that the phylogenetic signal parameter $\rho$ of HMSC does not ask whether the species traits are correlated with the phylogeny, a question that is often in the focus of phylogenetic comparative analyses. Instead, the phylogenetic signal parameter $\rho$ measures whether the species niches (i.e., their responses to the environmental covariates, as measured by the $\beta$ parameters) show phylogenetic correlations. Furthermore, this is evaluated after accounting for the influence of species traits on species niches (as modelled by the $\gamma$ parameters). We do not see strong evidence for phylogenetic signal, as the 95%CI of $\rho$ includes zero. This is consistent with how we generated the data, because we propagated the influence of phylogeny solely through those species traits that we included in the HMSC model.
 
 ## Plotting variation over environmental gradients
 
@@ -396,9 +352,6 @@ m = Hmsc(Y=Y, XData=XData, XFormula = XFormula.1,
 
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
                     nChains = nChains, verbose = verbose)
-preds = computePredictedValues(m)
-MF = evaluateModelFit(hM=m, predY=preds)
-hist(MF$R2,xlim = c(0,1),main=paste0("mean = ",round(mean(MF$R2),2)))
 ```
 
 ```{r XXXI, fig.height=5, fig.width=7, fig.cap="\\label{fig: XXXI} Variance partitioning for each of 50 species"}
@@ -406,7 +359,7 @@ VP = computeVariancePartitioning(m, group = c(1,1,1),groupnames=c("climate"))
 plotVariancePartitioning(m, VP = VP)
 ```
 
-Expectedly, the explanatory power is now lower, and a larger proportion of explained variation is attributed to the random effects. Let us plot the structure of the species associations, as estimated by the random effect.
+Expectedly, the random effects play now a bigger role. Let us plot the structure of the species associations, as estimated by the random effect.
 
 ```{r XXXII, fig.height=5, fig.width=5, fig.cap="\\label{fig: XXXII} Heatmap showing species residual associations"}
 OmegaCor = computeAssociations(m)
@@ -423,7 +376,7 @@ We now observe a much richer structure of associations. This is because the resp
 
 ## Missing traits
 
-Let us next assume that we would have trait data only on habitat use, but we would lack information on species fecundities and thermal optima. We repeat the above analyses with a model modified to correspond to this assumption.
+Let us next assume that we would have trait data only on habitat use, but we would lack information on thermal optima. We repeat the above analyses with a model modified to correspond to this assumption.
 
 ```{r XXXIII, fig.height=4, fig.width=4, fig.cap="\\label{fig: XXXIII} Variance partitioning for each of 50 species"}
 TrFormula.1 = ~habitat.use
@@ -434,9 +387,6 @@ m = Hmsc(Y=Y, XData=XData, XFormula = XFormula,
 
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
                     nChains = nChains, verbose = verbose)
-preds = computePredictedValues(m)
-MF = evaluateModelFit(hM=m, predY=preds)
-hist(MF$R2,xlim = c(0,1),main=paste0("mean = ",mean(MF$R2)))
 ```
 
 ```{r XXXIV, fig.height=5, fig.width=7, fig.cap="\\label{fig: XXXIV} Variance partitioning for each of 50 species"}
@@ -444,12 +394,26 @@ VP = computeVariancePartitioning(m, group = c(1,1,2,2),groupnames=c("habitat","c
 plotVariancePartitioning(m, VP = VP)
 ```
 
-This model is very similar to the full model in terms of the explanatory power, as well as in terms of the variance partitioning. However, now the traits explain a much smaller part ($R^2$ = `r round(100*VP$traitR2)`%) of the variation in the species niches than was the case for the full model. This is because we are missing some relevant traits that would have explained the remaining part of the variation in species niches.
+This model is very similar to the full model in terms of the variance partitioning. Let us then ask how much the traits explain out of the variation among the species in their responses to environmental covariates.
+
+```{r}
+kable(VP$R2T$Beta)
+```
+
+As expected, now the traits do not explain how species respond to climatic variation. Let us now ask how much the traits explain out of their variation in species abundances :
+
+```{r}
+VP$R2T$Y
+```
+
+
+Now the traits explain a smaller part of abundance variation than was the case for the full model. This is because we are missing some relevant traits that would have explained the remaining part.
 
 Finally, we examine the posterior distribution for the phylogenetic signal parameter.
 
 ```{r XXXV}
+mpost = convertToCodaObject(m)
 summary(mpost$Rho)
 ```
 
-The parameter estimate is now higher than in the full model. This is the case because now residual variation in species niches (not explained by the traits) include a phylogenetic signal generated by the phylogenetic structure of the missing traits.
+Now residual variation in species niches (not explained by the traits) include a phylogenetic signal. This is generated by the phylogenetic structure of the missing trait of thermal optimum.
