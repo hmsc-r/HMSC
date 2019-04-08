@@ -158,7 +158,7 @@ computeVariancePartitioning = function(hM, group, groupnames, start=1){
    names(R2T.Beta)=hM$covNames
    colnames(vals)=hM$spNames
    leg = groupnames
-   for (r in 1:hM$nr) {
+   for (r in seq_len(nr)) {
       leg = c(leg, paste("Random: ", hM$rLNames[r], sep = ""))
    }
    rownames(vals)=leg
