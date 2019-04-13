@@ -56,10 +56,16 @@ predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predict
             alpha = postAlpha[[pN]]
             alphapw = rL$alphapw
             if(predictMean || predictMeanField){
-               s1 = rL$s[units,]
-               s2 = rL$s[unitsPred[indNew],]
-               D11 = as.matrix(dist(s1))
-               D12 = as.matrix(pdist(s1,s2))
+               if(!is.null(rL$s)){
+                  s1 = rL$s[units,]
+                  s2 = rL$s[unitsPred[indNew],]
+                  D11 = as.matrix(dist(s1))
+                  D12 = as.matrix(pdist(s1,s2))
+               } else
+               {
+                  D11 = rL$distMat[s1,s1]
+                  D12 = rL$distMat[s1,s2]
+               }
                for(h in 1:nf){
                   if(alphapw[alpha[h],1] > 0){
                      K11 = exp(-D11/alphapw[alpha[h],1])
@@ -82,8 +88,12 @@ predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predict
                }
             } else{
                unitsAll = c(units,unitsPred[indNew])
-               s = rL$s[unitsAll,]
-               D = as.matrix(dist(s))
+               if(!is.null(rL$s)){
+                  s = rL$s[unitsAll,]
+                  D = as.matrix(dist(s))
+               } else {
+                  D = rL$distMat[unitsAll,unitsAll]
+               }
                for(h in 1:nf){
                   if(alphapw[alpha[h],1] > 0){
                      K = exp(-D/alphapw[alpha[h],1])
