@@ -10,7 +10,8 @@
 #' @param showData whether raw data are plotted as well
 #' @param jigger the amount by which the raw data are to be jiggered in x-direction (for factors) or y-direction (for continuous covariates)
 #'
-#' @return
+#' @return Returns posterior probability by which the plotted variable is greater for the
+#'  last sampling unit of the gradient than for the first sampling unit of the gradient
 #'
 #' @details
 #'
@@ -41,44 +42,15 @@
 
 plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 0.5, 0.975), showData = FALSE, jigger = 0,...){
 
-   if (measure == "S") {
-      predS = lapply(predY, rowSums)
-      qpred = apply(abind(predS, along = 2), c(1), quantile,
-                    prob = prob, na.rm=TRUE)
-      ylabel = "Summed response"
-      if (all(hM$distr[,1]==2)){
-         ylabel = "Species richness"
-      }
-      if (all(hM$distr[,1]==3)){
-         ylabel = "Total count"
-      }
-   }
-   if (measure == "Y") {
-      qpred = apply(abind(predY, along = 3), c(1, 2), quantile,
-                    prob = prob, na.rm=TRUE)
-      qpred = qpred[, , index]
-      ylabel = hM$spNames[[index]]
-   }
-   if (measure == "T") {
-      if (all(hM$distr[,1]==1)){
-         predT = lapply(predY, function(a) (exp(a) %*% hM$Tr)/matrix(rep(rowSums(exp(a)),
-                                                                         hM$nt), ncol = hM$nt))
-      } else {
-         predT = lapply(predY, function(a) (a %*% hM$Tr)/matrix(rep(rowSums(a),
-                                                                    hM$nt), ncol = hM$nt))
-      }
-      qpred = apply(abind(predT, along = 3), c(1, 2), quantile,
-                    prob = prob, na.rm = TRUE)
-      qpred = qpred[, , index]
-      ylabel = hM$trNames[[index]]
-   }
+   Pr = NA
+
    switch(class(hM$X),
           matrix = {
              xlabel = colnames(Gradient$XDataNew)[[1]]
-             },
+          },
           list = {
              xlabel = colnames(Gradient$XDataNew[[1]])[[1]]
-             }
+          }
    )
 
    switch(class(hM$X),
@@ -93,6 +65,45 @@ plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 
              }
           }
    )
+
+   ngrid = length(xx)
+
+   if (measure == "S") {
+      predS = abind(lapply(predY, rowSums),along=2)
+      Pr = mean(predS[ngrid,]>predS[1,])
+      qpred = apply(predS, c(1), quantile,
+                    prob = prob, na.rm=TRUE)
+      ylabel = "Summed response"
+      if (all(hM$distr[,1]==2)){
+         ylabel = "Species richness"
+      }
+      if (all(hM$distr[,1]==3)){
+         ylabel = "Total count"
+      }
+   }
+   if (measure == "Y") {
+      tmp = abind(predY, along = 3)
+      Pr = mean(tmp[ngrid,index,]>tmp[1,index,])
+      qpred = apply(tmp, c(1, 2), quantile,
+                    prob = prob, na.rm=TRUE)
+      qpred = qpred[, , index]
+      ylabel = hM$spNames[[index]]
+   }
+   if (measure == "T") {
+      if (all(hM$distr[,1]==1)){
+         predT = lapply(predY, function(a) (exp(a) %*% hM$Tr)/matrix(rep(rowSums(exp(a)),
+                                                                         hM$nt), ncol = hM$nt))
+      } else {
+         predT = lapply(predY, function(a) (a %*% hM$Tr)/matrix(rep(rowSums(a),
+                                                                    hM$nt), ncol = hM$nt))
+      }
+      predT = abind(predT, along = 3)
+      Pr = mean(predT[ngrid,index,]>predT[1,index,])
+      qpred = apply(predT, c(1, 2), quantile,
+                    prob = prob, na.rm = TRUE)
+      qpred = qpred[, , index]
+      ylabel = hM$trNames[[index]]
+   }
 
    lo = qpred[1, ]
    hi = qpred[3, ]
@@ -167,4 +178,5 @@ plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 
       lines(xx, qpred[2, ], lwd = 2)
 
    }
+   return(Pr)
 }
