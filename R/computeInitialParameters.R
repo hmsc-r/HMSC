@@ -23,10 +23,10 @@ computeInitialParameters = function(hM, initPar){
       for(j in 1:hM$ns){
          switch(class(hM$X),
             matrix = {
-              XEff = hM$X
+              XEff = hM$XScaled
             },
             list = {
-               XEff = hM$X[[j]]
+               XEff = hM$XScaled[[j]]
             }
          )
          if(hM$distr[j,1] == 1)
@@ -67,6 +67,12 @@ computeInitialParameters = function(hM, initPar){
          for(j in 1:hM$ns)
             Beta[,j] = rmvnorm(1, Mu[,j], V)
       }
+   }
+
+   BetaSel=list()
+   for (i in seq_len(hM$ncsel)){
+      XSel = hM$XSelect[[i]]
+      BetaSel[[i]] = runif(length(XSel$q))<XSel$q
    }
 
    if(!is.null(initPar$sigma)){
@@ -184,14 +190,14 @@ computeInitialParameters = function(hM, initPar){
       rho = 1
    }
 
-   switch(class(hM$X),
+   switch(class(hM$XScaled),
       matrix = {
-         LFix = hM$X %*% Beta
+         LFix = hM$XScaled %*% Beta
       },
       list = {
          LFix = matrix(NA,hM$ny,hM$ns)
          for(j in 1:hM$ns)
-            LFix[,j] = hM$X[[j]] %*% Beta[,j]
+            LFix[,j] = hM$XScaled[[j]] %*% Beta[,j]
       }
    )
    LRan = vector("list", hM$nr)
@@ -209,11 +215,12 @@ computeInitialParameters = function(hM, initPar){
    } else
       Z = LFix
 
-   Z = updateZ(Y=hM$Y,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=hM$X,Pi=hM$Pi,dfPi=hM$dfPi,distr=hM$distr,rL=hM$rL)
+   Z = updateZ(Y=hM$Y,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=hM$XScaled,Pi=hM$Pi,dfPi=hM$dfPi,distr=hM$distr,rL=hM$rL)
 
    parList$Gamma = Gamma
    parList$V = V
    parList$Beta = Beta
+   parList$BetaSel = BetaSel
    parList$sigma = sigma
    parList$Eta = Eta
    parList$Lambda = Lambda

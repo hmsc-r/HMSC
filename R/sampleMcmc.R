@@ -68,6 +68,17 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
    }
 
    X = hM$XScaled
+   if (hM$ncsel>0){
+      X1 = hM$XScaled
+      if(class(X1)=="matrix"){
+         X2=X1
+         X1=list()
+         for (j in 1:hM$ns){
+            X1[[j]] = X2
+         }
+      }
+   }
+
    Tr = hM$TrScaled
    Y = hM$YScaled
    distr = hM$distr
@@ -106,6 +117,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
       V = parList$V
       iV = chol2inv(chol(V))
       Beta = parList$Beta
+      BetaSel = parList$BetaSel
       sigma = parList$sigma
       iSigma = 1 / sigma
       Lambda = parList$Lambda
@@ -115,6 +127,21 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
       Delta = parList$Delta
       rho = parList$rho
       Z = parList$Z
+
+      if(hM$ncsel>0){
+         X = X1
+         for (i in 1:hM$ncsel){
+            XSel = hM$XSelect[[i]]
+            for (spg in 1:length(XSel$q)){
+               if(!BetaSel[[i]][spg]){
+                  fsp = which(XSel$spGroup==spg)
+                  for (j in fsp){
+                     X[[j]][,XSel$covGroup]=0
+                  }
+               }
+            }
+         }
+      }
 
       postList = vector("list", samples)
       for(iter in seq_len(transient+samples*thin)){
@@ -137,6 +164,13 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
                X=X,Tr=Tr,Pi=Pi,dfPi=dfPi,C=C,rL=hM$rL)
             Beta = BetaLambdaList$Beta
             Lambda = BetaLambdaList$Lambda
+         }
+
+         if(!identical(updater$BetaSel, FALSE) &&  hM$ncsel>0){
+            BetaSelXList = updateBetaSel(Z=Z,XSelect = hM$XSelect, BetaSel=BetaSel,Beta=Beta, iSigma=iSigma,
+                                    Lambda=Lambda, Eta=Eta, X1=X1,Pi=Pi,dfPi=dfPi,rL=hM$rL)
+            BetaSel = BetaSelXList$BetaSel
+            X = BetaSelXList$X
          }
 
          if(!identical(updater$GammaV, FALSE)){
@@ -184,9 +218,9 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
          }
 
          if((iter>transient) && ((iter-transient) %% thin == 0)){
-            postList[[(iter-transient)/thin]] = combineParameters(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,
+            postList[[(iter-transient)/thin]] = combineParameters(Beta=Beta,BetaSel=BetaSel,Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,
                Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,Delta=Delta,
-               nc=hM$nc, XScalePar=hM$XScalePar, XInterceptInd=hM$XInterceptInd, nt=hM$nt, TrScalePar=hM$TrScalePar, TrInterceptInd=hM$TrInterceptInd, rhopw=rhopw)
+               nc=hM$nc, ncsel = hM$ncsel, XSelect = hM$XSelect, XScalePar=hM$XScalePar, XInterceptInd=hM$XInterceptInd, nt=hM$nt, TrScalePar=hM$TrScalePar, TrInterceptInd=hM$TrInterceptInd, rhopw=rhopw)
          }
          if((verbose > 0) && (iter%%verbose == 0)){
             if(iter > transient){
