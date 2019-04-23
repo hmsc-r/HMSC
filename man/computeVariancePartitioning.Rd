@@ -4,7 +4,8 @@
 \alias{computeVariancePartitioning}
 \title{Hmsc$computeVariancePartitioning}
 \usage{
-computeVariancePartitioning(hM, group, groupnames, start = 1)
+computeVariancePartitioning(hM, group, groupnames, start = 1,
+  na.ignore = F)
 }
 \arguments{
 \item{group}{vector of numeric values corresponding to group identifiers in groupnames}
@@ -12,12 +13,14 @@ computeVariancePartitioning(hM, group, groupnames, start = 1)
 \item{groupnames}{vector of names for each random and fixed effect}
 
 \item{start}{index of first MCMC sample included}
+
+\item{na.ignore}{Logical. If TRUE, covariates are ignored for sites where the focal species is NA when computing variance-covariance matrices for each species}
 }
 \value{
 returns an object VP with components VP$vals, VP$R2T, VP$group and VP$groupnames.
 }
 \description{
-Computes variance partitions with respect to given grouping of fixed efffects and levels of random effects
+Computes variance partitions with respect to given grouping of fixed effects and levels of random effects
 }
 \details{
 The vector \code{group} has one value for each column of the matrix \code{hM$X}, describing the index of the
