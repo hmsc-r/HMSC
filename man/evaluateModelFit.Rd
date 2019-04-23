@@ -26,13 +26,14 @@ The types of measures of model fit depend on the type of response variable.
 For all types of response variables, root-mean-square error (RMSE) between predicted
 and observed values is computed.
 For normal models, R2 is computed as squared pearson
-correlation between observed and predicted values. For probit models, TjurR2 and AUC are
+correlation between observed and predicted values, times the sign of the correlation.
+For probit models, TjurR2 and AUC are
 computed. For Poisson models, a pseudo-R2 is computed as
-squared spearman correlation between observed and predicted values (SR2).
+squared spearman correlation between observed and predicted values, times the sign of the correlation (SR2).
 For Poisson models, the observed and predicted data are also truncated to occurrences (presence-absences),
 for which the same measures are given as for the probit models (O.RMSE, O.AUC and O.TjurR2).
 For Poisson models, the observed and predicted data are also subsetted to conditional on presence,
-for which subset the root-mean-square error  and pseudo-R2 based on  squared spearman correlatio
+for which subset the root-mean-square error  and pseudo-R2 based on  squared spearman correlation
 are computed (C.RMSE, C.SR2).
 
 The measures O.RMSE, O.AUC, O.TjurR2, C.RMSE and C.SR2 can be computed only if the option

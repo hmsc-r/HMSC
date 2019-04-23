@@ -44,15 +44,15 @@ setPriors.Hmsc = function(hM, V0=NULL, f0=NULL, mGamma=NULL,
    }
 
    if(!is.null(mGamma)){
-      if(length(mGamma) != hM$nc)
-         stop("HMSC.setPriors: mGamma must be a vector of length equal to number of covariates nc")
+      if(length(mGamma) != hM$nc*hM$nt)
+         stop("HMSC.setPriors: mGamma must be a vector of length equal to number of covariates times traits: nc x nt")
       hM$mGamma = mGamma
    } else if(setDefault){
       hM$mGamma = rep(0, hM$nc*hM$nt)
    }
 
    if(!is.null(UGamma)){
-      if(!isSymmetric(UGamma) || nrow(UGamma) != hM$nc || ncol(UGamma) != hM$nc)
+      if(!isSymmetric(UGamma) || nrow(UGamma) != (hM$nc*hM$nt) || ncol(UGamma) != (hM$nc*hM$nt))
          stop("HMSC.setPriors: UGamma must be a positive definite matrix of size equal to nc x nt")
       hM$UGamma = UGamma
    } else if(setDefault){

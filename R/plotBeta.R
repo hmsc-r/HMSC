@@ -95,7 +95,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
       }}
 
    rownames(betaMat) = covNames
-   if(plotTree){colnames(betaMat) = hM$spNames}
+   if(plotTree){colnames(betaMat) = gsub(" ", "_", hM$spNames)}
    if(!plotTree){colnames(betaMat) = spNames}
 
    X = t(betaMat[covorder,order])
@@ -107,7 +107,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
    if(plotTree){
       par(fig = c(0,split[1],0,1), mar=c(6,0,2,0))
       if(sum(!spNamesNumbers)==2){plot(tree,show.tip.label=F)}
-      else{tree$tip.label[match(hM$spNames,tree$tip.label)]=spNames
+      else{tree$tip.label[match(gsub(" ", "_", hM$spNames),tree$tip.label)]=spNames
       plot(tree, show.tip.label=T,adj=1,align.tip.label=T,cex=cex[2])}
 
       par(fig = c(split[1],1,0,1),  mar=c(6,0,2,0), new=T)

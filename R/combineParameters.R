@@ -1,5 +1,5 @@
-combineParameters = function(Beta, Gamma, iV, rho, iSigma, Eta,
-   Lambda,Alpha,Psi,Delta, nc, XScalePar, XInterceptInd, nt, TrScalePar, TrInterceptInd, rhopw){
+combineParameters = function(Beta, BetaSel, Gamma, iV, rho, iSigma, Eta,
+   Lambda,Alpha,Psi,Delta, nc, ncsel, XSelect, XScalePar, XInterceptInd, nt, TrScalePar, TrInterceptInd, rhopw){
    for(p in 1:nt){
       m = TrScalePar[1,p]
       s = TrScalePar[2,p]
@@ -23,6 +23,16 @@ combineParameters = function(Beta, Gamma, iV, rho, iSigma, Eta,
          }
          iV[k,] = iV[k,]*s
          iV[,k] = iV[,k]*s
+      }
+   }
+
+   for (i in seq_len(ncsel)){
+      XSel = XSelect[[i]]
+      for (spg in 1:length(XSel$q)){
+         if(!BetaSel[[i]][spg]){
+            fsp = which(XSel$spGroup==spg)
+            Beta[XSel$covGroup,fsp]=0
+         }
       }
    }
 
