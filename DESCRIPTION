@@ -30,4 +30,5 @@ Depends:
    phytools,
    tensorA,
    truncnorm,
+   knitr,
    snow
