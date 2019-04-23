@@ -8,5 +8,5 @@ The following lines should sucessfully install Hmsc to your R in most cases:
 ```R
 library(devtools)
 install_url('https://cran.r-project.org/src/contrib/Archive/BayesLogit/BayesLogit_0.6.tar.gz')
-install_github("hmsc-r/HMSC")
+install_github("hmsc-r/HMSC", build_opts = c("--no-resave-data", "--no-manual")))
 ```
