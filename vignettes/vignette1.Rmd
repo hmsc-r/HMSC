@@ -1,0 +1,7 @@
+\documentclass{article}
+\usepackage{pdfpages}
+%\VignetteIndexEntry{vignette_1_univariate}
+
+\begin{document}
+\includepdf[pages=-, fitpaper=true]{vignette_1_univariate.pdf}
+\end{document}
