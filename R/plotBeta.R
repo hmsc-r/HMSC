@@ -40,7 +40,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
   )
 
    if(plotTree){
-      tree = hM$phyloTree
+      tree = keep.tip(hM$phyloTree,m$spNames)
       tree = untangle(tree,"read.tree")
    }
 

@@ -55,6 +55,11 @@ getPostEstimate = function(hM, parName, r=1, x=NULL, q=c(), chainIndex=1:length(
    valMean = colMeans(val)
    valSupport = colMeans(val>0)
    valSupportNeg = colMeans(val<0)
+   if(parName=="Beta"){
+      colnames(valMean) = hM$spNames
+      colnames(valSupport) = hM$spNames
+      colnames(valSupportNeg) = hM$spNames
+   }
    res = list(mean=valMean, support=valSupport, supportNeg = valSupportNeg)
    if(length(q) > 0)
       res$q = apply(val, 1+(1:parDimLength), quantile, q)
