@@ -88,7 +88,10 @@
 #' @export
 
 
-Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, XSelect=NULL, YScale = FALSE,
+Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
+                XSelect=NULL,
+                XDRData=NULL, XDRFormula=~.-1,XDR=NULL, ncDR=2, XDRScale=TRUE,
+                YScale = FALSE,
                 studyDesign=NULL, ranLevels=NULL, ranLevelsUsed=names(ranLevels),
                 TrFormula=NULL, TrData=NULL, Tr=NULL, TrScale=TRUE,
                 phyloTree=NULL, C=NULL,
@@ -96,7 +99,9 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, XSelect=NULL, Y
 
    hM = structure(list(
       Y = NULL,
-      XData=NULL, XFormula=NULL, X=NULL, XScaled=NULL, XSelect=NULL, YScaled=NULL, XInterceptInd=NULL,
+      XData=NULL, XFormula=NULL, X=NULL, XScaled=NULL, XSelect=NULL,
+      XDRData=NULL, XDRFormula=NULL, XDR=NULL, XDRScaled=NULL,
+      YScaled=NULL, XInterceptInd=NULL,
       studyDesign=NULL, ranLevels=NULL, ranLevelsUsed=NULL,
       dfPi = NULL, rL=NULL, Pi=NULL,
       TrData=NULL, TrFormula=NULL, Tr=NULL, TrScaled=NULL, TrInterceptInd=NULL,
@@ -107,6 +112,9 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, XSelect=NULL, Y
       ny = NULL,
       ns = NULL,
       nc = NULL,
+      ncNDR = NULL,
+      ncDR = NULL,
+      ncODR = NULL,
       ncsel = NULL,
       nr = NULL,
       nt = NULL,
@@ -122,7 +130,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, XSelect=NULL, Y
       rLNames = NULL,
 
       # scaling
-      XScalePar=NULL, YScalePar=NULL, TrScalePar=NULL,
+      XScalePar=NULL, XDRScalePar=NULL, YScalePar=NULL, TrScalePar=NULL,
 
       # priors
       V0=NULL, f0=NULL,
@@ -130,6 +138,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, XSelect=NULL, Y
       aSigma=NULL, bSigma=NULL,
       nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL,
       rhopw=NULL,
+      nuDR=NULL, a1DR=NULL, b1DR=NULL, a2DR=NULL, b2DR=NULL,
 
       # sampling parameters
       samples=NULL, transient=NULL, thin=NULL, verbose=NULL, adaptNf=NULL,
@@ -159,7 +168,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, XSelect=NULL, Y
       switch(class(XData),
              list={
                 if(length(XData) != hM$ns){
-                   stop("Hmsc.setData: the length of XData list argument must be equal to the number of speices")
+                   stop("Hmsc.setData: the length of XData list argument must be equal to the number of species")
                 }
                 if(any(unlist(lapply(X, class)) != "data.frame")){
                    stop("Hmsc.setData: each element of X list must be a data.frame")
@@ -301,8 +310,96 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE, XSelect=NULL, Y
              }
       )
    }
+
+
    hM$ncsel = length(XSelect)
    hM$XSelect = XSelect
+   for (i in seq_len(hM$ncsel)){
+      XSel = hM$XSelect[[i]]
+      if(max(XSel$covGroup)>hM$nc){
+         stop("Hmsc.setData: covGroup for XSelect cannot have values greater than number of columns in X")
+      }
+   }
+
+
+   #covariates for dimension reduction
+   hM$ncNDR = hM$nc
+   if(!is.null(XDRData)){
+      if(!class(XDRData)=="data.frame")
+      {
+         stop("Hmsc.setData: XDRData must be a data.frame")
+      }
+      if(nrow(XDRData) != hM$ny){
+         stop("Hmsc.setData: the number of rows in XDRData must be equal to the number of sampling units")
+      }
+      if(any(is.na(XDRData))){
+         stop("Hmsc.setData: XDRData must contain no NA values")
+      }
+      hM$XDRData = XDRData
+      hM$XDRFormula = XDRFormula
+      hM$XDR = model.matrix(XDRFormula, XDRData)
+      hM$ncODR = ncol(hM$XDR)
+      hM$ncDR = ncDR
+   }
+   if(!is.null(XDR)){
+      if(!class(XDR)=="matrix")
+      {
+         stop("Hmsc.setData: XDR must be a matrix")
+      }
+      if(nrow(XDR) != hM$ny){
+         stop("Hmsc.setData: the number of rows in XDR must be equal to the number of sampling units")
+      }
+      if(any(is.na(XDR))){
+         stop("Hmsc.setData: XDR must contain no NA values")
+      }
+      hM$XDRData = NULL
+      hM$XDRFormula = NULL
+      hM$XDR = XDR
+      hM$ncODR = ncol(hM$XDR)
+      hM$ncDR = ncDR
+   }
+   if(is.null(XDRData) && is.null(XDR)){
+      X = matrix(NA,hM$ny,0)
+      hM$XDR = NULL
+      hM$ncODR = 0
+      hM$ncDR = 0
+   }
+   if(hM$ncDR>0){
+      if(is.null(colnames(hM$XDR))){
+         colnames(hM$XDR) = sprintf(sprintf("covDR%%.%dd",ceiling(log10(hM$ncODR))), 1:hM$ncODR)
+      }
+      for(k in seq_len(hM$ncDR)){
+         hM$covNames=c(hM$covNames,paste0("XDR_",as.character(k)))
+      }
+      hM$nc = hM$ncNDR + hM$ncDR
+
+      if(identical(XDRScale,FALSE)){
+         hM$XDRScalePar = rbind(rep(0,hM$ncODR), rep(1,hM$ncODR))
+         hM$XDRScaled = hM$XDR
+      } else {
+         if(identical(XScale,FALSE)){
+            stop("Hmsc.setData: XDR can't be scaled if X is not scaled")
+         }
+         XDRStack = hM$XDR
+         if(identical(XDRScale,TRUE)){
+            XDRscaleInd = apply(XDRStack, 2, function(a) !all(a %in% c(0,1)))
+         } else{
+            XDRscaleInd = XDRScale
+         }
+         XDRScalePar = rbind(rep(0,hM$ncODR), rep(1,hM$ncODR))
+         XDRScaled=XDRStack
+         if(length(XInterceptInd)>0){
+            XDRsc = scale(XDRStack)
+            XDRScalePar[,XDRscaleInd] = rbind(attr(XDRsc,"scaled:center"), attr(XDRsc,"scaled:scale"))[,XDRscaleInd]
+         } else{
+            XDRsc = scale(XStack, center=FALSE)
+            XDRScalePar[2,XDRscaleInd] = attr(sc,"scaled:scale")[XDRscaleInd]
+         }
+          XDRScaled[,XDRscaleInd] = XDRsc[,XDRscaleInd]
+         hM$XDRScalePar = XDRScalePar
+         hM$XDRScaled = XDRScaled
+      }
+   }
 
    # traits
    if(!is.null(TrData)){

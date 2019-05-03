@@ -5,7 +5,8 @@
 \title{Hmsc}
 \usage{
 Hmsc(Y, XFormula = ~., XData = NULL, X = NULL, XScale = TRUE,
-  XSelect = NULL, YScale = FALSE, studyDesign = NULL,
+  XSelect = NULL, XDRData = NULL, XDRFormula = ~. - 1, XDR = NULL,
+  ncDR = 2, XDRScale = TRUE, YScale = FALSE, studyDesign = NULL,
   ranLevels = NULL, ranLevelsUsed = names(ranLevels),
   TrFormula = NULL, TrData = NULL, Tr = NULL, TrScale = TRUE,
   phyloTree = NULL, C = NULL, distr = "normal",

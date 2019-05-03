@@ -17,16 +17,46 @@
 computeInitialParameters = function(hM, initPar){
    parList = list()
 
+   if(hM$ncDR>0){
+      DeltaDR = matrix(c(rgamma(1,hM$a1DR,hM$b1DR), rgamma(hM$ncDR-1,hM$a2DR,hM$b2DR)))
+      PsiDR = matrix(rgamma(hM$ncDR*hM$ncODR, hM$nuDR/2, hM$nuDR/2), hM$ncDR, hM$ncODR)
+      tauDR = matrix(apply(DeltaDR, 2, cumprod), hM$ncDR, 1)
+      tauMatDR = matrix(tauDR,hM$ncDR,hM$ncODR)
+      multDR = sqrt(PsiDR*tauMatDR)^-1
+      wDR = matrix(rnorm(hM$ncDR*hM$ncODR)*multDR, hM$ncDR, hM$ncODR)
+      XB=hM$XDRScaled%*%t(wDR)
+   } else {
+      wDR = NULL
+   }
+
+   switch(class(hM$X),
+          matrix = {
+             XScaled = hM$XScaled
+             if(hM$ncDR>0){
+                XScaled=cbind(XScaled,XB)
+             }
+          },
+          list = {
+             XScaled=list()
+             for(j in 1:hM$ns){
+                XScaled[[j]] = hM$XScaled[[j]]
+                if(hM$ncDR>0){
+                   XScaled[[j]]=cbind(XScaled[[j]],XB)
+                }
+             }
+          }
+   )
+
    if(identical(initPar, "fixed effects")){
       cat("Hmsc::computeInitialParameter - initializing fixed effects with SSDM estimates\n")
       Beta = matrix(NA,hM$nc,hM$ns)
       for(j in 1:hM$ns){
          switch(class(hM$X),
             matrix = {
-              XEff = hM$XScaled
+              XEff = XScaled
             },
             list = {
-               XEff = hM$XScaled[[j]]
+               XEff = XScaled[[j]]
             }
          )
          if(hM$distr[j,1] == 1)
@@ -190,14 +220,14 @@ computeInitialParameters = function(hM, initPar){
       rho = 1
    }
 
-   switch(class(hM$XScaled),
+   switch(class(XScaled),
       matrix = {
-         LFix = hM$XScaled %*% Beta
+         LFix = XScaled %*% Beta
       },
       list = {
          LFix = matrix(NA,hM$ny,hM$ns)
          for(j in 1:hM$ns)
-            LFix[,j] = hM$XScaled[[j]] %*% Beta[,j]
+            LFix[,j] = XScaled[[j]] %*% Beta[,j]
       }
    )
    LRan = vector("list", hM$nr)
@@ -215,12 +245,15 @@ computeInitialParameters = function(hM, initPar){
    } else
       Z = LFix
 
-   Z = updateZ(Y=hM$Y,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=hM$XScaled,Pi=hM$Pi,dfPi=hM$dfPi,distr=hM$distr,rL=hM$rL)
+   Z = updateZ(Y=hM$Y,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=XScaled,Pi=hM$Pi,dfPi=hM$dfPi,distr=hM$distr,rL=hM$rL)
 
    parList$Gamma = Gamma
    parList$V = V
    parList$Beta = Beta
    parList$BetaSel = BetaSel
+   parList$PsiDR = PsiDR
+   parList$DeltaDR = DeltaDR
+   parList$wDR = wDR
    parList$sigma = sigma
    parList$Eta = Eta
    parList$Lambda = Lambda

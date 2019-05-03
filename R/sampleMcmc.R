@@ -67,9 +67,10 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
       nParallel <- nChains
    }
 
-   X = hM$XScaled
+   #X1 is the original X matrix (scaled version).
+   #X used in computations is modified from X1 by variable selection and dimension reduction.
+   X1 = hM$XScaled
    if (hM$ncsel>0){
-      X1 = hM$XScaled
       if(class(X1)=="matrix"){
          X2=X1
          X1=list()
@@ -118,6 +119,9 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
       iV = chol2inv(chol(V))
       Beta = parList$Beta
       BetaSel = parList$BetaSel
+      PsiDR = parList$PsiDR
+      DeltaDR = parList$DeltaDR
+      wDR = parList$wDR
       sigma = parList$sigma
       iSigma = 1 / sigma
       Lambda = parList$Lambda
@@ -128,17 +132,30 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
       rho = parList$rho
       Z = parList$Z
 
+      X1A = X1
+
       if(hM$ncsel>0){
-         X = X1
          for (i in 1:hM$ncsel){
             XSel = hM$XSelect[[i]]
             for (spg in 1:length(XSel$q)){
                if(!BetaSel[[i]][spg]){
                   fsp = which(XSel$spGroup==spg)
                   for (j in fsp){
-                     X[[j]][,XSel$covGroup]=0
+                     X1A[[j]][,XSel$covGroup]=0
                   }
                }
+            }
+         }
+      }
+
+      X = X1A
+      if(hM$ncDR>0){
+         XB=hM$XDRScaled%*%t(wDR)
+         if(class(X)=="matrix"){
+            X=cbind(X,XB)
+         } else {
+            for (j in 1:hM$ns){
+               X[[j]] = cbind(X[[j]],XB)
             }
          }
       }
@@ -166,6 +183,14 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
             Lambda = BetaLambdaList$Lambda
          }
 
+         if(!identical(updater$wDR, FALSE) &&  m$ncDR>0){
+            wDRXList = updatewDR(Z=Z, Beta=Beta, iSigma=iSigma,
+                                 Eta=Eta, Lambda=Lambda, X1A=X1A, XDR=hM$XDRScaled,
+                                 Pi=Pi, dfPi=dfPi,rL = hM$rL, PsiDR=PsiDR, DeltaDR=DeltaDR)
+            wDR = wDRXList$wDR
+            X = wDRXList$X
+         }
+
          if(!identical(updater$BetaSel, FALSE) &&  hM$ncsel>0){
             BetaSelXList = updateBetaSel(Z=Z,XSelect = hM$XSelect, BetaSel=BetaSel,Beta=Beta, iSigma=iSigma,
                                     Lambda=Lambda, Eta=Eta, X1=X1,Pi=Pi,dfPi=dfPi,rL=hM$rL)
@@ -189,6 +214,13 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
             PsiDeltaList = updateLambdaPriors(Lambda=Lambda,Delta=Delta, rL=hM$rL)
             Psi = PsiDeltaList$Psi
             Delta = PsiDeltaList$Delta
+         }
+         if(!identical(updater$wDRPriors, FALSE)){
+            PsiDeltaList = updatewDRPriors(wDR=wDR,Delta=DeltaDR,
+                                           nu=hM$nuDR,a1=hM$a1DR,
+                                           b1=hM$b1DR,a2=hM$a2DR,b2=hM$b2DR)
+            PsiDR = PsiDeltaList$Psi
+            DeltaDR = PsiDeltaList$Delta
          }
 
          if(!identical(updater$Eta, FALSE))
@@ -218,9 +250,12 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
          }
 
          if((iter>transient) && ((iter-transient) %% thin == 0)){
-            postList[[(iter-transient)/thin]] = combineParameters(Beta=Beta,BetaSel=BetaSel,Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,
+            postList[[(iter-transient)/thin]] = combineParameters(Beta=Beta,BetaSel=BetaSel,wDR = wDR, Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,
                Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,Delta=Delta,
-               nc=hM$nc, ncsel = hM$ncsel, XSelect = hM$XSelect, XScalePar=hM$XScalePar, XInterceptInd=hM$XInterceptInd, nt=hM$nt, TrScalePar=hM$TrScalePar, TrInterceptInd=hM$TrInterceptInd, rhopw=rhopw)
+               PsiDR=PsiDR,DeltaDR=DeltaDR,
+               ncNDR=hM$ncNDR, ncDR=hM$ncDR, ncsel = hM$ncsel, XSelect = hM$XSelect,
+               XScalePar=hM$XScalePar, XInterceptInd=hM$XInterceptInd, XDRScalePar=hM$XDRScalePar,
+               nt=hM$nt, TrScalePar=hM$TrScalePar, TrInterceptInd=hM$TrInterceptInd, rhopw=rhopw)
          }
          if((verbose > 0) && (iter%%verbose == 0)){
             if(iter > transient){

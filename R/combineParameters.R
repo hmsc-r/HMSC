@@ -1,5 +1,6 @@
-combineParameters = function(Beta, BetaSel, Gamma, iV, rho, iSigma, Eta,
-   Lambda,Alpha,Psi,Delta, nc, ncsel, XSelect, XScalePar, XInterceptInd, nt, TrScalePar, TrInterceptInd, rhopw){
+combineParameters = function(Beta, BetaSel, wDR, Gamma, iV, rho, iSigma, Eta,
+   Lambda,Alpha,Psi,Delta, PsiDR, DeltaDR,ncNDR, ncDR, ncsel, XSelect, XScalePar,
+   XInterceptInd, XDRScalePar, nt, TrScalePar, TrInterceptInd, rhopw){
    for(p in 1:nt){
       m = TrScalePar[1,p]
       s = TrScalePar[2,p]
@@ -11,7 +12,7 @@ combineParameters = function(Beta, BetaSel, Gamma, iV, rho, iSigma, Eta,
       }
    }
 
-   for(k in 1:nc){
+   for(k in 1:ncNDR){
       m = XScalePar[1,k]
       s = XScalePar[2,k]
       if(m!=0 || s!=1){
@@ -23,6 +24,21 @@ combineParameters = function(Beta, BetaSel, Gamma, iV, rho, iSigma, Eta,
          }
          iV[k,] = iV[k,]*s
          iV[,k] = iV[,k]*s
+      }
+   }
+
+   for(k in 1:ncDR){
+      m = XDRScalePar[1,k]
+      s = XDRScalePar[2,k]
+      if(m!=0 || s!=1){
+         Beta[ncNDR+k,] = Beta[ncNDR+k,]/s
+         Gamma[ncNDR+k,] = Gamma[ncNDR+k,]/s
+         if(!is.null(XInterceptInd)){
+            Beta[XInterceptInd,] = Beta[XInterceptInd,] - m*Beta[ncNDR+k,]
+            Gamma[XInterceptInd,] = Gamma[XInterceptInd,] - m*Gamma[ncNDR+k,]
+         }
+         iV[ncNDR+k,] = iV[ncNDR+k,]*s
+         iV[,ncNDR+k] = iV[,ncNDR+k]*s
       }
    }
 
@@ -38,7 +54,7 @@ combineParameters = function(Beta, BetaSel, Gamma, iV, rho, iSigma, Eta,
 
    V = chol2inv(chol(iV))
    sigma = 1/iSigma
-   par = list(Beta=Beta, Gamma=Gamma, V=V, rho=rhopw[rho,1], sigma=sigma, Eta=Eta, Lambda=Lambda, Alpha=Alpha, Psi=Psi, Delta=Delta)
+   par = list(Beta=Beta, wDR=wDR, Gamma=Gamma, V=V, rho=rhopw[rho,1], sigma=sigma, Eta=Eta, Lambda=Lambda, Alpha=Alpha, Psi=Psi, Delta=Delta, PsiDR=PsiDR, DeltaDR=DeltaDR)
 }
 
 

@@ -23,7 +23,7 @@
 #'
 #' @export
 
-predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL, # this has to be updated to cov-dependent associations
+predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL, XDRData=NULL, XDR=NULL, # this has to be updated to cov-dependent associations
                         studyDesign=hM$studyDesign, ranLevels=hM$ranLevels, Gradient=NULL,
                         Yc=NULL, mcmcStep=1, expected=FALSE, predictEtaMean=FALSE, predictEtaMeanField=FALSE){
 
@@ -34,7 +34,10 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
    }
 
    if(!is.null(XData) && !is.null(X)){
-      stop("Hmsc.predict: only single of XData and X arguments can be specified")
+      stop("Hmsc.predict: only one of XData and X arguments can be specified")
+   }
+   if(!is.null(XDRData) && !is.null(XDR)){
+      stop("Hmsc.predict: only one of XDRData and XDR arguments can be specified")
    }
    if(predictEtaMean==TRUE && predictEtaMeanField==TRUE)
       stop("Hmsc.predict: predictEtaMean and predictEtaMeanField arguments cannot be TRUE simultanuisly")
@@ -52,6 +55,13 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
    } else{
       if(is.null(X))
          X = hM$X
+   }
+   if(!is.null(XDRData)){
+      xlev = lapply(hM$XDRData, levels)[unlist(lapply(hM$XDRData, is.factor))]
+      XDR = model.matrix(hM$XDRFormula, XDRData, xlev=xlev)
+   } else{
+      if(is.null(XDR) && hM$ncDR>0)
+         XDR=hM$XDR
    }
    switch(class(X),
           list={
@@ -97,14 +107,28 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
    pred = vector("list",predN)
    for(pN in 1:predN){
       sam = post[[pN]]
+
+      if(hM$ncDR>0){
+         XB=XDR%*%t(sam$wDR)
+      }
       switch(class(X),
              matrix = {
-                LFix = X %*% sam$Beta
+                X1=X
+                if(hM$ncDR>0){
+                   X1=cbind(X1,XB)
+                }
+                LFix = X1 %*% sam$Beta
              },
              list = {
                 LFix = matrix(NA,nyNew,hM$ns)
-                for(j in 1:hM$ns)
-                   LFix[,j] = X[[j]]%*%sam$Beta[,j]
+                for(j in 1:hM$ns){
+                   X1=X[[j]]
+                   if(hM$ncDR>0){
+                      X1=cbind(X1,XB)
+                   }
+                   LFix[,j] = X1%*%sam$Beta[,j]
+                }
+
              }
       )
       LRan = vector("list",hM$nr)
