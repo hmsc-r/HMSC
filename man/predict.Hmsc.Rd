@@ -5,10 +5,10 @@
 \title{predict}
 \usage{
 \method{predict}{Hmsc}(hM, post = poolMcmcChains(hM$postList),
-  XData = NULL, X = NULL, studyDesign = hM$studyDesign,
-  ranLevels = hM$ranLevels, Gradient = NULL, Yc = NULL,
-  mcmcStep = 1, expected = FALSE, predictEtaMean = FALSE,
-  predictEtaMeanField = FALSE)
+  XData = NULL, X = NULL, XDRData = NULL, XDR = NULL,
+  studyDesign = hM$studyDesign, ranLevels = hM$ranLevels,
+  Gradient = NULL, Yc = NULL, mcmcStep = 1, expected = FALSE,
+  predictEtaMean = FALSE, predictEtaMeanField = FALSE)
 }
 \arguments{
 \item{hM}{a fitted HMSC model.}
