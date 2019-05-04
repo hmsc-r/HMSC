@@ -16,7 +16,7 @@ updatewDR = function(Z,Beta,iSigma,Eta,Lambda,X1A,XDR,Pi,dfPi,rL,PsiDR,DeltaDR){
    ncODR = dim(XDR)[2]
 
    BetaNDR = Beta[1:ncNDR,]
-   BetaDR = Beta[-c(1:ncNDR),]
+   BetaDR = matrix(Beta[-c(1:ncNDR),],nrow=ncDR)
 
    switch(class(X1A),
           matrix = {

@@ -81,7 +81,7 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
             XDRTrain=NULL
             XDRVal=NULL
          }
-         hM1 = Hmsc(Y=hM$Y[train,,drop=FALSE], X=XTrain, XDR=XDRTrain, XSelect = hM$XSelect, dist=hM$distr, studyDesign=dfPi, Tr=hM$Tr, C=hM$C, ranLevels=hM$rL)
+         hM1 = Hmsc(Y=hM$Y[train,,drop=FALSE], X=XTrain, XDR=XDRTrain, ncDR = hM$ncDR, XSelect = hM$XSelect, dist=hM$distr, studyDesign=dfPi, Tr=hM$Tr, C=hM$C, ranLevels=hM$rL)
          setPriors(hM1, V0=hM$V0, f0=hM$f0, mGamma=hM$mGamma, UGamma=hM$UGamma, aSigma=hM$aSigma, bSigma=hM$bSigma,
                    nu=hM$nu, a1=hM$a1, b1=hM$b1, a2=hM$a2, b2=hM$b2, rhopw=hM$rhowp)
          hM1$YScalePar = hM$YScalePar
