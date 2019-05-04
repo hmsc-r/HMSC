@@ -183,7 +183,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
             Lambda = BetaLambdaList$Lambda
          }
 
-         if(!identical(updater$wDR, FALSE) &&  m$ncDR>0){
+         if(!identical(updater$wDR, FALSE) &&  hM$ncDR>0){
             wDRXList = updatewDR(Z=Z, Beta=Beta, iSigma=iSigma,
                                  Eta=Eta, Lambda=Lambda, X1A=X1A, XDR=hM$XDRScaled,
                                  Pi=Pi, dfPi=dfPi,rL = hM$rL, PsiDR=PsiDR, DeltaDR=DeltaDR)
@@ -215,7 +215,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
             Psi = PsiDeltaList$Psi
             Delta = PsiDeltaList$Delta
          }
-         if(!identical(updater$wDRPriors, FALSE) &&  m$ncDR>0){
+         if(!identical(updater$wDRPriors, FALSE) &&  hM$ncDR>0){
             PsiDeltaList = updatewDRPriors(wDR=wDR,Delta=DeltaDR,
                                            nu=hM$nuDR,a1=hM$a1DR,
                                            b1=hM$b1DR,a2=hM$a2DR,b2=hM$b2DR)
@@ -272,7 +272,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
    if(nParallel > 1){
       cl = makeCluster(nParallel, type="SOCK")
       clusterExport(cl, c("hM","nChains","transient","samples","thin","verbose","adaptNf","initSeed","initPar","updater",
-         "X", "Tr", "Y", "distr", "Pi", "C", "nr",
+         "X1", "Tr", "Y", "distr", "Pi", "C", "nr",
          "mGamma", "iUGamma", "V0", "f0", "aSigma", "bSigma", "rhopw",
          "Qg", "iQg", "RQg", "detQg", "rLPar"), envir=environment())
 
