@@ -27,6 +27,8 @@ computeInitialParameters = function(hM, initPar){
       XB=hM$XDRScaled%*%t(wDR)
    } else {
       wDR = NULL
+      PsiDR = NULL
+      DeltaDR = NULL
    }
 
    switch(class(hM$X),

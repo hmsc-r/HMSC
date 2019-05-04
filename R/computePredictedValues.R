@@ -89,8 +89,10 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
          hM1$XInterceptInd = hM$XInterceptInd
          hM1$XScalePar = hM$XScalePar
          hM1$XScaled = (hM1$X - matrix(hM1$XScalePar[1,],hM1$ny,hM1$ncNDR,byrow=TRUE)) / matrix(hM1$XScalePar[2,],hM1$ny,hM1$ncNDR,byrow=TRUE)
-         hM1$XDRScalePar = hM$XDRScalePar
-         hM1$XDRScaled = (hM1$XDR - matrix(hM1$XDRScalePar[1,],hM1$ny,hM1$ncODR,byrow=TRUE)) / matrix(hM1$XDRScalePar[2,],hM1$ny,hM1$ncODR,byrow=TRUE)
+         if(hM1$ncDR>0){
+            hM1$XDRScalePar = hM$XDRScalePar
+            hM1$XDRScaled = (hM1$XDR - matrix(hM1$XDRScalePar[1,],hM1$ny,hM1$ncODR,byrow=TRUE)) / matrix(hM1$XDRScalePar[2,],hM1$ny,hM1$ncODR,byrow=TRUE)
+         }
          hM1$TrInterceptInd = hM$TrInterceptInd
          hM1$TrScalePar = hM$TrScalePar
          hM1$TrScaled = (hM1$Tr - matrix(hM1$TrScalePar[1,],hM1$ns,hM1$nt,byrow=TRUE)) / matrix(hM1$TrScalePar[2,],hM1$ns,hM1$nt,byrow=TRUE)

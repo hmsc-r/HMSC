@@ -27,7 +27,7 @@ combineParameters = function(Beta, BetaSel, wDR, Gamma, iV, rho, iSigma, Eta,
       }
    }
 
-   for(k in 1:ncDR){
+   for(k in seq_len(ncDR)){
       m = XDRScalePar[1,k]
       s = XDRScalePar[2,k]
       if(m!=0 || s!=1){

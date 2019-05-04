@@ -215,7 +215,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
             Psi = PsiDeltaList$Psi
             Delta = PsiDeltaList$Delta
          }
-         if(!identical(updater$wDRPriors, FALSE)){
+         if(!identical(updater$wDRPriors, FALSE) &&  m$ncDR>0){
             PsiDeltaList = updatewDRPriors(wDR=wDR,Delta=DeltaDR,
                                            nu=hM$nuDR,a1=hM$a1DR,
                                            b1=hM$b1DR,a2=hM$a2DR,b2=hM$b2DR)
