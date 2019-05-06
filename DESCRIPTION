@@ -11,7 +11,7 @@ License: GPL-3 | file LICENSE
 URL: https://www.helsinki.fi/en/researchgroups/metapopulation-research-centre/hmsc
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.1
+RoxygenNote: 6.1.1.9000
 Suggests: R.rsp
 VignetteBuilder: R.rsp
 Depends:

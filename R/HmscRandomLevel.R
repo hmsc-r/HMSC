@@ -5,6 +5,7 @@
 #'
 #'
 #' @param sData a dataframe containing spatial or temporal coordinates of units of the random level
+#' @param SMethod a string specifying which spatial method to be used. Possible values are \code{Full}, \code{GPP} and \code{NNGP}
 #' @param distMat a distance matrix containing the distances between units of the random level
 #' @param xData a dataframe containing the covariates measured at the units of the random level for covariate-dependent
 #'   associations
@@ -28,7 +29,7 @@
 #'
 #' @export
 
-HmscRandomLevel = function(sData=NULL, distMat=NULL, xData=NULL, units=NULL, N=NULL){
+HmscRandomLevel = function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NULL, units=NULL, N=NULL){
    rL = structure(list(pi=NULL, s=NULL, sDim=NULL, x=NULL, xDim=NULL, N=NULL, distMat=NULL, #
       nfMax=NULL, nfMin=NULL, nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, alphapw=NULL), class="HmscRandomLevel")
    if(nargs()==0)
