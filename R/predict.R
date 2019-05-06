@@ -60,6 +60,7 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
       xlev = lapply(hM$XDRData, levels)[unlist(lapply(hM$XDRData, is.factor))]
       XDR = model.matrix(hM$XDRFormula, XDRData, xlev=xlev)
    } else{
+      if(is.null(hM$ncDR)) hM$ncDR=0
       if(is.null(XDR) && hM$ncDR>0)
          XDR=hM$XDR
    }
