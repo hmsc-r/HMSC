@@ -15,7 +15,8 @@
 #' @return a \code{HmscRandomLevel}-class object that can be used for \code{Hmsc}-class object construction
 #'
 #' @details Only one of \code{sData}, \code{distMat}, \code{xData}, \code{units} and \code{N} arguments shall be
-#'   provided (implmentation for \code{sData} and \code{xData} is coming later).
+#'   provided (implmentation for \code{sData} and \code{xData} is coming later). Implementation for \code{GPP} and \code{NNGP}
+#'   is coming later
 #'
 #'   As a good practice we recommend to specify all available units for a random level, even if some of those are not
 #'   used for training the model.
@@ -30,10 +31,10 @@
 #' @export
 
 HmscRandomLevel = function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NULL, units=NULL, N=NULL){
-   rL = structure(list(pi=NULL, s=NULL, sDim=NULL, x=NULL, xDim=NULL, N=NULL, distMat=NULL, #
-      nfMax=NULL, nfMin=NULL, nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, alphapw=NULL), class="HmscRandomLevel")
+   rL = structure(list(pi=NULL, s=NULL, sDim=NULL, spatialMethod=NULL, x=NULL, xDim=NULL, N=NULL, distMat=NULL, #
+      nfMax=NULL, nfMin=NULL, nNeighbours=NULL, nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, alphapw=NULL), class="HmscRandomLevel")
    if(nargs()==0)
-      stop("HmscRandomLevel: At least one argumnet should be specified")
+      stop("HmscRandomLevel: At least one argument should be specified")
    if(!is.null(distMat) && !is.null(sData)){
       stop("HmscRandomLevel: both sData and distMat arguments cannot be specified")
    }
@@ -42,6 +43,7 @@ HmscRandomLevel = function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NUL
       rL$N = nrow(sData)
       rL$pi = sort(rownames(sData))
       rL$sDim = ncol(sData)
+      rL$spatialMethod = sMethod
    } else
       rL$sDim = 0
    if(!is.null(distMat)){

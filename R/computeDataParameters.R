@@ -42,36 +42,41 @@ computeDataParameters = function(hM){
    rLPar = vector("list", hM$nr)
    for(r in seq_len(hM$nr)){
       if(hM$rL[[r]]$sDim > 0){
-         alphapw = hM$rL[[r]]$alphapw
-         np = hM$np[r]
-         alphaN = nrow(alphapw)
-         if(is.null(hM$rL[[r]]$distMat)){
-            s = hM$rL[[r]]$s[levels(hM$dfPi[,r]),]
-            distance = as.matrix(dist(s))
-         } else{
-            distance = hM$rL[[r]]$distMat[levels(hM$dfPi[,r]),levels(hM$dfPi[,r])]
-         }
+         switch(hM$rL[[r]]$spatialMethod,
+                "Full" = {
+                   alphapw = hM$rL[[r]]$alphapw
+                   np = hM$np[r]
+                   alphaN = nrow(alphapw)
+                   if(is.null(hM$rL[[r]]$distMat)){
+                      s = hM$rL[[r]]$s[levels(hM$dfPi[,r]),]
+                      distance = as.matrix(dist(s))
+                   } else{
+                      distance = hM$rL[[r]]$distMat[levels(hM$dfPi[,r]),levels(hM$dfPi[,r])]
+                   }
+                   Wg = array(NA, c(np,np,alphaN))
+                   iWg = array(NA, c(np,np,alphaN))
+                   RiWg = array(NA, c(np,np,alphaN))
+                   detWg = rep(NA, alphaN)
+                   for(ag in 1:alphaN){
+                      alpha = alphapw[ag,1]
+                      if(alpha==0){
+                         W = diag(np)
+                      } else{
+                         W = exp(-distance/alpha)
+                      }
+                      RW = chol(W)
+                      iW = chol2inv(RW)
 
-         Wg = array(NA, c(np,np,alphaN))
-         iWg = array(NA, c(np,np,alphaN))
-         RiWg = array(NA, c(np,np,alphaN))
-         detWg = rep(NA, alphaN)
-         for(ag in 1:alphaN){
-            alpha = alphapw[ag,1]
-            if(alpha==0){
-               W = diag(np)
-            } else{
-               W = exp(-distance/alpha)
-            }
-            RW = chol(W)
-            iW = chol2inv(RW)
+                      Wg[,,ag] = W
+                      iWg[,,ag] = iW
+                      RiWg[,,ag] = chol(iW)
+                      detWg[ag] = 2*sum(log(diag(RW)))
+                   }
+                   rLPar[[r]] = list(Wg=Wg, iWg=iWg, RiWg=RiWg, detWg=detWg)
 
-            Wg[,,ag] = W
-            iWg[,,ag] = iW
-            RiWg[,,ag] = chol(iW)
-            detWg[ag] = 2*sum(log(diag(RW)))
-         }
-         rLPar[[r]] = list(Wg=Wg, iWg=iWg, RiWg=RiWg, detWg=detWg)
+                }
+
+                )
       }
    }
    parList$Qg = Qg
