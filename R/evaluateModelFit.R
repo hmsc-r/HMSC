@@ -64,7 +64,8 @@ evaluateModelFit = function(hM, predY){
       ns = dim(Y)[2]
       AUC = rep(NA,ns)
       for (i in 1:ns){
-         if(length(unique(Y[,i]))==2) {AUC[i] = auc(Y[,i],predY[,i])}
+         sel = !is.na(Y[,i])
+         if(length(unique(Y[sel,i]))==2) {AUC[i] = auc(Y[sel,i],predY[sel,i])}
       }
       return(AUC)
    }
@@ -73,7 +74,8 @@ evaluateModelFit = function(hM, predY){
       ns = dim(Y)[2]
       R2 = rep(NA,ns)
       for (i in 1:ns){
-         R2[i] = mean(predY[Y[,i]==1,i]) - mean(predY[Y[,i]==0,i])
+         sel = !is.na(Y[,i])
+         R2[i] = mean(predY[Y[sel,i]==1,i]) - mean(predY[Y[sel,i]==0,i])
       }
       return(R2)
    }
