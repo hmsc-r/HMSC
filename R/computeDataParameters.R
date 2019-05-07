@@ -42,11 +42,11 @@ computeDataParameters = function(hM){
    rLPar = vector("list", hM$nr)
    for(r in seq_len(hM$nr)){
       if(hM$rL[[r]]$sDim > 0){
+         alphapw = hM$rL[[r]]$alphapw
+         np = hM$np[r]
+         alphaN = nrow(alphapw)
          switch(hM$rL[[r]]$spatialMethod,
                 "Full" = {
-                   alphapw = hM$rL[[r]]$alphapw
-                   np = hM$np[r]
-                   alphaN = nrow(alphapw)
                    if(is.null(hM$rL[[r]]$distMat)){
                       s = hM$rL[[r]]$s[levels(hM$dfPi[,r]),]
                       distance = as.matrix(dist(s))
@@ -73,9 +73,56 @@ computeDataParameters = function(hM){
                       detWg[ag] = 2*sum(log(diag(RW)))
                    }
                    rLPar[[r]] = list(Wg=Wg, iWg=iWg, RiWg=RiWg, detWg=detWg)
-
+                },
+                "NNGP" = {
+                   iWg = list() #slow??
+                   RiWg = list()
+                   detWg = rep(NA,alphaN)
+                   s = hM$rL[[r]]$s[levels(hM$dfPi[,r]),]
+                   indNN = get.knn(s,k=hM$rL[[r]]$nNeighbours)[[1]] #This uses FNN package, may be updated later to incorporate distance matrices
+                   indNN = t(apply(indNN,1,sort,decreasing=FALSE))
+                   indices = list() #slow?
+                   distList = list()
+                   for(i in 2:np){
+                      ind = indNN[i,]
+                      ind = ind[ind<i]
+                      if(!is.na(ind[1])){
+                         indices[[i]] = rbind(i*rep(1,length(ind)),ind)
+                         distList[[i]] = as.matrix(rdist(s[c(ind,i),]))
+                      }
+                   }
+                   for (ag in 1:alphaN){
+                      alpha = alphapw[ag,1]
+                      if(alpha==0){
+                         iW = .sparseDiagonal(np)
+                         RiW = .sparseDiagonal(np)
+                         detW = 1
+                      } else{
+                         D = rep(0,np)
+                         D[1] = 1
+                         values = list()
+                         for (i in 2:np){
+                            if(!is.null(indices[[i]][2])){
+                               Kp = exp(-distList[[i]]/alpha)
+                               values[[i]] = solve(Kp[1:(nrow(Kp)-1),1:(ncol(Kp)-1)],Kp[1:(nrow(Kp)-1),ncol(Kp)])
+                               D[i] = Kp[nrow(Kp),ncol(Kp)] - Kp[nrow(Kp),1:(ncol(Kp)-1)]%*%values[[i]]
+                            } else{
+                               D[i] = 1
+                            }
+                         }
+                         A = Matrix(0,nrow=np, ncol=np,sparse=TRUE)
+                         A[t(matrix(unlist(indices),nrow=2))] = unlist(values)
+                         B =.sparseDiagonal(np) - A
+                         RiW = (.sparseDiagonal(np)*D^-0.5) %*% B
+                         iW = Matrix::t(RiW) %*% RiW
+                         detW = sum(log(D))
+                      }
+                      iWg[[ag]] = iW
+                      RiWg[[ag]] = RiW
+                      detWg[ag] = detW
+                   }
+                   rLPar[[r]] = list(iWg=iWg, RiWg=RiWg, detWg=detWg)
                 }
-
                 )
       }
    }
