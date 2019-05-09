@@ -75,6 +75,7 @@ computeDataParameters = function(hM){
                    rLPar[[r]] = list(Wg=Wg, iWg=iWg, RiWg=RiWg, detWg=detWg)
                 },
                 "NNGP" = {
+                   Wg = list()
                    iWg = list() #slow??
                    RiWg = list()
                    detWg = rep(NA,alphaN)
@@ -117,11 +118,12 @@ computeDataParameters = function(hM){
                          iW = Matrix::t(RiW) %*% RiW
                          detW = sum(log(D))
                       }
+                      Wg[[ag]] = Matrix::solve(iW,.sparseDiagonal(np))
                       iWg[[ag]] = iW
                       RiWg[[ag]] = RiW
                       detWg[ag] = detW
                    }
-                   rLPar[[r]] = list(iWg=iWg, RiWg=RiWg, detWg=detWg)
+                   rLPar[[r]] = list(Wg = Wg, iWg=iWg, RiWg=RiWg, detWg=detWg)
                 }
                 )
       }
