@@ -106,29 +106,45 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
          }
       } else{
          eta = matrix(0,np[r],nf)
-         iWg = rLPar[[r]]$iWg
          alpha = Alpha[[r]]
-         iWs = bdiag(lapply(seq_len(nf), function(x) iWg[,,alpha[x]]))
-         LamInvSigLam = tcrossprod(lambda*matrix(sqrt(iSigma),nf,ns,byrow=TRUE))
-         if(np[r] == ny){
-            tmp1 = kronecker(LamInvSigLam, Diagonal(ny))
-            Rtmp1 = chol(tmp1)
-            fS = tcrossprod(S[order(lPi),,drop=FALSE],lambda*matrix(iSigma,nf,ns,byrow=TRUE))
-            iUEta = iWs + tmp1
-            R = chol(iUEta)
-            tmp2 = backsolve(R, as.vector(fS), transpose=TRUE) + rnorm(np[r]*nf)
-            feta = backsolve(R, tmp2);
-            eta = matrix(feta,np[r],nf);
-         } else{
-            P = sparseMatrix(i=1:ny,j=lPi)
-            tmp1 = kronecker(LamInvSigLam, Diagonal(x=Matrix::colSums(P)))
-            fS = Matrix::tcrossprod(Matrix::crossprod(P,S), lambda*matrix(iSigma,nf,ns,byrow=TRUE))
-            iUEta = iWs + tmp1
-            R = chol(iUEta)
-            tmp2 = backsolve(R, as.vector(fS), transpose=TRUE) + rnorm(np[r]*nf)
-            feta = backsolve(R, tmp2);
-            eta = matrix(feta,np[r],nf);
-         }
+         iWg = rLPar[[r]]$iWg
+         switch(rL[[r]]$spatialMethod,
+                "Full" = {
+                   iWs = bdiag(lapply(seq_len(nf), function(x) iWg[,,alpha[x]]))
+                   LamInvSigLam = tcrossprod(lambda*matrix(sqrt(iSigma),nf,ns,byrow=TRUE))
+                   if(np[r] == ny){
+                      tmp1 = kronecker(LamInvSigLam, Diagonal(ny))
+                      Rtmp1 = chol(tmp1)
+                      fS = tcrossprod(S[order(lPi),,drop=FALSE],lambda*matrix(iSigma,nf,ns,byrow=TRUE))
+                      iUEta = iWs + tmp1
+                      R = chol(iUEta)
+                      tmp2 = backsolve(R, as.vector(fS), transpose=TRUE) + rnorm(np[r]*nf)
+                      feta = backsolve(R, tmp2);
+                      eta = matrix(feta,np[r],nf);
+                   } else{
+                      P = sparseMatrix(i=1:ny,j=lPi)
+                      tmp1 = kronecker(LamInvSigLam, Diagonal(x=Matrix::colSums(P)))
+                      fS = Matrix::tcrossprod(Matrix::crossprod(P,S), lambda*matrix(iSigma,nf,ns,byrow=TRUE))
+                      iUEta = iWs + tmp1
+                      R = chol(iUEta)
+                      tmp2 = backsolve(R, as.vector(fS), transpose=TRUE) + rnorm(np[r]*nf)
+                      feta = backsolve(R, tmp2);
+                      eta = matrix(feta,np[r],nf);
+                   }
+                },
+                "NNGP" = {
+                   iWs = bdiag(lapply(seq_len(nf), function(x) iWg[[alpha[x]]]))
+                   LamInvSigLam = tcrossprod(lambda*matrix(sqrt(iSigma),nf,ns,byrow=TRUE))
+                   P = sparseMatrix(i=1:ny,j=lPi)
+                   tmp1 = kronecker(LamInvSigLam, Diagonal(x=Matrix::colSums(P)))
+                   fS = Matrix::tcrossprod(Matrix::crossprod(P,S), lambda*matrix(iSigma,nf,ns,byrow=TRUE))
+                   iUEta = iWs + tmp1
+                   R = chol(iUEta)
+                   tmp2 = backsolve(R, as.vector(fS), transpose=TRUE) + rnorm(np[r]*nf)
+                   feta = backsolve(R, tmp2);
+                   eta = matrix(feta,np[r],nf);
+                }
+                )
       }
       rownames(eta)=rnames
       Eta[[r]] = eta
