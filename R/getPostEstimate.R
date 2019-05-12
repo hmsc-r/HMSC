@@ -23,7 +23,7 @@ getPostEstimate = function(hM, parName, r=1, x=NULL, q=c(), chainIndex=1:length(
    }
    postList = poolMcmcChains(hM$postList, chainIndex=chainIndex)
 
-   if(parName %in% c("Beta", "Gamma", "V", "sigma","wDR")){
+   if(parName %in% c("Beta", "Gamma", "V", "sigma","wRRR")){
       valList = lapply(postList, function(a) a[[parName]])
    }
    if(parName %in% c("Eta", "Lambda", "Psi", "Delta")){

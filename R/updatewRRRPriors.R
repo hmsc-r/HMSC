@@ -1,6 +1,6 @@
-updatewDRPriors = function(wDR,Delta,nu,a1,b1,a2,b2){
+updatewRRRPriors = function(wRRR,Delta,nu,a1,b1,a2,b2){
    delta = Delta
-   lambda = wDR
+   lambda = wRRR
    ns = dim(lambda)[2]
    nf = dim(lambda)[1]
    tau = apply(delta,2,cumprod)

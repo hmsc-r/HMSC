@@ -1,6 +1,6 @@
-combineParameters = function(Beta, BetaSel, wDR, Gamma, iV, rho, iSigma, Eta,
-   Lambda,Alpha,Psi,Delta, PsiDR, DeltaDR,ncNDR, ncDR, ncsel, XSelect, XScalePar,
-   XInterceptInd, XDRScalePar, nt, TrScalePar, TrInterceptInd, rhopw){
+combineParameters = function(Beta, BetaSel, wRRR, Gamma, iV, rho, iSigma, Eta,
+   Lambda,Alpha,Psi,Delta, PsiRRR, DeltaRRR,ncNRRR, ncRRR, ncsel, XSelect, XScalePar,
+   XInterceptInd, XRRRScalePar, nt, TrScalePar, TrInterceptInd, rhopw){
    for(p in 1:nt){
       m = TrScalePar[1,p]
       s = TrScalePar[2,p]
@@ -12,7 +12,7 @@ combineParameters = function(Beta, BetaSel, wDR, Gamma, iV, rho, iSigma, Eta,
       }
    }
 
-   for(k in 1:ncNDR){
+   for(k in 1:ncNRRR){
       m = XScalePar[1,k]
       s = XScalePar[2,k]
       if(m!=0 || s!=1){
@@ -27,18 +27,18 @@ combineParameters = function(Beta, BetaSel, wDR, Gamma, iV, rho, iSigma, Eta,
       }
    }
 
-   for(k in seq_len(ncDR)){
-      m = XDRScalePar[1,k]
-      s = XDRScalePar[2,k]
+   for(k in seq_len(ncRRR)){
+      m = XRRRScalePar[1,k]
+      s = XRRRScalePar[2,k]
       if(m!=0 || s!=1){
-         Beta[ncNDR+k,] = Beta[ncNDR+k,]/s
-         Gamma[ncNDR+k,] = Gamma[ncNDR+k,]/s
+         Beta[ncNRRR+k,] = Beta[ncNRRR+k,]/s
+         Gamma[ncNRRR+k,] = Gamma[ncNRRR+k,]/s
          if(!is.null(XInterceptInd)){
-            Beta[XInterceptInd,] = Beta[XInterceptInd,] - m*Beta[ncNDR+k,]
-            Gamma[XInterceptInd,] = Gamma[XInterceptInd,] - m*Gamma[ncNDR+k,]
+            Beta[XInterceptInd,] = Beta[XInterceptInd,] - m*Beta[ncNRRR+k,]
+            Gamma[XInterceptInd,] = Gamma[XInterceptInd,] - m*Gamma[ncNRRR+k,]
          }
-         iV[ncNDR+k,] = iV[ncNDR+k,]*s
-         iV[,ncNDR+k] = iV[,ncNDR+k]*s
+         iV[ncNRRR+k,] = iV[ncNRRR+k,]*s
+         iV[,ncNRRR+k] = iV[,ncNRRR+k]*s
       }
    }
 
@@ -54,7 +54,7 @@ combineParameters = function(Beta, BetaSel, wDR, Gamma, iV, rho, iSigma, Eta,
 
    V = chol2inv(chol(iV))
    sigma = 1/iSigma
-   par = list(Beta=Beta, wDR=wDR, Gamma=Gamma, V=V, rho=rhopw[rho,1], sigma=sigma, Eta=Eta, Lambda=Lambda, Alpha=Alpha, Psi=Psi, Delta=Delta, PsiDR=PsiDR, DeltaDR=DeltaDR)
+   par = list(Beta=Beta, wRRR=wRRR, Gamma=Gamma, V=V, rho=rhopw[rho,1], sigma=sigma, Eta=Eta, Lambda=Lambda, Alpha=Alpha, Psi=Psi, Delta=Delta, PsiRRR=PsiRRR, DeltaRRR=DeltaRRR)
 }
 
 

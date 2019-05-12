@@ -5,7 +5,7 @@
 \title{predict}
 \usage{
 \method{predict}{Hmsc}(hM, post = poolMcmcChains(hM$postList),
-  XData = NULL, X = NULL, XDRData = NULL, XDR = NULL,
+  XData = NULL, X = NULL, XRRRData = NULL, XRRR = NULL,
   studyDesign = hM$studyDesign, ranLevels = hM$ranLevels,
   Gradient = NULL, Yc = NULL, mcmcStep = 1, expected = FALSE,
   predictEtaMean = FALSE, predictEtaMeanField = FALSE)
