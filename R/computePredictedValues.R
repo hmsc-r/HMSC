@@ -74,24 +74,24 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
                    XVal = lapply(hM$X, function(a) a[val,,drop=FALSE])
                 }
          )
-         if(hM$ncDR>0){
-            XDRTrain = hM$XDR[train,,drop=FALSE]
-            XDRVal = hM$XDR[val,,drop=FALSE]
+         if(hM$ncRRR>0){
+            XRRRTrain = hM$XRRR[train,,drop=FALSE]
+            XRRRVal = hM$XRRR[val,,drop=FALSE]
          } else {
-            XDRTrain=NULL
-            XDRVal=NULL
+            XRRRTrain=NULL
+            XRRRVal=NULL
          }
-         hM1 = Hmsc(Y=hM$Y[train,,drop=FALSE], X=XTrain, XDR=XDRTrain, ncDR = hM$ncDR, XSelect = hM$XSelect, dist=hM$distr, studyDesign=dfPi, Tr=hM$Tr, C=hM$C, ranLevels=hM$rL)
+         hM1 = Hmsc(Y=hM$Y[train,,drop=FALSE], X=XTrain, XRRR=XRRRTrain, ncRRR = hM$ncRRR, XSelect = hM$XSelect, dist=hM$distr, studyDesign=dfPi, Tr=hM$Tr, C=hM$C, ranLevels=hM$rL)
          setPriors(hM1, V0=hM$V0, f0=hM$f0, mGamma=hM$mGamma, UGamma=hM$UGamma, aSigma=hM$aSigma, bSigma=hM$bSigma,
                    nu=hM$nu, a1=hM$a1, b1=hM$b1, a2=hM$a2, b2=hM$b2, rhopw=hM$rhowp)
          hM1$YScalePar = hM$YScalePar
          hM1$YScaled = (hM1$Y - matrix(hM1$YScalePar[1,],hM1$ny,hM1$ns,byrow=TRUE)) / matrix(hM1$YScalePar[2,],hM1$ny,hM1$ns,byrow=TRUE)
          hM1$XInterceptInd = hM$XInterceptInd
          hM1$XScalePar = hM$XScalePar
-         hM1$XScaled = (hM1$X - matrix(hM1$XScalePar[1,],hM1$ny,hM1$ncNDR,byrow=TRUE)) / matrix(hM1$XScalePar[2,],hM1$ny,hM1$ncNDR,byrow=TRUE)
-         if(hM1$ncDR>0){
-            hM1$XDRScalePar = hM$XDRScalePar
-            hM1$XDRScaled = (hM1$XDR - matrix(hM1$XDRScalePar[1,],hM1$ny,hM1$ncODR,byrow=TRUE)) / matrix(hM1$XDRScalePar[2,],hM1$ny,hM1$ncODR,byrow=TRUE)
+         hM1$XScaled = (hM1$X - matrix(hM1$XScalePar[1,],hM1$ny,hM1$ncNRRR,byrow=TRUE)) / matrix(hM1$XScalePar[2,],hM1$ny,hM1$ncNRRR,byrow=TRUE)
+         if(hM1$ncRRR>0){
+            hM1$XRRRScalePar = hM$XRRRScalePar
+            hM1$XRRRScaled = (hM1$XRRR - matrix(hM1$XRRRScalePar[1,],hM1$ny,hM1$ncORRR,byrow=TRUE)) / matrix(hM1$XRRRScalePar[2,],hM1$ny,hM1$ncORRR,byrow=TRUE)
          }
          hM1$TrInterceptInd = hM$TrInterceptInd
          hM1$TrScalePar = hM$TrScalePar
@@ -105,7 +105,7 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
             dfPi[,r] = factor(hM$dfPi[val,r])
          }
          if(is.null(partition.sp)){
-            pred1 = predict(hM1, post=postList, X=XVal, XDR=XDRVal, studyDesign=dfPi, Yc=Yc[val,,drop=FALSE], mcmcStep=mcmcStep, expected=expected)
+            pred1 = predict(hM1, post=postList, X=XVal, XRRR=XRRRVal, studyDesign=dfPi, Yc=Yc[val,,drop=FALSE], mcmcStep=mcmcStep, expected=expected)
             pred1Array = abind(pred1,along=3)
          } else {
             pred1Array =  array(dim=c(sum(val),hM$ns,postN))
@@ -115,7 +115,7 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
                val.sp = (partition.sp==i)
                Yc = matrix(NA,nrow=sum(val), ncol=hM$ns)
                Yc[,train.sp] = hM$Y[val,train.sp,drop=FALSE]
-               pred2 = predict(hM1, post=postList, X=XVal, XDR=XDRVal,studyDesign=dfPi, Yc=Yc, mcmcStep=mcmcStep, expected=expected)
+               pred2 = predict(hM1, post=postList, X=XVal, XRRR=XRRRVal,studyDesign=dfPi, Yc=Yc, mcmcStep=mcmcStep, expected=expected)
                pred2Array = abind(pred2,along=3)
                pred1Array[,val.sp,] = pred2Array[,val.sp,]
             }

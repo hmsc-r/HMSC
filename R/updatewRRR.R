@@ -1,31 +1,31 @@
-#' @title updatewDR
+#' @title updatewRRR
 #'
-#' @description updates wDR
+#' @description updates wRRR
 #'
-updatewDR = function(Z,Beta,iSigma,Eta,Lambda,X1A,XDR,Pi,dfPi,rL,PsiDR,DeltaDR){
+updatewRRR = function(Z,Beta,iSigma,Eta,Lambda,X1A,XRRR,Pi,dfPi,rL,PsiRRR,DeltaRRR){
    ny = nrow(Z)
    ns = ncol(Z)
    nr = ncol(Pi)
    np = apply(Pi, 2, function(a) length(unique(a)))
    if(class(X1A)=="matrix"){
-       ncNDR = dim(X1A)[2]
+       ncNRRR = dim(X1A)[2]
    } else {
-       ncNDR = dim(X1A[[1]])[2]
+       ncNRRR = dim(X1A[[1]])[2]
    }
-   ncDR = length(DeltaDR)
-   ncODR = dim(XDR)[2]
+   ncRRR = length(DeltaRRR)
+   ncORRR = dim(XRRR)[2]
 
-   BetaNDR = Beta[1:ncNDR,]
-   BetaDR = matrix(Beta[-c(1:ncNDR),],nrow=ncDR)
+   BetaNRRR = Beta[1:ncNRRR,]
+   BetaRRR = matrix(Beta[-c(1:ncNRRR),],nrow=ncRRR)
 
    switch(class(X1A),
           matrix = {
-             LFix = X1A%*%BetaNDR
+             LFix = X1A%*%BetaNRRR
           },
           list = {
              LFix = matrix(NA,ny,ns)
              for(j in 1:ns)
-                LFix[,j] = X1A[[j]]%*%BetaNDR[,j]
+                LFix[,j] = X1A[[j]]%*%BetaNRRR[,j]
           }
    )
    LRan = vector("list", nr)
@@ -44,23 +44,23 @@ updatewDR = function(Z,Beta,iSigma,Eta,Lambda,X1A,XDR,Pi,dfPi,rL,PsiDR,DeltaDR){
       S = Z - LFix
    }
 
-   A1 = BetaDR%*%diag(iSigma)%*%t(BetaDR)
-   A2 = t(XDR)%*%XDR
+   A1 = BetaRRR%*%diag(iSigma)%*%t(BetaRRR)
+   A2 = t(XRRR)%*%XRRR
    QtiSigmaQ = kronecker(A2,A1)
-   tauDR = matrix(apply(DeltaDR, 2, cumprod), ncDR, 1)
-   tauMatDR = matrix(tauDR,ncDR,ncODR)
-   iU=diag(as.vector(PsiDR*tauMatDR))+QtiSigmaQ
+   tauRRR = matrix(apply(DeltaRRR, 2, cumprod), ncRRR, 1)
+   tauMatRRR = matrix(tauRRR,ncRRR,ncORRR)
+   iU=diag(as.vector(PsiRRR*tauMatRRR))+QtiSigmaQ
    RiU = chol(iU)
    U = chol2inv(RiU)
-   mu1 = as.vector(BetaDR%*%diag(iSigma)%*%t(S)%*%XDR)
+   mu1 = as.vector(BetaRRR%*%diag(iSigma)%*%t(S)%*%XRRR)
    mu = U %*% (mu1)
-   we = mu + backsolve(RiU, rnorm(ncDR*ncODR))
-   wDR = matrix(we,nrow = ncDR)
+   we = mu + backsolve(RiU, rnorm(ncRRR*ncORRR))
+   wRRR = matrix(we,nrow = ncRRR)
 
    X = X1A
 
-   if(ncDR>0){
-      XB=XDR%*%t(wDR)
+   if(ncRRR>0){
+      XB=XRRR%*%t(wRRR)
       if(class(X)=="matrix"){
          X=cbind(X,XB)
       } else {
@@ -70,9 +70,9 @@ updatewDR = function(Z,Beta,iSigma,Eta,Lambda,X1A,XDR,Pi,dfPi,rL,PsiDR,DeltaDR){
       }
    }
 
-   wDRXList=list()
-   wDRXList$wDR = wDR
-   wDRXList$X = X
+   wRRRXList=list()
+   wRRRXList$wRRR = wRRR
+   wRRRXList$X = X
 
-   return(wDRXList)
+   return(wRRRXList)
 }

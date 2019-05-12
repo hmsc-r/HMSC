@@ -24,8 +24,8 @@
 
 setPriors.Hmsc = function(hM, V0=NULL, f0=NULL, mGamma=NULL,
    UGamma=NULL, aSigma=NULL, bSigma=NULL, nu=NULL, a1=NULL,
-   b1=NULL, a2=NULL, b2=NULL, nuDR=NULL, a1DR=NULL,
-   b1DR=NULL, a2DR=NULL, b2DR=NULL, rhopw=NULL, setDefault=FALSE){
+   b1=NULL, a2=NULL, b2=NULL, nuRRR=NULL, a1RRR=NULL,
+   b1RRR=NULL, a2RRR=NULL, b2RRR=NULL, rhopw=NULL, setDefault=FALSE){
 
    if(!is.null(V0)){
       if(!isSymmetric(V0) || nrow(V0) != hM$nc || ncol(V0) != hM$nc)
@@ -81,30 +81,30 @@ setPriors.Hmsc = function(hM, V0=NULL, f0=NULL, mGamma=NULL,
       rhoN = 100
       hM$rhopw = cbind(c(0:rhoN)/rhoN, c(0.5,rep(0.5/rhoN,rhoN)))
    }
-   if(!is.null(nuDR)){
-      hM$nuDR = nuDR
+   if(!is.null(nuRRR)){
+      hM$nuRRR = nuRRR
    } else if(setDefault){
-      hM$nuDR = 3
+      hM$nuRRR = 3
    }
-   if(!is.null(a1DR)){
-      hM$a1DR = a1DR
+   if(!is.null(a1RRR)){
+      hM$a1RRR = a1RRR
    } else if(setDefault){
-      hM$a1DR = 1
+      hM$a1RRR = 1
    }
-   if(!is.null(b1DR)){
-      hM$b1DR = b1DR
+   if(!is.null(b1RRR)){
+      hM$b1RRR = b1RRR
    } else if(setDefault){
-      hM$b1DR = 1
+      hM$b1RRR = 1
    }
-   if(!is.null(a2DR)){
-      hM$a2DR = a2DR
+   if(!is.null(a2RRR)){
+      hM$a2RRR = a2RRR
    } else if(setDefault){
-      hM$a2DR = 50
+      hM$a2RRR = 50
    }
-   if(!is.null(b2DR)){
-      hM$b2DR = b2DR
+   if(!is.null(b2RRR)){
+      hM$b2RRR = b2RRR
    } else if(setDefault){
-      hM$b2DR = 1
+      hM$b2RRR = 1
    }
    return(hM)
 }

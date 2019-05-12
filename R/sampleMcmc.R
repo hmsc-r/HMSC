@@ -119,9 +119,9 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
       iV = chol2inv(chol(V))
       Beta = parList$Beta
       BetaSel = parList$BetaSel
-      PsiDR = parList$PsiDR
-      DeltaDR = parList$DeltaDR
-      wDR = parList$wDR
+      PsiRRR = parList$PsiRRR
+      DeltaRRR = parList$DeltaRRR
+      wRRR = parList$wRRR
       sigma = parList$sigma
       iSigma = 1 / sigma
       Lambda = parList$Lambda
@@ -149,8 +149,8 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
       }
 
       X = X1A
-      if(hM$ncDR>0){
-         XB=hM$XDRScaled%*%t(wDR)
+      if(hM$ncRRR>0){
+         XB=hM$XRRRScaled%*%t(wRRR)
          if(class(X)=="matrix"){
             X=cbind(X,XB)
          } else {
@@ -183,12 +183,12 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
             Lambda = BetaLambdaList$Lambda
          }
 
-         if(!identical(updater$wDR, FALSE) &&  hM$ncDR>0){
-            wDRXList = updatewDR(Z=Z, Beta=Beta, iSigma=iSigma,
-                                 Eta=Eta, Lambda=Lambda, X1A=X1A, XDR=hM$XDRScaled,
-                                 Pi=Pi, dfPi=dfPi,rL = hM$rL, PsiDR=PsiDR, DeltaDR=DeltaDR)
-            wDR = wDRXList$wDR
-            X = wDRXList$X
+         if(!identical(updater$wRRR, FALSE) &&  hM$ncRRR>0){
+            wRRRXList = updatewRRR(Z=Z, Beta=Beta, iSigma=iSigma,
+                                 Eta=Eta, Lambda=Lambda, X1A=X1A, XRRR=hM$XRRRScaled,
+                                 Pi=Pi, dfPi=dfPi,rL = hM$rL, PsiRRR=PsiRRR, DeltaRRR=DeltaRRR)
+            wRRR = wRRRXList$wRRR
+            X = wRRRXList$X
          }
 
          if(!identical(updater$BetaSel, FALSE) &&  hM$ncsel>0){
@@ -215,12 +215,12 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
             Psi = PsiDeltaList$Psi
             Delta = PsiDeltaList$Delta
          }
-         if(!identical(updater$wDRPriors, FALSE) &&  hM$ncDR>0){
-            PsiDeltaList = updatewDRPriors(wDR=wDR,Delta=DeltaDR,
-                                           nu=hM$nuDR,a1=hM$a1DR,
-                                           b1=hM$b1DR,a2=hM$a2DR,b2=hM$b2DR)
-            PsiDR = PsiDeltaList$Psi
-            DeltaDR = PsiDeltaList$Delta
+         if(!identical(updater$wRRRPriors, FALSE) &&  hM$ncRRR>0){
+            PsiDeltaList = updatewRRRPriors(wRRR=wRRR,Delta=DeltaRRR,
+                                           nu=hM$nuRRR,a1=hM$a1RRR,
+                                           b1=hM$b1RRR,a2=hM$a2RRR,b2=hM$b2RRR)
+            PsiRRR = PsiDeltaList$Psi
+            DeltaRRR = PsiDeltaList$Delta
          }
 
          if(!identical(updater$Eta, FALSE))
@@ -250,11 +250,11 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
          }
 
          if((iter>transient) && ((iter-transient) %% thin == 0)){
-            postList[[(iter-transient)/thin]] = combineParameters(Beta=Beta,BetaSel=BetaSel,wDR = wDR, Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,
+            postList[[(iter-transient)/thin]] = combineParameters(Beta=Beta,BetaSel=BetaSel,wRRR = wRRR, Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,
                Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,Delta=Delta,
-               PsiDR=PsiDR,DeltaDR=DeltaDR,
-               ncNDR=hM$ncNDR, ncDR=hM$ncDR, ncsel = hM$ncsel, XSelect = hM$XSelect,
-               XScalePar=hM$XScalePar, XInterceptInd=hM$XInterceptInd, XDRScalePar=hM$XDRScalePar,
+               PsiRRR=PsiRRR,DeltaRRR=DeltaRRR,
+               ncNRRR=hM$ncNRRR, ncRRR=hM$ncRRR, ncsel = hM$ncsel, XSelect = hM$XSelect,
+               XScalePar=hM$XScalePar, XInterceptInd=hM$XInterceptInd, XRRRScalePar=hM$XRRRScalePar,
                nt=hM$nt, TrScalePar=hM$TrScalePar, TrInterceptInd=hM$TrInterceptInd, rhopw=rhopw)
          }
          if((verbose > 0) && (iter%%verbose == 0)){

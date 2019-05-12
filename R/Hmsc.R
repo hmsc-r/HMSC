@@ -90,7 +90,7 @@
 
 Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
                 XSelect=NULL,
-                XDRData=NULL, XDRFormula=~.-1,XDR=NULL, ncDR=2, XDRScale=TRUE,
+                XRRRData=NULL, XRRRFormula=~.-1,XRRR=NULL, ncRRR=2, XRRRScale=TRUE,
                 YScale = FALSE,
                 studyDesign=NULL, ranLevels=NULL, ranLevelsUsed=names(ranLevels),
                 TrFormula=NULL, TrData=NULL, Tr=NULL, TrScale=TRUE,
@@ -100,7 +100,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    hM = structure(list(
       Y = NULL,
       XData=NULL, XFormula=NULL, X=NULL, XScaled=NULL, XSelect=NULL,
-      XDRData=NULL, XDRFormula=NULL, XDR=NULL, XDRScaled=NULL,
+      XRRRData=NULL, XRRRFormula=NULL, XRRR=NULL, XRRRScaled=NULL,
       YScaled=NULL, XInterceptInd=NULL,
       studyDesign=NULL, ranLevels=NULL, ranLevelsUsed=NULL,
       dfPi = NULL, rL=NULL, Pi=NULL,
@@ -112,9 +112,9 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       ny = NULL,
       ns = NULL,
       nc = NULL,
-      ncNDR = NULL,
-      ncDR = NULL,
-      ncODR = NULL,
+      ncNRRR = NULL,
+      ncRRR = NULL,
+      ncORRR = NULL,
       ncsel = NULL,
       nr = NULL,
       nt = NULL,
@@ -130,7 +130,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       rLNames = NULL,
 
       # scaling
-      XScalePar=NULL, XDRScalePar=NULL, YScalePar=NULL, TrScalePar=NULL,
+      XScalePar=NULL, XRRRScalePar=NULL, YScalePar=NULL, TrScalePar=NULL,
 
       # priors
       V0=NULL, f0=NULL,
@@ -138,7 +138,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       aSigma=NULL, bSigma=NULL,
       nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL,
       rhopw=NULL,
-      nuDR=NULL, a1DR=NULL, b1DR=NULL, a2DR=NULL, b2DR=NULL,
+      nuRRR=NULL, a1RRR=NULL, b1RRR=NULL, a2RRR=NULL, b2RRR=NULL,
 
       # sampling parameters
       samples=NULL, transient=NULL, thin=NULL, verbose=NULL, adaptNf=NULL,
@@ -322,82 +322,82 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    }
 
 
-   #covariates for dimension reduction
-   hM$ncNDR = hM$nc
-   if(!is.null(XDRData)){
-      if(!class(XDRData)=="data.frame")
+   #covariates for reduced-rank regression
+   hM$ncNRRR = hM$nc
+   if(!is.null(XRRRData)){
+      if(!class(XRRRData)=="data.frame")
       {
-         stop("Hmsc.setData: XDRData must be a data.frame")
+         stop("Hmsc.setData: XRRRData must be a data.frame")
       }
-      if(nrow(XDRData) != hM$ny){
-         stop("Hmsc.setData: the number of rows in XDRData must be equal to the number of sampling units")
+      if(nrow(XRRRData) != hM$ny){
+         stop("Hmsc.setData: the number of rows in XRRRData must be equal to the number of sampling units")
       }
-      if(any(is.na(XDRData))){
-         stop("Hmsc.setData: XDRData must contain no NA values")
+      if(any(is.na(XRRRData))){
+         stop("Hmsc.setData: XRRRData must contain no NA values")
       }
-      hM$XDRData = XDRData
-      hM$XDRFormula = XDRFormula
-      hM$XDR = model.matrix(XDRFormula, XDRData)
-      hM$ncODR = ncol(hM$XDR)
-      hM$ncDR = ncDR
+      hM$XRRRData = XRRRData
+      hM$XRRRFormula = XRRRFormula
+      hM$XRRR = model.matrix(XRRRFormula, XRRRData)
+      hM$ncORRR = ncol(hM$XRRR)
+      hM$ncRRR = ncRRR
    }
-   if(!is.null(XDR)){
-      if(!class(XDR)=="matrix")
+   if(!is.null(XRRR)){
+      if(!class(XRRR)=="matrix")
       {
-         stop("Hmsc.setData: XDR must be a matrix")
+         stop("Hmsc.setData: XRRR must be a matrix")
       }
-      if(nrow(XDR) != hM$ny){
-         stop("Hmsc.setData: the number of rows in XDR must be equal to the number of sampling units")
+      if(nrow(XRRR) != hM$ny){
+         stop("Hmsc.setData: the number of rows in XRRR must be equal to the number of sampling units")
       }
-      if(any(is.na(XDR))){
-         stop("Hmsc.setData: XDR must contain no NA values")
+      if(any(is.na(XRRR))){
+         stop("Hmsc.setData: XRRR must contain no NA values")
       }
-      hM$XDRData = NULL
-      hM$XDRFormula = NULL
-      hM$XDR = XDR
-      hM$ncODR = ncol(hM$XDR)
-      hM$ncDR = ncDR
+      hM$XRRRData = NULL
+      hM$XRRRFormula = NULL
+      hM$XRRR = XRRR
+      hM$ncORRR = ncol(hM$XRRR)
+      hM$ncRRR = ncRRR
    }
-   if(is.null(XDRData) && is.null(XDR)){
+   if(is.null(XRRRData) && is.null(XRRR)){
       X = matrix(NA,hM$ny,0)
-      hM$XDR = NULL
-      hM$ncODR = 0
-      hM$ncDR = 0
+      hM$XRRR = NULL
+      hM$ncORRR = 0
+      hM$ncRRR = 0
    }
-   if(hM$ncDR>0){
-      if(is.null(colnames(hM$XDR))){
-         colnames(hM$XDR) = sprintf(sprintf("covDR%%.%dd",ceiling(log10(hM$ncODR))), 1:hM$ncODR)
+   if(hM$ncRRR>0){
+      if(is.null(colnames(hM$XRRR))){
+         colnames(hM$XRRR) = sprintf(sprintf("covRRR%%.%dd",ceiling(log10(hM$ncORRR))), 1:hM$ncORRR)
       }
-      for(k in seq_len(hM$ncDR)){
-         hM$covNames=c(hM$covNames,paste0("XDR_",as.character(k)))
+      for(k in seq_len(hM$ncRRR)){
+         hM$covNames=c(hM$covNames,paste0("XRRR_",as.character(k)))
       }
-      hM$nc = hM$ncNDR + hM$ncDR
+      hM$nc = hM$ncNRRR + hM$ncRRR
 
-      if(identical(XDRScale,FALSE)){
-         hM$XDRScalePar = rbind(rep(0,hM$ncODR), rep(1,hM$ncODR))
-         hM$XDRScaled = hM$XDR
+      if(identical(XRRRScale,FALSE)){
+         hM$XRRRScalePar = rbind(rep(0,hM$ncORRR), rep(1,hM$ncORRR))
+         hM$XRRRScaled = hM$XRRR
       } else {
          if(identical(XScale,FALSE)){
-            stop("Hmsc.setData: XDR can't be scaled if X is not scaled")
+            stop("Hmsc.setData: XRRR can't be scaled if X is not scaled")
          }
-         XDRStack = hM$XDR
-         if(identical(XDRScale,TRUE)){
-            XDRscaleInd = apply(XDRStack, 2, function(a) !all(a %in% c(0,1)))
+         XRRRStack = hM$XRRR
+         if(identical(XRRRScale,TRUE)){
+            XRRRscaleInd = apply(XRRRStack, 2, function(a) !all(a %in% c(0,1)))
          } else{
-            XDRscaleInd = XDRScale
+            XRRRscaleInd = XRRRScale
          }
-         XDRScalePar = rbind(rep(0,hM$ncODR), rep(1,hM$ncODR))
-         XDRScaled=XDRStack
+         XRRRScalePar = rbind(rep(0,hM$ncORRR), rep(1,hM$ncORRR))
+         XRRRScaled=XRRRStack
          if(length(XInterceptInd)>0){
-            XDRsc = scale(XDRStack)
-            XDRScalePar[,XDRscaleInd] = rbind(attr(XDRsc,"scaled:center"), attr(XDRsc,"scaled:scale"))[,XDRscaleInd]
+            XRRRsc = scale(XRRRStack)
+            XRRRScalePar[,XRRRscaleInd] = rbind(attr(XRRRsc,"scaled:center"), attr(XRRRsc,"scaled:scale"))[,XRRRscaleInd]
          } else{
-            XDRsc = scale(XStack, center=FALSE)
-            XDRScalePar[2,XDRscaleInd] = attr(sc,"scaled:scale")[XDRscaleInd]
+            XRRRsc = scale(XStack, center=FALSE)
+            XRRRScalePar[2,XRRRscaleInd] = attr(sc,"scaled:scale")[XRRRscaleInd]
          }
-          XDRScaled[,XDRscaleInd] = XDRsc[,XDRscaleInd]
-         hM$XDRScalePar = XDRScalePar
-         hM$XDRScaled = XDRScaled
+          XRRRScaled[,XRRRscaleInd] = XRRRsc[,XRRRscaleInd]
+         hM$XRRRScalePar = XRRRScalePar
+         hM$XRRRScaled = XRRRScaled
       }
    }
 

@@ -6,8 +6,8 @@
 \usage{
 \method{setPriors}{Hmsc}(hM, V0 = NULL, f0 = NULL, mGamma = NULL,
   UGamma = NULL, aSigma = NULL, bSigma = NULL, nu = NULL,
-  a1 = NULL, b1 = NULL, a2 = NULL, b2 = NULL, nuDR = NULL,
-  a1DR = NULL, b1DR = NULL, a2DR = NULL, b2DR = NULL,
+  a1 = NULL, b1 = NULL, a2 = NULL, b2 = NULL, nuRRR = NULL,
+  a1RRR = NULL, b1RRR = NULL, a2RRR = NULL, b2RRR = NULL,
   rhopw = NULL, setDefault = FALSE)
 }
 \arguments{

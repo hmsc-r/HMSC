@@ -17,24 +17,24 @@
 computeInitialParameters = function(hM, initPar){
    parList = list()
 
-   if(hM$ncDR>0){
-      DeltaDR = matrix(c(rgamma(1,hM$a1DR,hM$b1DR), rgamma(hM$ncDR-1,hM$a2DR,hM$b2DR)))
-      PsiDR = matrix(rgamma(hM$ncDR*hM$ncODR, hM$nuDR/2, hM$nuDR/2), hM$ncDR, hM$ncODR)
-      tauDR = matrix(apply(DeltaDR, 2, cumprod), hM$ncDR, 1)
-      tauMatDR = matrix(tauDR,hM$ncDR,hM$ncODR)
-      multDR = sqrt(PsiDR*tauMatDR)^-1
-      wDR = matrix(rnorm(hM$ncDR*hM$ncODR)*multDR, hM$ncDR, hM$ncODR)
-      XB=hM$XDRScaled%*%t(wDR)
+   if(hM$ncRRR>0){
+      DeltaRRR = matrix(c(rgamma(1,hM$a1RRR,hM$b1RRR), rgamma(hM$ncRRR-1,hM$a2RRR,hM$b2RRR)))
+      PsiRRR = matrix(rgamma(hM$ncRRR*hM$ncORRR, hM$nuRRR/2, hM$nuRRR/2), hM$ncRRR, hM$ncORRR)
+      tauRRR = matrix(apply(DeltaRRR, 2, cumprod), hM$ncRRR, 1)
+      tauMatRRR = matrix(tauRRR,hM$ncRRR,hM$ncORRR)
+      multRRR = sqrt(PsiRRR*tauMatRRR)^-1
+      wRRR = matrix(rnorm(hM$ncRRR*hM$ncORRR)*multRRR, hM$ncRRR, hM$ncORRR)
+      XB=hM$XRRRScaled%*%t(wRRR)
    } else {
-      wDR = NULL
-      PsiDR = NULL
-      DeltaDR = NULL
+      wRRR = NULL
+      PsiRRR = NULL
+      DeltaRRR = NULL
    }
 
    switch(class(hM$X),
           matrix = {
              XScaled = hM$XScaled
-             if(hM$ncDR>0){
+             if(hM$ncRRR>0){
                 XScaled=cbind(XScaled,XB)
              }
           },
@@ -42,7 +42,7 @@ computeInitialParameters = function(hM, initPar){
              XScaled=list()
              for(j in 1:hM$ns){
                 XScaled[[j]] = hM$XScaled[[j]]
-                if(hM$ncDR>0){
+                if(hM$ncRRR>0){
                    XScaled[[j]]=cbind(XScaled[[j]],XB)
                 }
              }
@@ -253,9 +253,9 @@ computeInitialParameters = function(hM, initPar){
    parList$V = V
    parList$Beta = Beta
    parList$BetaSel = BetaSel
-   parList$PsiDR = PsiDR
-   parList$DeltaDR = DeltaDR
-   parList$wDR = wDR
+   parList$PsiRRR = PsiRRR
+   parList$DeltaRRR = DeltaRRR
+   parList$wRRR = wRRR
    parList$sigma = sigma
    parList$Eta = Eta
    parList$Lambda = Lambda
