@@ -5,6 +5,8 @@
 #'
 #' @return
 #'
+#' @importFrom stats dist
+#' 
 #' @export
 
 
