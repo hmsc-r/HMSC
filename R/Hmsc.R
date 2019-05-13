@@ -85,6 +85,9 @@
 #' X = matrix(rnorm(100*3),100,3,dimnames=list(NULL,sprintf("cov%d",1:3)))
 #' m = Hmsc(Y=Y, XData=as.data.frame(X), XFormula=~cov1+cov3)
 #'
+#' @importFrom stats model.matrix
+#' @importFrom ape vcv.phylo
+#' 
 #' @export
 
 

@@ -11,6 +11,9 @@
 #' biPlot(m, etaPost = getPostEstimate(m, "Eta"), lambdaPost=getPostEstimate(m, "Lambda"), factors=c(1,2))
 #' }
 #'
+#' @importFrom graphics plot points text
+#' @importFrom grDevices colorRampPalette
+#' 
 #' @export
 
 biPlot=function(hM, etaPost, lambdaPost, factors=c(1,2), colVar=NULL, ...){
