@@ -131,6 +131,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
       Delta = parList$Delta
       rho = parList$rho
       Z = parList$Z
+      L = parList$L
 
       X1A = X1
 
@@ -234,8 +235,11 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
             iSigma = updateInvSigma(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,
                Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi,dfPi=dfPi,rL=hM$rL, aSigma=aSigma,bSigma=bSigma)
 
-         if(!identical(updater$Z, FALSE))
-            Z = updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,distr=distr,rL=hM$rL)
+         if(!identical(updater$Z, FALSE)){
+            ZL = updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,distr=distr,rL=hM$rL)
+            Z = ZL$Z
+            L = ZL$L
+         }
 
          for(r in seq_len(nr)){
             if(iter <= adaptNf[r]){
@@ -255,7 +259,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
                PsiRRR=PsiRRR,DeltaRRR=DeltaRRR,
                ncNRRR=hM$ncNRRR, ncRRR=hM$ncRRR, ncsel = hM$ncsel, XSelect = hM$XSelect,
                XScalePar=hM$XScalePar, XInterceptInd=hM$XInterceptInd, XRRRScalePar=hM$XRRRScalePar,
-               nt=hM$nt, TrScalePar=hM$TrScalePar, TrInterceptInd=hM$TrInterceptInd, rhopw=rhopw)
+               nt=hM$nt, TrScalePar=hM$TrScalePar, TrInterceptInd=hM$TrInterceptInd, rhopw=rhopw, L=L)
          }
          if((verbose > 0) && (iter%%verbose == 0)){
             if(iter > transient){
