@@ -21,6 +21,7 @@
 #'
 #' @examples
 #'
+#' @importFrom coda mcmc mcmc.list
 #' @export
 
 convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),

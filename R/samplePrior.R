@@ -11,6 +11,11 @@
 #'
 #' @examples
 #'
+#' @importFrom stats rgamma rnorm
+#' @importFrom mvtnorm rmvnorm
+## is the next a typo of the previous?
+#' @importFrom MASS mvrnorm
+#' @importFrom MCMCpack riwish 
 
 samplePrior = function(hM, dataParList=NULL){
 

@@ -14,6 +14,9 @@
 #'
 #' @examples
 #'
+#' @importFrom stats cov2cor
+#' @importFrom abind abind
+#' 
 #' @export
 
 

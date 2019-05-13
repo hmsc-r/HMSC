@@ -21,6 +21,11 @@
 #' plotBeta(hM, post = betaPost, param = "Support)
 #' }
 #'
+#' @importFrom graphics par plot plot.new axis text
+#' @importFrom grDevices colorRampPalette 
+#' @importFrom ape keep.tip
+#' @importFrom fields image.plot
+#' @importFrom phytools untangle
 #' @export
 
 

@@ -26,6 +26,9 @@
 #'   the asymptotic complexity to linear. The \code{predictMeanField=TRUE} option also preserves the uncertainty in
 #'   marginal distribution of predicted latent factors, but neglects the inter-dependece between them.
 #'
+#' @importFrom stats rnorm dist
+#' @importFrom pdist pdist
+#' 
 #' @export
 
 predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predictMean=FALSE, predictMeanField=FALSE){
