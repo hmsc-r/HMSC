@@ -3,7 +3,7 @@ Title: Hierarchical model of species communities
 Type: Package
 Version: 0.4.1.0
 Author: Gleb Tikhonov
-Maintainer: Otso Ovaskainen <otos.ovaskainen@helsinki.fi>, Gleb Tikhonov <gleb.tikhonov@helsinki.fi>
+Maintainer: Otso Ovaskainen <otso.ovaskainen@helsinki.fi>, Gleb Tikhonov <gleb.tikhonov@helsinki.fi>
 Description: Hierarchical Modelling of Species Communities (HMSC) is 
    a model-based approach for analyzing community ecological data. 
    This package implements it in the Bayesian framework with Gibbs MCMC sampling.
