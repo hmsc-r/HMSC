@@ -38,7 +38,9 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind){
 
    indColNormal = (distr[,1]==1)
    if (sum(indColNormal)>0){
-      L = L + rowSums(dnorm(x=Y[,indColNormal],mean=E[,indColNormal],log = TRUE, sd = std))
+      tmp = dnorm(x=Y[,indColNormal],mean=E[,indColNormal],log = TRUE, sd = std)
+      tmp[is.na(Y[,indColNormal])]==0
+      L = L + rowSums(tmp)
    }
    Z[,indColNormal] = Y[,indColNormal]
 
@@ -46,10 +48,11 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind){
    indColProbit = (distr[,1]==2)
    pN = sum(indColProbit)
    if (pN>0){
-      Yz = 1*(Y[,indColNormal]>0)
-      pz0 = pnorm(-E[,indColNormal],log.p=TRUE)
-      pz1 = pnorm(E[,indColNormal],log.p=TRUE)
-      L = L + rowSums(pz1*(Yz==1)+pz0*(Yz==0))
+      pz0 = pnorm(-E[,indColProbit],log.p=TRUE)
+      pz1 = pnorm(E[,indColProbit],log.p=TRUE)
+      tmp = pz1*Y[,indColProbit]+pz0*(1-Y[,indColProbit])
+      tmp[is.na(Y[,indColProbit])]=0
+      L = L + rowSums(tmp)
     }
    if(pN > 0){
       ZProbit = matrix(NA,ny,pN)
