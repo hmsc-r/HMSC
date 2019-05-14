@@ -5,7 +5,7 @@
 \title{Create single level of random factors in HMSC}
 \usage{
 HmscRandomLevel(sData = NULL, sMethod = "Full", distMat = NULL,
-  xData = NULL, units = NULL, N = NULL)
+  xData = NULL, units = NULL, N = NULL, nNeighbours = NULL)
 }
 \arguments{
 \item{sData}{a dataframe containing spatial or temporal coordinates of units of the random level}
@@ -19,6 +19,8 @@ associations}
 
 \item{N}{number of unique units on this level}
 
+\item{nNeighbours}{a scalar specifying the number of neighbours to be used in case the spatial method is set to \code{NNGP}. Only positive values smaller than the total number of plots are allowed.}
+
 \item{SMethod}{a string specifying which spatial method to be used. Possible values are \code{Full}, \code{GPP} and \code{NNGP}}
 }
 \value{
@@ -30,7 +32,7 @@ Specifies the structure for a single level of random factors, including whether 
 }
 \details{
 Only one of \code{sData}, \code{distMat}, \code{xData}, \code{units} and \code{N} arguments shall be
-  provided (implmentation for \code{sData} and \code{xData} is coming later).
+  provided (implmentation for \code{sData} and \code{xData} is coming later). Implementation for \code{GPP} is coming later
 
   As a good practice we recommend to specify all available units for a random level, even if some of those are not
   used for training the model.

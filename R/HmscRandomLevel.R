@@ -11,12 +11,12 @@
 #'   associations
 #' @param units a vector, specifying the names of the units of a non-structured level
 #' @param N number of unique units on this level
+#' @param nNeighbours a scalar specifying the number of neighbours to be used in case the spatial method is set to \code{NNGP}. Only positive values smaller than the total number of plots are allowed.
 #'
 #' @return a \code{HmscRandomLevel}-class object that can be used for \code{Hmsc}-class object construction
 #'
 #' @details Only one of \code{sData}, \code{distMat}, \code{xData}, \code{units} and \code{N} arguments shall be
-#'   provided (implmentation for \code{sData} and \code{xData} is coming later). Implementation for \code{GPP} and \code{NNGP}
-#'   is coming later
+#'   provided (implmentation for \code{sData} and \code{xData} is coming later). Implementation for \code{GPP} is coming later
 #'
 #'   As a good practice we recommend to specify all available units for a random level, even if some of those are not
 #'   used for training the model.
