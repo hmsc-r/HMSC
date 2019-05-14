@@ -10,6 +10,9 @@
 #'
 #' WAIC = computeWAIC(hM=m)
 #'
+#' @importFrom stats var
+#' @importFrom abind abind
+#' 
 #' @export
 
 computeWAIC = function(hM){

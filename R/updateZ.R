@@ -1,3 +1,6 @@
+#' @importFrom stats dnorm pnorm rnorm
+#' @importFrom truncnorm rtruncnorm
+#' @importFrom BayesLogit rpg 
 updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind){
    ZPrev = Z
    ny = nrow(Y)

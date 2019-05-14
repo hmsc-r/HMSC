@@ -1,3 +1,5 @@
+#' @importFrom stats rgamma
+#' 
 updateInvSigma = function(Y,Z,Beta,iSigma,Eta,Lambda, distr,X,Pi,dfPi,rL, aSigma,bSigma){
    indVarSigma = (distr[,2]==1)
    if(any(indVarSigma)){

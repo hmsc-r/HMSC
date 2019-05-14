@@ -37,6 +37,10 @@
 #' MF = evaluateModelFit(hM=m, predY=preds)
 #' }
 #'
+#' @importFrom stats cor median
+#' @importFrom pROC auc
+#' @importFrom abind abind
+#' 
 #' @export
 
 evaluateModelFit = function(hM, predY){

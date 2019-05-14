@@ -1,3 +1,5 @@
+#' @importFrom stats rgamma
+#' 
 updateLambdaPriors = function(Lambda,Delta, rL){
    nr = length(rL)
 

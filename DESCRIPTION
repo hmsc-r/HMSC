@@ -3,7 +3,7 @@ Title: Hierarchical model of species communities
 Type: Package
 Version: 0.4.1.0
 Author: Gleb Tikhonov
-Maintainer: Otso Ovaskainen <otos.ovaskainen@helsinki.fi>, Gleb Tikhonov <gleb.tikhonov@helsinki.fi>
+Maintainer: Otso Ovaskainen <otso.ovaskainen@helsinki.fi>, Gleb Tikhonov <gleb.tikhonov@helsinki.fi>
 Description: Hierarchical Modelling of Species Communities (HMSC) is 
    a model-based approach for analyzing community ecological data. 
    This package implements it in the Bayesian framework with Gibbs MCMC sampling.
@@ -15,20 +15,22 @@ RoxygenNote: 6.1.1
 Suggests: R.rsp
 VignetteBuilder: R.rsp
 Depends:
-   R (>= 3.0.2),
+   R (>= 3.0.2)
+Imports:
    abind,
    ape,
    BayesLogit,
+   coda,
    fields,
+   ggplot2,
+   MASS,
    Matrix,
    MCMCpack,
+   methods,
    mvtnorm,
    nnet,
-   parallel,
    pdist,
    pROC,
-   ggplot2,
    phytools,
-   tensorA,
-   truncnorm,
-   snow
+   snow,
+   truncnorm

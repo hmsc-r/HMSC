@@ -39,6 +39,8 @@
 #' # second highest for MFCV2, and lowest for MFCV1
 #' }
 #'
+#' @importFrom stats predict
+#' @importFrom abind abind
 #' @export
 
 computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1,

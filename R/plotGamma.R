@@ -19,6 +19,10 @@
 #' plotGamma(hM, post = gammaPost, param = "Support)
 #' }
 #'
+#' @importFrom graphics par plot.new axis text
+#' @importFrom grDevices colorRampPalette
+#' @importFrom fields image.plot
+#' 
 #' @export
 
 plotGamma=function(hM, post, param = "Gamma", trOrder="Original",

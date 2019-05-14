@@ -1,5 +1,9 @@
-# id = diagonal of inverse residual variations
+### id = diagonal of inverse residual variations
 
+#' @importFrom methods as
+#' @importFrom stats rnorm
+#' @importFrom Matrix Diagonal sparseMatrix bdiag
+#' 
 updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,dfPi,rL, rLPar,Q,iQ,RQ,U,iU){
    ny = nrow(Z)
    ns = ncol(Z)

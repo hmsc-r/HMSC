@@ -7,6 +7,7 @@
 #'
 #' @examples
 #'
+#' @importFrom stats cor
 #' @export
 
 computeR2 = function(hM, predY){

@@ -2,6 +2,9 @@
 #'
 #' @description updates beta lambda
 #'
+#' @importFrom stats rnorm
+#' @importFrom Matrix bdiag Diagonal sparseMatrix
+#' 
 updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,dfPi,C,rL){
    ny = nrow(Z)
    ns = ncol(Z)

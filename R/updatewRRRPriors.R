@@ -1,3 +1,5 @@
+#' @importFrom stats rgamma
+#' 
 updatewRRRPriors = function(wRRR,Delta,nu,a1,b1,a2,b2){
    delta = Delta
    lambda = wRRR
