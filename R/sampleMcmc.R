@@ -309,7 +309,9 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
    hM$thin = thin
    hM$verbose = verbose
    hM$adaptNf = adaptNf
-   hM = alignPosterior(hM)
+   for (i in 1:5){
+      hM = alignPosterior(hM)
+   }
 
    return(hM)
 }
