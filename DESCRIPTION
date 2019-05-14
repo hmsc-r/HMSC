@@ -15,12 +15,12 @@ RoxygenNote: 6.1.1
 Suggests: R.rsp
 VignetteBuilder: R.rsp
 Depends:
-   R (>= 3.0.2)
+   R (>= 3.0.2),
+   coda
 Imports:
    abind,
    ape,
    BayesLogit,
-   coda,
    fields,
    ggplot2,
    MASS,
