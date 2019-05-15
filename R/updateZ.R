@@ -1,6 +1,6 @@
 #' @importFrom stats dnorm pnorm rnorm
 #' @importFrom truncnorm rtruncnorm
-#' @importFrom BayesLogit rpg 
+#' @importFrom BayesLogit rpg
 updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind){
    ZPrev = Z
    ny = nrow(Y)
@@ -9,14 +9,14 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind){
    np = apply(Pi, 2, function(a) length(unique(a)))
 
    switch(class(X),
-      matrix = {
-         LFix = X%*%Beta
-      },
-      list = {
-         LFix = matrix(NA,ny,ns)
-         for(j in 1:ns)
-            LFix[,j] = X[[j]]%*%Beta[,j]
-      }
+          matrix = {
+             LFix = X%*%Beta
+          },
+          list = {
+             LFix = matrix(NA,ny,ns)
+             for(j in 1:ns)
+                LFix[,j] = X[[j]]%*%Beta[,j]
+          }
    )
    LRan = vector("list", nr)
    for(r in seq_len(nr)){
@@ -43,7 +43,11 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind){
    if (sum(indColNormal)>0){
       tmp = dnorm(x=Y[,indColNormal],mean=E[,indColNormal],log = TRUE, sd = std)
       tmp[is.na(Y[,indColNormal])]==0
-      L = L + rowSums(tmp)
+      if (sum(indColNormal)>1) {
+         L = L + rowSums(tmp)
+      } else {
+         L = L + tmp
+      }
    }
    Z[,indColNormal] = Y[,indColNormal]
 
@@ -55,8 +59,12 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind){
       pz1 = pnorm(E[,indColProbit],log.p=TRUE)
       tmp = pz1*Y[,indColProbit]+pz0*(1-Y[,indColProbit])
       tmp[is.na(Y[,indColProbit])]=0
-      L = L + rowSums(tmp)
-    }
+      if (sum(indColProbit)>1) {
+         L = L + rowSums(tmp)
+      } else {
+         L = L + tmp
+      }
+   }
    if(pN > 0){
       ZProbit = matrix(NA,ny,pN)
       YProbit = Y[,indColProbit]
