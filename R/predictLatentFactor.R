@@ -87,27 +87,68 @@ predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predict
                   }
                }
             } else{
-               unitsAll = c(units,unitsPred[indNew])
-               if(!is.null(rL$s)){
-                  s = rL$s[unitsAll,]
-                  D = as.matrix(dist(s))
-               } else {
-                  D = rL$distMat[unitsAll,unitsAll]
-               }
-               for(h in 1:nf){
-                  if(alphapw[alpha[h],1] > 0){
-                     K = exp(-D/alphapw[alpha[h],1])
-                     K11 = K[1:np,1:np]
-                     K12 = K[1:np,np+(1:nn)]
-                     K22 = K[np+(1:nn),np+(1:nn)]
-                     m = crossprod(K12, solve(K11, eta[,h]))
-                     W = K22 - crossprod(K12, solve(K11, K12))
-                     L = t(chol(W))
-                     etaPred[indNew,h] = m + L%*%rnorm(nn)
-                  } else{
-                     etaPred[indNew,h] = rnorm(nn)
-                  }
-               }
+               switch(rL$spatialMethod,
+                      'Full' = {
+                         unitsAll = c(units,unitsPred[indNew])
+                         if(!is.null(rL$s)){
+                            s = rL$s[unitsAll,]
+                            D = as.matrix(dist(s))
+                         } else {
+                            D = rL$distMat[unitsAll,unitsAll]
+                         }
+                         for(h in 1:nf){
+                            if(alphapw[alpha[h],1] > 0){
+                               K = exp(-D/alphapw[alpha[h],1])
+                               K11 = K[1:np,1:np]
+                               K12 = K[1:np,np+(1:nn)]
+                               K22 = K[np+(1:nn),np+(1:nn)]
+                               m = crossprod(K12, solve(K11, eta[,h]))
+                               W = K22 - crossprod(K12, solve(K11, K12))
+                               L = t(chol(W))
+                               etaPred[indNew,h] = m + L%*%rnorm(nn)
+                            } else{
+                               etaPred[indNew,h] = rnorm(nn)
+                            }
+                         }
+                      },
+                      'NNGP' = {
+                         sOld = rL$s[units,]
+                         sNew = rL$s[unitsPred[indNew],]
+                         indNN = knnx.index(sOld,sNew,k=rL$nNeighbours)[[1]]
+                         indices = list()
+                         dist12 = matrix(NA,nrow=rL$nNeighbours,ncol=nn)
+                         dist11 = array(NA, c(rL$nNeighbours,rL$nNeighbours,nn))
+                         for(i in 1:nn){
+                            ind = indNN[i,]
+                            indices[[i]] = rbind(i*rep(1,length(ind)),ind)
+                            dist12[,i] = sqrt(rowSums((sOld[ind,] - t(matrix(rep(sNew[i,],rL$nNeighbours),ncol=rL$nNeighbours)))^2))
+                            dist11[,,i] = as.matrix(rdist(sOld[ind,]))
+                         }
+                         BgA = list()
+                         FgA = list()
+                         for(h in 1:nf){
+                            if(alphapw[alpha[h],1] > 0){
+                               K12 = exp(-dist12/alphapw[alpha[h],1])
+                               ind1 = t(matrix(unlist(indices),nrow=2))[,2]
+                               ind2 = t(matrix(unlist(indices),nrow=2))[,1]
+                               K11 = exp(-dist11/alphapw[alpha[h],1])
+                               K21iK11 = matrix(NA,ncol=nn,nrow=rL$nNeighbours)
+                               for(i in 1:nn){
+                                  iK11 = solve(chol(K11[,,1]),diag(rL$nNeighbours))
+                                  iK11 = iK11 + t(iK11)-diag(rL$nNeighbours)*diag(iK11)
+                                  K21iK11[,i] = K12[,i]%*%iK11
+                               }
+                               B = Matrix(0,nrow=nn, ncol=np,sparse=TRUE)
+                               B[ind2,ind1] = as.vector(K21iK11)
+                               Fmat = 1 - colSums(K21iK11*K12)
+                               m = B%*%Eta[,h]
+                               etaPred[indNew,h] = m + t(sqrt(L))*rnorm(nn)
+                            } else{
+                               etaPred[indNew,h] = rnorm(nn)
+                            }
+                         }
+                      }
+                      )
             }
          }
       }
