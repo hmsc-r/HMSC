@@ -7,6 +7,9 @@
 #'
 #' @examples
 #'
+#' @importFrom stats cov2cor
+#' @importFrom abind abind
+#' 
 #' @export
 
 computeAssociations = function(hM, start=1){

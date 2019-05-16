@@ -2,6 +2,8 @@
 #'
 #' @description Aligns posterior in terms of variable susceptible for label switching
 #'
+#' @importFrom stats cor
+#' @importFrom abind abind
 #' @export
 
 alignPosterior=function(hM){

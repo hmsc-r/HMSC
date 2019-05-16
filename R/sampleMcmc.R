@@ -53,6 +53,9 @@
 #' m = Hmsc(Y=Y, XData=as.data.frame(X), XFormula=~cov1+cov3)
 #' m = sampleMcmc(m, 100)
 #'
+## J.O. thinks that these functions should rather be imported from
+## parallel which is a standard package supported by the R Core.
+#' @importFrom snow makeCluster clusterExport clusterEvalQ clusterApplyLB stopCluster
 #' @export
 
 sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,

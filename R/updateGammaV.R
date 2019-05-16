@@ -1,3 +1,6 @@
+#' @importFrom stats rnorm
+#' @importFrom MCMCpack rwish
+#' 
 updateGammaV = function(Beta,Gamma,iV,rho, Tr,C, iQg,RQg, mGamma,iUGamma,V0,f0){
    ns = ncol(Beta)
    nc = nrow(Beta)

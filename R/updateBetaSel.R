@@ -1,3 +1,5 @@
+#' @importFrom stats pnorm runif
+#' 
 updateBetaSel = function(Z=Z,XSelect, BetaSel, Beta, iSigma,
                          Lambda, Eta, X1,Pi,dfPi,rL){
 

@@ -38,6 +38,13 @@
 #' plotGradient(m, Gradient, pred=predY, measure="Y", index = 2, showData = TRUE, jigger = 0.05)
 #' }
 #'
+#' @importFrom stats quantile runif
+#' @importFrom graphics plot axis points polygon lines
+#' @importFrom grDevices rgb
+#' @importFrom ggplot2 ggplot aes_string geom_bar position_dodge xlab ylab geom_errorbar
+#'   aes geom_point
+#' @importFrom abind abind
+#' 
 #' @export
 
 plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 0.5, 0.975), showData = FALSE, jigger = 0,...){

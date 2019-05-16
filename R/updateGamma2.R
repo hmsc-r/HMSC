@@ -1,5 +1,8 @@
-# updating Gamma after marginalizing Beta
 
+### updating Gamma after marginalizing Beta
+
+#' @importFrom stats rnorm
+#' 
 updateGamma2 = function(Z,Gamma,iV,iSigma,Eta,Lambda, X,Pi,dfPi,Tr,C,rL, iQg, mGamma,iUGamma){
    ns = ncol(Z)
    ny = nrow(Z)

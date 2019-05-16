@@ -21,6 +21,8 @@
 #'
 #' @examples
 #'
+#' @importFrom stats model.matrix rnorm pnorm rpois
+#' 
 #' @export
 
 predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL, XRRRData=NULL, XRRR=NULL, # this has to be updated to cov-dependent associations

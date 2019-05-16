@@ -29,6 +29,9 @@
 #' plotGradient(m, Gradient, pred=predY, measure="S")
 #' }
 #'
+#' @importFrom stats lm predict
+#' @importFrom nnet multinom
+#' 
 #' @export
 
 constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid=20){

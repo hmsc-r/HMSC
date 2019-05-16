@@ -1,3 +1,5 @@
+#' @importFrom stats runif rnorm rgamma
+#' @importFrom abind abind
 updateNf = function(eta,lambda,alpha,psi,delta, rL, iter){
    nu = rL$nu
    a1 = rL$a1

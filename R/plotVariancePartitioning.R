@@ -8,6 +8,9 @@
 #'
 #' @examples
 #'
+#' @importFrom graphics barplot
+#' @importFrom grDevices heat.colors
+#' 
 #' @export
 
 plotVariancePartitioning=function (hM,VP, ...)

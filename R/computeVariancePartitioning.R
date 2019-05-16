@@ -26,6 +26,7 @@
 #' plotVariancePartitioning(m,VP)
 #' }
 #'
+#' @importFrom stats cov cor
 #' @export
 
 computeVariancePartitioning = function(hM, group, groupnames, start=1, na.ignore = F){

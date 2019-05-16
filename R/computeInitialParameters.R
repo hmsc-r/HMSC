@@ -12,6 +12,11 @@
 #'
 #' @examples
 #'
+#' @importFrom stats glm.fit lm.fit coef rgamma rnorm binomial poisson
+#'    cov runif
+#' @importFrom abind abind
+#' @importFrom mvtnorm rmvnorm
+#' @importFrom MCMCpack riwish
 
 
 computeInitialParameters = function(hM, initPar){
