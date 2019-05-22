@@ -41,7 +41,7 @@ prepareGradient = function(hM, XDataNew, sDataNew){
          rL1$pi = unitsAll
          rL1$N = rL1$N+1
       } else {
-         index = which(names(sDataNew)==m$rLNames)
+         index = which(names(sDataNew)==hM$rLNames)
          xyNew = sDataNew[[index]]
          nxyNew = dim(xyNew)[1]
          dfPiNew[,r] = sprintf('new_spatial_unit%.6d',1:nxyNew)

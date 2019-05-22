@@ -22,7 +22,7 @@
 #' }
 #'
 #' @importFrom graphics par plot plot.new axis text
-#' @importFrom grDevices colorRampPalette 
+#' @importFrom grDevices colorRampPalette
 #' @importFrom ape keep.tip
 #' @importFrom fields image.plot
 #' @importFrom phytools untangle
@@ -35,7 +35,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
   supportLevel = 0.9, split = 0.3, cex = c(0.7,0.7,0.8)){
 
    if(plotTree){
-      tree = keep.tip(hM$phyloTree,m$spNames)
+      tree = keep.tip(hM$phyloTree,hM$spNames)
       tree = untangle(tree,"read.tree")
    }
 

@@ -48,8 +48,8 @@ computeVariancePartitioning = function(hM, group, groupnames, start=1, na.ignore
    #If na.ignore=T, convert XData to a list
    if(na.ignore){
       xl=list()
-      for(s in 1:m$ns){
-         xl[[s]]=m$X
+      for(s in 1:ns){
+         xl[[s]]=hM$X
       }
       hM$X=xl
    }
@@ -60,7 +60,7 @@ computeVariancePartitioning = function(hM, group, groupnames, start=1, na.ignore
 
       if(na.ignore){
          cMA = list()
-         for(s in 1:m$ns){cMA[[s]]=cov(hM$X[[s]][which(hM$Y[,s]>-Inf),])}
+         for(s in 1:ns){cMA[[s]]=cov(hM$X[[s]][which(hM$Y[,s]>-Inf),])}
       }
       else{cMA = lapply(hM$X, cov)}
    })
