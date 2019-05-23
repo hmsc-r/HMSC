@@ -13,6 +13,7 @@
 #' @param supportLevel Controls threshold posterior support for plotting
 #' @param split If plotTree = T, controls the division of the plotting window between the tree and the heatmap.
 #' @param cex Controls character expansion (font size). Three values, controlling covariate names, species names, and color legend axis labels
+#' @param colors Controls the colors of the heatmap, default value \code{colorRampPalette(c("blue","white","red"))}
 #'
 #'
 #' @examples
@@ -32,7 +33,7 @@
 plotBeta = function(hM, post, param = "Support", plotTree = F,
   SpeciesOrder = "Original", SpVector = NULL, covOrder="Original",
   covVector=NULL, spNamesNumbers = c(T,T), covNamesNumbers = c(T,T),
-  supportLevel = 0.9, split = 0.3, cex = c(0.7,0.7,0.8)){
+  supportLevel = 0.9, split = 0.3, cex = c(0.7,0.7,0.8), colors = colorRampPalette(c("blue","white","red"))){
 
    if(plotTree){
       tree = keep.tip(hM$phyloTree,hM$spNames)
@@ -96,7 +97,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
    X = t(betaMat[covorder,order])
 
    old.par = par(no.readonly = TRUE)
-   colors = colorRampPalette(c("blue","white","red"))(200)
+   colors =colors(200)
 
    #With tree
    if(plotTree){
