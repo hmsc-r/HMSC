@@ -15,7 +15,7 @@
 #' @importFrom mvtnorm rmvnorm
 ## is the next a typo of the previous?
 #' @importFrom MASS mvrnorm
-#' @importFrom MCMCpack riwish 
+#' @importFrom MCMCpack riwish
 
 samplePrior = function(hM, dataParList=NULL){
 
@@ -46,7 +46,7 @@ samplePrior = function(hM, dataParList=NULL){
       }
    }
 
-   if(is.null(m$C)){
+   if(is.null(hM$C)){
       rho = 1
    } else {
       rho = sample(x = 1:dim(hM$rhopw)[1], size = 1, prob = hM$rhopw[,2])
@@ -64,10 +64,10 @@ samplePrior = function(hM, dataParList=NULL){
    Alpha = vector("list", hM$nr)
 
    for(r in seq_len(hM$nr)){
-      if(m$rL[[r]]$nfMax==Inf){
+      if(hM$rL[[r]]$nfMax==Inf){
          nf[r] = 10
       } else {
-         nf[r] = m$rL[[r]]$nfMax
+         nf[r] = hM$rL[[r]]$nfMax
       }
 
       ncr[r] = max(hM$rL[[r]]$xDim, 1)
@@ -108,7 +108,7 @@ samplePrior = function(hM, dataParList=NULL){
    #DERIVED PARAMETERS
 
    Mu = tcrossprod(Gamma,hM$TrScaled)
-   if(is.null(m$C)){
+   if(is.null(hM$C)){
       Beta = matrix(NA, hM$nc, hM$ns)
       for(j in 1:hM$ns)
          Beta[,j] = rmvnorm(1, Mu[,j], V)

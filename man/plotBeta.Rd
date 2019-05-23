@@ -7,7 +7,8 @@
 plotBeta(hM, post, param = "Support", plotTree = F,
   SpeciesOrder = "Original", SpVector = NULL, covOrder = "Original",
   covVector = NULL, spNamesNumbers = c(T, T), covNamesNumbers = c(T,
-  T), supportLevel = 0.9, split = 0.3, cex = c(0.7, 0.7, 0.8))
+  T), supportLevel = 0.9, split = 0.3, cex = c(0.7, 0.7, 0.8),
+  colors = colorRampPalette(c("blue", "white", "red")))
 }
 \arguments{
 \item{post}{Posterior summary of Beta parameters obtained from \code{\link{getPostEstimate}}}
@@ -33,6 +34,8 @@ plotBeta(hM, post, param = "Support", plotTree = F,
 \item{split}{If plotTree = T, controls the division of the plotting window between the tree and the heatmap.}
 
 \item{cex}{Controls character expansion (font size). Three values, controlling covariate names, species names, and color legend axis labels}
+
+\item{colors}{Controls the colors of the heatmap, default value \code{colorRampPalette(c("blue","white","red"))}}
 }
 \description{
 Plots heatmaps of parameter estimates or posterior support values of species' environmental responses, i.e. how species in \code{Y} responds to covariates in \code{X}

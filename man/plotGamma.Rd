@@ -7,7 +7,8 @@
 plotGamma(hM, post, param = "Gamma", trOrder = "Original",
   trVector = NULL, covOrder = "Original", covVector = NULL,
   trNamesNumbers = c(T, T), covNamesNumbers = c(T, T),
-  supportLevel = 0.9, cex = c(0.8, 0.8, 0.8))
+  supportLevel = 0.9, cex = c(0.8, 0.8, 0.8),
+  colors = colorRampPalette(c("blue", "white", "red")))
 }
 \arguments{
 \item{post}{Posterior summary of Gamma parameters obtained from \code{\link{getPostEstimate}}}
@@ -29,6 +30,8 @@ plotGamma(hM, post, param = "Gamma", trOrder = "Original",
 \item{supportLevel}{Controls threshold posterior support for plotting}
 
 \item{cex}{Controls character expansion (font size). Three values, controlling covariate names, trait names, and color legend axis labels}
+
+\item{colors}{Controls the colors of the heatmap, default value \code{colorRampPalette(c("blue","white","red"))}}
 }
 \description{
 Plots heatmaps of parameter estimates or posterior support values of trait effects on species' environmental responses, i.e. how environmental responses in \code{Beta} responds to covariates in \code{X}

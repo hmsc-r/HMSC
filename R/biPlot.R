@@ -13,13 +13,13 @@
 #'
 #' @importFrom graphics plot points text
 #' @importFrom grDevices colorRampPalette
-#' 
+#'
 #' @export
 
 biPlot=function(hM, etaPost, lambdaPost, factors=c(1,2), colVar=NULL, ...){
    if(!is.null(colVar)){
       cols=colorRampPalette(c("blue","white","red"))(hM$np)
-      plotorder=order(hM$XData[,which(colnames(m$XData)==colVar)])
+      plotorder=order(hM$XData[,which(colnames(hM$XData)==colVar)])
    }
    else{
       cols="grey"
@@ -28,5 +28,5 @@ biPlot=function(hM, etaPost, lambdaPost, factors=c(1,2), colVar=NULL, ...){
    plot(etaPost$mean[,factors[1]][plotorder], etaPost$mean[,factors[2]][plotorder],pch=16, col=cols,
         xlab=paste("Latent variable", factors[1]), ylab=paste("Latent variable", factors[2]), ...)
    points(lambdaPost$mean[factors[1],], lambdaPost$mean[factors[2],],pch=17, cex=1)
-   text(lambdaPost$mean[factors[1],], lambdaPost$mean[factors[2],], m$spNames, pos=1, cex=1)
+   text(lambdaPost$mean[factors[1],], lambdaPost$mean[factors[2],], hM$spNames, pos=1, cex=1)
 }

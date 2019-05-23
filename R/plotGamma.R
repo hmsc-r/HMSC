@@ -11,6 +11,7 @@
 #' @param covNamesNumbers Logical of length 2, where first entry controls whether covariate names are added to axes, and second entry controls whether covariate numbers are added
 #' @param supportLevel Controls threshold posterior support for plotting
 #' @param cex Controls character expansion (font size). Three values, controlling covariate names, trait names, and color legend axis labels
+#' @param colors Controls the colors of the heatmap, default value \code{colorRampPalette(c("blue","white","red"))}
 #'
 #'
 #' @examples
@@ -22,12 +23,12 @@
 #' @importFrom graphics par plot.new axis text
 #' @importFrom grDevices colorRampPalette
 #' @importFrom fields image.plot
-#' 
+#'
 #' @export
 
 plotGamma=function(hM, post, param = "Gamma", trOrder="Original",
   trVector= NULL, covOrder="Original",covVector=NULL, trNamesNumbers=c(T,T),
-  covNamesNumbers=c(T,T),supportLevel=.9,cex=c(.8,.8,.8)){
+  covNamesNumbers=c(T,T),supportLevel=.9,cex=c(.8,.8,.8),colors=colorRampPalette(c("blue","white","red"))){
 
   switch(class(hM$X),
          matrix = {
@@ -91,7 +92,7 @@ plotGamma=function(hM, post, param = "Gamma", trOrder="Original",
    X = gammaMat[covorder,trorder]
 
    old.par = par(no.readonly = TRUE)
-   colors = colorRampPalette(c("blue","white","red"))(200)
+   colors = colors(200)
 
    START=0
    END=.65

@@ -23,8 +23,8 @@ plotGradient(hM, Gradient, predY, measure, index = 1, prob = c(0.025,
 \item{pred}{an object returned by applying the function \code{\link{predict}} to \code{Gradient}}
 }
 \value{
-Returns posterior probability by which the plotted variable is greater for the
- last sampling unit of the gradient than for the first sampling unit of the gradient
+For the case of a continuous covariate, returns posterior probability by which the plotted variable is greater for the
+ last sampling unit of the gradient than for the first sampling unit of the gradient. For the case of a factor, returns the plot object.
 }
 \description{
 Plots an environmental gradient over one of the variables included in \code{XData}
