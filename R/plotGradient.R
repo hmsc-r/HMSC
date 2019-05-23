@@ -10,8 +10,8 @@
 #' @param showData whether raw data are plotted as well
 #' @param jigger the amount by which the raw data are to be jiggered in x-direction (for factors) or y-direction (for continuous covariates)
 #'
-#' @return Returns posterior probability by which the plotted variable is greater for the
-#'  last sampling unit of the gradient than for the first sampling unit of the gradient
+#' @return For the case of a continuous covariate, returns posterior probability by which the plotted variable is greater for the
+#'  last sampling unit of the gradient than for the first sampling unit of the gradient. For the case of a factor, returns the plot object.
 #'
 #' @details
 #'
@@ -44,7 +44,7 @@
 #' @importFrom ggplot2 ggplot aes_string geom_bar position_dodge xlab ylab geom_errorbar
 #'   aes geom_point
 #' @importFrom abind abind
-#' 
+#'
 #' @export
 
 plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 0.5, 0.975), showData = FALSE, jigger = 0,...){
@@ -185,5 +185,5 @@ plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 
       lines(xx, qpred[2, ], lwd = 2)
 
    }
-   return(Pr)
+   return(if(is.factor(xx)){pl} else {Pr})
 }

@@ -16,15 +16,15 @@
 #'
 #' @importFrom stats cov2cor
 #' @importFrom abind abind
-#' 
+#'
 #' @export
 
 
-getPostEstimate = function(hM, parName, r=1, x=NULL, q=c(), chainIndex=1:length(hM$postList)){
+getPostEstimate = function(hM, parName, r=1, x=NULL, q=c(), chainIndex=1:length(hM$postList), start = 1, thin = 1){
    bind0 = function(...){
       abind(...,along=0)
    }
-   postList = poolMcmcChains(hM$postList, chainIndex=chainIndex)
+   postList = poolMcmcChains(hM$postList, chainIndex=chainIndex, start=start, thin=thin)
 
    if(parName %in% c("Beta", "Gamma", "V", "sigma","wRRR")){
       valList = lapply(postList, function(a) a[[parName]])
