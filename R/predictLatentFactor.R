@@ -28,7 +28,7 @@
 #'
 #' @importFrom stats rnorm dist
 #' @importFrom pdist pdist
-#' 
+#'
 #' @export
 
 predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predictMean=FALSE, predictMeanField=FALSE){
@@ -125,7 +125,7 @@ predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predict
                             ind = indNN[i,]
                             indices[[i]] = rbind(i*rep(1,length(ind)),ind)
                             dist12[,i] = sqrt(rowSums((sOld[ind,] - t(matrix(rep(sNew[i,],rL$nNeighbours),ncol=rL$nNeighbours)))^2))
-                            dist11[,,i] = as.matrix(rdist(sOld[ind,]))
+                            dist11[,,i] = as.matrix(dist(sOld[ind,]))
                          }
                          BgA = list()
                          FgA = list()

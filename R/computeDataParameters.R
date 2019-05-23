@@ -6,7 +6,7 @@
 #' @return
 #'
 #' @importFrom stats dist
-#' 
+#'
 #' @export
 
 
@@ -91,7 +91,7 @@ computeDataParameters = function(hM){
                       ind = ind[ind<i]
                       if(!is.na(ind[1])){
                          indices[[i]] = rbind(i*rep(1,length(ind)),ind)
-                         distList[[i]] = as.matrix(rdist(s[c(ind,i),]))
+                         distList[[i]] = as.matrix(dist(s[c(ind,i),]))
                       }
                    }
                    for (ag in 1:alphaN){

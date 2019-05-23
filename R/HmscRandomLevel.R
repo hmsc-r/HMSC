@@ -5,7 +5,7 @@
 #'
 #'
 #' @param sData a dataframe containing spatial or temporal coordinates of units of the random level
-#' @param SMethod a string specifying which spatial method to be used. Possible values are \code{Full}, \code{GPP} and \code{NNGP}
+#' @param sMethod a string specifying which spatial method to be used. Possible values are \code{Full}, \code{GPP} and \code{NNGP}
 #' @param distMat a distance matrix containing the distances between units of the random level
 #' @param xData a dataframe containing the covariates measured at the units of the random level for covariate-dependent
 #'   associations
