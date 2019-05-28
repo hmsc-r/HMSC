@@ -42,7 +42,7 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind){
    indColNormal = (distr[,1]==1)
    if (sum(indColNormal)>0){
       tmp = dnorm(x=Y[,indColNormal],mean=E[,indColNormal],log = TRUE, sd = std)
-      tmp[is.na(Y[,indColNormal])]==0
+      tmp[is.na(Y[,indColNormal])]=0
       if (sum(indColNormal)>1) {
          L = L + rowSums(tmp)
       } else {
