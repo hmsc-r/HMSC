@@ -487,7 +487,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       stop("Hmsc.setData: at maximum one of phyloTree and C arguments can be specified")
    }
    if(!is.null(phyloTree)){
-      corM = vcv.phylo(phyloTree, model="Brownian", cor=T)
+      corM = vcv.phylo(phyloTree, model="Brownian", corr=TRUE)
       corM = corM[hM$spNames,hM$spNames]
       hM$phyloTree = phyloTree
       hM$C = corM
