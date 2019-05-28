@@ -35,7 +35,7 @@ levels}
 
 \item{ranLevelsUsed}{a vector with names of levels of latent factors that are used in the analysis}
 
-\item{TrFormula}{a formula-class object for regression dependence of \eqn{\Beta_{kj}} coefficeints on species traits}
+\item{TrFormula}{a formula-class object for regression dependence of \eqn{B_{kj}} coefficeints on species traits}
 
 \item{TrData}{a dataframe of measured species traits for formula-based specification}
 

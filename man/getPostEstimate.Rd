@@ -5,7 +5,7 @@
 \title{Hmsc$getPostEstimate}
 \usage{
 getPostEstimate(hM, parName, r = 1, x = NULL, q = c(),
-  chainIndex = 1:length(hM$postList))
+  chainIndex = 1:length(hM$postList), start = 1, thin = 1)
 }
 \arguments{
 \item{parName}{The name of the parameter to be summarized. Can take value of

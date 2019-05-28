@@ -4,7 +4,7 @@
 \alias{computeAssociations}
 \title{computeAssociations}
 \usage{
-computeAssociations(hM, start = 1)
+computeAssociations(hM, start = 1, thin = 1)
 }
 \arguments{
 \item{start}{index of first MCMC sample included}
