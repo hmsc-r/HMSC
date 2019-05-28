@@ -28,6 +28,8 @@
 #'
 #' @importFrom stats rnorm dist
 #' @importFrom pdist pdist
+#' @importFrom Matrix Matrix
+#' @importFrom FNN knnx.index
 #' 
 #' @export
 

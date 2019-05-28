@@ -6,6 +6,8 @@
 #' @return
 #'
 #' @importFrom stats dist
+#' @importFrom Matrix Matrix .sparseDiagonal
+#' @importFrom FNN get.knn
 #' 
 #' @export
 
