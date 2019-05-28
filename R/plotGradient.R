@@ -164,7 +164,7 @@ plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 
          dataToPlot = data.frame(pX = pX, pY = pY)
          pl = pl + geom_point(data = dataToPlot, aes_string(x = pX, y = pY))
       }
-      plot(pl)
+      #plot(pl)
    } else {
       if (class(hM$X)=="list" & (!measure=="Y")){
          plot(xx, qpred[2, ], ylim = c(lo1, hi1), type = "l", xaxt = "n", xlab = xlabel, ylab = ylabel, ...)
