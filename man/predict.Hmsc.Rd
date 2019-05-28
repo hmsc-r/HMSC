@@ -21,7 +21,7 @@
 
 \item{studyDesign}{a matrix, specifying the structure of the study design for the prediction. Requirements are similar to those of the \code{Hmsc()} constructor. By default this argument is assighned with the study design of the training data in the fitted Hmsc model.}
 
-\item{Gradient}{is an object returned by \code{\link{contructGradient}}. Providing \code{Gradient} is an alternative for providing \code{XData}, \code{studyDesign} and \code{rL}}
+\item{Gradient}{is an object returned by \code{\link{constructGradient}}. Providing \code{Gradient} is an alternative for providing \code{XData}, \code{studyDesign} and \code{rL}}
 
 \item{Yc}{a matrix of the outcomes that are assumed to be known for conditional predictions.}
 
