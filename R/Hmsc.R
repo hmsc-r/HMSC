@@ -14,7 +14,7 @@
 #' @param ranLevels a named list of \code{HmscRandomLevel}-class objects, specifying the structure and data for random
 #'   levels
 #' @param ranLevelsUsed a vector with names of levels of latent factors that are used in the analysis
-#' @param TrFormula a formula-class object for regression dependence of \eqn{\Beta_{kj}} coefficeints on species traits
+#' @param TrFormula a formula-class object for regression dependence of \eqn{B_{kj}} coefficeints on species traits
 #' @param TrData a dataframe of measured species traits for formula-based specification
 #' @param Tr a matrix of measured traits for direct specification
 #' @param TrScale a boolean flag whether to scale values of species traits
