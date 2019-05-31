@@ -92,7 +92,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
    nr = hM$nr
 
    mGamma = hM$mGamma
-   iUGamma = chol2inv(solve(hM$UGamma))
+   iUGamma = chol2inv(chol(hM$UGamma))
    V0 = hM$V0
    f0 = hM$f0
    aSigma = hM$aSigma

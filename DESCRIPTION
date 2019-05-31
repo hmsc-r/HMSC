@@ -1,7 +1,7 @@
 Package: Hmsc
 Title: Hierarchical model of species communities
 Type: Package
-Version: 0.4.1.0
+Version: 0.4.2.0
 Author: Gleb Tikhonov
 Maintainer: Otso Ovaskainen <otso.ovaskainen@helsinki.fi>, Gleb Tikhonov <gleb.tikhonov@helsinki.fi>
 Description: Hierarchical Modelling of Species Communities (HMSC) is 
