@@ -8,12 +8,13 @@ plotGamma(hM, post, param = "Gamma", trOrder = "Original",
   trVector = NULL, covOrder = "Original", covVector = NULL,
   trNamesNumbers = c(T, T), covNamesNumbers = c(T, T),
   supportLevel = 0.9, cex = c(0.8, 0.8, 0.8),
-  colors = colorRampPalette(c("blue", "white", "red")))
+  colors = colorRampPalette(c("blue", "white", "red")),
+  colorLevels = 200, smallplot = NULL, bigplot = NULL)
 }
 \arguments{
 \item{post}{Posterior summary of Gamma parameters obtained from \code{\link{getPostEstimate}}}
 
-\item{param}{Controls which parameter is plotted, current options include "Mean" for posterior mean estimate and "Support" for the level of statistical support measured by posterior probability for a positive or negative response}
+\item{param}{Controls which parameter is plotted, current options include "Mean" for posterior mean estimate, "Support" for the level of statistical support measured by posterior probability for a positive or negative response, and "Sign" to indicate whether the response is positive, negative, or neither of these given the chosen \code{supportLevel}}
 
 \item{trOrder}{Controls the ordering of traits, current options are "Original", and "Vector". If trOrder = "Vector", an ordering vector must be provided (see trVector)}
 

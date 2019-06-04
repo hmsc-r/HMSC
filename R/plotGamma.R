@@ -2,7 +2,7 @@
 #'
 #' @description Plots heatmaps of parameter estimates or posterior support values of trait effects on species' environmental responses, i.e. how environmental responses in \code{Beta} responds to covariates in \code{X}
 #' @param post Posterior summary of Gamma parameters obtained from \code{\link{getPostEstimate}}
-#' @param param Controls which parameter is plotted, current options include "Mean" for posterior mean estimate and "Support" for the level of statistical support measured by posterior probability for a positive or negative response
+#' @param param Controls which parameter is plotted, current options include "Mean" for posterior mean estimate, "Support" for the level of statistical support measured by posterior probability for a positive or negative response, and "Sign" to indicate whether the response is positive, negative, or neither of these given the chosen \code{supportLevel}
 #' @param trOrder Controls the ordering of traits, current options are "Original", and "Vector". If trOrder = "Vector", an ordering vector must be provided (see trVector)
 #' @param trVector Controls the ordering of traits if trOrder = "Vector". If a subset of traits are listed, only those will be plotted
 #' @param covOrder Controls the ordering of covariates, current options are "Original" and "Vector". If covOrder = "Vector", an ordering vector must be provided (see covVector)
@@ -28,7 +28,9 @@
 
 plotGamma=function(hM, post, param = "Gamma", trOrder="Original",
   trVector= NULL, covOrder="Original",covVector=NULL, trNamesNumbers=c(T,T),
-  covNamesNumbers=c(T,T),supportLevel=.9,cex=c(.8,.8,.8),colors=colorRampPalette(c("blue","white","red"))){
+  covNamesNumbers=c(T,T),supportLevel=.9,cex=c(.8,.8,.8),
+  colors=colorRampPalette(c("blue","white","red")),colorLevels = 200,
+  smallplot=NULL, bigplot=NULL){
 
   switch(class(hM$X),
          matrix = {
@@ -75,6 +77,11 @@ plotGamma=function(hM, post, param = "Gamma", trOrder="Original",
    mgamma=post$mean
    gammaP=post$support
 
+   if(param=="Sign"){
+      toPlot = mgamma
+      toPlot = toPlot * ((gammaP>supportLevel) + (gammaP<(1-supportLevel))>0)
+      gammaMat = matrix(toPlot, nrow=ncolsX, ncol=ncol(hM$Tr))
+   }
    if(param=="Mean"){
       toPlot = mgamma
       toPlot = toPlot * ((gammaP>supportLevel) + (gammaP<(1-supportLevel))>0)
@@ -92,7 +99,7 @@ plotGamma=function(hM, post, param = "Gamma", trOrder="Original",
    X = gammaMat[covorder,trorder]
 
    old.par = par(no.readonly = TRUE)
-   colors = colors(200)
+   colors = colors(colorLevels)
 
    START=0
    END=.65
@@ -119,11 +126,16 @@ plotGamma=function(hM, post, param = "Gamma", trOrder="Original",
 
    image.plot(x = seq(START+ADJx, END-ADJx, by = ((END-ADJx) - (START+ADJx))/(nrow(X) - 1)),
       y = seq(ADJy, 1-ADJy, length.out = ncol(X)),
-      z = X, add = TRUE, nlevel = 200,
+      z = X, add = TRUE, nlevel = colorLevels,
       legend.width = 2, legend.mar = NULL,
-      legend.cex = cex, axis.args = list(cex.axis = cex[3], mgp = c(3,2,0), hadj = 1),
-      graphics.reset = TRUE, horizontal = FALSE, bigplot = NULL,
-      smallplot = NULL, legend.only = FALSE, col = colors,
+      legend.cex = cex,
+      axis.args=if(param=="Sign")
+      {list(labels=c("+","0","-"),at=c(1,0,-1),cex.axis=cex[3],mgp=c(3,2,0),hadj=1)
+      } else {
+         list(cex.axis=cex[3],mgp=c(3,2,0),hadj=1)
+      },
+      graphics.reset = TRUE, horizontal = FALSE, bigplot = bigplot, smallplot = smallplot,
+      legend.only = FALSE, col = colors,
       lab.breaks = NULL, zlim = zlim)
 
    par(old.par)
