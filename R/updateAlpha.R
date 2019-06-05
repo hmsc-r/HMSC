@@ -29,14 +29,49 @@ updateAlpha = function(Eta ,rL, rLPar){
                       tmp1 = RiWg[[g]]%*%eta
                       tmpMat[g,] = Matrix::colSums(tmp1^2)
                    }
+                },
+                'GPP' = {
+                   nK = rL$knotNumber
+                   iFg = rLPar[[r]]$iFg
+                   idDW12g = rLPar[[r]]$idDW12g
+                   idDg = rLPar[[r]]$idDgA
+                   detDg = rLPar[[r]]$detDg
+                   tmpMat1 = array(NA,c(nf,nK,gN))
+                   tmpMat2 = array(NA,c(nK,nK,gN))
+                   tmpMat3 = array(NA,c(nf,nK,gN))
+                   for(g in 1:gN){
+                      tmpMat2[,,i] = t(eta)%*%idDW12g[,,i]
+                      tmpMat3[,,i] = tmpMat2[,,i]%*%idDW12g[,,i]
+                      tmpMat4[,,i] = tmpMat3[,,i]%*%t(tmpMat2[,,i])
+                   }
                 }
          )
          # tmp1 = mul.tensor(to.tensor(RiWg),"I2", to.tensor(rep(eta,gN),c(I1=np,I2=nf,I3=gN)),"I1", by="I3")
 
          # tmpMat = t(apply(tmp1^2, c(2,3), sum))
          for(h in 1:nf){
-            v = tmpMat[,h]
-            like = log(alphapw[,2]) - 0.5*detWg - 0.5*v
+            switch(rL[[r]]$spatialMethod,
+                   'Full' = {
+                      v = tmpMat[,h]
+                      like = log(alphapw[,2]) - 0.5*detWg - 0.5*v
+                   },
+                   'NNGP' = {
+                      v = tmpMat[,h]
+                      like = log(alphapw[,2]) - 0.5*detWg - 0.5*v
+                   },
+                   'GPP' = {
+                      tmp = rep(NA,gN)
+                      for(ag in 1:gN){
+                         if(alphapw(gN,1) == 0){
+                            tmp(ag) = t(eta[,h])%*%eta[,h]
+                         } else {
+                            tmp1 = t(eta[,h])%*%(idDg[,ag]*eta[,h])
+                            tmp[ag] = tmp1 - tmpMat4[h,h,ag]
+                         }
+                      }
+                      like = log(alphapw[,2]) - 0.5*detDg - 0.5*v
+                   }
+            )
             like = exp(like - max(like))
             like = like / sum(like)
             Alpha[[r]][h] = sample.int(gN, size=1, prob=like)

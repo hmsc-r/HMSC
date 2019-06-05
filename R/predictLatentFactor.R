@@ -28,6 +28,7 @@
 #'
 #' @importFrom stats rnorm dist
 #' @importFrom pdist pdist
+#' @importFrom FNN get.knn
 #'
 #' @export
 
@@ -137,7 +138,7 @@ predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predict
                                K11 = exp(-dist11/alphapw[alpha[h],1])
                                K21iK11 = matrix(NA,ncol=nn,nrow=rL$nNeighbours)
                                for(i in 1:nn){
-                                  iK11 = solve(chol(K11[,,1]),diag(rL$nNeighbours))
+                                  iK11 = solve(chol(K11[,,i]),diag(rL$nNeighbours))
                                   iK11 = iK11 + t(iK11)-diag(rL$nNeighbours)*diag(iK11)
                                   K21iK11[,i] = K12[,i]%*%iK11
                                }

@@ -6,6 +6,7 @@
 #' @return
 #'
 #' @importFrom stats dist
+#' @importFrom FNN get.knn
 #'
 #' @export
 
@@ -77,6 +78,9 @@ computeDataParameters = function(hM){
                    rLPar[[r]] = list(Wg=Wg, iWg=iWg, RiWg=RiWg, detWg=detWg)
                 },
                 "NNGP" = {
+                   if(is.null(hM$rL[[r]]$nNeighbours)){
+                      stop("computeDataParameters: Number of neighbours not specified for nngp method")
+                   }
                    Wg = list()
                    iWg = list() #slow??
                    RiWg = list()
@@ -126,6 +130,79 @@ computeDataParameters = function(hM){
                       detWg[ag] = detW
                    }
                    rLPar[[r]] = list(Wg = Wg, iWg=iWg, RiWg=RiWg, detWg=detWg)
+                },
+                "GPP" = {
+                   s = hM$rL[[r]]$s[levels(hM$dfPi[,r]),]
+                   dim = ncol(s)
+                   if(is.null(hM$rL[[r]]$sKnot)){
+                      if(is.null(hM$rL[[r]]$nKnots)){
+                         stop("computeDataParameters: either number of knots or knot locations must be specified for gaussian predictive process")
+                      }else{
+                         stop("computeDataParameters: no method implemented yet for gaussian predictive process without known knot locations")
+                      }
+                   } else {
+                      sKnot = hM$rL[[r]]$sKnot
+                      nKnots = nrow(sKnot)
+                   }
+                   di = matrix(0,nrow=np,ncol=nKnots)
+                   for(i in 1:dim){
+                      xx1 = matrix(rep(s[,i],nKnots),ncol=nKnots)
+                      xx2 = matrix(rep(sKnot[,i],np),ncol=np)
+                      dx = xx1 - t(xx2)
+                      di = di+dx^2
+                   }
+                   di12 = sqrt(di)
+
+                   di = matrix(0,nrow=nKnots,ncol=nKnots)
+                   for(i in 1:dim){
+                      xx = matrix(rep(sKnot[,i],nKnots),ncol=nKnots)
+                      dx = xx - t(xx)
+                      di = di+dx^2
+                   }
+                   di22 = sqrt(di)
+
+                   idDg = matrix(NA,nrow=np,ncol=alphaN)
+                   idDW12g = array(NA, c(np,nKnots,alphaN))
+                   Fg = array(NA, c(nKnots,nKnots,alphaN))
+                   iFg = array(NA, c(nKnots,nKnots,alphaN))
+                   detDg = rep(NA,alphaN)
+
+                   for(ag in 1:alphaN){
+                      alpha = alphapw[ag,1]
+                      if(alpha==0){
+                         W22 = diag(nKnots)
+                         W12 = matrix(0,nrow=np,ncol=nKnots)
+                      } else{
+                         W22 = exp(-di22/alpha)
+                         W12 = exp(-di12/alpha)
+                      }
+                      #iW22 = chol(W22) #Upper triangle
+                      #iW22 = iW22 + t(iW22)-diag(nKnots)*diag(iW22) #Populating lower triangle
+                      #iW22 = solve(iW22,diag(nKnots)) #Inverse
+                      iW22 = chol2inv(W22)  #Seems ok, but check
+                      D = W12%*%iW22%*%t(W12)
+                      dD = 1 - diag(D)
+
+                      liW22 = t(chol(iW22))
+                      idD = 1/dD
+
+                      tmp0 = matrix(rep(idD,nKnots),ncol=nKnots)
+                      idDW12 = tmp0*W12
+                      FMat = W22 + t(W12)%*%idDW12
+                      iF = chol(FMat)
+                      iF = iF + t(iF)-diag(nKnots)*diag(iF)
+                      iF = solve(iF,diag(nKnots))
+                      tmp2 = W12%*%liW22
+                      DS = t(tmp2)%*%(tmp0*tmp2) + diag(nKnots)
+                      LDS = t(chol(DS))
+                      detD = sum(log(dD)) + 2*sum(log(diag(LDS)))
+                      idDg[,ag] = idD
+                      idDW12g[,,ag] = idDW12
+                      Fg[,,ag] = FMat
+                      iFg[,,ag] = iF
+                      detDg[ag] = detD
+                   }
+                   rLPar[[r]] = list(idDg=idDg, idDW12g=idDW12g, Fg=Fg, iFg=iFg, detDg=detDg)
                 }
                 )
       }

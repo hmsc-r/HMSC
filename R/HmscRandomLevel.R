@@ -12,6 +12,8 @@
 #' @param units a vector, specifying the names of the units of a non-structured level
 #' @param N number of unique units on this level
 #' @param nNeighbours a scalar specifying the number of neighbours to be used in case the spatial method is set to \code{NNGP}. Only positive values smaller than the total number of plots are allowed.
+#' @param sKnot a dataframe containing the knot locations to be used for the gaussian predictive process if sMethod is set to \code{GPP}
+#' @param nKnots number of knots to be used for the gaussian predictive proces if sMethod is set to \code{GPP}.
 #'
 #' @return a \code{HmscRandomLevel}-class object that can be used for \code{Hmsc}-class object construction
 #'
@@ -30,7 +32,7 @@
 #'
 #' @export
 
-HmscRandomLevel = function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NULL, units=NULL, N=NULL, nNeighbours=NULL){
+HmscRandomLevel = function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NULL, units=NULL, N=NULL, nNeighbours=NULL, sKnot=NULL, nKnots=NULL){
    rL = structure(list(pi=NULL, s=NULL, sDim=NULL, spatialMethod=NULL, x=NULL, xDim=NULL, N=NULL, distMat=NULL, #
       nfMax=NULL, nfMin=NULL, nNeighbours=NULL, nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, alphapw=NULL), class="HmscRandomLevel")
    if(nargs()==0)
@@ -45,6 +47,8 @@ HmscRandomLevel = function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NUL
       rL$sDim = ncol(sData)
       rL$spatialMethod = sMethod
       rL$nNeighbours = nNeighbours
+      rL$knotNumber = nKnots
+      rL$sKnot = sKnot
    } else
       rL$sDim = 0
    if(!is.null(distMat)){
