@@ -1,5 +1,5 @@
 #' @importFrom stats rnorm
-#' @importFrom Matrix bdiag Diagonal sparseMatrix
+#' @importFrom Matrix bdiag Diagonal sparseMatrix t
 #'
 updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
    ny = nrow(Z)
@@ -156,11 +156,11 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                    Fmat = matrix(0,nrow=(nK*nf),ncol=(nK*nf))
                    idD1W12 = matrix(0,nrow=(np[r]*nf),ncol=(nK*nf))
                    for(h in 1:nf){
-                      Fmat[(h-1)*nK+(1:nK), (h-1)*nK+(1:nk)] = Fg[,,alpha[h]]
-                      idD1W12[(h-1)*np[r]+(1:np[r]), (h-1)*np[r]+(1:np[r])] = idD1W12[,,alpha[h]]
+                      Fmat[(h-1)*nK+(1:nK), (h-1)*nK+(1:nK)] = Fg[,,alpha[h]]
+                      idD1W12[(h-1)*np[r]+(1:np[r]), (h-1)*nK+(1:nK)] = idDW12g[,,alpha[h]]
                    }
-                   tmp = iSigma%*%t(lambda)
-                   fS = S*tmp
+                   tmp = diag(iSigma)%*%t(lambda)
+                   fS = S%*%tmp
                    fS = matrix(fS,ncol=1)
                    LamSigLamT = lambda%*%tmp
 
@@ -179,23 +179,23 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                    tmp1 = t(matrix((1:2-1),nrow=nf,ncol=(ny*nf))) * ny
                    ind2 = rep(1:ny,nf^2) + t(matrix(tmp1,nrow=1))
                    iA = Matrix(0,nrow=nf*ny, ncol=nf*ny,sparse=TRUE)
-                   iA[ind1,ind2] = as.vector(B1)
+                   iA[t(matrix(rbind(ind1,as.vector(ind2)),nrow=2))] = as.vector(B1)
                    LB1 = array(NA,c(nf,nf,ny))
                    for(i in 1:ny){
                       LB1[,,i] = chol(B1[,,i])
                    }
                    LiA = Matrix(0,nrow=nf*ny, ncol=nf*ny,sparse=TRUE)
-                   LiA[ind1,ind2] = as.vector(LB1)
+                   LiA[t(matrix(rbind(ind1,as.vector(ind2)),nrow=2))] = as.vector(LB1)
                    iAidD1W12 = iA %*% idD1W12
                    H = Fmat - t(idD1W12)%*%iAidD1W12
                    RH = chol(H)
-                   lRH = solve(RH)
+                   iRH = solve(RH)
 
                    mu1 = iA%*%fS
                    tmp1 = iAidD1W12 %*% iRH
-                   mu2 = tmp1%*%(t(tmp1)%*%fS)
+                   mu2 = tmp1%*%(Matrix::t(tmp1)%*%fS)
 
-                   etaR = LiA*rnorm(np[r]*nf[r])+tmp1%*%rnorm(nK*nf)
+                   etaR = LiA%*%rnorm(np[r]*nf[r])+tmp1%*%rnorm(nK*nf)
                    eta1 = matrix(mu1+mu2+etaR,ncol=nf,nrow=np[r])
                 }
                 )

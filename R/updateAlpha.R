@@ -25,24 +25,24 @@ updateAlpha = function(Eta ,rL, rLPar){
                 },
                 'NNGP' = {
                    tmpMat = matrix(NA,nrow=gN,ncol=nf)
-                   for(g in 1:gN){ # this cycle should be replaced with tensor operation
+                   for(g in 1:gN){
                       tmp1 = RiWg[[g]]%*%eta
                       tmpMat[g,] = Matrix::colSums(tmp1^2)
                    }
                 },
                 'GPP' = {
-                   nK = rL$knotNumber
                    iFg = rLPar[[r]]$iFg
+                   nK = nrow(iFg)
                    idDW12g = rLPar[[r]]$idDW12g
-                   idDg = rLPar[[r]]$idDgA
+                   idDg = rLPar[[r]]$idDg
                    detDg = rLPar[[r]]$detDg
-                   tmpMat1 = array(NA,c(nf,nK,gN))
-                   tmpMat2 = array(NA,c(nK,nK,gN))
-                   tmpMat3 = array(NA,c(nf,nK,gN))
+                   tmpMat2 = array(NA,dim=c(nf,nK,gN))
+                   tmpMat3 = array(NA,dim=c(nK,nK,gN))
+                   tmpMat4 = array(NA,dim=c(nf,nK,gN))
                    for(g in 1:gN){
-                      tmpMat2[,,i] = t(eta)%*%idDW12g[,,i]
-                      tmpMat3[,,i] = tmpMat2[,,i]%*%idDW12g[,,i]
-                      tmpMat4[,,i] = tmpMat3[,,i]%*%t(tmpMat2[,,i])
+                      tmpMat2[,,g] = t(eta)%*%idDW12g[,,g]
+                      tmpMat3[,,g] = tmpMat2[,,g]%*%iFg[,,g]
+                      tmpMat4[,,g] = tmpMat3[,,g]%*%t(tmpMat2[,,g])
                    }
                 }
          )
@@ -62,14 +62,14 @@ updateAlpha = function(Eta ,rL, rLPar){
                    'GPP' = {
                       tmp = rep(NA,gN)
                       for(ag in 1:gN){
-                         if(alphapw(gN,1) == 0){
-                            tmp(ag) = t(eta[,h])%*%eta[,h]
+                         if(alphapw[gN,1] == 0){
+                            tmp[ag] = t(eta[,h])%*%eta[,h]
                          } else {
                             tmp1 = t(eta[,h])%*%(idDg[,ag]*eta[,h])
                             tmp[ag] = tmp1 - tmpMat4[h,h,ag]
                          }
                       }
-                      like = log(alphapw[,2]) - 0.5*detDg - 0.5*v
+                      like = log(alphapw[,2]) - 0.5*detDg - 0.5*tmp
                    }
             )
             like = exp(like - max(like))
