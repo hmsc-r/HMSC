@@ -135,7 +135,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
       plot.new()
       axis(1,at = seq((START+ADJx), (END-ADJx), by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)), labels = F)
       text(x=seq((START+ADJx), (END-ADJx), by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)), par("usr")[3] - 0.05, srt = 90, adj = 1,cex=cex[1],
-         labels = covLabels[covorder], xpd = TRUE)
+         labels = covNames[covorder], xpd = TRUE)
       names=gsub("_"," ",spNames[order])
       text(y = seq(ADJy, 1-ADJy, length.out=nrow(X)),par("usr")[3] - 0.05, srt = 0, adj = 1,cex=cex[2],
          labels = as.expression(lapply(names, function(names) bquote(italic(.(names))))), xpd = TRUE)
