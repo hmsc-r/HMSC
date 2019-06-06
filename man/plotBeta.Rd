@@ -8,12 +8,13 @@ plotBeta(hM, post, param = "Support", plotTree = F,
   SpeciesOrder = "Original", SpVector = NULL, covOrder = "Original",
   covVector = NULL, spNamesNumbers = c(T, T), covNamesNumbers = c(T,
   T), supportLevel = 0.9, split = 0.3, cex = c(0.7, 0.7, 0.8),
-  colors = colorRampPalette(c("blue", "white", "red")))
+  colors = colorRampPalette(c("blue", "white", "red")),
+  colorLevels = 200, smallplot = NULL, bigplot = NULL)
 }
 \arguments{
 \item{post}{Posterior summary of Beta parameters obtained from \code{\link{getPostEstimate}}}
 
-\item{param}{Controls which parameter is plotted, current options include "Mean" for posterior mean estimate and "Support" for the level of statistical support measured by posterior probability for a positive or negative response}
+\item{param}{Controls which parameter is plotted, current options include "Mean" for posterior mean estimate, "Support" for the level of statistical support measured by posterior probability for a positive or negative response, and "Sign" to indicate whether the response is positive, negative, or neither of these given the chosen \code{supportLevel}}
 
 \item{plotTree}{Logical. Whether species' environmental responses is to be mapped onto the phylogeny used in model fitting}
 
