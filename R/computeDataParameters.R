@@ -176,10 +176,7 @@ computeDataParameters = function(hM){
                          W22 = exp(-di22/alpha)
                          W12 = exp(-di12/alpha)
                       }
-                      #iW22 = chol(W22) #Upper triangle
-                      #iW22 = iW22 + t(iW22)-diag(nKnots)*diag(iW22) #Populating lower triangle
-                      #iW22 = solve(iW22,diag(nKnots)) #Inverse
-                      iW22 = chol2inv(W22)  #Seems ok, but check
+                      iW22 = solve(W22)  #May be slow, use cholesky decomp to calculate inverse?
                       D = W12%*%iW22%*%t(W12)
                       dD = 1 - diag(D)
 
@@ -189,9 +186,7 @@ computeDataParameters = function(hM){
                       tmp0 = matrix(rep(idD,nKnots),ncol=nKnots)
                       idDW12 = tmp0*W12
                       FMat = W22 + t(W12)%*%idDW12
-                      iF = chol(FMat)
-                      iF = iF + t(iF)-diag(nKnots)*diag(iF)
-                      iF = solve(iF,diag(nKnots))
+                      iF = solve(FMat)
                       tmp2 = W12%*%liW22
                       DS = t(tmp2)%*%(tmp0*tmp2) + diag(nKnots)
                       LDS = t(chol(DS))

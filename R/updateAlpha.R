@@ -37,12 +37,12 @@ updateAlpha = function(Eta ,rL, rLPar){
                    idDg = rLPar[[r]]$idDg
                    detDg = rLPar[[r]]$detDg
                    tmpMat2 = array(NA,dim=c(nf,nK,gN))
-                   tmpMat3 = array(NA,dim=c(nK,nK,gN))
-                   tmpMat4 = array(NA,dim=c(nf,nK,gN))
+                   tmpMat3 = array(NA,dim=c(nf,nK,gN))
+                   tmpMat4 = array(NA,dim=c(nf,nf,gN))
                    for(g in 1:gN){
                       tmpMat2[,,g] = t(eta)%*%idDW12g[,,g]
                       tmpMat3[,,g] = tmpMat2[,,g]%*%iFg[,,g]
-                      tmpMat4[,,g] = tmpMat3[,,g]%*%t(tmpMat2[,,g])
+                      tmpMat4[,,g] = matrix(tmpMat3[,,g],ncol=nK,nrow=nf)%*%t(matrix(tmpMat2[,,g],,ncol=nK,nrow=nf)) #This extra matrix wrap is neccessary in case there is only one LV
                    }
                 }
          )
@@ -62,7 +62,7 @@ updateAlpha = function(Eta ,rL, rLPar){
                    'GPP' = {
                       tmp = rep(NA,gN)
                       for(ag in 1:gN){
-                         if(alphapw[gN,1] == 0){
+                         if(alphapw[ag,1] == 0){
                             tmp[ag] = t(eta[,h])%*%eta[,h]
                          } else {
                             tmp1 = t(eta[,h])%*%(idDg[,ag]*eta[,h])
