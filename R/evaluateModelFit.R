@@ -40,7 +40,7 @@
 #' @importFrom stats cor median
 #' @importFrom pROC auc
 #' @importFrom abind abind
-#' 
+#'
 #' @export
 
 evaluateModelFit = function(hM, predY){
@@ -79,7 +79,9 @@ evaluateModelFit = function(hM, predY){
       R2 = rep(NA,ns)
       for (i in 1:ns){
          sel = !is.na(Y[,i])
-         R2[i] = mean(predY[Y[sel,i]==1,i]) - mean(predY[Y[sel,i]==0,i])
+         Y1 = Y[sel,]
+         predY1 = predY[sel,]
+         R2[i] = mean(predY1[Y1[,i]==1,i]) - mean(predY1[Y1[,i]==0,i])
       }
       return(R2)
    }
