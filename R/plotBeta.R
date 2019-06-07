@@ -34,7 +34,8 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
   SpeciesOrder = "Original", SpVector = NULL, covOrder="Original",
   covVector=NULL, spNamesNumbers = c(T,T), covNamesNumbers = c(T,T),
   supportLevel = 0.9, split = 0.3, cex = c(0.7,0.7,0.8),
-  colors = colorRampPalette(c("blue","white","red")),colorLevels = 200,
+  colors = colorRampPalette(c("blue","white","red")),evels = 200,
+  mar=c(6,6,2,0),
   smallplot=NULL, bigplot=NULL){
 
    if(plotTree){
@@ -95,7 +96,8 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
          toPlot = 2*betaP-1
          toPlot = toPlot * ((betaP>supportLevel) + (betaP<(1-supportLevel))>0)
          betaMat = matrix(toPlot, nrow=hM$nc, ncol=ncol(hM$Y))
-      }}
+      }
+   }
 
    rownames(betaMat) = covNames
    if(plotTree){colnames(betaMat) = gsub(" ", "_", hM$spNames)}
@@ -108,12 +110,12 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
 
    #With tree
    if(plotTree){
-      par(fig = c(0,split[1],0,1), mar=c(6,0,2,0))
+      par(fig = c(0,split[1],0,1), mar=mar)
       if(sum(!spNamesNumbers)==2){plot(tree,show.tip.label=F)}
       else{tree$tip.label[match(gsub(" ", "_", hM$spNames),tree$tip.label)]=spNames
       plot(tree, show.tip.label=T,adj=1,align.tip.label=T,cex=cex[2])}
 
-      par(fig = c(split[1],1,0,1),  mar=c(6,0,2,0), new=T)
+      par(fig = c(split[1],1,0,1),  mar=mar, new=T)
       START = .05
       END = .7
       ADJy=0
@@ -131,7 +133,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
       ADJy=1/(nrow(X)*4)
       ADJx=1/(ncol(X)*4)
 
-      par(fig = c(0,1,0,1),  mar=c(6,10,2,0))
+      par(fig = c(0,1,0,1),  mar=mar)
       plot.new()
       axis(1,at = seq((START+ADJx), (END-ADJx), by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)), labels = F)
       text(x=seq((START+ADJx), (END-ADJx), by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)), par("usr")[3] - 0.05, srt = 90, adj = 1,cex=cex[1],
@@ -151,16 +153,15 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
 
    image.plot(x = seq(START+ADJx, END-ADJx, by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)),
       y = seq(ADJy, 1-ADJy, length.out=nrow(X)),
-      z = t(X), add = TRUE, nlevel = colorLevels, box=T,
+      z = t(X), add = TRUE, nlevel = evels, box=T,
       legend.width = 2, legend.mar = NULL,
       legend.cex=cex,
       axis.args=if(param=="Sign")
          {list(labels=c("+","0","-"),at=c(1,0,-1),cex.axis=cex[3],mgp=c(3,2,0),hadj=1)
          } else {
-            list(cex.axis=cex[3],mgp=c(3,2,0),hadj=1)
-         },
-      graphics.reset = TRUE, horizontal = FALSE, bigplot = bigplot, smallplot = smallplot,
-      legend.only = FALSE, col = colors,
-       lab.breaks=NULL, zlim = zlim)
+           list(cex.axis=cex[3],mgp=c(3,2,0),hadj=1)
+        },
+       graphics.reset = TRUE, horizontal = FALSE, bigplot = bigplot, smallplot = smallplot,
+      legend.only = FALSE, col = colors,zlim = zlim)
    par(old.par)
 }

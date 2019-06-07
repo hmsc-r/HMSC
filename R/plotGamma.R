@@ -30,6 +30,7 @@ plotGamma=function(hM, post, param = "Gamma", trOrder="Original",
   trVector= NULL, covOrder="Original",covVector=NULL, trNamesNumbers=c(T,T),
   covNamesNumbers=c(T,T),supportLevel=.9,cex=c(.8,.8,.8),
   colors=colorRampPalette(c("blue","white","red")),colorLevels = 200,
+  mar=c(6,9,2,0),
   smallplot=NULL, bigplot=NULL){
 
   switch(class(hM$X),
@@ -106,7 +107,7 @@ plotGamma=function(hM, post, param = "Gamma", trOrder="Original",
    ADJy=1/(ncol(X)*2)
    ADJx=1/(nrow(X)*4)
 
-   par(fig = c(0,1,0,1),  mar = c(6,9,2,0))
+   par(fig = c(0,1,0,1),  mar = mar)
    plot.new()
    axis(1,at = seq(START+ADJx, END-ADJx, by = ((END-ADJx) - (START+ADJx))/(nrow(X) - 1)), labels = F)
    axis(2,at = seq(ADJy, 1-ADJy, length.out=ncol(X)), labels = F)
