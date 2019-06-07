@@ -34,7 +34,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
   SpeciesOrder = "Original", SpVector = NULL, covOrder="Original",
   covVector=NULL, spNamesNumbers = c(T,T), covNamesNumbers = c(T,T),
   supportLevel = 0.9, split = 0.3, cex = c(0.7,0.7,0.8),
-  colors = colorRampPalette(c("blue","white","red")),evels = 200,
+  colors = colorRampPalette(c("blue","white","red")),colorLevels = 200,
   mar=c(6,6,2,0),
   smallplot=NULL, bigplot=NULL){
 
