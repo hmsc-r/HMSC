@@ -5,7 +5,8 @@
 \title{Create single level of random factors in HMSC}
 \usage{
 HmscRandomLevel(sData = NULL, sMethod = "Full", distMat = NULL,
-  xData = NULL, units = NULL, N = NULL, nNeighbours = NULL)
+  xData = NULL, units = NULL, N = NULL, nNeighbours = NULL,
+  sKnot = NULL, knotDist = NULL, minKnotDist = NULL)
 }
 \arguments{
 \item{sData}{a dataframe containing spatial or temporal coordinates of units of the random level}
@@ -22,6 +23,12 @@ associations}
 \item{N}{number of unique units on this level}
 
 \item{nNeighbours}{a scalar specifying the number of neighbours to be used in case the spatial method is set to \code{NNGP}. Only positive values smaller than the total number of plots are allowed.}
+
+\item{sKnot}{a dataframe containing the knot locations to be used for the gaussian predictive process if sMethod is set to \code{GPP}}
+
+\item{knotDist}{distance between knots used in gaussian predictive proces if sMethod is set to \code{GPP}.}
+
+\item{minKnotDist}{minimum distance of knot to neareast point in sData}
 }
 \value{
 a \code{HmscRandomLevel}-class object that can be used for \code{Hmsc}-class object construction
@@ -32,7 +39,7 @@ Specifies the structure for a single level of random factors, including whether 
 }
 \details{
 Only one of \code{sData}, \code{distMat}, \code{xData}, \code{units} and \code{N} arguments shall be
-  provided (implmentation for \code{sData} and \code{xData} is coming later). Implementation for \code{GPP} is coming later
+  provided (implmentation for \code{sData} and \code{xData} is coming later).
 
   As a good practice we recommend to specify all available units for a random level, even if some of those are not
   used for training the model.

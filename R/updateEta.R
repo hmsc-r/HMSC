@@ -1,5 +1,5 @@
 #' @importFrom stats rnorm
-#' @importFrom Matrix bdiag Diagonal sparseMatrix t
+#' @importFrom Matrix bdiag Diagonal sparseMatrix t Matrix
 #'
 updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
    ny = nrow(Z)

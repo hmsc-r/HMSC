@@ -13,12 +13,12 @@
 #' @param N number of unique units on this level
 #' @param nNeighbours a scalar specifying the number of neighbours to be used in case the spatial method is set to \code{NNGP}. Only positive values smaller than the total number of plots are allowed.
 #' @param sKnot a dataframe containing the knot locations to be used for the gaussian predictive process if sMethod is set to \code{GPP}
-#' @param nKnots number of knots to be used for the gaussian predictive proces if sMethod is set to \code{GPP}.
-#'
+#' @param knotDist distance between knots used in gaussian predictive proces if sMethod is set to \code{GPP}.
+#' @param minKnotDist minimum distance of knot to neareast point in sData
 #' @return a \code{HmscRandomLevel}-class object that can be used for \code{Hmsc}-class object construction
 #'
 #' @details Only one of \code{sData}, \code{distMat}, \code{xData}, \code{units} and \code{N} arguments shall be
-#'   provided (implmentation for \code{sData} and \code{xData} is coming later). Implementation for \code{GPP} is coming later
+#'   provided (implmentation for \code{sData} and \code{xData} is coming later).
 #'
 #'   As a good practice we recommend to specify all available units for a random level, even if some of those are not
 #'   used for training the model.
@@ -32,7 +32,7 @@
 #'
 #' @export
 
-HmscRandomLevel = function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NULL, units=NULL, N=NULL, nNeighbours=NULL, sKnot=NULL, nKnots=NULL){
+HmscRandomLevel = function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NULL, units=NULL, N=NULL, nNeighbours=NULL, sKnot=NULL, knotDist=NULL, minKnotDist = NULL){
    rL = structure(list(pi=NULL, s=NULL, sDim=NULL, spatialMethod=NULL, x=NULL, xDim=NULL, N=NULL, distMat=NULL, #
       nfMax=NULL, nfMin=NULL, nNeighbours=NULL, nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, alphapw=NULL), class="HmscRandomLevel")
    if(nargs()==0)
@@ -47,7 +47,8 @@ HmscRandomLevel = function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NUL
       rL$sDim = ncol(sData)
       rL$spatialMethod = sMethod
       rL$nNeighbours = nNeighbours
-      rL$knotNumber = nKnots
+      rL$knotDist = knotDist
+      rL$minKnotDist = minKnotDist
       rL$sKnot = sKnot
    } else
       rL$sDim = 0
