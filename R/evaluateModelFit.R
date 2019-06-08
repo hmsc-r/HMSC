@@ -74,14 +74,11 @@ evaluateModelFit = function(hM, predY){
       return(AUC)
    }
 
-   computeTjurR2 = function(Y, predY){
+   computeTjurR2 = function(Y, predY) {
       ns = dim(Y)[2]
-      R2 = rep(NA,ns)
-      for (i in 1:ns){
-         sel = !is.na(Y[,i])
-         Y1 = Y[sel,]
-         predY1 = predY[sel,]
-         R2[i] = mean(predY1[Y1[,i]==1,i]) - mean(predY1[Y1[,i]==0,i])
+      R2 = rep(NA, ns)
+      for (i in 1:ns) {
+         R2[i] = mean(predY[which(Y[, i] == 1), i]) - mean(predY[which(Y[,i] == 0), i])
       }
       return(R2)
    }
