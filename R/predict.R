@@ -22,7 +22,7 @@
 #' @examples
 #'
 #' @importFrom stats model.matrix rnorm pnorm rpois
-#' 
+#'
 #' @export
 
 predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL, XRRRData=NULL, XRRR=NULL, # this has to be updated to cov-dependent associations
@@ -150,10 +150,12 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
 
       if(!is.null(Yc) && any(!is.na(Yc))){
          Z = L
-         Z = updateZ(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda, X=X,Pi=PiNew,dfPi=dfPiNew,distr=hM$distr,rL=rL)
+         ZL = updateZ(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda, X=X,Pi=PiNew,dfPi=dfPiNew,distr=hM$distr,rL=rL)
+         Z = ZL$Z
          for(sN in seq_len(mcmcStep)){
             Eta = updateEta(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda,Alpha=sam$Alpha, rLPar=hM$rLPar, X=X,Pi=PiNew,dfPi=dfPiNew,rL=rL)
-            Z = updateZ(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda, X=X,Pi=PiNew,dfPi=dfPiNew,distr=hM$distr,rL=rL)
+            ZL = updateZ(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda, X=X,Pi=PiNew,dfPi=dfPiNew,distr=hM$distr,rL=rL)
+            Z = ZL$Z
          }
          for(r in seq_len(hM$nr)){
             if(rL[[r]]$xDim == 0){

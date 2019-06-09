@@ -9,12 +9,12 @@
 #'
 #' @importFrom stats cov2cor
 #' @importFrom abind abind
-#' 
+#'
 #' @export
 
-computeAssociations = function(hM, start=1){
+computeAssociations = function(hM, start=1, thin=1){
    OmegaCor = vector("list", hM$nr)
-   postList=poolMcmcChains(hM$postList, start = start)
+   postList=poolMcmcChains(hM$postList, start = start, thin = thin)
    getOmegaCor = function(a,r=r)
       return(cov2cor(crossprod(a$Lambda[[r]])))
    for (r in seq_len(hM$nr)){

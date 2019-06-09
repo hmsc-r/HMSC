@@ -4,7 +4,8 @@
 \alias{biPlot}
 \title{biPlot}
 \usage{
-biPlot(hM, etaPost, lambdaPost, factors = c(1, 2), colVar = NULL, ...)
+biPlot(hM, etaPost, lambdaPost, factors = c(1, 2), col = NULL,
+  spNames = hM$spNames, ...)
 }
 \arguments{
 \item{etaPost}{Posterior distribution of site loadings Eta}

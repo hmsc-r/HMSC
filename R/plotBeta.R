@@ -2,7 +2,7 @@
 #'
 #' @description Plots heatmaps of parameter estimates or posterior support values of species' environmental responses, i.e. how species in \code{Y} responds to covariates in \code{X}
 #' @param post Posterior summary of Beta parameters obtained from \code{\link{getPostEstimate}}
-#' @param param Controls which parameter is plotted, current options include "Mean" for posterior mean estimate and "Support" for the level of statistical support measured by posterior probability for a positive or negative response
+#' @param param Controls which parameter is plotted, current options include "Mean" for posterior mean estimate, "Support" for the level of statistical support measured by posterior probability for a positive or negative response, and "Sign" to indicate whether the response is positive, negative, or neither of these given the chosen \code{supportLevel}
 #' @param plotTree Logical. Whether species' environmental responses is to be mapped onto the phylogeny used in model fitting
 #' @param SpeciesOrder Controls the ordering of species, current options are "Original", "Tree", and "Vector". If SpeciesOrder = "Vector", an ordering vector must be provided (see SpVector). If plotTree = T, SpeciesOrder is ignored
 #' @param SpVector Controls the ordering of species if SpeciesOrder = "Vector". If a subset of species are listed, only those will be plotted. For alphabetic ordering, try \code{match(1:hM$ns, as.numeric(as.factor(colnames(hM$Y))))}
@@ -33,7 +33,10 @@
 plotBeta = function(hM, post, param = "Support", plotTree = F,
   SpeciesOrder = "Original", SpVector = NULL, covOrder="Original",
   covVector=NULL, spNamesNumbers = c(T,T), covNamesNumbers = c(T,T),
-  supportLevel = 0.9, split = 0.3, cex = c(0.7,0.7,0.8), colors = colorRampPalette(c("blue","white","red"))){
+  supportLevel = 0.9, split = 0.3, cex = c(0.7,0.7,0.8),
+  colors = colorRampPalette(c("blue","white","red")),colorLevels = 200,
+  mar=c(6,6,2,0),
+  smallplot=NULL, bigplot=NULL){
 
    if(plotTree){
       tree = keep.tip(hM$phyloTree,hM$spNames)
@@ -78,6 +81,11 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
    mbeta=post$mean
    betaP=post$support
 
+   if(param=="Sign"){
+      toPlot = sign(mbeta)
+      toPlot = toPlot * ((betaP>supportLevel) + (betaP<(1-supportLevel))>0)
+      betaMat = matrix(toPlot, nrow=hM$nc, ncol=ncol(hM$Y))
+   }
    if(param=="Mean"){
       toPlot = mbeta
       toPlot = toPlot * ((betaP>supportLevel) + (betaP<(1-supportLevel))>0)
@@ -88,7 +96,8 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
          toPlot = 2*betaP-1
          toPlot = toPlot * ((betaP>supportLevel) + (betaP<(1-supportLevel))>0)
          betaMat = matrix(toPlot, nrow=hM$nc, ncol=ncol(hM$Y))
-      }}
+      }
+   }
 
    rownames(betaMat) = covNames
    if(plotTree){colnames(betaMat) = gsub(" ", "_", hM$spNames)}
@@ -97,16 +106,16 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
    X = t(betaMat[covorder,order])
 
    old.par = par(no.readonly = TRUE)
-   colors =colors(200)
+   colors =colors(colorLevels)
 
    #With tree
    if(plotTree){
-      par(fig = c(0,split[1],0,1), mar=c(6,0,2,0))
+      par(fig = c(0,split[1],0,1), mar=mar)
       if(sum(!spNamesNumbers)==2){plot(tree,show.tip.label=F)}
       else{tree$tip.label[match(gsub(" ", "_", hM$spNames),tree$tip.label)]=spNames
       plot(tree, show.tip.label=T,adj=1,align.tip.label=T,cex=cex[2])}
 
-      par(fig = c(split[1],1,0,1),  mar=c(6,0,2,0), new=T)
+      par(fig = c(split[1],1,0,1),  mar=mar, new=T)
       START = .05
       END = .7
       ADJy=0
@@ -124,7 +133,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
       ADJy=1/(nrow(X)*4)
       ADJx=1/(ncol(X)*4)
 
-      par(fig = c(0,1,0,1),  mar=c(6,10,2,0))
+      par(fig = c(0,1,0,1),  mar=mar)
       plot.new()
       axis(1,at = seq((START+ADJx), (END-ADJx), by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)), labels = F)
       text(x=seq((START+ADJx), (END-ADJx), by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)), par("usr")[3] - 0.05, srt = 90, adj = 1,cex=cex[1],
@@ -144,11 +153,15 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
 
    image.plot(x = seq(START+ADJx, END-ADJx, by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)),
       y = seq(ADJy, 1-ADJy, length.out=nrow(X)),
-      z = t(X), add = TRUE, nlevel = 200, box=T,
+      z = t(X), add = TRUE, nlevel = evels, box=T,
       legend.width = 2, legend.mar = NULL,
-      legend.cex=cex, axis.args=list(cex.axis=cex[3],mgp=c(3,2,0),hadj=1),
-      graphics.reset = TRUE, horizontal = FALSE, bigplot = NULL,
-      smallplot = NULL, legend.only = FALSE, col = colors,
-      lab.breaks=NULL, zlim = zlim)
+      legend.cex=cex,
+      axis.args=if(param=="Sign")
+         {list(labels=c("+","0","-"),at=c(1,0,-1),cex.axis=cex[3],mgp=c(3,2,0),hadj=1)
+         } else {
+           list(cex.axis=cex[3],mgp=c(3,2,0),hadj=1)
+        },
+       graphics.reset = TRUE, horizontal = FALSE, bigplot = bigplot, smallplot = smallplot,
+      legend.only = FALSE, col = colors,zlim = zlim)
    par(old.par)
 }
