@@ -1,12 +1,10 @@
-# LOAD PACKAGES (BEGINNING) ######################################################################
 library(devtools)
 #install Rtools to be able to install BayesLogit unless you have it already
 #install_url('https://cran.r-project.org/src/contrib/Archive/BayesLogit/BayesLogit_0.6.tar.gz')
 library(BayesLogit)
 library(withr)
 library(knitr)
-#with_libpaths(new="C:/Program Files/R/R-3.5.0/library",
-#              install_github("hmsc-r/HMSC", build_opts = c("--no-resave-data", "--no-manual")))
+#install_github("hmsc-r/HMSC", build_opts = c("--no-resave-data", "--no-manual")))
 library(Hmsc)
 library(stats)
 library(abind)
@@ -20,7 +18,5 @@ library(fields)
 library(MASS)
 library(MCMCpack)
 #install_github("kassambara/easyGgplot2")
-#with_libpaths(new="C:/Program Files/R/R-3.5.0/library",install_github("kassambara/easyGgplot2"))
 library(easyGgplot2)
 library(pROC)
-# LOAD PACKAGES (END) ############################################################################
