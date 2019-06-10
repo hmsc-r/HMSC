@@ -29,10 +29,16 @@
 plotGamma=function(hM, post, param = "Gamma", trOrder="Original",
   trVector= NULL, covOrder="Original",covVector=NULL, trNamesNumbers=c(T,T),
   covNamesNumbers=c(T,T),supportLevel=.9,cex=c(.8,.8,.8),
-  colors=colorRampPalette(c("blue","white","red")),colorLevels = 200,
+  colors=colorRampPalette(c("blue","white","red")),colorLevels = NULL,
   mar=c(6,9,2,0),
   smallplot=NULL, bigplot=NULL){
 
+   if(is.null(colorLevels)){
+      if(param=="Sign"){
+         colorLevels=3} else {
+            colorLevels=200
+         }
+   }
   switch(class(hM$X),
          matrix = {
            ncolsX = ncol(hM$X)
@@ -79,7 +85,7 @@ plotGamma=function(hM, post, param = "Gamma", trOrder="Original",
    gammaP=post$support
 
    if(param=="Sign"){
-      toPlot = mgamma
+      toPlot = sign(mgamma)
       toPlot = toPlot * ((gammaP>supportLevel) + (gammaP<(1-supportLevel))>0)
       gammaMat = matrix(toPlot, nrow=ncolsX, ncol=ncol(hM$Tr))
    }

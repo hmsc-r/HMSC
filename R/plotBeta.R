@@ -34,9 +34,23 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
   SpeciesOrder = "Original", SpVector = NULL, covOrder="Original",
   covVector=NULL, spNamesNumbers = c(T,T), covNamesNumbers = c(T,T),
   supportLevel = 0.9, split = 0.3, cex = c(0.7,0.7,0.8),
-  colors = colorRampPalette(c("blue","white","red")),colorLevels = 200,
-  mar=c(6,6,2,0),
+  colors = colorRampPalette(c("blue","white","red")),colorLevels = NULL,
+  mar=NULL,marTree=c(6,0,2,0),
   smallplot=NULL, bigplot=NULL){
+
+   if(is.null(colorLevels)){
+      if(param=="Sign"){
+         colorLevels=3} else {
+            colorLevels=200
+         }
+   }
+   if(is.null(mar)){
+      if(sum(spNamesNumbers)>0){
+         mar=c(6,6,2,0)
+      } else {
+         mar=c(6,0,2,0)
+      }
+   }
 
    if(plotTree){
       tree = keep.tip(hM$phyloTree,hM$spNames)
@@ -110,7 +124,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
 
    #With tree
    if(plotTree){
-      par(fig = c(0,split[1],0,1), mar=mar)
+      par(fig = c(0,split[1],0,1), mar=marTree)
       if(sum(!spNamesNumbers)==2){plot(tree,show.tip.label=F)}
       else{tree$tip.label[match(gsub(" ", "_", hM$spNames),tree$tip.label)]=spNames
       plot(tree, show.tip.label=T,adj=1,align.tip.label=T,cex=cex[2])}
@@ -153,7 +167,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
 
    image.plot(x = seq(START+ADJx, END-ADJx, by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)),
       y = seq(ADJy, 1-ADJy, length.out=nrow(X)),
-      z = t(X), add = TRUE, nlevel = evels, box=T,
+      z = t(X), add = TRUE, nlevel = colorLevels, box=T,
       legend.width = 2, legend.mar = NULL,
       legend.cex=cex,
       axis.args=if(param=="Sign")
