@@ -28,7 +28,7 @@
 #'
 #' @importFrom stats rnorm dist
 #' @importFrom pdist pdist
-#' @importFrom FNN get.knn
+#' @importFrom FNN knnx.index
 #'
 #' @export
 
