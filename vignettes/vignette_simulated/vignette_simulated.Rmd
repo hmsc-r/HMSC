@@ -1,7 +1,7 @@
 ---
 title:  |   
   | HMSC-R 3.0: Testing the performance of HMSC-R with simulated data
-author: "Gleb Tikhonov, Øystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen & Otso Ovaskainen"
+author: "Gleb Tikhonov, Oystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen & Otso Ovaskainen"
 date: "9 June 2019"
 output: pdf_document
 bibliography: endnote.xml
@@ -67,6 +67,7 @@ all.data$Tr.data[1:5,]
 c(var(as.vector(all.parameters$mu)), var(as.vector(all.parameters$LF)), 
   var(as.vector(all.parameters$LR)), var(as.vector(all.parameters$eps)), 
   var(as.vector(Y1)))
+dir.create(file.path(localDir, "data"), showWarnings=FALSE, recursive=TRUE)
 save(file=file.path(localDir, "data","Case1.R"), all.data, all.parameters)
 ```
 
@@ -155,20 +156,24 @@ We fitted each model with sampling parameters set to thin=10 and samples=1000, a
 The code below takes a long time to run. The .Rmd file can be run much more quickly by setting `test.run=TRUE`, but the results will not be reliable.
 
 For case 1, 4 and 5, we set up the model with gaussian errors, using `distr = "normal"`
-```{r Model fitting II, message=F, eval=F, cache=T}
-nChains = 2
+```{r Model fitting II, message=F, eval=T, cache=T}
 test.run = TRUE
 if (test.run){
    #with this option, the vignette evaluates in ca. ? minutes in a laptop
    thin = 1
    samples = 10
+   nChains = 2
+   nParallel = 1
 } else {
    #with this option, the vignette evaluates in ca. ? hrs in a laptop
    thin = 10
    samples = 1000
+   nChains = 4
+   nParallel = nChains
 }
 verbose = 0
 
+dir.create(file.path(localDir, "models"), showWarnings=FALSE, recursive=TRUE)
 for (case in c(1,4,5)){
   set.seed(1)
   load(file = file.path(localDir, "data", paste("Case",toString(case),".R", sep="")))
@@ -181,7 +186,7 @@ for (case in c(1,4,5)){
              "sampling.unit" = HmscRandomLevel(units = all.data$study.design[,1])))
   ptm = proc.time()
   m = sampleMcmc(m, samples=samples, thin=thin, transient = ceiling(0.5*samples*thin), 
-                 nChains = nChains, nParallel = 1, verbose=verbose)
+                 nChains = nChains, nParallel = nParallel, verbose=verbose)
   computational.time =  proc.time() - ptm
   save(file=file.path(localDir, "models", paste("Case",toString(case),".R", sep="")), 
        m, computational.time)
@@ -189,7 +194,7 @@ for (case in c(1,4,5)){
 ```
 
 For case 2, we set up the model with probit errors, using `distr = "probit"`
-```{r Model fitting III, message=F, eval=F, cache=T}
+```{r Model fitting III, message=F, eval=T, cache=T}
 set.seed(1)
 load(file=file.path(localDir, "data","Case2.R"))
 m = Hmsc(Y=all.data$Y,
@@ -201,13 +206,13 @@ m = Hmsc(Y=all.data$Y,
            "sampling.unit"=HmscRandomLevel(units = all.data$study.design[,1])))
 ptm = proc.time()
 m = sampleMcmc(m, samples=samples, thin=thin, transient = ceiling(0.5*samples*thin), 
-                 nChains = nChains, nParallel = 1, verbose=verbose)
+                 nChains = nChains, nParallel = nParallel, verbose=verbose)
 computational.time =  proc.time() - ptm
 save(file=file.path(localDir, "models","Case2.R"), m, computational.time)
 ```
 
 For case 3, we set up the model with lognormal Poisson errors, using `distr = "lognormal poisson"`
-```{r Model fitting IV, message=F, eval=F, cache=T}
+```{r Model fitting IV, message=F, eval=T, cache=T}
 set.seed(1)
 load(file=file.path(localDir, "data","Case3.R"))
 m = Hmsc(Y=all.data$Y,
@@ -219,7 +224,7 @@ m = Hmsc(Y=all.data$Y,
            "sampling.unit"=HmscRandomLevel(units = all.data$study.design[,1])))
 ptm = proc.time()
 m = sampleMcmc(m, samples=samples, thin=thin, transient = ceiling(0.5*samples*thin), 
-                 nChains = nChains, nParallel = 1, verbose=verbose)
+                 nChains = nChains, nParallel = nParallel, verbose=verbose)
 computational.time =  proc.time() - ptm
 save(file=file.path(localDir, "models","Case3.R"), m, computational.time)
 ```
@@ -227,7 +232,7 @@ save(file=file.path(localDir, "models","Case3.R"), m, computational.time)
 For case 6, we set up the model with a spatially structured random level, using 
 `HmscRandomLevel(data=sRL, priors="default")`. Note that `sData` is used instead of `units`.
 
-```{r Model fitting V, message=F, eval=F, cache=T}
+```{r Model fitting V, message=F, eval=T, cache=T}
 set.seed(1)
 load(file=file.path(localDir, "data","Case6.R"))
 sRL = all.data$xy
@@ -243,13 +248,13 @@ m = Hmsc(Y=all.data$Y,
          ranLevels=list("sampling.unit"=rL))
 ptm = proc.time()
 m = sampleMcmc(m, samples=samples, thin=thin, transient = ceiling(0.5*samples*thin), 
-                 nChains = nChains, nParallel = 1, verbose=verbose)
+                 nChains = nChains, nParallel = nParallel, verbose=verbose)
 computational.time =  proc.time() - ptm
 save(file=file.path(localDir, "models","Case6.R"), m, computational.time)
 ```
 
 For case 7, we set up two hierarchical random levels, using `HmscRandomLevel(units=...)`.
-```{r Model fitting VI, message=F, eval=F, cache=T}
+```{r Model fitting VI, message=F, eval=T, cache=T}
 set.seed(1)
 load(file=file.path(localDir, "data","Case7.R"))
 m = Hmsc(Y=all.data$Y,
@@ -263,7 +268,7 @@ m = Hmsc(Y=all.data$Y,
          )
 ptm = proc.time()
 m = sampleMcmc(m, samples=samples, thin=thin, transient = ceiling(0.5*samples*thin), 
-                 nChains = nChains, nParallel = 1, verbose=verbose)
+                 nChains = nChains, nParallel = nParallel, verbose=verbose)
 computational.time =  proc.time() - ptm
 save(file=file.path(localDir, "models","Case7.R"), m, computational.time)
 ```
@@ -277,11 +282,11 @@ We used the `coda` package to compute the effective number of MCMC samples (samp
 * `evaluateModelFit` returns several measures of model fit, including RMSE (root mean square error), R^2^ (coefficient of determination), Tjur R^2^ (coefficient of discrimination), and AUC (area under the receiver operating characteristic curve).
 * `convertToCodaObject` converts the posterior distributions produced by `HMSC-R` into `coda`-format.  
 
-```{r Data evaluation I, message=F, eval=F, cache=T, echo=T}
+```{r Data evaluation I, message=F, eval=T, cache=T, echo=T}
 ptm = proc.time()
 
 cases = c(1,2,3,4,5,6,7)
-
+dir.create(file.path(localDir, "performance"), showWarnings=FALSE, recursive=TRUE)
 for (case in cases){
   print(case)
   set.seed(1)
