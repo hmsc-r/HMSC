@@ -5,8 +5,6 @@ Hierarchical Modelling of Species Communities (`Hmsc`) is a flexible framework f
 
 The `Hmsc` package contains functions to fit JSDMs, analyze the output and to generate predictions with these JSDMs. The obligatory data for a Hmsc analysis includes a matrix of species occurrences or abundances and a matrix of environmental covariates. Optionally, the user can include information species traits, phylogenetic relationships and information on the spatiotemporal context of the sampling design to account for dependencies among the sampling units. 
 
-## Background
-
 ## Installation notes
 Currently the recommended way to install the `HMSC` package is to use `install_github` function from the `devtools` package, available from CRAN. Additionally, since `HMSC` is dependent on the `BayesLogit`package to support observation models for count data, and `BayesLogit` was temporary removed from CRAN, it is necessary to install it before installing `HMSC`.
 
@@ -18,10 +16,6 @@ install_url('https://cran.r-project.org/src/contrib/Archive/BayesLogit/BayesLogi
 install_github("hmsc-r/HMSC", build_opts = c("--no-resave-data", "--no-manual")))
 ```
 
-<<<<<<< HEAD
-## Literature
-During the development of `Hmsc` several papers have been publisched describing the different components of the model. 
-=======
 ## Documentation
 A good place to start for those interested in using the `Hmsc` package are the following papers: 
 
@@ -42,6 +36,3 @@ For covariate dependent species associations:
 *Tikhonov, G., Abrego, N., Dunson, D. and Ovaskainen, O. 2017. Using joint species distribution models for evaluating how species-to-species associations depend on the environmental context. Methods in Ecology and Evolution 8, 443-452. [https://doi.org/10.1111/2041-210X.12723](https://doi.org/10.1111/2041-210X.12723)*
 
 To get started with the package, we recommend to start with following the vignettes and reading the help pages for the `Hmsc`, `HmscRandomLevel` and `sampleMcmc` function.   
-
-
->>>>>>> master
