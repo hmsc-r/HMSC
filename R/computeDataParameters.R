@@ -172,13 +172,7 @@ computeDataParameters = function(hM){
                    }
                    di12 = sqrt(di)
 
-                   di = matrix(0,nrow=nKnots,ncol=nKnots)
-                   for(i in 1:dim){
-                      xx = matrix(rep(sKnot[,i],nKnots),ncol=nKnots)
-                      dx = xx - t(xx)
-                      di = di+dx^2
-                   }
-                   di22 = sqrt(di)
+                   di22 = as.matrix(dist(sKnot))
 
                    idDg = matrix(NA,nrow=np,ncol=alphaN)
                    idDW12g = array(NA, c(np,nKnots,alphaN))

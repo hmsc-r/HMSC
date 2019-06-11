@@ -99,7 +99,7 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
          hM1$TrScalePar = hM$TrScalePar
          hM1$TrScaled = (hM1$Tr - matrix(hM1$TrScalePar[1,],hM1$ns,hM1$nt,byrow=TRUE)) / matrix(hM1$TrScalePar[2,],hM1$ns,hM1$nt,byrow=TRUE)
          hM1 = sampleMcmc(hM1, samples=hM$samples, thin=hM$thin, transient=hM$transient, adaptNf=hM$adaptNf,
-                          initPar=initPar, nChains=length(hM$postList), nParallel=nParallel, verbose = verbose)
+                          initPar=initPar, nChains=length(hM$postList), nParallel=nParallel, verbose = verbose, updater=hM$updater)
          postList = poolMcmcChains(hM1$postList, start=start)
          dfPi = as.data.frame(matrix(NA,sum(val),hM$nr))
          colnames(dfPi) = hM$rLNames

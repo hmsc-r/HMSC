@@ -118,7 +118,7 @@ predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predict
                       'NNGP' = {
                          sOld = rL$s[units,]
                          sNew = rL$s[unitsPred[indNew],]
-                         indNN = knnx.index(sOld,sNew,k=rL$nNeighbours)[[1]]
+                         indNN = knnx.index(sOld,sNew,k=rL$nNeighbours)
                          indices = list()
                          dist12 = matrix(NA,nrow=rL$nNeighbours,ncol=nn)
                          dist11 = array(NA, c(rL$nNeighbours,rL$nNeighbours,nn))
@@ -145,8 +145,49 @@ predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predict
                                B = Matrix(0,nrow=nn, ncol=np,sparse=TRUE)
                                B[ind2,ind1] = as.vector(K21iK11)
                                Fmat = 1 - colSums(K21iK11*K12)
-                               m = B%*%Eta[,h]
-                               etaPred[indNew,h] = m + t(sqrt(L))*rnorm(nn)
+                               m = B%*%eta[,h]
+                               etaPred[indNew,h] = as.numeric(m + sqrt(Fmat)*rnorm(nn))
+                            } else{
+                               etaPred[indNew,h] = rnorm(nn)
+                            }
+                         }
+                      },
+                      "GPP" = {
+                         sKnot = rL$sKnot
+                         unitsAll = c(units,unitsPred[indNew])
+                         s = rL$s[unitsAll,]
+                         dss = as.matrix(dist(sKnot))
+                         das = matrix(0,nrow=nrow(s),ncol=nrow(sKnot))
+                         for(j in 1:rL$sDim){
+                            xx2 =  matrix(rep(sKnot[,j],nrow(rL$s)),ncol=nrow(rL$s))
+                            xx1 =  matrix(rep(s[,j],nrow(sKnot)),ncol=nrow(sKnot))
+                            dx = xx1 - t(xx2)
+                            das = das + dx^2
+                         }
+                         das = sqrt(das)
+                         dns = das[np+(1:nn),]
+                         dnsOls = das[1:np,]
+                         for(h in 1:nf){
+                            if(alphapw[alpha[h],1] > 0){
+                               W12 = exp(-dnsOls/alphapw[alpha[h],1])
+                               WssgA = exp(-dss/alphapw[alpha[h],1])
+                               iWssgA = solve(WssgA)
+                               D =  W12%*%iWssgA%*%t(W12)
+                               dD = 1-diag(D)
+                               idD = 1/dD
+                               tmp0 = matrix(rep(idD,nrow(sKnot)),ncol=nrow(sKnot))
+                               idDW12 = tmp0*W12
+                               FMat = WssgA + t(W12)%*%idDW12
+                               iF = solve(FMat)
+                               LiF = chol(iF)
+
+                               WnsgA = exp(-dns/alphapw[alpha[h],1])
+                               WnsiWss = WnsgA%*%iWssgA
+                               dDngA = 1 - colSums(WnsiWss*WnsgA)
+                               muS1 = iF%*%t(idDW12)%*%eta[,h]
+                               epsS1 = LiF%*%rnorm(nrow(WssgA))
+                               m = WnsgA%*%(muS1+epsS1)
+                               etaPred[indNew,h] = as.numeric(m + sqrt(dDngA)*rnorm(nn))
                             } else{
                                etaPred[indNew,h] = rnorm(nn)
                             }
