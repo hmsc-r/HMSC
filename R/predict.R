@@ -2,7 +2,7 @@
 #'
 #' @description Calculates predicted values using a fitted Hmsc model.
 #'
-#' @param hM a fitted HMSC model.
+#' @param object a fitted HMSC model.
 #' @param post a list of posterior samples of the HMSC model. By default uses all samples from the pulled posterior of the hM object.
 #' @param XData a dataframe specifying the unpreprocessed covariates for the predictions to be made. Works only if the \code{XFormula} argument was specified in the \code{Hmsc()} model constructor call. Requirements are similar to those in the Hmsc() model constructor.
 #' @param X a matrix specifying the covariates for the predictions to be made. Only one of XData and X arguments may be provided.
@@ -14,6 +14,7 @@
 #' @param expected boolean flag whether to return the location parameter of the observation models or sample the values from those.
 #' @param predictEtaMean boolean flag whether to use the estimated mean values of posterior predictive distribution for random effets corresponding for the new units.
 #' @param predictEtaMeanField boolean flag whether to use draws from the mean-field of the posterior predictive distribution for random effets corresponding for the new units.
+#' @param \dots Other arguments to functions.
 #'
 #' @return A list of length \code{length(post)}, each element of which contains a sample from posterior predictive distribution (given the sample of the Hmsc model parameters in the corresponding element of the \code{post} argument)
 #'
@@ -25,9 +26,12 @@
 #'
 #' @export
 
-predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL, XRRRData=NULL, XRRR=NULL, # this has to be updated to cov-dependent associations
-                        studyDesign=hM$studyDesign, ranLevels=hM$ranLevels, Gradient=NULL,
-                        Yc=NULL, mcmcStep=1, expected=FALSE, predictEtaMean=FALSE, predictEtaMeanField=FALSE){
+predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL,
+                        X=NULL, XRRRData=NULL, XRRR=NULL, # this has to be updated to cov-dependent associations
+                        studyDesign=object$studyDesign, ranLevels=object$ranLevels,
+                        Gradient=NULL, Yc=NULL, mcmcStep=1, expected=FALSE,
+                        predictEtaMean=FALSE, predictEtaMeanField=FALSE, ...)
+{
 
    if(!is.null(Gradient)){
       XData=Gradient$XDataNew
@@ -46,25 +50,25 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
    if(!is.null(XData)){
       switch(class(XData),
              list={
-                xlev = lapply(Reduce(rbind,hM$XData), levels)[unlist(lapply(Reduce(rbind,hM$XData), is.factor))]
-                X = lapply(XData, function(a) model.matrix(hM$XFormula, a, xlev=xlev))
+                xlev = lapply(Reduce(rbind,object$XData), levels)[unlist(lapply(Reduce(rbind,object$XData), is.factor))]
+                X = lapply(XData, function(a) model.matrix(object$XFormula, a, xlev=xlev))
              },
              data.frame={
-                xlev = lapply(hM$XData, levels)[unlist(lapply(hM$XData, is.factor))]
-                X = model.matrix(hM$XFormula, XData, xlev=xlev)
+                xlev = lapply(object$XData, levels)[unlist(lapply(object$XData, is.factor))]
+                X = model.matrix(object$XFormula, XData, xlev=xlev)
              }
       )
    } else{
       if(is.null(X))
-         X = hM$X
+         X = object$X
    }
    if(!is.null(XRRRData)){
-      xlev = lapply(hM$XRRRData, levels)[unlist(lapply(hM$XRRRData, is.factor))]
-      XRRR = model.matrix(hM$XRRRFormula, XRRRData, xlev=xlev)
+      xlev = lapply(object$XRRRData, levels)[unlist(lapply(object$XRRRData, is.factor))]
+      XRRR = model.matrix(object$XRRRFormula, XRRRData, xlev=xlev)
    } else{
-      if(is.null(hM$ncRRR)) hM$ncRRR=0
-      if(is.null(XRRR) && hM$ncRRR>0)
-         XRRR=hM$XRRR
+      if(is.null(object$ncRRR)) object$ncRRR=0
+      if(is.null(XRRR) && object$ncRRR>0)
+         XRRR=object$XRRR
    }
    switch(class(X),
           list={
@@ -76,33 +80,33 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
    )
 
    if(!is.null(Yc)){
-      if(ncol(Yc) != hM$ns){
+      if(ncol(Yc) != object$ns){
          stop("hMsc.predict: number of columns in Yc must be equal to ns")
       }
       if(nrow(Yc) != nyNew){
          stop("hMsc.predict: number of rows in Yc and X must be equal")
       }
    }
-   if(!all(hM$rLNames %in% colnames(studyDesign))){
+   if(!all(object$rLNames %in% colnames(studyDesign))){
       stop("hMsc.predict: dfPiNew does not contain all the necessary named columns")
    }
-   if(!all(hM$rLNames %in% names(ranLevels))){
+   if(!all(object$rLNames %in% names(ranLevels))){
       stop("hMsc.predict: rL does not contain all the necessary named levels")
    }
 
    if(!is.null(studyDesign)){
-      dfPiNew = studyDesign[,hM$rLNames,drop=FALSE]
+      dfPiNew = studyDesign[,object$rLNames,drop=FALSE]
    } else
       dfPiNew = matrix(NA,nyNew,0)
-   rL = ranLevels[hM$rLNames]
+   rL = ranLevels[object$rLNames]
 
    predN = length(post)
-   predPostEta = vector("list", hM$nr)
-   PiNew = matrix(NA,nrow(dfPiNew),hM$nr)
-   for(r in seq_len(hM$nr)){
+   predPostEta = vector("list", object$nr)
+   PiNew = matrix(NA,nrow(dfPiNew),object$nr)
+   for(r in seq_len(object$nr)){
       postEta = lapply(post, function(c) c$Eta[[r]])
       postAlpha = lapply(post, function(c) c$Alpha[[r]])
-      predPostEta[[r]] = predictLatentFactor(unitsPred=levels(dfPiNew[,r]),units=levels(hM$dfPi[,r]),
+      predPostEta[[r]] = predictLatentFactor(unitsPred=levels(dfPiNew[,r]),units=levels(object$dfPi[,r]),
                                              postEta=postEta,postAlpha=postAlpha,rL=rL[[r]],predictMean=predictEtaMean,predictMeanField=predictEtaMeanField)
       rowNames = rownames(predPostEta[[r]][[1]])
       PiNew[,r] = sapply(dfPiNew[,r], function(s) which(rowNames==s))
@@ -111,22 +115,22 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
    for(pN in 1:predN){
       sam = post[[pN]]
 
-      if(hM$ncRRR>0){
+      if(object$ncRRR>0){
          XB=XRRR%*%t(sam$wRRR)
       }
       switch(class(X),
              matrix = {
                 X1=X
-                if(hM$ncRRR>0){
+                if(object$ncRRR>0){
                    X1=cbind(X1,XB)
                 }
                 LFix = X1 %*% sam$Beta
              },
              list = {
-                LFix = matrix(NA,nyNew,hM$ns)
-                for(j in 1:hM$ns){
+                LFix = matrix(NA,nyNew,object$ns)
+                for(j in 1:object$ns){
                    X1=X[[j]]
-                   if(hM$ncRRR>0){
+                   if(object$ncRRR>0){
                       X1=cbind(X1,XB)
                    }
                    LFix[,j] = X1%*%sam$Beta[,j]
@@ -134,9 +138,9 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
 
              }
       )
-      LRan = vector("list",hM$nr)
-      Eta = vector("list",hM$nr)
-      for(r in seq_len(hM$nr)){
+      LRan = vector("list",object$nr)
+      Eta = vector("list",object$nr)
+      for(r in seq_len(object$nr)){
          Eta[[r]] = predPostEta[[r]][[pN]]
          if(rL[[r]]$xDim == 0){
             LRan[[r]] = Eta[[r]][as.character(dfPiNew[,r]),] %*% sam$Lambda[[r]]
@@ -146,18 +150,18 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
                LRan[[r]] = LRan[[r]] + (Eta[[r]][as.character(dfPiNew[,r]),]*rL[[r]]$x[as.character(dfPiNew[,r]),k]) %*% sam$Lambda[[r]][,,k]
          }
       }
-      if(hM$nr > 0){L = LFix + Reduce("+", LRan)} else L = LFix
+      if(object$nr > 0){L = LFix + Reduce("+", LRan)} else L = LFix
 
       if(!is.null(Yc) && any(!is.na(Yc))){
          Z = L
-         ZL = updateZ(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda, X=X,Pi=PiNew,dfPi=dfPiNew,distr=hM$distr,rL=rL)
+         ZL = updateZ(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda, X=X,Pi=PiNew,dfPi=dfPiNew,distr=object$distr,rL=rL)
          Z = ZL$Z
          for(sN in seq_len(mcmcStep)){
-            Eta = updateEta(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda,Alpha=sam$Alpha, rLPar=hM$rLPar, X=X,Pi=PiNew,dfPi=dfPiNew,rL=rL)
-            ZL = updateZ(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda, X=X,Pi=PiNew,dfPi=dfPiNew,distr=hM$distr,rL=rL)
+            Eta = updateEta(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda,Alpha=sam$Alpha, rLPar=object$rLPar, X=X,Pi=PiNew,dfPi=dfPiNew,rL=rL)
+            ZL = updateZ(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda, X=X,Pi=PiNew,dfPi=dfPiNew,distr=object$distr,rL=rL)
             Z = ZL$Z
          }
-         for(r in seq_len(hM$nr)){
+         for(r in seq_len(object$nr)){
             if(rL[[r]]$xDim == 0){
                LRan[[r]] = Eta[[r]][as.character(dfPiNew[,r]),] %*% sam$Lambda[[r]]
             } else{
@@ -166,22 +170,22 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
                   LRan[[r]] = LRan[[r]] + (Eta[[r]][as.character(dfPiNew[,r]),]*rL[[r]]$x[as.character(dfPiNew[,r]),k]) %*% sam$Lambda[[r]][,,k]
             }
          }
-         if(hM$nr > 0){L = LFix + Reduce("+", LRan)} else L = LFix
+         if(object$nr > 0){L = LFix + Reduce("+", LRan)} else L = LFix
       }
       if(!expected){
-         Z = L + matrix(sqrt(sam$sigma),nrow(L),hM$ns,byrow=TRUE) * matrix(rnorm(nrow(L)*hM$ns),nrow(L),hM$ns)
+         Z = L + matrix(sqrt(sam$sigma),nrow(L),object$ns,byrow=TRUE) * matrix(rnorm(nrow(L)*object$ns),nrow(L),object$ns)
       } else{
          Z = L
       }
-      for(j in 1:hM$ns){
-         if(hM$distr[j,"family"] == 2){ # probit
+      for(j in 1:object$ns){
+         if(object$distr[j,"family"] == 2){ # probit
             if(expected){
                Z[,j] = pnorm(Z[,j])
             } else{
                Z[,j] = as.numeric(Z[,j]>0)
             }
          }
-         if(hM$distr[j,"family"] == 3){ # poisson
+         if(object$distr[j,"family"] == 3){ # poisson
             if(expected){
                Z[,j] = exp(Z[,j] + sam$sigma[j]/2)
             } else{
@@ -189,11 +193,11 @@ predict.Hmsc = function(hM, post=poolMcmcChains(hM$postList), XData=NULL, X=NULL
             }
          }
       }
-      colnames(Z) = hM$spNames
+      colnames(Z) = object$spNames
 
-      for(i in 1:hM$ns){
-         m = hM$YScalePar[1,i]
-         s = hM$YScalePar[2,i]
+      for(i in 1:object$ns){
+         m = object$YScalePar[1,i]
+         s = object$YScalePar[2,i]
          if(m!=0 || s!=1){
             Z[,i] = Z[,i]*s + m
          }

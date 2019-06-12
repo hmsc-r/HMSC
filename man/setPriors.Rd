@@ -4,10 +4,10 @@
 \alias{setPriors}
 \title{setPriors}
 \usage{
-setPriors(x, ...)
+setPriors(...)
 }
 \arguments{
-\item{x}{Hmsc or HmscRandolLevel object}
+\item{\dots}{Hmsc or HmscRandolLevel object and other arguments.}
 }
 \value{
 Object of same type as first input
