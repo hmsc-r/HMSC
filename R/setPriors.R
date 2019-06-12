@@ -2,7 +2,7 @@
 #'
 #' @description Sets or resets priors to objects
 #'
-#' @param x Hmsc or HmscRandolLevel object
+#' @param \dots Hmsc or HmscRandolLevel object and other arguments.
 #'
 #' @return Object of same type as first input
 #'
@@ -10,6 +10,6 @@
 #'
 #' @export
 
-setPriors <- function(x, ...) {
+setPriors <- function(...) {
    UseMethod("setPriors")
 }

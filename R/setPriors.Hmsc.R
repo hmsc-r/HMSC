@@ -15,6 +15,7 @@
 #' @param b2
 #' @param rhopw
 #' @param setDefault
+#' @param \dots Other paremeters to the function.
 #'
 #' @return Modified \code{Hmsc} object
 #'
@@ -25,7 +26,7 @@
 setPriors.Hmsc = function(hM, V0=NULL, f0=NULL, mGamma=NULL,
    UGamma=NULL, aSigma=NULL, bSigma=NULL, nu=NULL, a1=NULL,
    b1=NULL, a2=NULL, b2=NULL, nuRRR=NULL, a1RRR=NULL,
-   b1RRR=NULL, a2RRR=NULL, b2RRR=NULL, rhopw=NULL, setDefault=FALSE){
+   b1RRR=NULL, a2RRR=NULL, b2RRR=NULL, rhopw=NULL, setDefault=FALSE, ...){
 
    if(!is.null(V0)){
       if(!isSymmetric(V0) || nrow(V0) != hM$nc || ncol(V0) != hM$nc)

@@ -8,7 +8,7 @@
   UGamma = NULL, aSigma = NULL, bSigma = NULL, nu = NULL,
   a1 = NULL, b1 = NULL, a2 = NULL, b2 = NULL, nuRRR = NULL,
   a1RRR = NULL, b1RRR = NULL, a2RRR = NULL, b2RRR = NULL,
-  rhopw = NULL, setDefault = FALSE)
+  rhopw = NULL, setDefault = FALSE, ...)
 }
 \arguments{
 \item{V0}{scale matrix in the Wishart prior distribution for the V matrix}
@@ -19,7 +19,7 @@
 
 \item{UGamma}{covariance matrix for the prior multivariate Gaussian distribution for Gamma parameters}
 
-\item{setDefault}{}
+\item{\dots}{Other paremeters to the function.}
 }
 \value{
 Modified \code{Hmsc} object
