@@ -9,7 +9,8 @@ plotGamma(hM, post, param = "Gamma", trOrder = "Original",
   trNamesNumbers = c(T, T), covNamesNumbers = c(T, T),
   supportLevel = 0.9, cex = c(0.8, 0.8, 0.8),
   colors = colorRampPalette(c("blue", "white", "red")),
-  colorLevels = 200, smallplot = NULL, bigplot = NULL)
+  colorLevels = NULL, mar = c(6, 9, 2, 0), smallplot = NULL,
+  bigplot = NULL)
 }
 \arguments{
 \item{post}{Posterior summary of Gamma parameters obtained from \code{\link{getPostEstimate}}}

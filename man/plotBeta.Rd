@@ -9,7 +9,8 @@ plotBeta(hM, post, param = "Support", plotTree = F,
   covVector = NULL, spNamesNumbers = c(T, T), covNamesNumbers = c(T,
   T), supportLevel = 0.9, split = 0.3, cex = c(0.7, 0.7, 0.8),
   colors = colorRampPalette(c("blue", "white", "red")),
-  colorLevels = 200, smallplot = NULL, bigplot = NULL)
+  colorLevels = NULL, mar = NULL, marTree = c(6, 0, 2, 0),
+  smallplot = NULL, bigplot = NULL)
 }
 \arguments{
 \item{post}{Posterior summary of Beta parameters obtained from \code{\link{getPostEstimate}}}
