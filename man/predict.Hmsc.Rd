@@ -4,14 +4,14 @@
 \alias{predict.Hmsc}
 \title{predict}
 \usage{
-\method{predict}{Hmsc}(hM, post = poolMcmcChains(hM$postList),
+\method{predict}{Hmsc}(object, post = poolMcmcChains(object$postList),
   XData = NULL, X = NULL, XRRRData = NULL, XRRR = NULL,
-  studyDesign = hM$studyDesign, ranLevels = hM$ranLevels,
+  studyDesign = object$studyDesign, ranLevels = object$ranLevels,
   Gradient = NULL, Yc = NULL, mcmcStep = 1, expected = FALSE,
-  predictEtaMean = FALSE, predictEtaMeanField = FALSE)
+  predictEtaMean = FALSE, predictEtaMeanField = FALSE, ...)
 }
 \arguments{
-\item{hM}{a fitted HMSC model.}
+\item{object}{a fitted HMSC model.}
 
 \item{post}{a list of posterior samples of the HMSC model. By default uses all samples from the pulled posterior of the hM object.}
 
@@ -32,6 +32,8 @@
 \item{predictEtaMean}{boolean flag whether to use the estimated mean values of posterior predictive distribution for random effets corresponding for the new units.}
 
 \item{predictEtaMeanField}{boolean flag whether to use draws from the mean-field of the posterior predictive distribution for random effets corresponding for the new units.}
+
+\item{\dots}{Other arguments to functions.}
 
 \item{rL}{a list of HmscRandomLevel objects, futher specifying the structure of random levels. Requirements are similar to those of the \code{Hmsc()} constructor. Each level must cover all units, specified in the correspondingly named column of studyDesign argument. By default this argument is assigned with the list of HmscRandomLevel objects, specified for fitting Hmsc model.}
 }
