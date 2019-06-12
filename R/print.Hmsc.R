@@ -1,11 +1,3 @@
-#' @title print.Hmsc
-#'
-#' @description print method for Hmsc
-#' @param hM Hmsc object
-#'
-#'
-#' @examples
-#'
 #' @export
 
 print.Hmsc = function(x, ...){

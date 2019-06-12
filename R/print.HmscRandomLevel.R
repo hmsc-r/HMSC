@@ -1,10 +1,3 @@
-#' @title print.HmscRandomLevel
-#'
-#' @description print method for HmscRandomLevel
-#' @param rL HmscRandomLevel object
-#'
-#' @examples
-#'
 #' @export
 
 print.HmscRandomLevel = function(x, ...){
