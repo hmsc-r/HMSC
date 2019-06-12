@@ -6,7 +6,7 @@
 \usage{
 \method{setPriors}{HmscRandomLevel}(rL, nu = NULL, a1 = NULL,
   a2 = NULL, b1 = NULL, b2 = NULL, alphapw = NULL, nfMax = NULL,
-  nfMin = NULL, setDefault = FALSE)
+  nfMin = NULL, setDefault = FALSE, ...)
 }
 \arguments{
 \item{nu}{}
