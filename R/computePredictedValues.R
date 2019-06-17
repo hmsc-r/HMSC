@@ -45,7 +45,7 @@
 
 computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1,
                                   Yc=NULL, mcmcStep=1, expected=TRUE, initPar=NULL,
-                                  nParallel=1, verbose = hM$verbose){
+                                  nParallel=1, nChains = length(hM$postList), verbose = hM$verbose){
    if(is.null(partition)){
       postList = poolMcmcChains(hM$postList, start=start)
       pred = predict(hM, post=postList, Yc=Yc, mcmcStep=1, expected=expected)
@@ -90,7 +90,17 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
          hM1$YScaled = (hM1$Y - matrix(hM1$YScalePar[1,],hM1$ny,hM1$ns,byrow=TRUE)) / matrix(hM1$YScalePar[2,],hM1$ny,hM1$ns,byrow=TRUE)
          hM1$XInterceptInd = hM$XInterceptInd
          hM1$XScalePar = hM$XScalePar
-         hM1$XScaled = (hM1$X - matrix(hM1$XScalePar[1,],hM1$ny,hM1$ncNRRR,byrow=TRUE)) / matrix(hM1$XScalePar[2,],hM1$ny,hM1$ncNRRR,byrow=TRUE)
+         switch(class(hM$X),
+                matrix = {
+                   hM1$XScaled = (hM1$X - matrix(hM1$XScalePar[1,],hM1$ny,hM1$ncNRRR,byrow=TRUE)) / matrix(hM1$XScalePar[2,],hM1$ny,hM1$ncNRRR,byrow=TRUE)
+                },
+                list = {
+                   hM1$XScaled = list()
+                   for (zz in seq_len(length(hM1$X))){
+                      hM1$XScaled[[zz]] = (hM1$X[[zz]] - matrix(hM1$XScalePar[1,],hM1$ny,hM1$ncNRRR,byrow=TRUE)) / matrix(hM1$XScalePar[2,],hM1$ny,hM1$ncNRRR,byrow=TRUE)
+                   }
+                }
+         )
          if(hM1$ncRRR>0){
             hM1$XRRRScalePar = hM$XRRRScalePar
             hM1$XRRRScaled = (hM1$XRRR - matrix(hM1$XRRRScalePar[1,],hM1$ny,hM1$ncORRR,byrow=TRUE)) / matrix(hM1$XRRRScalePar[2,],hM1$ny,hM1$ncORRR,byrow=TRUE)
@@ -99,7 +109,7 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
          hM1$TrScalePar = hM$TrScalePar
          hM1$TrScaled = (hM1$Tr - matrix(hM1$TrScalePar[1,],hM1$ns,hM1$nt,byrow=TRUE)) / matrix(hM1$TrScalePar[2,],hM1$ns,hM1$nt,byrow=TRUE)
          hM1 = sampleMcmc(hM1, samples=hM$samples, thin=hM$thin, transient=hM$transient, adaptNf=hM$adaptNf,
-                          initPar=initPar, nChains=length(hM$postList), nParallel=nParallel, verbose = verbose)
+                          initPar=initPar, nChains=nChains, nParallel=nParallel, verbose = verbose)
          postList = poolMcmcChains(hM1$postList, start=start)
          dfPi = as.data.frame(matrix(NA,sum(val),hM$nr))
          colnames(dfPi) = hM$rLNames
