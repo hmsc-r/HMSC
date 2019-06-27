@@ -29,7 +29,7 @@
 #' @importFrom stats cov cor
 #' @export
 
-computeVariancePartitioning = function(hM, group, groupnames, start=1, na.ignore = F){
+computeVariancePartitioning = function(hM, group=NULL, groupnames=NULL, start=1, na.ignore = F){
    ny = hM$ny
    nc = hM$nc
    nt = hM$nt
@@ -37,6 +37,10 @@ computeVariancePartitioning = function(hM, group, groupnames, start=1, na.ignore
    np = hM$np
    nr = hM$nr
 
+   if(is.null(group)){
+      group = seq_len(nc-1)
+      groupnames = hM$covNames[2:nc]
+   }
    ngroups = max(group);
    fixed = matrix(0,nrow=ns,ncol=1);
    fixedsplit = matrix(0,nrow=ns,ncol=ngroups);
