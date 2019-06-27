@@ -61,7 +61,7 @@
 sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
                       verbose=samples*thin/100, adaptNf=rep(transient,hM$nr),
                       nChains=1, nParallel=1, dataParList=NULL, updater=list(),
-                      fromPrior = FALSE){
+                      fromPrior = FALSE, alignPost = TRUE){
    if(fromPrior)
       nParallel = 1
    force(adaptNf)
@@ -312,8 +312,10 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
    hM$thin = thin
    hM$verbose = verbose
    hM$adaptNf = adaptNf
-   for (i in 1:5){
-      hM = alignPosterior(hM)
+   if (alignPost){
+      for (i in 1:5){
+         hM = alignPosterior(hM)
+      }
    }
 
    return(hM)
