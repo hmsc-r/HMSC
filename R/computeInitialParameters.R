@@ -3,15 +3,6 @@
 #' @description Computes the initial values before the sampling starts
 #' @param initPar initial parameters value
 #'
-#'
-#' @return
-#'
-#'
-#' @seealso
-#'
-#'
-#' @examples
-#'
 #' @importFrom stats glm.fit lm.fit coef rgamma rnorm binomial poisson
 #'    cov runif
 #' @importFrom abind abind

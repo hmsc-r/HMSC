@@ -12,7 +12,6 @@
 #' @return
 #' A named list of posterior quantities. Element mean
 #'
-#' @examples
 #'
 #' @importFrom stats cov2cor
 #' @importFrom abind abind

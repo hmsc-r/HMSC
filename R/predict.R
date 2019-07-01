@@ -20,7 +20,6 @@
 #'
 #' @seealso \code{\link{predictLatentFactor}}
 #'
-#' @examples
 #'
 #' @importFrom stats model.matrix rnorm pnorm rpois
 #'

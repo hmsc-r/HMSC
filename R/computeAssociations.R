@@ -5,9 +5,7 @@
 #'
 #' @return list of association matrices (\eqn{\omega}) corresponding to each random level in the model
 #'
-#' @examples
 #'
-#' @importFrom stats cov2cor
 #' @importFrom abind abind
 #'
 #' @export
