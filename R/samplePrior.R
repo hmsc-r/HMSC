@@ -2,15 +2,6 @@
 #'
 #' @description Samples the parameter vector from prior
 #'
-#'
-#' @return
-#'
-#'
-#' @seealso
-#'
-#'
-#' @examples
-#'
 #' @importFrom stats rgamma rnorm
 #' @importFrom mvtnorm rmvnorm
 ## is the next a typo of the previous?

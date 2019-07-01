@@ -7,7 +7,6 @@
 #'
 #' @return Modified HmscRandomLevel object
 #'
-#' @examples
 #'
 #' @export
 

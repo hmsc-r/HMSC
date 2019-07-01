@@ -17,7 +17,6 @@
 #' variance among species explained by traits, measured for species niches (\code{VP$R2T$Beta}) and species occurrences
 #' (\code{VP$R2T$Y})
 #'
-#' @seealso
 #'
 #' @examples
 #' \dontrun{

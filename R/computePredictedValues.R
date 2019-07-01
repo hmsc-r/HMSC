@@ -18,8 +18,6 @@
 #' appropriate conditional predictions. The option Yc can be used alternatively to partition.sp if the conditioning is to be done
 #' to a fixed set of data (independent on which sampling unit and species the predictions are made for).
 #'
-#' @return
-#'
 #'
 #' @seealso \code{\link{predict.Hmsc}}
 #'

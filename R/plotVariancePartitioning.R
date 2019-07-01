@@ -6,8 +6,6 @@
 #' @param ... other parameters passed to the barplot function
 #'
 #'
-#' @examples
-#'
 #' @importFrom graphics barplot
 #' @importFrom grDevices heat.colors
 #'
