@@ -9,15 +9,6 @@ computeInitialParameters(hM, initPar)
 \arguments{
 \item{initPar}{initial parameters value}
 }
-\value{
-
-}
 \description{
 Computes the initial values before the sampling starts
-}
-\examples{
-
-}
-\seealso{
-
 }

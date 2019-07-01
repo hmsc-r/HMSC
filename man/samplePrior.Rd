@@ -6,15 +6,6 @@
 \usage{
 samplePrior(hM, dataParList = NULL)
 }
-\value{
-
-}
 \description{
 Samples the parameter vector from prior
-}
-\examples{
-
-}
-\seealso{
-
 }

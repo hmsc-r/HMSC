@@ -6,7 +6,8 @@
 \usage{
 computePredictedValues(hM, partition = NULL, partition.sp = NULL,
   start = 1, Yc = NULL, mcmcStep = 1, expected = TRUE,
-  initPar = NULL, nParallel = 1, verbose = hM$verbose)
+  initPar = NULL, nParallel = 1, nChains = length(hM$postList),
+  verbose = hM$verbose)
 }
 \arguments{
 \item{partition}{vector of observations partitioning for cross-validation}
@@ -20,9 +21,6 @@ computePredictedValues(hM, partition = NULL, partition.sp = NULL,
 \item{mcmcStep}{number of MCMC steps used to make conditional predictions}
 
 \item{expected}{whether expected values (TRUE) or realizations (FALSE) are to be predicted}
-}
-\value{
-
 }
 \description{
 Computes predicted values from the trained model

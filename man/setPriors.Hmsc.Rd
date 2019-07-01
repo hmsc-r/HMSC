@@ -27,6 +27,3 @@ Modified \code{Hmsc} object
 \description{
 Sets or resets priors to the Hmsc object
 }
-\examples{
-
-}

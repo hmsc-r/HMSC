@@ -4,7 +4,7 @@
 \alias{plotVariancePartitioning}
 \title{plotVariancePartitioning}
 \usage{
-plotVariancePartitioning(hM, VP, ...)
+plotVariancePartitioning(hM, VP, cols = NULL, ...)
 }
 \arguments{
 \item{hM}{A fitted HMSC model}
@@ -15,7 +15,4 @@ plotVariancePartitioning(hM, VP, ...)
 }
 \description{
 Plots the results of variance partitioning of a HMSC model produced by `HMSC::computeVariancePartitioning` as a barplot
-}
-\examples{
-
 }

@@ -43,9 +43,6 @@ A list of length \code{length(post)}, each element of which contains a sample fr
 \description{
 Calculates predicted values using a fitted Hmsc model.
 }
-\examples{
-
-}
 \seealso{
 \code{\link{predictLatentFactor}}
 }

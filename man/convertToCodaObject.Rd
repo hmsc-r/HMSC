@@ -16,11 +16,8 @@ convertToCodaObject(hM, start = 1, spNamesNumbers = c(TRUE, TRUE),
 \item{Delta}{}
 }
 \value{
-
+A named list that can be analysed with \CRANpkg{coda} functions.
 }
 \description{
 Converts Hmsc posterior structure into a named list of mcmc.list objects
-}
-\examples{
-
 }
