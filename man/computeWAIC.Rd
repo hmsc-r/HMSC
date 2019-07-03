@@ -4,7 +4,12 @@
 \alias{computeWAIC}
 \title{Hmsc$computeWAIC}
 \usage{
-computeWAIC(hM)
+computeWAIC(hM, ghN = 11)
+}
+\arguments{
+\item{hM}{fitted Hmsc model}
+
+\item{ghN}{order of Gauss-Hermite quadrature for approximate numerical integration}
 }
 \value{
 the scalar WAIC
@@ -13,10 +18,11 @@ the scalar WAIC
 Computes WAIC (Widely Applicable Information Criterion) of the HMSC model
 }
 \details{
-implemented yet only for probit and normal models
+The result is exact for normal and probit observational models. For Poisson-type observational observational model the result is obtained through numerical integration using Gauss-Hermite quadrature.
 }
 \examples{
-
+\dontrun{
 WAIC = computeWAIC(hM=m)
+}
 
 }

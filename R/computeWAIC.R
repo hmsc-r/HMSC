@@ -10,9 +10,11 @@
 #' @return the scalar WAIC
 #'
 #' @examples
-#'
+#' \dontrun{
 #' WAIC = computeWAIC(hM=m)
+#' }
 #'
+#' @importFrom stats dpois
 #' @importFrom stats var
 #' @importFrom abind abind
 #' @importFrom statmod gauss.quad
@@ -47,6 +49,7 @@ computeWAIC = function(hM, ghN=11){
       Beta = post[[sN]]$Beta
       Eta = post[[sN]]$Eta
       Lambda = post[[sN]]$Lambda
+      sigma = post[[sN]]$sigma
       switch(class(X),
              matrix = {
                 LFix = X%*%Beta
@@ -73,7 +76,7 @@ computeWAIC = function(hM, ghN=11){
          E = LFix
 
       indNA = is.na(Y)
-      std = matrix(iSigma^-0.5,ny,ns,byrow=TRUE)
+      std = matrix(sigma^-0.5,ny,ns,byrow=TRUE)
 
       L = rep(0,ny)
 
@@ -105,7 +108,7 @@ computeWAIC = function(hM, ghN=11){
       if(cN > 0){
          gX = array(E[,indColPoisson],c(ny,cN,ghN)) + sqrt(2)*array(gx,c(ny,cN,ghN))*array(std[indColPoisson],c(ny,cN,ghN))
          likeArray = dpois(Y, exp(gX))
-         likeIntegral = sqrt(pi)^-1 * rowSums(likeArray*array(rep(gw,each=ny*cN),c(ny,cN,ghN)), dims=2)
+         likeIntegral = log(sqrt(pi)^-1 * rowSums(likeArray*array(rep(gw,each=ny*cN),c(ny,cN,ghN)), dims=2))
          likeIntegral[is.na(Y[,indColPoisson])] = 0
          if(cN > 1){
             L = L + rowSums(likeIntegral)
