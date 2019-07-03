@@ -37,34 +37,11 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind){
    indNA = is.na(Y)
    std = matrix(iSigma^-0.5,ny,ns,byrow=TRUE)
 
-   L = rep(0,ny)
-
    indColNormal = (distr[,1]==1)
-   if (sum(indColNormal)>0){
-      tmp = dnorm(x=Y[,indColNormal],mean=E[,indColNormal],log = TRUE, sd = std)
-      tmp[is.na(Y[,indColNormal])]=0
-      if (sum(indColNormal)>1) {
-         L = L + rowSums(tmp)
-      } else {
-         L = L + tmp
-      }
-   }
    Z[,indColNormal] = Y[,indColNormal]
-
 
    indColProbit = (distr[,1]==2)
    pN = sum(indColProbit)
-   if (pN>0){
-      pz0 = pnorm(-E[,indColProbit],log.p=TRUE)
-      pz1 = pnorm(E[,indColProbit],log.p=TRUE)
-      tmp = pz1*Y[,indColProbit]+pz0*(1-Y[,indColProbit])
-      tmp[is.na(Y[,indColProbit])]=0
-      if (sum(indColProbit)>1) {
-         L = L + rowSums(tmp)
-      } else {
-         L = L + tmp
-      }
-   }
    if(pN > 0){
       ZProbit = matrix(NA,ny,pN)
       YProbit = Y[,indColProbit]
@@ -113,10 +90,5 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind){
    }
 
    Z[indNA] = rnorm(sum(indNA), E[indNA], std[indNA])
-   ZL = list()
-   ZL$Z = Z
-   ZL$L = L
-   return(ZL)
+   return(Z)
 }
-
-

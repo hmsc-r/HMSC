@@ -243,9 +243,7 @@ computeInitialParameters = function(hM, initPar){
    } else
       Z = LFix
 
-   ZL = updateZ(Y=hM$Y,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=XScaled,Pi=hM$Pi,dfPi=hM$dfPi,distr=hM$distr,rL=hM$rL)
-   Z = ZL$Z
-   L = ZL$L
+   Z = updateZ(Y=hM$Y,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=XScaled,Pi=hM$Pi,dfPi=hM$dfPi,distr=hM$distr,rL=hM$rL)
 
    parList$Gamma = Gamma
    parList$V = V
@@ -262,7 +260,6 @@ computeInitialParameters = function(hM, initPar){
    parList$Alpha = Alpha
    parList$rho = rho
    parList$Z = Z
-   parList$L = L
 
    return(parList)
 }

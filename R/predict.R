@@ -153,12 +153,10 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
 
       if(!is.null(Yc) && any(!is.na(Yc))){
          Z = L
-         ZL = updateZ(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda, X=X,Pi=PiNew,dfPi=dfPiNew,distr=object$distr,rL=rL)
-         Z = ZL$Z
+         Z = updateZ(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda, X=X,Pi=PiNew,dfPi=dfPiNew,distr=object$distr,rL=rL)
          for(sN in seq_len(mcmcStep)){
             Eta = updateEta(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda,Alpha=sam$Alpha, rLPar=object$rLPar, X=X,Pi=PiNew,dfPi=dfPiNew,rL=rL)
-            ZL = updateZ(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda, X=X,Pi=PiNew,dfPi=dfPiNew,distr=object$distr,rL=rL)
-            Z = ZL$Z
+            Z = updateZ(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda, X=X,Pi=PiNew,dfPi=dfPiNew,distr=object$distr,rL=rL)
          }
          for(r in seq_len(object$nr)){
             if(rL[[r]]$xDim == 0){
