@@ -62,7 +62,7 @@ To fit the HMSC model with Bayesian inference, we use the `sampleMcmc` function.
 
 ```{r IIIb}
 nChains = 2
-test.run = FALSE
+test.run = TRUE
 if (test.run){
    #with this option, the vignette runs fast but results are not reliable 
    thin = 1
@@ -129,7 +129,7 @@ The predictive power is not much worse than the explanatory power, as even with 
 Let us now look at the estimates of the $\beta$ parameters. We may do so visually by applying the `plotBeta` function.
 
 ```{r IX, fig.height=5, fig.width=6, fig.cap="\\label{fig: IX} Heatmap of Beta parameters"}
-postBeta = getPostEstimate(m, parName = "Mean")
+postBeta = getPostEstimate(m, parName = "Beta")
 plotBeta(m, post = postBeta, param = "Support", supportLevel = 0.95)
 ```
 
@@ -163,7 +163,7 @@ The convergence diagnostics shown in Fig. \ref{fig: XI} are somewhat better for 
 Let us next visualize the estimates of the $\beta$ parameters.
 
 ```{r XII, fig.height=5, fig.width=6, fig.cap="\\label{fig: XII} Heatmap of Beta parameters for the multivariate model"}
-postBeta = getPostEstimate(m, parName="Mean")
+postBeta = getPostEstimate(m, parName="Beta")
 plotBeta(m, post=postBeta, param="Support", supportLevel = 0.95)
 ```
 
@@ -190,7 +190,7 @@ m = Hmsc(Y=Y, XData=XData, XFormula=~x1,
          studyDesign=studyDesign, ranLevels=list(sample=rL))
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
                     nChains = nChains, verbose = verbose)
-postBeta = getPostEstimate(m, parName="Mean")
+postBeta = getPostEstimate(m, parName="Beta")
 plotBeta(m, post=postBeta, param="Support", supportLevel = 0.95)
 ```
 
@@ -326,7 +326,7 @@ As discussed in the vignette on univariate models, the types of performance meas
 Even if the species follow different error distributions, they all have the underlying linear predictor at the same scale, and the same types of underlying parameters. Thus, we may for example view the $\beta$ parameters (Fig. \ref{fig: XXIV}) for all species simultaneously, as we did for the case where all species followed a normal model.
 
 ```{r, XXIV, fig.height=5, fig.width=6, fig.cap="\\label{fig: XXIV} Heatmap of the Beta parameters for the mixed-distributions model"}
-postBeta = getPostEstimate(m, parName="Mean")
+postBeta = getPostEstimate(m, parName="Beta")
 plotBeta(m, post=postBeta, param="Support", supportLevel = 0.95)
 ```
 
