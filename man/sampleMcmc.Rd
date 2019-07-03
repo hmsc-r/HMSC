@@ -7,7 +7,7 @@
 sampleMcmc(hM, samples, transient = 0, thin = 1, initPar = NULL,
   verbose = samples * thin/100, adaptNf = rep(transient, hM$nr),
   nChains = 1, nParallel = 1, dataParList = NULL, updater = list(),
-  fromPrior = FALSE)
+  fromPrior = FALSE, alignPost = TRUE)
 }
 \arguments{
 \item{samples}{the number of MCMC samples to be obtained in each chain}

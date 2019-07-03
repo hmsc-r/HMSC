@@ -9,9 +9,6 @@ computeDataParameters(hM)
 \arguments{
 \item{initPar}{initial parameters value}
 }
-\value{
-
-}
 \description{
 Computes the initial values before the sampling starts
 }

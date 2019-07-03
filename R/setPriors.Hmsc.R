@@ -19,8 +19,6 @@
 #'
 #' @return Modified \code{Hmsc} object
 #'
-#' @examples
-#'
 #' @export
 
 setPriors.Hmsc = function(hM, V0=NULL, f0=NULL, mGamma=NULL,

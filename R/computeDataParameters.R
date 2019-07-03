@@ -3,8 +3,6 @@
 #' @description Computes the initial values before the sampling starts
 #' @param initPar initial parameters value
 #'
-#' @return
-#'
 #' @importFrom stats dist
 #' @importFrom FNN get.knn knnx.dist
 #' @importFrom Matrix .sparseDiagonal t solve

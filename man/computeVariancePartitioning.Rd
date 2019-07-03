@@ -4,8 +4,8 @@
 \alias{computeVariancePartitioning}
 \title{Hmsc$computeVariancePartitioning}
 \usage{
-computeVariancePartitioning(hM, group, groupnames, start = 1,
-  na.ignore = F)
+computeVariancePartitioning(hM, group = NULL, groupnames = NULL,
+  start = 1, na.ignore = F)
 }
 \arguments{
 \item{group}{vector of numeric values corresponding to group identifiers in groupnames}
@@ -35,8 +35,5 @@ VP = computeVariancePartitioning(m, group=c(1,1,1,2,2), groupnames = c("habitat 
 VP$R2T
 plotVariancePartitioning(m,VP)
 }
-
-}
-\seealso{
 
 }

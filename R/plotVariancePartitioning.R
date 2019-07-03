@@ -6,16 +6,17 @@
 #' @param ... other parameters passed to the barplot function
 #'
 #'
-#' @examples
-#'
 #' @importFrom graphics barplot
 #' @importFrom grDevices heat.colors
-#' 
+#'
 #' @export
 
-plotVariancePartitioning=function (hM,VP, ...)
+plotVariancePartitioning=function (hM,VP, cols=NULL,...)
 {
    ng = dim(VP$vals)[1]
+   if(is.null(cols)){
+      cols = heat.colors(ng, alpha = 1)
+   }
    leg = VP$groupnames
    for (r in 1:hM$nr) {
       leg = c(leg, paste("Random: ", hM$rLNames[r], sep = ""))
@@ -28,6 +29,6 @@ plotVariancePartitioning=function (hM,VP, ...)
 
    mainTitle=substitute("Variance partitioning")
    barplot(VP$vals, main = mainTitle, xlab= "Species", ylab = "Variance proportion", las = 1,
-           legend = leg, col = heat.colors(ng, alpha = 1),...)
+           legend = leg, col = cols,...)
 #   mtext("Species", 1,line = 1)
 }

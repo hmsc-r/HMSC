@@ -15,6 +15,3 @@ list of association matrices (\eqn{\omega}) corresponding to each random level i
 \description{
 Computes the species association matrices
 }
-\examples{
-
-}

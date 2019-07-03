@@ -2,15 +2,6 @@
 #'
 #' @description Samples the parameter vector from prior
 #'
-#'
-#' @return
-#'
-#'
-#' @seealso
-#'
-#'
-#' @examples
-#'
 #' @importFrom stats rgamma rnorm
 #' @importFrom mvtnorm rmvnorm
 ## is the next a typo of the previous?
@@ -141,8 +132,11 @@ samplePrior = function(hM, dataParList=NULL){
    iSigma = 1 / sigma
    iV = chol2inv(chol(V))
 
-   sample = combineParameters(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,
+   sample = combineParameters(Beta=Beta,BetaSel=NULL,wRRR=NULL,Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,
                      Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,Delta=Delta,
-                     nc=hM$nc, XScalePar=hM$XScalePar, XInterceptInd=hM$XInterceptInd, nt=hM$nt, TrScalePar=hM$TrScalePar, TrInterceptInd=hM$TrInterceptInd, rhopw=hM$rhopw)
+                     PsiRRR=NULL, DeltaRRR=NULL,ncNRRR=hM$ncNRRR, ncRRR=hM$ncRRR, ncsel=hM$ncsel, XSelect=NULL,
+                     XScalePar=hM$XScalePar, XInterceptInd=hM$XInterceptInd, nt=hM$nt, TrScalePar=hM$TrScalePar,
+                     TrInterceptInd=hM$TrInterceptInd, rhopw=hM$rhopw)
    return(sample)
 }
+

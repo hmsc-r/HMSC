@@ -17,9 +17,7 @@
 #' @param Psi
 #' @param Delta
 #'
-#' @return
-#'
-#' @examples
+#' @return A named list that can be analysed with \CRANpkg{coda} functions.
 #'
 #' @importFrom coda mcmc mcmc.list
 #' @export

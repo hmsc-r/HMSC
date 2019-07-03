@@ -23,6 +23,3 @@ A named list of posterior quantities. Element mean
 \description{
 Calculates mean, support and other posterior quantities for model parameter
 }
-\examples{
-
-}
