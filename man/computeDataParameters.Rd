@@ -2,7 +2,7 @@
 % Please edit documentation in R/computeDataParameters.R
 \name{computeDataParameters}
 \alias{computeDataParameters}
-\title{computeInitialParameters}
+\title{computeDataParameters}
 \usage{
 computeDataParameters(hM)
 }

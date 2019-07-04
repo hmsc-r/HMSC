@@ -21,8 +21,8 @@ Computes WAIC (Widely Applicable Information Criterion) of the HMSC model
 The result is exact for normal and probit observational models. For Poisson-type observational observational model the result is obtained through numerical integration using Gauss-Hermite quadrature.
 }
 \examples{
-\dontrun{
-WAIC = computeWAIC(hM=m)
-}
+# Compute WAIC of previously sampled Hmsc object
+WAIC = computeWAIC(TD$m)
+
 
 }

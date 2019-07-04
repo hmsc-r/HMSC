@@ -10,9 +10,9 @@
 #' @return the scalar WAIC
 #'
 #' @examples
-#' \dontrun{
-#' WAIC = computeWAIC(hM=m)
-#' }
+#' # Compute WAIC of previously sampled Hmsc object
+#' WAIC = computeWAIC(TD$m)
+#'
 #'
 #' @importFrom stats dpois
 #' @importFrom stats var

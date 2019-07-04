@@ -23,8 +23,14 @@
 #' @seealso [setPriors.Hmsc()]
 #'
 #' @examples
-#' rL = HmscRandomLevel(sData=data.frame(s1=c(1:10),s2=c(10:1)))
-#' rL = HmscRandomLevel(units=as.factor(1:10))
+#' # Setting a random level with 50 units
+#' rL = HmscRandomLevel(units=TD$studyDesign$sample)
+#'
+#' # Setting a spatial random level
+#' rL = HmscRandomLevel(sData=TD$xycoords)
+#'
+#' # Setting a covariate dependent random level.
+#' rL = HmscRandomLevel(xData=data.frame(x1=rep(1,length(TD$X$x1)),x2=TD$X$x2))
 #'
 #' @export
 
@@ -32,7 +38,7 @@ HmscRandomLevel = function(sData=NULL, distMat=NULL, xData=NULL, units=NULL, N=N
    rL = structure(list(pi=NULL, s=NULL, sDim=NULL, x=NULL, xDim=NULL, N=NULL, distMat=NULL, #
       nfMax=NULL, nfMin=NULL, nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, alphapw=NULL), class="HmscRandomLevel")
    if(nargs()==0)
-      stop("HmscRandomLevel: At least one argumnet should be specified")
+      stop("HmscRandomLevel: At least one argument should be specified")
    if(!is.null(distMat) && !is.null(sData)){
       stop("HmscRandomLevel: both sData and distMat arguments cannot be specified")
    }

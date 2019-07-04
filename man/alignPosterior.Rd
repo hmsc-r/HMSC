@@ -9,3 +9,8 @@ alignPosterior(hM)
 \description{
 Aligns posterior in terms of variable susceptible for label switching
 }
+\examples{
+# Align the posterior for a previously fitted HMSC model
+m = alignPosterior(TD$m)
+
+}

@@ -5,6 +5,10 @@
 #' @param VP A HMSC variance partitioning produced by `HMSC::computeVariancePartitioning`
 #' @param ... other parameters passed to the barplot function
 #'
+#' @examples
+#' # Plot how the explained variance of a previously fitted model is partitioned
+#' VP = computeVariancePartitioning(TD$m)
+#' plotVariancePartitioning(TD$m,VP)
 #'
 #' @importFrom graphics barplot
 #' @importFrom grDevices heat.colors

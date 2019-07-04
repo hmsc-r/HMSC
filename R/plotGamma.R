@@ -15,10 +15,13 @@
 #'
 #'
 #' @examples
-#' \dontrun{
-#' gammaPost=getPostEstimate(hM, "Gamma")
-#' plotGamma(hM, post = gammaPost, param = "Support)
-#' }
+#' # Plot posterior support values of trait effects on environmental responses
+#' gammaPost=getPostEstimate(TD$m, "Gamma")
+#' plotGamma(TD$m, post=gammaPost, param="Support")
+#'
+#' # Plot parameter estimates of trait effects on environmental responses
+#' gammaPost=getPostEstimate(TD$m, "Gamma")
+#' plotGamma(TD$m, post=gammaPost, param="Mean")
 #'
 #' @importFrom graphics par plot.new axis text
 #' @importFrom grDevices colorRampPalette
@@ -26,7 +29,7 @@
 #'
 #' @export
 
-plotGamma=function(hM, post, param = "Gamma", trOrder="Original",
+plotGamma=function(hM, post, param = "Support", trOrder="Original",
   trVector= NULL, covOrder="Original",covVector=NULL, trNamesNumbers=c(T,T),
   covNamesNumbers=c(T,T),supportLevel=.9,cex=c(.8,.8,.8),
   colors=colorRampPalette(c("blue","white","red")),colorLevels = NULL,

@@ -31,12 +31,15 @@
 #' \code{\link{constructGradient}}, \code{\link{predict}}
 #'
 #' @examples
-#' \dontrun{
-#' Gradient = constructGradient(hM=m, focalVariable="x1")
-#' predY = predict(m, Gradient=Gradient)
-#' plotGradient(m, Gradient, pred=predY, measure="S")
-#' plotGradient(m, Gradient, pred=predY, measure="Y", index = 2, showData = TRUE, jigger = 0.05)
-#' }
+#' # Plot response of species 2 over the gradient of environmental variable x1
+#' Gradient = constructGradient(TD$m, focalVariable="x1")
+#' predY = predict(TD$m, Gradient=Gradient)
+#' plotGradient(TD$m, Gradient, pred=predY, measure="Y", index = 2, showData = TRUE, jigger = 0.05)
+#'
+#' # Plot modelled species richness over the gradient of environmental variable x1
+#' Gradient = constructGradient(TD$m, focalVariable="x1")
+#' predY = predict(TD$m, Gradient=Gradient)
+#' plotGradient(TD$m, Gradient, pred=predY, measure="S")
 #'
 #' @importFrom stats quantile runif
 #' @importFrom graphics plot axis points polygon lines

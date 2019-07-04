@@ -7,16 +7,18 @@
 #' @param colvar The environmental covariate from XData according to which the sites are to be coloured
 #'
 #' @examples
-#' \dontrun{
-#' biPlot(m, etaPost = getPostEstimate(m, "Eta"), lambdaPost=getPostEstimate(m, "Lambda"), factors=c(1,2))
-#' }
+#' # Construct an ordination biplot using the first 2 latent factors from a previously fitted HMSC model
+#' etaPost = getPostEstimate(TD$m, "Eta")
+#' lambdaPost=getPostEstimate(TD$m, "Lambda")
+#' biPlot(TD$m, etaPost = etaPost, lambdaPost=lambdaPost, factors=c(1,2))
+#'
 #'
 #' @importFrom graphics plot points text
 #' @importFrom grDevices colorRampPalette
 #'
 #' @export
 
-biPlot=function(hM, etaPost, lambdaPost, factors=c(1,2), col=NULL, spNames=hM$spNames, ...){
+biPlot=function(hM, etaPost, lambdaPost, factors=c(1,2), colVar=NULL, spNames=hM$spNames, ...){
    if(!is.null(colVar)){
       col = hM$XData[,colVar]
       if (!class(col)=="factor"){

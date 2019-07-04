@@ -15,3 +15,8 @@ list of association matrices (\eqn{\omega}) corresponding to each random level i
 \description{
 Computes the species association matrices
 }
+\examples{
+# Compute the associations between species from a HMSC model
+assoc = computeAssociations(TD$m)
+
+}
