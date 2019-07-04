@@ -4,7 +4,7 @@
 \alias{plotGamma}
 \title{plotGamma}
 \usage{
-plotGamma(hM, post, param = "Gamma", trOrder = "Original",
+plotGamma(hM, post, param = "Support", trOrder = "Original",
   trVector = NULL, covOrder = "Original", covVector = NULL,
   trNamesNumbers = c(T, T), covNamesNumbers = c(T, T),
   supportLevel = 0.9, cex = c(0.8, 0.8, 0.8),
@@ -37,4 +37,14 @@ plotGamma(hM, post, param = "Gamma", trOrder = "Original",
 }
 \description{
 Plots heatmaps of parameter estimates or posterior support values of trait effects on species' environmental responses, i.e. how environmental responses in \code{Beta} responds to covariates in \code{X}
+}
+\examples{
+# Plot posterior support values of trait effects on environmental responses
+gammaPost=getPostEstimate(TD$m, "Gamma")
+plotGamma(TD$m, post=gammaPost, param="Support")
+
+# Plot parameter estimates of trait effects on environmental responses
+gammaPost=getPostEstimate(TD$m, "Gamma")
+plotGamma(TD$m, post=gammaPost, param="Mean")
+
 }
