@@ -29,9 +29,9 @@ Imports:
    methods,
    mvtnorm,
    nnet,
+   parallel,
    pdist,
    pROC,
    phytools,
-   snow,
    statmod,
    truncnorm
