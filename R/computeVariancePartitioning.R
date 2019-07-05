@@ -39,7 +39,7 @@ computeVariancePartitioning = function(hM, group=NULL, groupnames=NULL, start=1,
    nr = hM$nr
 
    if(is.null(group)){
-      group = seq_len(nc-1)
+      group = c(1,seq_len(nc-1))
       groupnames = hM$covNames[2:nc]
    }
    ngroups = max(group);
