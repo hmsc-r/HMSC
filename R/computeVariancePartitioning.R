@@ -39,8 +39,14 @@ computeVariancePartitioning = function(hM, group=NULL, groupnames=NULL, start=1,
    nr = hM$nr
 
    if(is.null(group)){
-      group = c(1,seq_len(nc-1))
-      groupnames = hM$covNames[2:nc]
+      if(nc>1){
+         group = c(1,seq_len(nc-1))
+         groupnames = hM$covNames[2:nc]
+      } else {
+         group = c(1)
+         groupnames = hM$covNames[1]
+      }
+
    }
    ngroups = max(group);
    fixed = matrix(0,nrow=ns,ncol=1);
