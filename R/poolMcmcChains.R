@@ -7,6 +7,10 @@
 #' @param start index of first MCMC sample included
 #' @param thin thinning between included MCMC samples
 #'
+#' @examples
+#' # Combine the posteriors from all chains in a Hmsc object
+#' postList = TD$m$postList
+#' pooledPost = poolMcmcChains(postList)
 #'
 #' @return a list with combined MCMC samples
 #'

@@ -23,15 +23,16 @@
 #' \code{\link{plotGradient}}, \code{\link{predict}}
 #'
 #' @examples
-#' \dontrun{
-#' Gradient = constructGradient(hM=m, focalVariable="x2", non.focalVariables=list(x1=list(3,1),x3=list(1)))
-#' predY = predict(m, Gradient=Gradient)
-#' plotGradient(m, Gradient, pred=predY, measure="S")
-#' }
+#' # Construct gradient for environmental covariate called 'x1'.
+#' Gradient = constructGradient(TD$m, focalVariable="x1")
+#'
+#' # Construct gradient for environmental covariate called 'x1'
+#' # while setting the other covariate to its most likely values
+#' Gradient = constructGradient(TD$m, focalVariable="x1",non.focalVariables=list(x2=list(1)))
 #'
 #' @importFrom stats lm predict
 #' @importFrom nnet multinom
-#' 
+#'
 #' @export
 
 constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid=20){

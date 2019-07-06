@@ -17,10 +17,13 @@
 #'
 #'
 #' @examples
-#' \dontrun{
-#' betaPost=getPostEstimate(hM, "Beta")
-#' plotBeta(hM, post = betaPost, param = "Support)
-#' }
+#' # Plot posterior support values of species' environmental responses
+#' betaPost=getPostEstimate(TD$m, "Beta")
+#' plotBeta(TD$m, post=betaPost, param="Support")
+#'
+#' # Plot parameter estimates of species' environmental responses together with the phylogenetic tree
+#' betaPost=getPostEstimate(TD$m, "Beta")
+#' plotBeta(TD$m, post=betaPost, param="Mean", plotTree=TRUE)
 #'
 #' @importFrom graphics par plot plot.new axis text
 #' @importFrom grDevices colorRampPalette

@@ -36,19 +36,17 @@ appropriate conditional predictions. The option Yc can be used alternatively to 
 to a fixed set of data (independent on which sampling unit and species the predictions are made for).
 }
 \examples{
+# Compute predicted values using a previously fitted HMSC model
+preds = computePredictedValues(TD$m)
+
 \dontrun{
-preds = computePredictedValues(m)
-MF = evaluateModelFit(hM=m, predY=preds)
+# Compute predicted values for a previously fitted HMSC model using 2 folds
+partition = createPartition(TD$m, nfolds = 2)
+predsCV1 = computePredictedValues(TD$m,partition=partition)
 
-partition = createPartition(m, nfolds = 2)
-predsCV1 = computePredictedValues(m,partition=partition)
-MFCV1 = evaluateModelFit(hM=m, predY=predsCV1)
-
-predsCV2 = computePredictedValues(m, partition = partition, partition.sp = 1:m$ns, mcmcStep = 100)
-MFCV2 = evaluateModelFit(hM=m, predY=predsCV2)
-
-# Here it is expected that the measures of model fit be highest for MF,
-# second highest for MFCV2, and lowest for MFCV1
+# Compute conditional predictions for a previously fitted HMSC model using 2 folds
+partition = createPartition(TD$m, nfolds = 2)
+predsCV2 = computePredictedValues(TD$m, partition = partition, partition.sp = 1:m$ns, mcmcStep = 100)
 }
 
 }

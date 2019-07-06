@@ -19,11 +19,13 @@
 #'
 #'
 #' @examples
-#' \dontrun{
-#' VP = computeVariancePartitioning(m, group=c(1,1,1,2,2), groupnames = c("habitat quality","climate"))
-#' VP$R2T
-#' plotVariancePartitioning(m,VP)
-#' }
+#' # Partition the explained variance for a previously fitted model
+#' # without grouping environmental covariates
+#' VP = computeVariancePartitioning(TD$m)
+#'
+#' # Partition the explained variance for a previously fitted model
+#' # while grouping the two environmental variables together
+#' VP = computeVariancePartitioning(TD$m, group=c(1,1), groupnames = c("Habitat"))
 #'
 #' @importFrom stats cov cor
 #' @export
@@ -37,8 +39,14 @@ computeVariancePartitioning = function(hM, group=NULL, groupnames=NULL, start=1,
    nr = hM$nr
 
    if(is.null(group)){
-      group = seq_len(nc-1)
-      groupnames = hM$covNames[2:nc]
+      if(nc>1){
+         group = c(1,seq_len(nc-1))
+         groupnames = hM$covNames[2:nc]
+      } else {
+         group = c(1)
+         groupnames = hM$covNames[1]
+      }
+
    }
    ngroups = max(group);
    fixed = matrix(0,nrow=ns,ncol=1);

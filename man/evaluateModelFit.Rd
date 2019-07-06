@@ -43,9 +43,13 @@ If the model involves a mixture of response variable types, the resulting measur
 contain NA:s for those response variables for which they cannot be computed.
 }
 \examples{
-\dontrun{
-preds = computePredictedValues(m)
-MF = evaluateModelFit(hM=m, predY=preds)
-}
+# Evaluate model fit
+preds = computePredictedValues(TD$m)
+MF = evaluateModelFit(hM=TD$m, predY=preds)
+
+# Evaluate model performance based on cross validation
+partition = createPartition(TD$m, nfolds = 2)
+predsCV1 = computePredictedValues(TD$m,partition=partition)
+MF = evaluateModelFit(hM=TD$m, predY=predsCV1)
 
 }

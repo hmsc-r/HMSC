@@ -12,6 +12,12 @@
 #' @return
 #' A named list of posterior quantities. Element mean
 #'
+#' @examples
+#' # Get posterior mean and support for species' responses to environmental covariates
+#' postBeta = getPostEstimate(TD$m, parName='Beta')
+#'
+#' # Get posterior mean and support for species' responses to latent factors for the first random level
+#' postLambda = getPostEstimate(TD$m, parName='Lambda',r=1)
 #'
 #' @importFrom stats cov2cor
 #' @importFrom abind abind

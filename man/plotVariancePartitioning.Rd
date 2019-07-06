@@ -16,3 +16,9 @@ plotVariancePartitioning(hM, VP, cols = NULL, ...)
 \description{
 Plots the results of variance partitioning of a HMSC model produced by `HMSC::computeVariancePartitioning` as a barplot
 }
+\examples{
+# Plot how the explained variance of a previously fitted model is partitioned
+VP = computeVariancePartitioning(TD$m)
+plotVariancePartitioning(TD$m,VP)
+
+}

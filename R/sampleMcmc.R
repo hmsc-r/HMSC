@@ -48,14 +48,18 @@
 #' @seealso \code{\link{Hmsc}}
 #'
 #' @examples
-#' Y = matrix(rnorm(100*10),100,10,dimnames=list(NULL,letters[1:10]))
-#' X = matrix(rnorm(100*3),100,3,dimnames=list(NULL,sprintf("cov%d",1:3)))
-#' m = Hmsc(Y=Y, XData=as.data.frame(X), XFormula=~cov1+cov3)
-#' m = sampleMcmc(m, 100)
+#' # Record 100 posterior samples from a Hmsc object
+#' m = sampleMcmc(TD$m, samples=100)
+#'
+#' \dontrun{
+#' # Record 1000 posterior samples while skipping 1 MCMC step inbetween samples
+#' # from 3 chains after discarding the first 500 MCMC steps
+#' m = sampleMcmc(TD$m, samples=1000, transient=500, thin=2, nChains=2, nParallel=1)
+#' }
 #'
 ## J.O. thinks that these functions should rather be imported from
 ## parallel which is a standard package supported by the R Core.
-#' @importFrom snow makeCluster clusterExport clusterEvalQ clusterApplyLB stopCluster
+#' @importFrom parallel makeCluster clusterExport clusterEvalQ clusterApplyLB stopCluster
 #' @export
 
 sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,

@@ -42,3 +42,13 @@ plotBeta(hM, post, param = "Support", plotTree = F,
 \description{
 Plots heatmaps of parameter estimates or posterior support values of species' environmental responses, i.e. how species in \code{Y} responds to covariates in \code{X}
 }
+\examples{
+# Plot posterior support values of species' environmental responses
+betaPost=getPostEstimate(TD$m, "Beta")
+plotBeta(TD$m, post=betaPost, param="Support")
+
+# Plot parameter estimates of species' environmental responses together with the phylogenetic tree
+betaPost=getPostEstimate(TD$m, "Beta")
+plotBeta(TD$m, post=betaPost, param="Mean", plotTree=TRUE)
+
+}

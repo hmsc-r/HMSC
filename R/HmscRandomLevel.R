@@ -27,8 +27,14 @@
 #' @seealso [setPriors.Hmsc()]
 #'
 #' @examples
-#' rL = HmscRandomLevel(sData=data.frame(s1=c(1:10),s2=c(10:1)))
-#' rL = HmscRandomLevel(units=as.factor(1:10))
+#' # Setting a random level with 50 units
+#' rL = HmscRandomLevel(units=TD$studyDesign$sample)
+#'
+#' # Setting a spatial random level
+#' rL = HmscRandomLevel(sData=TD$xycoords)
+#'
+#' # Setting a covariate dependent random level.
+#' rL = HmscRandomLevel(xData=data.frame(x1=rep(1,length(TD$X$x1)),x2=TD$X$x2))
 #'
 #' @export
 

@@ -14,3 +14,7 @@ createPartition(hM, nfolds = 10, column = NULL)
 \description{
 Constructs a partition vector given the number of folds and column of study design
 }
+\examples{
+# Create 3 folds for a HMSC object
+partition = createPartition(TD$m, nfolds = 3)
+}

@@ -23,3 +23,11 @@ A named list of posterior quantities. Element mean
 \description{
 Calculates mean, support and other posterior quantities for model parameter
 }
+\examples{
+# Get posterior mean and support for species' responses to environmental covariates
+postBeta = getPostEstimate(TD$m, parName='Beta')
+
+# Get posterior mean and support for species' responses to latent factors for the first random level
+postLambda = getPostEstimate(TD$m, parName='Lambda',r=1)
+
+}

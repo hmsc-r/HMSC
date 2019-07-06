@@ -5,6 +5,9 @@
 #'
 #' @return list of association matrices (\eqn{\omega}) corresponding to each random level in the model
 #'
+#' @examples
+#' # Compute the associations between species from a HMSC model
+#' assoc = computeAssociations(TD$m)
 #'
 #' @importFrom abind abind
 #'

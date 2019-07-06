@@ -21,3 +21,11 @@ A named list that can be analysed with \CRANpkg{coda} functions.
 \description{
 Converts Hmsc posterior structure into a named list of mcmc.list objects
 }
+\examples{
+# Convert recorded posterior samples in m object to coda object
+codaObject = convertToCodaObject(TD$m)
+
+# Convert recorded posterior samples, starting from sample 100, in m object to coda object
+codaObject = convertToCodaObject(TD$m,start=100)
+
+}

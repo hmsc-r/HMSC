@@ -81,13 +81,23 @@
 #' @seealso \code{\link{HmscRandomLevel}}, \code{\link{sampleMcmc}}, \code{\link{setPriors.Hmsc}}
 #'
 #' @examples
-#' Y = matrix(rnorm(100*10),100,10,dimnames=list(NULL,letters[1:10]))
-#' X = matrix(rnorm(100*3),100,3,dimnames=list(NULL,sprintf("cov%d",1:3)))
-#' m = Hmsc(Y=Y, XData=as.data.frame(X), XFormula=~cov1+cov3)
+#' # Creating a Hmsc object without phylogeny, trait data or random levels
+#' m = Hmsc(Y=TD$Yprob, XData=TD$X, XFormula=~x1+x2)
+#'
+#' # Creating a Hmsc object with phylogeny and traits
+#' m = Hmsc(Y=TD$Yprob, XData=TD$X, XFormula=~x1+x2,
+#' TrData=TD$Tr, TrFormula=~T1+T2, phyloTree=TD$phylo)
+#'
+#' # Creating a Hmsc object with 2 nested random levels (50 sampling units in 20 plots)
+#' studyDesign = data.frame(sample = as.factor(1:50), plot = as.factor(sample(1:20,50,replace=TRUE)))
+#' rL1 = HmscRandomLevel(units=TD$studyDesign$plot)
+#' rL2 = HmscRandomLevel(units=TD$studyDesign$sample)
+#' m = Hmsc(Y=TD$Yprob, XData=TD$X, XFormula=~x1+x2,
+#' studyDesign=studyDesign,ranLevels=list("sample"=rL1,"plot"=rL2))
 #'
 #' @importFrom stats model.matrix
 #' @importFrom ape vcv.phylo
-#' 
+#'
 #' @export
 
 

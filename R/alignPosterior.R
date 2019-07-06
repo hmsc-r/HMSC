@@ -2,8 +2,13 @@
 #'
 #' @description Aligns posterior in terms of variable susceptible for label switching
 #'
+#' @examples
+#' # Align the posterior for a previously fitted HMSC model
+#' m = alignPosterior(TD$m)
+#'
 #' @importFrom stats cor
 #' @importFrom abind abind
+#'
 #' @export
 
 alignPosterior=function(hM){

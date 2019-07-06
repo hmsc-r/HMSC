@@ -4,7 +4,7 @@
 \alias{biPlot}
 \title{biPlot}
 \usage{
-biPlot(hM, etaPost, lambdaPost, factors = c(1, 2), col = NULL,
+biPlot(hM, etaPost, lambdaPost, factors = c(1, 2), colVar = NULL,
   spNames = hM$spNames, ...)
 }
 \arguments{
@@ -20,8 +20,10 @@ biPlot(hM, etaPost, lambdaPost, factors = c(1, 2), col = NULL,
 Constructs a ordination biplot based on the fitted model
 }
 \examples{
-\dontrun{
-biPlot(m, etaPost = getPostEstimate(m, "Eta"), lambdaPost=getPostEstimate(m, "Lambda"), factors=c(1,2))
-}
+# Construct an ordination biplot using the first 2 latent factors from a previously fitted HMSC model
+etaPost = getPostEstimate(TD$m, "Eta")
+lambdaPost=getPostEstimate(TD$m, "Lambda")
+biPlot(TD$m, etaPost = etaPost, lambdaPost=lambdaPost, factors=c(1,2))
+
 
 }

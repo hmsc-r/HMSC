@@ -32,11 +32,12 @@ if a non.focalVariable is not listed, type=2 is used as default
 note that if focal variable is continuous, selecting type 2 for a non-focal categorical variable can cause abrupt changes in response
 }
 \examples{
-\dontrun{
-Gradient = constructGradient(hM=m, focalVariable="x2", non.focalVariables=list(x1=list(3,1),x3=list(1)))
-predY = predict(m, Gradient=Gradient)
-plotGradient(m, Gradient, pred=predY, measure="S")
-}
+# Construct gradient for environmental covariate called 'x1'.
+Gradient = constructGradient(TD$m, focalVariable="x1")
+
+# Construct gradient for environmental covariate called 'x1'
+# while setting the other covariate to its most likely values
+Gradient = constructGradient(TD$m, focalVariable="x1",non.focalVariables=list(x2=list(1)))
 
 }
 \seealso{
