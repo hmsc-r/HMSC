@@ -59,7 +59,7 @@
 #'
 ## J.O. thinks that these functions should rather be imported from
 ## parallel which is a standard package supported by the R Core.
-#' @importFrom snow makeCluster clusterExport clusterEvalQ clusterApplyLB stopCluster
+#' @importFrom parallel makeCluster clusterExport clusterEvalQ clusterApplyLB stopCluster
 #' @export
 
 sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
