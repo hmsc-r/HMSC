@@ -1,6 +1,6 @@
 # Hmsc
 
-[![Build Status](https://travis-ci.org/jarioksa/HMSC.svg?branch=travis)](https://travis-ci.org/jarioksa/HMSC)
+[![Build Status](https://travis-ci.org/jarioksa/HMSC.svg?branch=master)](https://travis-ci.org/jarioksa/HMSC)
 
 ## Description
 Hierarchical Modelling of Species Communities (`Hmsc`) is a flexible framework for Joint Species Distribution Modelling (JSDMs). The framework can be used to relate species occurrences or abundances to environmental covariates, species traits and phylogenetic relationships. JSDMs are a special case of species distribution models (SDMs) that take into account the multivariate nature of communities which allows us to estimate community level responses as well capture biotic interactions and the influence of missing covariates in residual species associations. 

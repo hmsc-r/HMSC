@@ -4,6 +4,11 @@ cache: packages
 r:
   - release
 
+branches:
+  only:
+    - master
+    - travis
+
 sudo: false
 
 r_binary_packages:
