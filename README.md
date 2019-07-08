@@ -37,4 +37,4 @@ For covariate dependent species associations:
 
 To get started with the package, we recommend to start with following the vignettes and reading the help pages for the `Hmsc`, `HmscRandomLevel` and `sampleMcmc` function.   
 
-
+[![Build Status](https://travis-ci.org/jarioksa/HMSC.svg?branch=master)](https://travis-ci.org/jarioksa/HMSC)

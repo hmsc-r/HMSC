@@ -1,0 +1,35 @@
+language: r
+cache: packages
+
+r:
+  - release
+
+sudo: false
+
+r_binary_packages:
+  - coda
+  - testthat
+  - R.rsp
+  - abind
+  - ape
+  - fields
+  - ggplot2
+  - MASS
+  - Matrix
+  - MCMCpack
+  - methods
+  - mvtnorm
+  - nnet
+  - parallel
+  - pdist
+  - pROC
+  - phytools
+  - statmod
+  - truncnorm
+  
+r_github_packages:
+  - jarioksa/BayesLogit-1
+
+warnings_are_errors: false
+
+r_check_revdep: false
