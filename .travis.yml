@@ -28,6 +28,8 @@ r_binary_packages:
   - parallel
   - pdist
   - pROC
+  - magick
+  - animation
   - phytools
   - statmod
   - truncnorm
