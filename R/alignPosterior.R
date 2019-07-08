@@ -1,6 +1,8 @@
 #' @title alignPosterior
 #'
-#' @description Aligns posterior in terms of variable susceptible for label switching
+#' @description Aligns posterior in terms of variables susceptible to label switching
+#'
+#' @param hM a fitted \code{Hmsc} model object
 #'
 #' @examples
 #' # Align the posterior for a previously fitted HMSC model

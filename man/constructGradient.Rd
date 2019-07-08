@@ -8,28 +8,29 @@ constructGradient(hM, focalVariable, non.focalVariables = list(),
   ngrid = 20)
 }
 \arguments{
+\item{hM}{a fitted \code{Hmsc} model object}
+
 \item{focalVariable}{focal variable over which the gradient is constructed}
 
-\item{ngrid}{number of points along the gradient (for continuous focal variable)}
+\item{non.focalVariables}{list giving assumptions on how non-focal variables co-vary with the focal variable}
 
-\item{non.focalVariable}{assumptions on how non-focal variables co-vary with the focal variable}
-}
-\value{
-a named list with members \code{XDataNew}, \code{studyDesignNew} and \code{rLNew}
+\item{ngrid}{number of points along the gradient (for continuous focal variables)
+
+#' @return a named list with slots \code{XDataNew}, \code{studyDesignNew} and \code{rLNew}}
 }
 \description{
 Constructs an environmental gradient over one of the variables included in \code{XData}
 }
 \details{
-non.focalVariables is a list, of which each element is of form variable=list(type,value).
+\code{non.focalVariables} is a list, of which each element is on the form variable=list(type,value),
 where variable is one of the non-focal variables, and the value is needed only if type = 3
 type = 1 sets the values of the non-focal variable
-to the most likely value (defined as expected value for covarites, mode for factors)
+to the most likely value (defined as expected value for covariates, mode for factors)
 type = 2 sets the values of the non-focal variable to most likely value, given the value of focal variable,
-based on linear relationship
+based on a linear relationship
 type = 3 fixes to the value given.
 if a non.focalVariable is not listed, type=2 is used as default
-note that if focal variable is continuous, selecting type 2 for a non-focal categorical variable can cause abrupt changes in response
+note that if the focal variable is continuous, selecting type 2 for a non-focal categorical variable can cause abrupt changes in response
 }
 \examples{
 # Construct gradient for environmental covariate called 'x1'.

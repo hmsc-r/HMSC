@@ -6,8 +6,11 @@
 \usage{
 alignPosterior(hM)
 }
+\arguments{
+\item{hM}{a fitted \code{Hmsc} model object}
+}
 \description{
-Aligns posterior in terms of variable susceptible for label switching
+Aligns posterior in terms of variables susceptible to label switching
 }
 \examples{
 # Align the posterior for a previously fitted HMSC model

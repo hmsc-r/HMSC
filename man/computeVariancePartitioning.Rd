@@ -8,25 +8,29 @@ computeVariancePartitioning(hM, group = NULL, groupnames = NULL,
   start = 1, na.ignore = F)
 }
 \arguments{
+\item{hM}{a fitted \code{Hmsc} model object}
+
 \item{group}{vector of numeric values corresponding to group identifiers in groupnames}
 
-\item{groupnames}{vector of names for each random and fixed effect}
+\item{groupnames}{vector of names for each group of fixed effect}
 
 \item{start}{index of first MCMC sample included}
 
-\item{na.ignore}{Logical. If TRUE, covariates are ignored for sites where the focal species is NA when computing variance-covariance matrices for each species}
+\item{na.ignore}{logical. If TRUE, covariates are ignored for sites where the focal species
+is NA when computing variance-covariance matrices for each species}
 }
 \value{
 returns an object VP with components VP$vals, VP$R2T, VP$group and VP$groupnames.
 }
 \description{
-Computes variance partitions with respect to given grouping of fixed effects and levels of random effects
+Computes variance components with respect to given grouping of fixed effects and levels
+of random effects
 }
 \details{
 The vector \code{group} has one value for each column of the matrix \code{hM$X}, describing the index of the
-group to which this column is to be included. The names of the group are given by \code{groupnames}. The output object
-\code{VP$vals} gives the variance proportion for each group and species. The output object \code{VP$R2T} has shows the
-variance among species explained by traits, measured for species niches (\code{VP$R2T$Beta}) and species occurrences
+group in which this column is to be included. The names of the group are given by \code{groupnames}. The output object
+\code{VP$vals} gives the variance proportion for each group and species. The output object \code{VP$R2T} gives the
+variance among species explained by traits, measured for species' responses to covariates (\code{VP$R2T$Beta}) and species occurrences
 (\code{VP$R2T$Y})
 }
 \examples{

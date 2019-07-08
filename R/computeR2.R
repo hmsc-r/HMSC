@@ -1,6 +1,6 @@
 #' @title Hmsc$computeR2
 #'
-#' @description Computes explainatory R2 measure based on predicted species abundance matrix
+#' @description Computes explanatory R2 measure based on predicted species abundance matrix
 #' @param predY vector of predictions from the trained model
 #'
 #'

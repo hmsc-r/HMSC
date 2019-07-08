@@ -10,22 +10,24 @@ sampleMcmc(hM, samples, transient = 0, thin = 1, initPar = NULL,
   fromPrior = FALSE, alignPost = TRUE)
 }
 \arguments{
+\item{hM}{a fitted \code{Hmsc} model object}
+
 \item{samples}{the number of MCMC samples to be obtained in each chain}
 
 \item{transient}{the number of MCMC steps that are executed before starting recording posterior samples}
 
-\item{thin}{the number of MCMC steps between recording samples to the posterior}
+\item{thin}{the number of MCMC steps between each recording of samples from the posterior}
 
-\item{initPar}{a named list with parameter values that is used for initialization of MCMC states}
+\item{initPar}{a named list of parameter values used for initiation of MCMC states}
 
-\item{verbose}{the interval between MCMC steps, when the MCMC progress is printed to the console}
+\item{verbose}{the interval between MCMC steps printed to the console}
 
-\item{adaptNf}{a vector of length \eqn{n_r} with number of MCMC steps at which the adaptation of the number of latent
-factors is conducted}
+\item{adaptNf}{a vector of length \eqn{n_r} with number of MCMC steps at which the adaptation of the
+number of latent factors is conducted}
 
-\item{nChains}{number of independent MCMC chains to run}
+\item{nChains}{number of independent MCMC chains to be run}
 
-\item{nParallel}{number of parallel processes that the chains are executed among}
+\item{nParallel}{number of parallel processes by which the chains are executed}
 
 \item{dataParList}{a named list with pre-computed \code{Qg}, \code{iQg}, \code{RQg}, \code{detQg}, \code{rLPar}
 parameters}
@@ -33,9 +35,11 @@ parameters}
 \item{updater}{a named list, specifying which conditional updaters should be ommitted}
 
 \item{fromPrior}{whether prior (TRUE) or posterior (FALSE) is to be sampled}
+
+\item{alignPost}{boolean flag indicating whether the posterior of each chains should be aligned}
 }
 \value{
-an \code{Hmsc}-class object with chains of posterior samples added to the \code{postList} field
+An \code{Hmsc}-class object with chains of posterior samples added to the \code{postList} field
 }
 \description{
 Samples the posterior with block-conditional Gibbs MCMC sampler
@@ -43,7 +47,7 @@ Samples the posterior with block-conditional Gibbs MCMC sampler
 \details{
 The exact number of samples to be recorded in order to get a proper estimate of the full posterior with
   Gibbs MCMC algorithms, as well as the required thinning and cut-off of transient is very problem-specific and
-  depends both on the model structure and the data itself. Therefore, in general it is very cahllenging to a priori
+  depends both on the model structure and the data itself. Therefore, in general it is very challenging to a priori
   provide an informed recommendation on what values should be used for a particular problem. A common recommended
   strategy involves executing the posterior sampling with MCMC with some guess of the values for these arguments,
   checking the properties of the obtained samples (primarily potential scale reduction factor and effective sample
@@ -52,27 +56,28 @@ The exact number of samples to be recorded in order to get a proper estimate of 
   The value of 1 for \code{thin} argument means that at each MCMC step after the transient a sample is recorded.
 
   Typically, the vlaue of \code{nParallel} equal to \code{nChains} leads to most efficient usage of available
-  parallelization capacities. However, this may be not the case if the R is configured with multi-tread linear
-  algebra libraries. For debug and test purposes, the \code{nParallel} shall be set to 1, since only in this case a
-  detailization of the potentially encountered errors would be available.
+  parallelization capacities. However, this may be not the case if R is configured with multi-tread linear
+  algebra libraries. For debug and test purposes, the \code{nParallel} should be set to 1, since only in this case a
+  details of the potentially encountered errors would be available.
 
-  The \code{dataParList} argument may be handy for large problems that needed to be refitted multiple times, e.g.
-  with different prior values. In that case, the data parameters that are precomputed for Hmsc sampling scheme may
-  require undesirably lot of storage space if they are saved for each of the model. Instead, they could be computed
-  only once and then directly reused, therefore reducing the storing redundancy.
+  The \code{dataParList} argument may be handy for large problems that needs to be refitted multiple times, e.g.
+  with different prior values. In that case, the data parameters that are precomputed for the Hmsc sampling
+  scheme may require an undesirably lot of storage space if they are saved for each of the model.
+  Instead, they could be computed only once and then directly reused, therefore reducing the storing redundancy.
 
-  Some of available conditional updaters partially duplicate each other. In certain cases, the usage of all of them
-  may lead to subotpimal performance, compared some subset of those. Then, it is possible to manually disable some of
-  them, by adding a \code{$UPDATER_NAME=FALSE} pair to the {updater} argument. Another usage of this argument
-  involves cases when some of the model parameters are known and have to be fixed. However, such tweaks of the
-  sampling scheme should be done with caution, as if compromized they would lead to erroneuos results.
+  Some of the available conditional updaters partially duplicate each other. In certain cases, the usage of all
+  of them may lead to suboptimal performance, compared to some subset of those. Then, it is possible to manually
+  disable some of them, by adding a \code{$UPDATER_NAME=FALSE} pair to the {updater} argument. Another usage of
+  this argument involves cases when some of the model parameters are known and have to be fixed. However, such
+  tweaks of the sampling scheme should be done with caution, as if compromized they would lead to erroneuos
+  results.
 }
 \examples{
 # Record 100 posterior samples from a Hmsc object
 m = sampleMcmc(TD$m, samples=100)
 
 \dontrun{
-# Record 1000 posterior samples while skipping 1 MCMC step inbetween samples
+# Record 1000 posterior samples while skipping 1 MCMC step between samples
 # from 3 chains after discarding the first 500 MCMC steps
 m = sampleMcmc(TD$m, samples=1000, transient=500, thin=2, nChains=2, nParallel=1)
 }

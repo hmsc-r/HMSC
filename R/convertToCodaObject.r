@@ -1,30 +1,34 @@
 #' @title Hmsc$convertToCodaObject
 #'
-#' @description Converts Hmsc posterior structure into a named list of mcmc.list objects
+#' @description Converts the Hmsc posterior into a named list of mcmc.list objects
+#' @param hM a fitted \code{Hmsc} model object
 #' @param start index of first MCMC sample included
-#' @param spNamesNumbers
-#' @param covNamesNumbers
-#' @param trNamesNumbers
-#' @param Beta
-#' @param Gamma
-#' @param V
-#' @param Sigma
-#' @param Rho
-#' @param Eta
-#' @param Lambda
-#' @param Alpha
-#' @param Omega
-#' @param Psi
-#' @param Delta
+#' @param spNamesNumbers logical of length 2, where first entry controls whether species names are printed,
+#' and second entry controls whether species numbers are printed
+#' @param covNamesNumbers Logical of length 2, where first entry controls whether covariate names are printed,
+#' and second entry controls whether covariate numbers are printed
+#' @param trNamesNumbers Logical of length 2, where first entry controls whether trait names are printed,
+#' and second entry controls whether traits numbers are printed
+#' @param Beta logical indicating whether posterior of Beta is included
+#' @param Gamma logical indicating whether posterior of Gamma is included
+#' @param V logical indicating whether posterior of V is included
+#' @param Sigma logical indicating whether posterior of Sigma is included
+#' @param Rho logical indicating whether posterior of Rho is included
+#' @param Eta logical indicating whether posterior of Eta is included
+#' @param Lambda logical indicating whether posterior of Lambda is included
+#' @param Alpha logical indicating whether posterior of Alpha is included
+#' @param Omega logical indicating whether posterior of Omega is included
+#' @param Psi logical indicating whether posterior of Psi is included
+#' @param Delta logical indicating whether posterior of Delta is included
 #'
 #' @return A named list that can be analysed with \CRANpkg{coda} functions.
 #'
 #' @examples
-#' # Convert recorded posterior samples in m object to coda object
+#' # Convert recorded posterior samples in \code{Hmsc} object to coda object
 #' codaObject = convertToCodaObject(TD$m)
 #'
 #' # Convert recorded posterior samples, starting from sample 100, in m object to coda object
-#' codaObject = convertToCodaObject(TD$m,start=100)
+#' codaObject = convertToCodaObject(TD$m, start=100)
 #'
 #' @importFrom coda mcmc mcmc.list
 #' @export

@@ -7,8 +7,10 @@
 computeInitialParameters(hM, initPar)
 }
 \arguments{
-\item{initPar}{initial parameters value}
+\item{hM}{a fitted \code{Hmsc} model object}
+
+\item{initPar}{initial parameter values}
 }
 \description{
-Computes the initial values before the sampling starts
+Computes initial parameter values before the sampling starts
 }

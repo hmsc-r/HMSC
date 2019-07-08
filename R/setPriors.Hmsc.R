@@ -1,9 +1,9 @@
 #' @title setPriors.Hmsc
 #'
-#' @description Sets or resets priors to the Hmsc object
-#'
+#' @description Sets or resets priors to the \code{Hmsc} object
+#' @param hM a fitted \code{Hmsc} model object
 #' @param V0 scale matrix in the Wishart prior distribution for the V matrix
-#' @param f0 number of degreees of freedom in the Wishart prior distribution for the V matrix
+#' @param f0 number of degrees of freedom in the Wishart prior distribution for the V matrix
 #' @param mGamma mean for the prior multivariate Gaussian distribution for Gamma parameters
 #' @param UGamma covariance matrix for the prior multivariate Gaussian distribution for Gamma parameters
 #' @param aSigma
@@ -15,7 +15,7 @@
 #' @param b2
 #' @param rhopw
 #' @param setDefault
-#' @param \dots Other paremeters to the function.
+#' @param \dots other parameters passed to the function.
 #'
 #' @return Modified \code{Hmsc} object
 #'
@@ -72,7 +72,7 @@ setPriors.Hmsc = function(hM, V0=NULL, f0=NULL, mGamma=NULL,
 
    if(!is.null(rhopw)){
       if(is.null(hM$C))
-         stop("HMSC.setPriors: prior for phylogeny given, but not phylogenic relationship matrix was specified")
+         stop("HMSC.setPriors: prior for phylogeny given, but no phylogenic relationship matrix was specified")
       if(ncol(rhopw)!=2)
          stop("HMSC.setPriors: rhopw must be a matrix with two columns")
       hM$rhopw = rhopw

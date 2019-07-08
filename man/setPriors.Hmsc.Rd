@@ -11,19 +11,21 @@
   rhopw = NULL, setDefault = FALSE, ...)
 }
 \arguments{
+\item{hM}{a fitted \code{Hmsc} model object}
+
 \item{V0}{scale matrix in the Wishart prior distribution for the V matrix}
 
-\item{f0}{number of degreees of freedom in the Wishart prior distribution for the V matrix}
+\item{f0}{number of degrees of freedom in the Wishart prior distribution for the V matrix}
 
 \item{mGamma}{mean for the prior multivariate Gaussian distribution for Gamma parameters}
 
 \item{UGamma}{covariance matrix for the prior multivariate Gaussian distribution for Gamma parameters}
 
-\item{\dots}{Other paremeters to the function.}
+\item{\dots}{other parameters passed to the function.}
 }
 \value{
 Modified \code{Hmsc} object
 }
 \description{
-Sets or resets priors to the Hmsc object
+Sets or resets priors to the \code{Hmsc} object
 }

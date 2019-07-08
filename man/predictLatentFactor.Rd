@@ -8,9 +8,9 @@ predictLatentFactor(unitsPred, units, postEta, postAlpha, rL,
   predictMean = FALSE, predictMeanField = FALSE)
 }
 \arguments{
-\item{unitsPred}{a factor vector with random level's units for which predictions are to be made}
+\item{unitsPred}{a factor vector with random level units for which predictions are to be made}
 
-\item{units}{a factor vector with random level's units that are conditioned on}
+\item{units}{a factor vector with random level units that are conditioned on}
 
 \item{postEta}{a list containing samples of random factors at conditioned units}
 
