@@ -1,23 +1,27 @@
 #' @title Hmsc$getPostEstimate
 #'
-#' @description Calculates mean, support and other posterior quantities for model parameter
+#' @description Calculates mean, support and other posterior quantities for a specified model parameter
 #'
-#' @param parName The name of the parameter to be summarized. Can take value of
+#' @param hM a fitted \code{Hmsc} model object
+#' @param parName name of the parameter to be summarized. Can take value of
 #'  model's baseline parameters, "Omega" or "OmegaCor".
-#' @param r Which random level calculate the parameter for. Has effect only for Eta, Lambda, Omega and OmegaCor.
-#' @param q Which quantiles to calculate.
-#' @param chainIndex Which posterir chains to use for summarization (defaults to all)
+#' @param r the random level for which to calculate the parameter. Has effect only for Eta, Lambda, Omega and OmegaCor.
+#' @param x
+#' @param q vector of quantiles to calculate.
+#' @param chainIndex which posterior chains to use for summarization (defaults to all)
+#' @param start index of first MCMC sample included
+#' @param thin thinning interval of posterior distribution
 #'
 #'
 #' @return
-#' A named list of posterior quantities. Element mean
+#' A named list of posterior quantities.
 #'
 #' @examples
 #' # Get posterior mean and support for species' responses to environmental covariates
 #' postBeta = getPostEstimate(TD$m, parName='Beta')
 #'
 #' # Get posterior mean and support for species' responses to latent factors for the first random level
-#' postLambda = getPostEstimate(TD$m, parName='Lambda',r=1)
+#' postLambda = getPostEstimate(TD$m, parName='Lambda', r=1)
 #'
 #' @importFrom stats cov2cor
 #' @importFrom abind abind
@@ -25,7 +29,7 @@
 #' @export
 
 
-getPostEstimate = function(hM, parName, r=1, x=NULL, q=c(), chainIndex=1:length(hM$postList), start = 1, thin = 1){
+getPostEstimate = function(hM, parName, r=1, x=NULL, q=c(), chainIndex=1:length(hM$postList), start=1, thin=1){
    bind0 = function(...){
       abind(...,along=0)
    }

@@ -2,8 +2,8 @@
 #'
 #' @description Draws samples from the conditional predictive distribution of latent factors
 #'
-#' @param unitsPred a factor vector with random level's units for which predictions are to be made
-#' @param units a factor vector with random level's units that are conditioned on
+#' @param unitsPred a factor vector with random level units for which predictions are to be made
+#' @param units a factor vector with random level units that are conditioned on
 #' @param postEta a list containing samples of random factors at conditioned units
 #' @param postAlpha a list containing samples of range (lengthscale) parameters for latent factors
 #' @param rL a \code{HmscRandomLevel}-class object that describes the random level structure
@@ -28,12 +28,12 @@
 #'
 #' @importFrom stats rnorm dist
 #' @importFrom pdist pdist
-#' 
+#'
 #' @export
 
 predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predictMean=FALSE, predictMeanField=FALSE){
    if(predictMean==TRUE && predictMeanField==TRUE)
-      stop("Hmsc.predictLatentFactor: predictMean and predictMeanField arguments cannot be TRUE simultanuisly")
+      stop("Hmsc.predictLatentFactor: predictMean and predictMeanField arguments cannot be simultaneously TRUE")
    predN = length(postEta)
    indOld = (unitsPred %in% units)
    indNew = !(indOld)

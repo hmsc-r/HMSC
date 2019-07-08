@@ -7,9 +7,11 @@
 createPartition(hM, nfolds = 10, column = NULL)
 }
 \arguments{
+\item{hM}{a fitted \code{Hmsc} model object}
+
 \item{nfolds}{number of cross-validation folds}
 
-\item{column}{name or index of the column in studyDesign matrix, corresponding to the level, units of which are splitted to folds}
+\item{column}{name or index of the column in the \code{studyDesign} matrix, corresponding to the level for which units are splitted into folds}
 }
 \description{
 Constructs a partition vector given the number of folds and column of study design

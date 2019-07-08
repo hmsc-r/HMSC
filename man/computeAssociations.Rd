@@ -7,16 +7,20 @@
 computeAssociations(hM, start = 1, thin = 1)
 }
 \arguments{
+\item{hM}{a fitted \code{Hmsc} model object}
+
 \item{start}{index of first MCMC sample included}
+
+\item{thin}{thinning interval of posterior distribution}
 }
 \value{
 list of association matrices (\eqn{\omega}) corresponding to each random level in the model
 }
 \description{
-Computes the species association matrices
+Computes the species association matrices associated with each random level
 }
 \examples{
-# Compute the associations between species from a HMSC model
+# Compute the associations (residual correlations) between species from a HMSC model
 assoc = computeAssociations(TD$m)
 
 }
