@@ -1,6 +1,6 @@
 #' @title Hmsc$computeWAIC
 #'
-#' @description Computes the value of WAIC (Widely Applicable Information Criterion) for the \code(Hmsc) model
+#' @description Computes the value of WAIC (Widely Applicable Information Criterion) for the \code{Hmsc} model
 #'
 #' @param hM a fitted \code{Hmsc} model object
 #' @param ghN order of Gauss-Hermite quadrature for approximate numerical integration
