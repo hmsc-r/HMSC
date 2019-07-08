@@ -15,7 +15,7 @@ computeWAIC(hM, ghN = 11)
 the scalar WAIC
 }
 \description{
-Computes the value of WAIC (Widely Applicable Information Criterion) for the \code(Hmsc) model
+Computes the value of WAIC (Widely Applicable Information Criterion) for the \code{Hmsc} model
 }
 \details{
 The result is exact for normal and probit observational models. For Poisson-type
