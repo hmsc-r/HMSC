@@ -5,8 +5,7 @@
 \title{setPriors.Hmsc}
 \usage{
 \method{setPriors}{Hmsc}(hM, V0 = NULL, f0 = NULL, mGamma = NULL,
-  UGamma = NULL, aSigma = NULL, bSigma = NULL, nu = NULL,
-  a1 = NULL, b1 = NULL, a2 = NULL, b2 = NULL, nuRRR = NULL,
+  UGamma = NULL, aSigma = NULL, bSigma = NULL, nuRRR = NULL,
   a1RRR = NULL, b1RRR = NULL, a2RRR = NULL, b2RRR = NULL,
   rhopw = NULL, setDefault = FALSE, ...)
 }
@@ -20,6 +19,14 @@
 \item{mGamma}{mean for the prior multivariate Gaussian distribution for Gamma parameters}
 
 \item{UGamma}{covariance matrix for the prior multivariate Gaussian distribution for Gamma parameters}
+
+\item{aSigma}{shape parameter for the prior gamma distribution for the variance parameter, only for normal & lognormal Poisson models}
+
+\item{bSigma}{rate parameter for the prior gamma distribution for the variance parameter, only for normal & lognormal Poisson models}
+
+\item{rhopw}{discrete grid prior for phylogenetic signal, should be a matrix of 2 columns}
+
+\item{setDefault}{logical indicating whether default priors should be used}
 
 \item{\dots}{other parameters passed to the function.}
 }

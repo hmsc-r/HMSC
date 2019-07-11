@@ -87,17 +87,17 @@
 #'
 #' @examples
 #' # Creating a Hmsc object without phylogeny, trait data or random levels
-#' m = Hmsc(Y=TD$Yprob, XData=TD$X, XFormula=~x1+x2)
+#' m = Hmsc(Y=TD$Y, XData=TD$X, XFormula=~x1+x2)
 #'
 #' # Creating a Hmsc object with phylogeny and traits
-#' m = Hmsc(Y=TD$Yprob, XData=TD$X, XFormula=~x1+x2,
+#' m = Hmsc(Y=TD$Y, XData=TD$X, XFormula=~x1+x2,
 #' TrData=TD$Tr, TrFormula=~T1+T2, phyloTree=TD$phylo)
 #'
 #' # Creating a Hmsc object with 2 nested random levels (50 sampling units in 20 plots)
 #' studyDesign = data.frame(sample = as.factor(1:50), plot = as.factor(sample(1:20,50,replace=TRUE)))
 #' rL1 = HmscRandomLevel(units=TD$studyDesign$plot)
 #' rL2 = HmscRandomLevel(units=TD$studyDesign$sample)
-#' m = Hmsc(Y=TD$Yprob, XData=TD$X, XFormula=~x1+x2,
+#' m = Hmsc(Y=TD$Y, XData=TD$X, XFormula=~x1+x2,
 #' studyDesign=studyDesign,ranLevels=list("sample"=rL1,"plot"=rL2))
 #'
 #' @importFrom stats model.matrix
