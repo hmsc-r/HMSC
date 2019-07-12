@@ -6,7 +6,7 @@
 #' @param parName name of the parameter to be summarized. Can take value of
 #'  model's baseline parameters, "Omega" or "OmegaCor".
 #' @param r the random level for which to calculate the parameter. Has effect only for Eta, Lambda, Omega and OmegaCor.
-#' @param x
+#' @param x values of covariates for covariate dependent omega
 #' @param q vector of quantiles to calculate.
 #' @param chainIndex which posterior chains to use for summarization (defaults to all)
 #' @param start index of first MCMC sample included

@@ -169,7 +169,7 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
          if(rL[[r]]$xDim == 0){
             LRan[[r]] = Eta[[r]][as.character(dfPiNew[,r]),] %*% sam$Lambda[[r]]
          } else{
-            LRan[[r]] = matrix(0,ny,ns)
+            LRan[[r]] = matrix(0,object$ny,object$ns)
             for(k in 1:rL[[r]]$xDim)
                LRan[[r]] = LRan[[r]] + (Eta[[r]][as.character(dfPiNew[,r]),]*rL[[r]]$x[as.character(dfPiNew[,r]),k]) %*% sam$Lambda[[r]][,,k]
          }
@@ -187,7 +187,7 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
             if(rL[[r]]$xDim == 0){
                LRan[[r]] = Eta[[r]][as.character(dfPiNew[,r]),] %*% sam$Lambda[[r]]
             } else{
-               LRan[[r]] = matrix(0,ny,ns)
+               LRan[[r]] = matrix(0,object$ny,object$ns)
                for(k in 1:rL[[r]]$xDim)
                   LRan[[r]] = LRan[[r]] + (Eta[[r]][as.character(dfPiNew[,r]),]*rL[[r]]$x[as.character(dfPiNew[,r]),k]) %*% sam$Lambda[[r]][,,k]
             }
