@@ -8,26 +8,34 @@ getPostEstimate(hM, parName, r = 1, x = NULL, q = c(),
   chainIndex = 1:length(hM$postList), start = 1, thin = 1)
 }
 \arguments{
-\item{parName}{The name of the parameter to be summarized. Can take value of
+\item{hM}{a fitted \code{Hmsc} model object}
+
+\item{parName}{name of the parameter to be summarized. Can take value of
 model's baseline parameters, "Omega" or "OmegaCor".}
 
-\item{r}{Which random level calculate the parameter for. Has effect only for Eta, Lambda, Omega and OmegaCor.}
+\item{r}{the random level for which to calculate the parameter. Has effect only for Eta, Lambda, Omega and OmegaCor.}
 
-\item{q}{Which quantiles to calculate.}
+\item{x}{values of covariates for covariate dependent omega}
 
-\item{chainIndex}{Which posterir chains to use for summarization (defaults to all)}
+\item{q}{vector of quantiles to calculate.}
+
+\item{chainIndex}{which posterior chains to use for summarization (defaults to all)}
+
+\item{start}{index of first MCMC sample included}
+
+\item{thin}{thinning interval of posterior distribution}
 }
 \value{
-A named list of posterior quantities. Element mean
+A named list of posterior quantities.
 }
 \description{
-Calculates mean, support and other posterior quantities for model parameter
+Calculates mean, support and other posterior quantities for a specified model parameter
 }
 \examples{
 # Get posterior mean and support for species' responses to environmental covariates
 postBeta = getPostEstimate(TD$m, parName='Beta')
 
 # Get posterior mean and support for species' responses to latent factors for the first random level
-postLambda = getPostEstimate(TD$m, parName='Lambda',r=1)
+postLambda = getPostEstimate(TD$m, parName='Lambda', r=1)
 
 }

@@ -1,6 +1,6 @@
 context("compute WAIC")
 
-test_that("HmscRandomLevel is set properly", {
+test_that("WAIC gives correct output", {
    expect_equal(round(computeWAIC(TD$m),1),
-                1.8)
+                0.8)
 })

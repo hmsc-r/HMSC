@@ -9,7 +9,15 @@
   nfMin = NULL, setDefault = FALSE, ...)
 }
 \arguments{
-\item{nu}{}
+\item{rL}{a fitted \code{HmscRandomLevel} model object}
+
+\item{alphapw}{discrete grid prior for spatial scale parameter}
+
+\item{nfMax}{maximum number of latent factors to be sampled}
+
+\item{nfMin}{minimum number of latent factors to be sampled}
+
+\item{setDefault}{logical indicating whether default priors should be used}
 }
 \value{
 Modified HmscRandomLevel object

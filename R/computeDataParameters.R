@@ -1,7 +1,8 @@
 #' @title computeDataParameters
 #'
-#' @description Computes the initial values before the sampling starts
-#' @param initPar initial parameters value
+#' @description Computes initial values before the sampling starts
+#'
+#' @param hM a fitted \code{Hmsc} model object
 #'
 #' @importFrom stats dist
 #' @importFrom FNN get.knn knnx.dist

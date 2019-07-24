@@ -13,30 +13,52 @@ plotGamma(hM, post, param = "Support", trOrder = "Original",
   bigplot = NULL)
 }
 \arguments{
-\item{post}{Posterior summary of Gamma parameters obtained from \code{\link{getPostEstimate}}}
+\item{hM}{a fitted \code{Hmsc} model object}
 
-\item{param}{Controls which parameter is plotted, current options include "Mean" for posterior mean estimate, "Support" for the level of statistical support measured by posterior probability for a positive or negative response, and "Sign" to indicate whether the response is positive, negative, or neither of these given the chosen \code{supportLevel}}
+\item{post}{posterior summary of Gamma parameters obtained from \code{\link{getPostEstimate}}}
 
-\item{trOrder}{Controls the ordering of traits, current options are "Original", and "Vector". If trOrder = "Vector", an ordering vector must be provided (see trVector)}
+\item{param}{controls which parameter is plotted, current options include "Mean" for posterior mean
+estimate, "Support" for the level of statistical support measured by posterior probability for a
+positive or negative response, and "Sign" to indicate whether the response is positive,
+negative, or neither of these given the chosen \code{supportLevel}}
 
-\item{trVector}{Controls the ordering of traits if trOrder = "Vector". If a subset of traits are listed, only those will be plotted}
+\item{trOrder}{controls the ordering of traits, current options are "Original", and "Vector".
+If trOrder = "Vector", an ordering vector must be provided (see trVector)}
 
-\item{covOrder}{Controls the ordering of covariates, current options are "Original" and "Vector". If covOrder = "Vector", an ordering vector must be provided (see covVector)}
+\item{trVector}{controls the ordering of traits if trOrder = "Vector". If a subset of traits
+are listed, only those will be plotted}
 
-\item{covVector}{Controls the ordering of covariates if covOrder = "Vector". If a subset of covariates are listed, only those will be plotted}
+\item{covOrder}{controls the ordering of covariates, current options are "Original" and
+"Vector". If covOrder = "Vector", an ordering vector must be provided (see covVector)}
 
-\item{trNamesNumbers}{Logical of length 2, where first entry controls whether trait names are added to axes, and second entry controls whether traits numbers are added}
+\item{covVector}{controls the ordering of covariates if covOrder = "Vector". If a subset of
+covariates are listed, only those will be plotted}
 
-\item{covNamesNumbers}{Logical of length 2, where first entry controls whether covariate names are added to axes, and second entry controls whether covariate numbers are added}
+\item{trNamesNumbers}{logical of length 2, where first entry controls whether trait names
+are added to axes, and second entry controls whether traits numbers are added}
 
-\item{supportLevel}{Controls threshold posterior support for plotting}
+\item{covNamesNumbers}{logical of length 2, where first entry controls whether covariate names
+are added to axes, and second entry controls whether covariate numbers are added}
 
-\item{cex}{Controls character expansion (font size). Three values, controlling covariate names, trait names, and color legend axis labels}
+\item{supportLevel}{controls threshold posterior support for plotting}
 
-\item{colors}{Controls the colors of the heatmap, default value \code{colorRampPalette(c("blue","white","red"))}}
+\item{cex}{controls character expansion (font size). Three values, controlling covariate names,
+trait names, and color legend axis labels}
+
+\item{colors}{controls the colors of the heatmap, default value \code{colorRampPalette(c("blue","white","red"))}}
+
+\item{colorLevels}{number of color levels used in the heatmap}
+
+\item{mar}{plotting margins}
+
+\item{smallplot}{passed to \code{\link{image.plot}}}
+
+\item{bigplot}{passed to \code{\link{image.plot}}}
 }
 \description{
-Plots heatmaps of parameter estimates or posterior support values of trait effects on species' environmental responses, i.e. how environmental responses in \code{Beta} responds to covariates in \code{X}
+Plots heatmaps of parameter estimates or posterior support values of trait effects
+on species' environmental responses, i.e. how environmental responses in \code{Beta} responds to
+covariates in \code{X}
 }
 \examples{
 # Plot posterior support values of trait effects on environmental responses

@@ -5,35 +5,47 @@
 \title{computePredictedValues}
 \usage{
 computePredictedValues(hM, partition = NULL, partition.sp = NULL,
-  start = 1, Yc = NULL, mcmcStep = 1, expected = TRUE,
+  start = 1, thin = 1, Yc = NULL, mcmcStep = 1, expected = TRUE,
   initPar = NULL, nParallel = 1, nChains = length(hM$postList),
   verbose = hM$verbose)
 }
 \arguments{
-\item{partition}{vector of observations partitioning for cross-validation}
+\item{hM}{a fitted \code{Hmsc} model object}
 
-\item{partition.sp}{vector of species partitioning for conditional cross-validation}
+\item{partition}{partition vector for cross-validation created by \code{\link{createPartition}}}
+
+\item{partition.sp}{species partitioning vector for conditional cross-validation}
 
 \item{start}{index of first MCMC sample included}
 
-\item{Yc}{response matrix on which the predictions are to be conditioned on}
+\item{thin}{thinning interval of posterior distribution}
+
+\item{Yc}{response matrix on which the predictions are to be conditioned}
 
 \item{mcmcStep}{number of MCMC steps used to make conditional predictions}
 
 \item{expected}{whether expected values (TRUE) or realizations (FALSE) are to be predicted}
+
+\item{initPar}{a named list of parameter values used for initialization of MCMC states}
+
+\item{nParallel}{number of parallel processes by which the chains are executed}
+
+\item{nChains}{number of independent MCMC chains to be run}
+
+\item{verbose}{the interval between MCMC steps printed to the console}
 }
 \description{
-Computes predicted values from the trained model
+Computes predicted values from the fitted \code{Hmsc} model
 }
 \details{
-If the option partition is not used, the posterior predictive distribution is based on the model
-fitted to the full data. If the option partition is used but partition.sp is not used, the  posterior predictive distribution
-is based on cross-validation over the sampling units. If partition.sp is additionally used, when predictions are made for
+If the option \code{partition} is not used, the posterior predictive distribution is based on the model
+fitted to the full data. If the option \code{partition} is used but \code{partition.sp} is not used, the posterior predictive distribution
+is based on cross-validation over the sampling units. If \code{partition.sp} is additionally used, then, when predictions are made for
 each fold of the sampling units, the predictions are done separately for each fold of species. When making the predictions
 for one fold of species, the predictions are conditional on known occurrences (those observed in the data) of the species
-belonging to the other folds. If partition.sp is used, the parameter mcmcStep should be set to high enough value to obtain
-appropriate conditional predictions. The option Yc can be used alternatively to partition.sp if the conditioning is to be done
-to a fixed set of data (independent on which sampling unit and species the predictions are made for).
+belonging to the other folds. If \code{partition.sp} is used, the parameter \code{mcmcStep} should be set high enough to obtain
+appropriate conditional predictions. The option \code{Yc} can be used alternatively to \code{partition.sp} if the conditioning is to be done
+based on a fixed set of data (independently of which sampling unit and species the predictions are made for).
 }
 \examples{
 # Compute predicted values using a previously fitted HMSC model
@@ -46,7 +58,8 @@ predsCV1 = computePredictedValues(TD$m,partition=partition)
 
 # Compute conditional predictions for a previously fitted HMSC model using 2 folds
 partition = createPartition(TD$m, nfolds = 2)
-predsCV2 = computePredictedValues(TD$m, partition = partition, partition.sp = 1:m$ns, mcmcStep = 100)
+predsCV2 = computePredictedValues(TD$m, partition = partition,
+partition.sp = 1:m$ns, mcmcStep = 100)
 }
 
 }

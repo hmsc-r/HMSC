@@ -7,18 +7,21 @@
 plotVariancePartitioning(hM, VP, cols = NULL, ...)
 }
 \arguments{
-\item{hM}{A fitted HMSC model}
+\item{hM}{a fitted \code{Hmsc} model object}
 
-\item{VP}{A HMSC variance partitioning produced by `HMSC::computeVariancePartitioning`}
+\item{VP}{a Hmsc variance partitioning object produced by \code{\link{computeVariancePartitioning}}}
 
-\item{...}{other parameters passed to the barplot function}
+\item{cols}{colors of the barplot}
+
+\item{...}{additional parameters passed to the barplot function}
 }
 \description{
-Plots the results of variance partitioning of a HMSC model produced by `HMSC::computeVariancePartitioning` as a barplot
+Plots the results of variance partitioning of a \code{Hmsc} model produced by
+\code{\link{computeVariancePartitioning}} as a barplot
 }
 \examples{
 # Plot how the explained variance of a previously fitted model is partitioned
 VP = computeVariancePartitioning(TD$m)
-plotVariancePartitioning(TD$m,VP)
+plotVariancePartitioning(TD$m, VP)
 
 }

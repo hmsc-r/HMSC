@@ -7,8 +7,10 @@
 computeR2(hM, predY)
 }
 \arguments{
+\item{hM}{a fitted \code{Hmsc} model object}
+
 \item{predY}{vector of predictions from the trained model}
 }
 \description{
-Computes explainatory R2 measure based on predicted species abundance matrix
+Computes explanatory R2 measure based on predicted species abundance matrix
 }

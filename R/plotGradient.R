@@ -2,29 +2,33 @@
 #'
 #' @description Plots an environmental gradient over one of the variables included in \code{XData}
 #'
-#' @param Gradient an object returned by the function \code{\link{constructGradient}}
-#' @param pred an object returned by applying the function \code{\link{predict}} to \code{Gradient}
-#' @param measure whether plotted is species richness ("S"), an individual species ("Y") or community-weighted mean trait ("T")
-#' @param index which species or trait is plotted
+#' @param hM a fitted \code{Hmsc} model object
+#' @param Gradient an object returned by \code{\link{constructGradient}}
+#' @param predY an object returned by applying the function \code{\link{predict}} to \code{Gradient}
+#' @param measure whether to plot species richness ("S"), an individual species ("Y") or community-weighted
+#' mean trait values ("T")
+#' @param index which species or trait to plot
 #' @param prob quantiles of the credibility interval plotted
 #' @param showData whether raw data are plotted as well
-#' @param jigger the amount by which the raw data are to be jiggered in x-direction (for factors) or y-direction (for continuous covariates)
+#' @param jigger the amount by which the raw data are to be jiggered in x-direction (for factors) or
+#' y-direction (for continuous covariates)
 #'
-#' @return For the case of a continuous covariate, returns posterior probability by which the plotted variable is greater for the
-#'  last sampling unit of the gradient than for the first sampling unit of the gradient. For the case of a factor, returns the plot object.
+#' @return For the case of a continuous covariate, returns the posterior probability that the plotted
+#' variable is greater for the last sampling unit of the gradient than for the first sampling unit of
+#' the gradient. For the case of a factor, returns the plot object.
 #'
 #' @details
 #'
 #' For \code{measure}="Y", \code{index} selects which species to plot from \code{hM$spNames}.
 #' For \code{measure}="T", \code{index} selects which trait to plot from \code{hM$trNames}.
-#' Whith \code{measure}="S" plotted is the row sum of \code{pred},
+#' With \code{measure}="S" the row sum of \code{pred} is plotted,
 #' and thus the interpretation of "species richness" holds only for probit models.
 #' For Poisson models "S" shows the total count,
 #' whereas for normal models it shows the summed response.
 #' For \code{measure}="T",
 #' in probit model the weighting is over species occurrences,
 #' whereas in count models it is over individuals.
-#' In normal models, the weights are exp-transformed predictors to avoid negative weights
+#' In normal models, the weights are exp-transformed predictions to avoid negative weights
 #'
 #'
 #' @seealso
@@ -50,7 +54,7 @@
 #'
 #' @export
 
-plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 0.5, 0.975), showData = FALSE, jigger = 0,...){
+plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 0.5, 0.975), showData = FALSE, jigger = 0, ...){
 
    Pr = NA
 
@@ -155,7 +159,7 @@ plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 
    if (is.factor(xx)) {
       toPlot = data.frame(xx, me, lo, hi)
 #      plot.new()
-      pl = ggplot(toPlot, aes_string(x = xx, y = me), fill = supp) + geom_bar(position = position_dodge(),
+      pl = ggplot(toPlot, aes_string(x = xx, y = me)) + geom_bar(position = position_dodge(),
                                                                               stat = "identity") + xlab(xlabel) + ylab(ylabel) +
          geom_errorbar(aes(ymin = lo, ymax = hi), width = 0.2,
                        position = position_dodge(0.9))

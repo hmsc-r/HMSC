@@ -1,7 +1,9 @@
 #' @title computeInitialParameters
 #'
-#' @description Computes the initial values before the sampling starts
-#' @param initPar initial parameters value
+#' @description Computes initial parameter values before the sampling starts
+#'
+#' @param hM a fitted \code{Hmsc} model object
+#' @param initPar initial parameter values
 #'
 #' @importFrom stats glm.fit lm.fit coef rgamma rnorm binomial poisson
 #'    cov runif

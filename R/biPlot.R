@@ -1,13 +1,17 @@
 #' @title biPlot
 #'
-#' @description Constructs a ordination biplot based on the fitted model
-#' @param etaPost Posterior distribution of site loadings Eta
-#' @param lambdaPost Posterior distribution of species loadings Lambda
-#' @param factors Indices of the two factors to be plotted
-#' @param colvar The environmental covariate from XData according to which the sites are to be coloured
+#' @description Constructs an ordination biplot based on the fitted model
+#'
+#' @param hM a fitted \code{Hmsc} model object
+#' @param etaPost posterior distribution of site loadings (Eta)
+#' @param lambdaPost posterior distribution of species loadings (Lambda)
+#' @param factors indices of the two factors to be plotted
+#' @param colVar the environmental covariate from XData according to which the sites are to be coloured
+#' @param spNames a vector of species names to be added to the ordination diagram
+#' @param \dots other parameters passed to the function.
 #'
 #' @examples
-#' # Construct an ordination biplot using the first 2 latent factors from a previously fitted HMSC model
+#' # Construct an ordination biplot using two chosen latent factors from a previously fitted HMSC model
 #' etaPost = getPostEstimate(TD$m, "Eta")
 #' lambdaPost=getPostEstimate(TD$m, "Lambda")
 #' biPlot(TD$m, etaPost = etaPost, lambdaPost=lambdaPost, factors=c(1,2))

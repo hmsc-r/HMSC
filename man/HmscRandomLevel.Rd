@@ -2,7 +2,7 @@
 % Please edit documentation in R/HmscRandomLevel.R
 \name{HmscRandomLevel}
 \alias{HmscRandomLevel}
-\title{Create single level of random factors in HMSC}
+\title{Create an \code{Hmsc} random level}
 \usage{
 HmscRandomLevel(sData = NULL, sMethod = "Full", distMat = NULL,
   xData = NULL, units = NULL, N = NULL, nNeighbours = NULL,
@@ -29,19 +29,20 @@ associations}
 \item{knotDist}{distance between knots used in gaussian predictive proces if sMethod is set to \code{GPP}.}
 
 \item{minKnotDist}{minimum distance of knot to neareast point in sData}
+
 }
 \value{
 a \code{HmscRandomLevel}-class object that can be used for \code{Hmsc}-class object construction
 }
 \description{
-Specifies the structure for a single level of random factors, including whether the level is assumed to
-  be spatial or not, the spatial coordinates and the potential structure of covariate-dependent nonstationarity.
+Specifies the structure of a random factor, including whether the random factor is assumed to
+  be spatially explicit or not, the spatial coordinates and the potential structure of covariate-dependent random factors.
 }
 \details{
-Only one of \code{sData}, \code{distMat}, \code{xData}, \code{units} and \code{N} arguments shall be
-  provided (implmentation for \code{sData} and \code{xData} is coming later).
+Only one of \code{sData}, \code{distMat}, \code{xData}, \code{units} and \code{N} arguments can be
+  provided.
 
-  As a good practice we recommend to specify all available units for a random level, even if some of those are not
+  As a good practice, we recommend to specify all available units for a random level, even if some of those are not
   used for training the model.
 }
 \examples{
@@ -51,7 +52,7 @@ rL = HmscRandomLevel(units=TD$studyDesign$sample)
 # Setting a spatial random level
 rL = HmscRandomLevel(sData=TD$xycoords)
 
-# Setting a covariate dependent random level.
+# Setting a covariate-dependent random level.
 rL = HmscRandomLevel(xData=data.frame(x1=rep(1,length(TD$X$x1)),x2=TD$X$x2))
 
 }

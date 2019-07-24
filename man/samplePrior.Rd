@@ -6,6 +6,11 @@
 \usage{
 samplePrior(hM, dataParList = NULL)
 }
+\arguments{
+\item{hM}{a fitted \code{Hmsc} model object}
+
+\item{dataParList}{list of data parameters (see \code{\link{computeDataParameters}})}
+}
 \description{
 Samples the parameter vector from prior
 }

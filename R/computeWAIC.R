@@ -1,11 +1,12 @@
 #' @title Hmsc$computeWAIC
 #'
-#' @description Computes WAIC (Widely Applicable Information Criterion) of the HMSC model
+#' @description Computes the value of WAIC (Widely Applicable Information Criterion) for the \code{Hmsc} model
 #'
-#' @param hM fitted Hmsc model
+#' @param hM a fitted \code{Hmsc} model object
 #' @param ghN order of Gauss-Hermite quadrature for approximate numerical integration
 #'
-#' @details The result is exact for normal and probit observational models. For Poisson-type observational observational model the result is obtained through numerical integration using Gauss-Hermite quadrature.
+#' @details The result is exact for normal and probit observational models. For Poisson-type
+#' observational model the result is obtained through numerical integration using Gauss-Hermite quadrature.
 #'
 #' @return the scalar WAIC
 #'
@@ -40,7 +41,7 @@ computeWAIC = function(hM, ghN=11){
    indColNormal = (distr[,1]==1)
    indColProbit = (distr[,1]==2)
    indColPoisson = (distr[,1]==3)
-   gq = gauss.quad(ghN,kind="hermite")
+   gq = gauss.quad(ghN, kind="hermite")
    gw = gq$weights
    gx = gq$nodes
 
