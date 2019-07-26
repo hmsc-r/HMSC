@@ -16,9 +16,11 @@ biPlot(hM, etaPost, lambdaPost, factors = c(1, 2), colVar = NULL,
 
 \item{factors}{indices of the two factors to be plotted}
 
+\item{colVar}{the environmental covariate from XData according to which the sites are to be coloured}
+
 \item{spNames}{a vector of species names to be added to the ordination diagram}
 
-\item{colvar}{the environmental covariate from XData according to which the sites are to be coloured}
+\item{\dots}{other parameters passed to the function.}
 }
 \description{
 Constructs an ordination biplot based on the fitted model

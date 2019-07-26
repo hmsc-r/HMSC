@@ -6,8 +6,9 @@
 #' @param etaPost posterior distribution of site loadings (Eta)
 #' @param lambdaPost posterior distribution of species loadings (Lambda)
 #' @param factors indices of the two factors to be plotted
-#' @param colvar the environmental covariate from XData according to which the sites are to be coloured
+#' @param colVar the environmental covariate from XData according to which the sites are to be coloured
 #' @param spNames a vector of species names to be added to the ordination diagram
+#' @param \dots other parameters passed to the function.
 #'
 #' @examples
 #' # Construct an ordination biplot using two chosen latent factors from a previously fitted HMSC model

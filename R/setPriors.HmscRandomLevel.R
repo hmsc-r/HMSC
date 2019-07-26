@@ -1,8 +1,16 @@
 #' @title setPriors.HmscRandomLevel
 #'
 #' @description Sets or resets priors to the Hmsc object
-#'
+#' @param rL a fitted \code{HmscRandomLevel} model object
 #' @param nu
+#' @param a1
+#' @param a2
+#' @param b1
+#' @param b2
+#' @param alphapw discrete grid prior for spatial scale parameter
+#' @param nfMax maximum number of latent factors to be sampled
+#' @param nfMin minimum number of latent factors to be sampled
+#' @param setDefault logical indicating whether default priors should be used
 #'
 #'
 #' @return Modified HmscRandomLevel object

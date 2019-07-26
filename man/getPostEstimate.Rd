@@ -15,6 +15,8 @@ model's baseline parameters, "Omega" or "OmegaCor".}
 
 \item{r}{the random level for which to calculate the parameter. Has effect only for Eta, Lambda, Omega and OmegaCor.}
 
+\item{x}{values of covariates for covariate dependent omega}
+
 \item{q}{vector of quantiles to calculate.}
 
 \item{chainIndex}{which posterior chains to use for summarization (defaults to all)}

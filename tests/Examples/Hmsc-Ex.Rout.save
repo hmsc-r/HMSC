@@ -1,7 +1,7 @@
 
-R Under development (unstable) (2019-07-05 r76784) -- "Unsuffered Consequences"
-Copyright (C) 2019 The R Foundation for Statistical Computing
-Platform: x86_64-apple-darwin18.6.0 (64-bit)
+R version 3.4.4 (2018-03-15) -- "Someone to Lean On"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -24,7 +24,6 @@ Type 'q()' to quit R.
 Loading required package: coda
 > 
 > base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
-> base::assign(".old_wd", base::getwd(), pos = 'CheckExEnv')
 > cleanEx()
 > nameEx("Hmsc")
 > ### * Hmsc
@@ -38,17 +37,17 @@ Loading required package: coda
 > ### ** Examples
 > 
 > # Creating a Hmsc object without phylogeny, trait data or random levels
-> m = Hmsc(Y=TD$Yprob, XData=TD$X, XFormula=~x1+x2)
+> m = Hmsc(Y=TD$Y, XData=TD$X, XFormula=~x1+x2)
 > 
 > # Creating a Hmsc object with phylogeny and traits
-> m = Hmsc(Y=TD$Yprob, XData=TD$X, XFormula=~x1+x2,
+> m = Hmsc(Y=TD$Y, XData=TD$X, XFormula=~x1+x2,
 + TrData=TD$Tr, TrFormula=~T1+T2, phyloTree=TD$phylo)
 > 
 > # Creating a Hmsc object with 2 nested random levels (50 sampling units in 20 plots)
 > studyDesign = data.frame(sample = as.factor(1:50), plot = as.factor(sample(1:20,50,replace=TRUE)))
 > rL1 = HmscRandomLevel(units=TD$studyDesign$plot)
 > rL2 = HmscRandomLevel(units=TD$studyDesign$sample)
-> m = Hmsc(Y=TD$Yprob, XData=TD$X, XFormula=~x1+x2,
+> m = Hmsc(Y=TD$Y, XData=TD$X, XFormula=~x1+x2,
 + studyDesign=studyDesign,ranLevels=list("sample"=rL1,"plot"=rL2))
 > 
 > 
@@ -61,7 +60,7 @@ Loading required package: coda
 > flush(stderr()); flush(stdout())
 > 
 > ### Name: HmscRandomLevel
-> ### Title: Create single level of random factors in HMSC
+> ### Title: Create an 'Hmsc' random level
 > ### Aliases: HmscRandomLevel
 > 
 > ### ** Examples
@@ -72,7 +71,7 @@ Loading required package: coda
 > # Setting a spatial random level
 > rL = HmscRandomLevel(sData=TD$xycoords)
 > 
-> # Setting a covariate dependent random level.
+> # Setting a covariate-dependent random level.
 > rL = HmscRandomLevel(xData=data.frame(x1=rep(1,length(TD$X$x1)),x2=TD$X$x2))
 > 
 > 
@@ -108,7 +107,7 @@ Loading required package: coda
 > 
 > ### ** Examples
 > 
-> # Construct an ordination biplot using the first 2 latent factors from a previously fitted HMSC model
+> # Construct an ordination biplot using two chosen latent factors from a previously fitted HMSC model
 > etaPost = getPostEstimate(TD$m, "Eta")
 > lambdaPost=getPostEstimate(TD$m, "Lambda")
 > biPlot(TD$m, etaPost = etaPost, lambdaPost=lambdaPost, factors=c(1,2))
@@ -129,7 +128,7 @@ Loading required package: coda
 > 
 > ### ** Examples
 > 
-> # Compute the associations between species from a HMSC model
+> # Compute the associations (residual correlations) between species from a HMSC model
 > assoc = computeAssociations(TD$m)
 > 
 > 
@@ -157,7 +156,8 @@ Loading required package: coda
 > ##D 
 > ##D # Compute conditional predictions for a previously fitted HMSC model using 2 folds
 > ##D partition = createPartition(TD$m, nfolds = 2)
-> ##D predsCV2 = computePredictedValues(TD$m, partition = partition, partition.sp = 1:m$ns, mcmcStep = 100)
+> ##D predsCV2 = computePredictedValues(TD$m, partition = partition,
+> ##D partition.sp = 1:m$ns, mcmcStep = 100)
 > ## End(Not run)
 > 
 > 
@@ -221,7 +221,7 @@ Loading required package: coda
 > Gradient = constructGradient(TD$m, focalVariable="x1")
 # weights:  3 (2 variable)
 initial  value 34.657359 
-final  value 34.377085 
+final  value 34.655390 
 converged
 > 
 > # Construct gradient for environmental covariate called 'x1'
@@ -243,11 +243,11 @@ converged
 > 
 > ### ** Examples
 > 
-> # Convert recorded posterior samples in m object to coda object
+> # Convert recorded posterior samples in \code{Hmsc} object to coda object
 > codaObject = convertToCodaObject(TD$m)
 > 
 > # Convert recorded posterior samples, starting from sample 100, in m object to coda object
-> codaObject = convertToCodaObject(TD$m,start=100)
+> codaObject = convertToCodaObject(TD$m, start=100)
 > 
 > 
 > 
@@ -287,7 +287,7 @@ converged
 > 
 > # Evaluate model performance based on cross validation
 > partition = createPartition(TD$m, nfolds = 2)
-> predsCV1 = computePredictedValues(TD$m,partition=partition)
+> predsCV1 = computePredictedValues(TD$m, partition=partition)
 [1] "Cross-validation, fold 1 out of 2"
 [1] "Computing chain 1"
 [1] "Chain 1, iteration 1 of 150, (transient)"
@@ -915,7 +915,7 @@ converged
 > postBeta = getPostEstimate(TD$m, parName='Beta')
 > 
 > # Get posterior mean and support for species' responses to latent factors for the first random level
-> postLambda = getPostEstimate(TD$m, parName='Lambda',r=1)
+> postLambda = getPostEstimate(TD$m, parName='Lambda', r=1)
 > 
 > 
 > 
@@ -982,21 +982,21 @@ converged
 > Gradient = constructGradient(TD$m, focalVariable="x1")
 # weights:  3 (2 variable)
 initial  value 34.657359 
-final  value 34.377085 
+final  value 34.655390 
 converged
 > predY = predict(TD$m, Gradient=Gradient)
 > plotGradient(TD$m, Gradient, pred=predY, measure="Y", index = 2, showData = TRUE, jigger = 0.05)
-[1] 0.955
+[1] 0.98
 > 
 > # Plot modelled species richness over the gradient of environmental variable x1
 > Gradient = constructGradient(TD$m, focalVariable="x1")
 # weights:  3 (2 variable)
 initial  value 34.657359 
-final  value 34.377085 
+final  value 34.655390 
 converged
 > predY = predict(TD$m, Gradient=Gradient)
 > plotGradient(TD$m, Gradient, pred=predY, measure="S")
-[1] 0.415
+[1] 0.995
 > 
 > 
 > 
@@ -1015,7 +1015,7 @@ converged
 > 
 > # Plot how the explained variance of a previously fitted model is partitioned
 > VP = computeVariancePartitioning(TD$m)
-> plotVariancePartitioning(TD$m,VP)
+> plotVariancePartitioning(TD$m, VP)
 > 
 > 
 > 
@@ -1175,7 +1175,7 @@ converged
 [1] "Chain 1, iteration 100 of 100, (sampling)"
 > 
 > ## Not run: 
-> ##D # Record 1000 posterior samples while skipping 1 MCMC step inbetween samples
+> ##D # Record 1000 posterior samples while skipping 1 MCMC step between samples
 > ##D # from 3 chains after discarding the first 500 MCMC steps
 > ##D m = sampleMcmc(TD$m, samples=1000, transient=500, thin=2, nChains=2, nParallel=1)
 > ## End(Not run)
@@ -1208,10 +1208,9 @@ converged
 > 
 > ### * <FOOTER>
 > ###
-> cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  51.19 1.014 52.411 0.006 0.007 
+Time elapsed:  44.071 0.12 44.243 0.005 0.002 
 > grDevices::dev.off()
 null device 
           1 
