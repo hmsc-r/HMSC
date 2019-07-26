@@ -1,4 +1,4 @@
-#' @title Hmsc$getPostEstimate
+#' @title getPostEstimate
 #'
 #' @description Calculates mean, support and other posterior quantities for a specified model parameter
 #'

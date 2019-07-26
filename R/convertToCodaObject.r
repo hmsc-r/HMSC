@@ -1,4 +1,4 @@
-#' @title Hmsc$convertToCodaObject
+#' @title convertToCodaObject
 #'
 #' @description Converts the Hmsc posterior into a named list of mcmc.list objects
 #' @param hM a fitted \code{Hmsc} model object

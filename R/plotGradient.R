@@ -1,4 +1,4 @@
-#' @title Hmsc$plotGradient
+#' @title plotGradient
 #'
 #' @description Plots an environmental gradient over one of the variables included in \code{XData}
 #'
@@ -8,7 +8,7 @@
 #' @param measure whether to plot species richness ("S"), an individual species ("Y") or community-weighted
 #' mean trait values ("T")
 #' @param index which species or trait to plot
-#' @param prob quantiles of the credibility interval plotted
+#' @param q quantiles of the credibility interval plotted
 #' @param showData whether raw data are plotted as well
 #' @param jigger the amount by which the raw data are to be jiggered in x-direction (for factors) or
 #' y-direction (for continuous covariates)
@@ -55,7 +55,7 @@
 #'
 #' @export
 
-plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 0.5, 0.975), showData = FALSE, jigger = 0, ...){
+plotGradient=function (hM, Gradient, predY, measure, index = 1, q = c(0.025, 0.5, 0.975), showData = FALSE, jigger = 0, ...){
 
    Pr = NA
 
@@ -87,7 +87,7 @@ plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 
       predS = abind(lapply(predY, rowSums),along=2)
       Pr = mean(predS[ngrid,]>predS[1,])
       qpred = apply(predS, c(1), quantile,
-                    prob = prob, na.rm=TRUE)
+                    probs = q, na.rm=TRUE)
       ylabel = "Summed response"
       if (all(hM$distr[,1]==2)){
          ylabel = "Species richness"
@@ -100,7 +100,7 @@ plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 
       tmp = abind(predY, along = 3)
       Pr = mean(tmp[ngrid,index,]>tmp[1,index,])
       qpred = apply(tmp, c(1, 2), quantile,
-                    prob = prob, na.rm=TRUE)
+                    probs = q, na.rm=TRUE)
       qpred = qpred[, , index]
       ylabel = hM$spNames[[index]]
    }
@@ -115,7 +115,7 @@ plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 
       predT = abind(predT, along = 3)
       Pr = mean(predT[ngrid,index,]>predT[1,index,])
       qpred = apply(predT, c(1, 2), quantile,
-                    prob = prob, na.rm = TRUE)
+                    probs = q, na.rm = TRUE)
       qpred = qpred[, , index]
       ylabel = hM$trNames[[index]]
    }

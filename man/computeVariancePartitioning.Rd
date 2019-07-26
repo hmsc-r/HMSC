@@ -2,7 +2,7 @@
 % Please edit documentation in R/computeVariancePartitioning.R
 \name{computeVariancePartitioning}
 \alias{computeVariancePartitioning}
-\title{Hmsc$computeVariancePartitioning}
+\title{computeVariancePartitioning}
 \usage{
 computeVariancePartitioning(hM, group = NULL, groupnames = NULL,
   start = 1, na.ignore = F)

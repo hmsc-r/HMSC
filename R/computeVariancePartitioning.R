@@ -1,4 +1,4 @@
-#' @title Hmsc$computeVariancePartitioning
+#' @title computeVariancePartitioning
 #'
 #' @description Computes variance components with respect to given grouping of fixed effects and levels
 #' of random effects

@@ -1,4 +1,4 @@
-#' @title hM$constructGradient
+#' @title constructGradient
 #'
 #' @description Constructs an environmental gradient over one of the variables included in \code{XData}
 #'

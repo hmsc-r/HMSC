@@ -2,7 +2,7 @@
 % Please edit documentation in R/convertToCodaObject.r
 \name{convertToCodaObject}
 \alias{convertToCodaObject}
-\title{Hmsc$convertToCodaObject}
+\title{convertToCodaObject}
 \usage{
 convertToCodaObject(hM, start = 1, spNamesNumbers = c(TRUE, TRUE),
   covNamesNumbers = c(TRUE, TRUE), trNamesNumbers = c(TRUE, TRUE),

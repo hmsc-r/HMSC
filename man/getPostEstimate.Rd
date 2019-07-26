@@ -2,7 +2,7 @@
 % Please edit documentation in R/getPostEstimate.R
 \name{getPostEstimate}
 \alias{getPostEstimate}
-\title{Hmsc$getPostEstimate}
+\title{getPostEstimate}
 \usage{
 getPostEstimate(hM, parName, r = 1, x = NULL, q = c(),
   chainIndex = 1:length(hM$postList), start = 1, thin = 1)

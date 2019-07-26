@@ -1,4 +1,4 @@
-#' @title Hmsc$evaluateModelFit
+#' @title evaluateModelFit
 #'
 #' @description Computes measures of model fit for a \code{Hmsc} model
 #'

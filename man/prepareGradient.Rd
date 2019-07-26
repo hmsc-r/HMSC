@@ -2,7 +2,7 @@
 % Please edit documentation in R/prepareGradient.R
 \name{prepareGradient}
 \alias{prepareGradient}
-\title{hM$prepareGradient}
+\title{prepareGradient}
 \usage{
 prepareGradient(hM, XDataNew, sDataNew)
 }

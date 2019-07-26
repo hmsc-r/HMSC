@@ -2,7 +2,7 @@
 % Please edit documentation in R/computeWAIC.R
 \name{computeWAIC}
 \alias{computeWAIC}
-\title{Hmsc$computeWAIC}
+\title{computeWAIC}
 \usage{
 computeWAIC(hM, ghN = 11)
 }

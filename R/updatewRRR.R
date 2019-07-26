@@ -2,7 +2,7 @@
 #
 # @description updates wRRR
 #
-# @importFrom stats rnorm
+#' @importFrom stats rnorm
 #
 updatewRRR = function(Z,Beta,iSigma,Eta,Lambda,X1A,XRRR,Pi,dfPi,rL,PsiRRR,DeltaRRR){
    ny = nrow(Z)
