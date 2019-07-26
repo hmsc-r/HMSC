@@ -25,6 +25,8 @@ mean trait values ("T")}
 
 \item{jigger}{the amount by which the raw data are to be jiggered in x-direction (for factors) or
 y-direction (for continuous covariates)}
+
+\item{...}{additional arguments for plot}
 }
 \value{
 For the case of a continuous covariate, returns the posterior probability that the plotted
