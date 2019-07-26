@@ -12,6 +12,7 @@
 #' @param showData whether raw data are plotted as well
 #' @param jigger the amount by which the raw data are to be jiggered in x-direction (for factors) or
 #' y-direction (for continuous covariates)
+#' @param ... additional arguments for plot
 #'
 #' @return For the case of a continuous covariate, returns the posterior probability that the plotted
 #' variable is greater for the last sampling unit of the gradient than for the first sampling unit of
