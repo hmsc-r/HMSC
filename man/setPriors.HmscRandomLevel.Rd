@@ -20,6 +20,8 @@
 \item{nfMin}{minimum number of latent factors to be sampled}
 
 \item{setDefault}{logical indicating whether default priors should be used}
+
+\item{...}{other arguments (ignored)}
 }
 \value{
 Modified HmscRandomLevel object

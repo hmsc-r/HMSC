@@ -7,6 +7,7 @@
 #' @param nfMax maximum number of latent factors to be sampled
 #' @param nfMin minimum number of latent factors to be sampled
 #' @param setDefault logical indicating whether default priors should be used
+#' @param ... other arguments (ignored)
 #'
 #'
 #' @return Modified HmscRandomLevel object

@@ -4,7 +4,7 @@ updateNf = function(eta,lambda,alpha,psi,delta, rL, iter){
    nu = rL$nu
    a1 = rL$a1
    b1 = rL$b1
-   a2 = rL$a1
+   a2 = rL$a2
    b2 = rL$b2
 
    c0 = 1
