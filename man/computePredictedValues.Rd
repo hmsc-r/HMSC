@@ -7,7 +7,7 @@
 computePredictedValues(hM, partition = NULL, partition.sp = NULL,
   start = 1, thin = 1, Yc = NULL, mcmcStep = 1, expected = TRUE,
   initPar = NULL, nParallel = 1, nChains = length(hM$postList),
-  verbose = hM$verbose)
+  updater = list(), verbose = hM$verbose)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}
@@ -31,6 +31,8 @@ computePredictedValues(hM, partition = NULL, partition.sp = NULL,
 \item{nParallel}{number of parallel processes by which the chains are executed}
 
 \item{nChains}{number of independent MCMC chains to be run}
+
+\item{updater}{a named list, specifying which conditional updaters should be ommitted}
 
 \item{verbose}{the interval between MCMC steps printed to the console}
 }

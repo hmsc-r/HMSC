@@ -13,6 +13,7 @@
 #' @param initPar a named list of parameter values used for initialization of MCMC states
 #' @param nParallel number of parallel processes by which the chains are executed
 #' @param nChains number of independent MCMC chains to be run
+#' @param updater a named list, specifying which conditional updaters should be ommitted
 #' @param verbose the interval between MCMC steps printed to the console
 #'
 #' @details If the option \code{partition} is not used, the posterior predictive distribution is based on the model
@@ -48,7 +49,7 @@
 
 computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1, thin=1,
                                   Yc=NULL, mcmcStep=1, expected=TRUE, initPar=NULL,
-                                  nParallel=1, nChains = length(hM$postList), verbose = hM$verbose){
+                                  nParallel=1, nChains = length(hM$postList),  updater=list(), verbose = hM$verbose){
    if(is.null(partition)){
       postList = poolMcmcChains(hM$postList, start=start, thin=thin)
       pred = predict(hM, post=postList, Yc=Yc, mcmcStep=1, expected=expected)
@@ -112,7 +113,7 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
          hM1$TrScalePar = hM$TrScalePar
          hM1$TrScaled = (hM1$Tr - matrix(hM1$TrScalePar[1,],hM1$ns,hM1$nt,byrow=TRUE)) / matrix(hM1$TrScalePar[2,],hM1$ns,hM1$nt,byrow=TRUE)
          hM1 = sampleMcmc(hM1, samples=hM$samples, thin=hM$thin, transient=hM$transient, adaptNf=hM$adaptNf,
-                          initPar=initPar, nChains=nChains, nParallel=nParallel, verbose = verbose)
+                          initPar=initPar, nChains=nChains, nParallel=nParallel, updater = updater, verbose = verbose)
          postList = poolMcmcChains(hM1$postList, start=start)
          dfPi = as.data.frame(matrix(NA,sum(val),hM$nr))
          colnames(dfPi) = hM$rLNames
