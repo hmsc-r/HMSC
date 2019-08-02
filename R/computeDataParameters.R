@@ -5,7 +5,7 @@
 #' @param hM a fitted \code{Hmsc} model object
 #'
 #' @importFrom stats dist
-#' @importFrom FNN get.knn knnx.dist
+#' @importFrom FNN get.knn
 #' @importFrom Matrix .sparseDiagonal t solve
 #'
 #' @export
@@ -139,29 +139,9 @@ computeDataParameters = function(hM){
                       stop("computeDataParameters: predictive gaussian process not available for distance matrices")
                    }
                    s = hM$rL[[r]]$s[levels(hM$dfPi[,r]),]
+                   sKnot = hM$rL[[r]]$sKnot
                    dim = ncol(s)
-                   if(is.null(hM$rL[[r]]$sKnot)){
-                      mins = apply(s,2,min)
-                      maxs = apply(s,2,max)
-                      if(is.null(hM$rL[[r]]$knotDist)){
-                         hM$rL[[r]]$knotDist = min(maxs-mins)/8
-                      }
-                      knotindices = list()
-                      for(d in 1:ncol(s)){
-                         knotindices[[d]] = seq(mins[d],maxs[d],by=hM$rL[[r]]$knotDist)
-                      }
-                      sKnot = expand.grid(knotindices)  #Full rectangular grid
-                      Dist = knnx.dist(s,sKnot,k=1)
-                      if(is.null(hM$rL[[r]]$minKnotDist)){
-                         hM$rL[[r]]$minKnotDist = 2*hM$rL[[r]]$knotDist
-                      }
-                      sKnot = sKnot[Dist < hM$rL[[r]]$minKnotDist,]
-                      hM$rL[[r]]$sKnot = sKnot
-                      nKnots = nrow(sKnot)
-                   } else {
-                      sKnot = hM$rL[[r]]$sKnot
-                      nKnots = nrow(sKnot)
-                   }
+                   nKnots = nrow(sKnot)
                    di = matrix(0,nrow=np,ncol=nKnots)
                    for(i in 1:dim){
                       xx1 = matrix(rep(s[,i],nKnots),ncol=nKnots)

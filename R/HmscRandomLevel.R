@@ -37,7 +37,7 @@
 #'
 #' @export
 
-HmscRandomLevel = function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NULL, units=NULL, N=NULL, nNeighbours=NULL, sKnot=NULL, knotDist=NULL, minKnotDist = NULL){
+HmscRandomLevel = function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NULL, units=NULL, N=NULL, nNeighbours=NULL, sKnot=NULL){
    rL = structure(list(pi=NULL, s=NULL, sDim=NULL, spatialMethod=NULL, x=NULL, xDim=NULL, N=NULL, distMat=NULL, #
       nfMax=NULL, nfMin=NULL, nNeighbours=NULL, nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, alphapw=NULL), class="HmscRandomLevel")
    if(nargs()==0)
@@ -52,8 +52,6 @@ HmscRandomLevel = function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NUL
       rL$sDim = ncol(sData)
       rL$spatialMethod = sMethod
       rL$nNeighbours = nNeighbours
-      rL$knotDist = knotDist
-      rL$minKnotDist = minKnotDist
       rL$sKnot = sKnot
    } else
       rL$sDim = 0

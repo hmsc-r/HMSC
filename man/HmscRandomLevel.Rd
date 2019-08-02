@@ -6,7 +6,7 @@
 \usage{
 HmscRandomLevel(sData = NULL, sMethod = "Full", distMat = NULL,
   xData = NULL, units = NULL, N = NULL, nNeighbours = NULL,
-  sKnot = NULL, knotDist = NULL, minKnotDist = NULL)
+  sKnot = NULL)
 }
 \arguments{
 \item{sData}{a dataframe containing spatial or temporal coordinates of units of the random level}
@@ -29,7 +29,6 @@ associations}
 \item{knotDist}{distance between knots used in gaussian predictive proces if sMethod is set to \code{GPP}.}
 
 \item{minKnotDist}{minimum distance of knot to neareast point in sData}
-
 }
 \value{
 a \code{HmscRandomLevel}-class object that can be used for \code{Hmsc}-class object construction
