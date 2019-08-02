@@ -34,6 +34,7 @@
 #' @param marTree plotting margins for phylogenetic tree
 #' @param smallplot passed to \code{\link{image.plot}}
 #' @param bigplot passed to \code{\link{image.plot}}
+#' @param newplot set to  false if the plot will be part of multi-panel plot
 
 #'
 #'
@@ -60,7 +61,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
   supportLevel = 0.9, split = 0.3, cex = c(0.7,0.7,0.8),
   colors = colorRampPalette(c("blue","white","red")), colorLevels = NULL,
   mar=NULL, marTree=c(6,0,2,0),
-  smallplot=NULL, bigplot=NULL){
+  smallplot=NULL, bigplot=NULL,newplot=TRUE){
 
    if(is.null(colorLevels)){
       if(param=="Sign"){
@@ -171,7 +172,11 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
       ADJy=1/(nrow(X)*4)
       ADJx=1/(ncol(X)*4)
 
-      par(fig = c(0,1,0,1),  mar=mar)
+      if(newplot){
+         par(fig = c(0,1,0,1),  mar = mar)
+      } else {
+         par(old.par, mar=mar)
+      }
       plot.new()
       axis(1,at = seq((START+ADJx), (END-ADJx), by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)), labels = F)
       text(x=seq((START+ADJx), (END-ADJx), by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)), par("usr")[3] - 0.05, srt = 90, adj = 1,cex=cex[1],
@@ -201,5 +206,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
         },
        graphics.reset = TRUE, horizontal = FALSE, bigplot = bigplot, smallplot = smallplot,
       legend.only = FALSE, col = colors,zlim = zlim)
-   par(old.par)
+   if(newplot){
+      par(old.par)
+   }
 }
