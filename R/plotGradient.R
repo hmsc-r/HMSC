@@ -9,6 +9,7 @@
 #' mean trait values ("T")
 #' @param index which species or trait to plot
 #' @param q quantiles of the credibility interval plotted
+#' @param cicol colour with which the credibility interval plotted
 #' @param showData whether raw data are plotted as well
 #' @param jigger the amount by which the raw data are to be jiggered in x-direction (for factors) or
 #' y-direction (for continuous covariates)
@@ -55,7 +56,7 @@
 #'
 #' @export
 
-plotGradient=function (hM, Gradient, predY, measure, index = 1, q = c(0.025, 0.5, 0.975), showData = FALSE, jigger = 0, ...){
+plotGradient=function (hM, Gradient, predY, measure, index = 1, q = c(0.025, 0.5, 0.975), cicol = rgb(0,0,1,alpha=.5), showData = FALSE, jigger = 0, ...){
 
    Pr = NA
 

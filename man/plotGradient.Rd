@@ -5,7 +5,8 @@
 \title{plotGradient}
 \usage{
 plotGradient(hM, Gradient, predY, measure, index = 1, q = c(0.025, 0.5,
-  0.975), showData = FALSE, jigger = 0, ...)
+  0.975), cicol = rgb(0, 0, 1, alpha = 0.5), showData = FALSE,
+  jigger = 0, ...)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}
@@ -20,6 +21,8 @@ mean trait values ("T")}
 \item{index}{which species or trait to plot}
 
 \item{q}{quantiles of the credibility interval plotted}
+
+\item{cicol}{colour with which the credibility interval plotted}
 
 \item{showData}{whether raw data are plotted as well}
 
