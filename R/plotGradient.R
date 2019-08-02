@@ -9,6 +9,7 @@
 #' mean trait values ("T")
 #' @param index which species or trait to plot
 #' @param q quantiles of the credibility interval plotted
+#' @param xlabel label for x-axis
 #' @param cicol colour with which the credibility interval is plotted
 #' @param pointcol colour with which the data points are plotted
 #' @param showData whether raw data are plotted as well
@@ -57,18 +58,20 @@
 #'
 #' @export
 
-plotGradient=function (hM, Gradient, predY, measure, index = 1, q = c(0.025, 0.5, 0.975), cicol = rgb(0,0,1,alpha=.5), pointcol = "lightgrey", showData = FALSE, jigger = 0, ...){
+plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, index = 1, q = c(0.025, 0.5, 0.975), cicol = rgb(0,0,1,alpha=.5), pointcol = "lightgrey", showData = FALSE, jigger = 0, ...){
 
    Pr = NA
 
-   switch(class(hM$X),
-          matrix = {
-             xlabel = colnames(Gradient$XDataNew)[[1]]
-          },
-          list = {
-             xlabel = colnames(Gradient$XDataNew[[1]])[[1]]
-          }
-   )
+   if(is.null(xlabel)){
+      switch(class(hM$X),
+             matrix = {
+                xlabel = colnames(Gradient$XDataNew)[[1]]
+             },
+             list = {
+                xlabel = colnames(Gradient$XDataNew[[1]])[[1]]
+             }
+      )
+   }
 
    switch(class(hM$X),
           matrix = {

@@ -4,9 +4,9 @@
 \alias{plotGradient}
 \title{plotGradient}
 \usage{
-plotGradient(hM, Gradient, predY, measure, index = 1, q = c(0.025, 0.5,
-  0.975), cicol = rgb(0, 0, 1, alpha = 0.5), pointcol = "lightgrey",
-  showData = FALSE, jigger = 0, ...)
+plotGradient(hM, Gradient, predY, measure, xlabel = NULL, index = 1,
+  q = c(0.025, 0.5, 0.975), cicol = rgb(0, 0, 1, alpha = 0.5),
+  pointcol = "lightgrey", showData = FALSE, jigger = 0, ...)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}
@@ -17,6 +17,8 @@ plotGradient(hM, Gradient, predY, measure, index = 1, q = c(0.025, 0.5,
 
 \item{measure}{whether to plot species richness ("S"), an individual species ("Y") or community-weighted
 mean trait values ("T")}
+
+\item{xlabel}{label for x-axis}
 
 \item{index}{which species or trait to plot}
 
