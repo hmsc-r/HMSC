@@ -12,6 +12,7 @@
 #' @param xlabel label for x-axis
 #' @param cicol colour with which the credibility interval is plotted
 #' @param pointcol colour with which the data points are plotted
+#' @param pointsize size in which the data points are plotted
 #' @param showData whether raw data are plotted as well
 #' @param jigger the amount by which the raw data are to be jiggered in x-direction (for factors) or
 #' y-direction (for continuous covariates)
@@ -58,7 +59,7 @@
 #'
 #' @export
 
-plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, index = 1, q = c(0.025, 0.5, 0.975), cicol = rgb(0,0,1,alpha=.5), pointcol = "lightgrey", showData = FALSE, jigger = 0, ...){
+plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, index = 1, q = c(0.025, 0.5, 0.975), cicol = rgb(0,0,1,alpha=.5), pointcol = "lightgrey",  pointsize = 1, showData = FALSE, jigger = 0, ...){
 
    Pr = NA
 
@@ -175,7 +176,7 @@ plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, index = 1, q
             pX = pX + runif(n =length(pY),min = -jigger, max = jigger)
          }
          dataToPlot = data.frame(pX = pX, pY = pY)
-         pl = pl + geom_point(data = dataToPlot, aes_string(x = pX, y = pY))
+         pl = pl + geom_point(data = dataToPlot, aes_string(x = pX, y = pY), size = pointsize)
       }
       #plot(pl)
    } else {

@@ -6,7 +6,8 @@
 \usage{
 plotGradient(hM, Gradient, predY, measure, xlabel = NULL, index = 1,
   q = c(0.025, 0.5, 0.975), cicol = rgb(0, 0, 1, alpha = 0.5),
-  pointcol = "lightgrey", showData = FALSE, jigger = 0, ...)
+  pointcol = "lightgrey", pointsize = 1, showData = FALSE,
+  jigger = 0, ...)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}
@@ -27,6 +28,8 @@ mean trait values ("T")}
 \item{cicol}{colour with which the credibility interval is plotted}
 
 \item{pointcol}{colour with which the data points are plotted}
+
+\item{pointsize}{size in which the data points are plotted}
 
 \item{showData}{whether raw data are plotted as well}
 
