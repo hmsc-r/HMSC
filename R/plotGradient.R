@@ -10,6 +10,7 @@
 #' @param index which species or trait to plot
 #' @param q quantiles of the credibility interval plotted
 #' @param xlabel label for x-axis
+#' @param ylabel label for y-axis
 #' @param cicol colour with which the credibility interval is plotted
 #' @param pointcol colour with which the data points are plotted
 #' @param pointsize size in which the data points are plotted
@@ -59,7 +60,7 @@
 #'
 #' @export
 
-plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, index = 1, q = c(0.025, 0.5, 0.975), cicol = rgb(0,0,1,alpha=.5), pointcol = "lightgrey",  pointsize = 1, showData = FALSE, jigger = 0, ...){
+plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = NULL, index = 1, q = c(0.025, 0.5, 0.975), cicol = rgb(0,0,1,alpha=.5), pointcol = "lightgrey",  pointsize = 1, showData = FALSE, jigger = 0, ...){
 
    Pr = NA
 
@@ -94,12 +95,14 @@ plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, index = 1, q
       Pr = mean(predS[ngrid,]>predS[1,])
       qpred = apply(predS, c(1), quantile,
                     probs = q, na.rm=TRUE)
-      ylabel = "Summed response"
-      if (all(hM$distr[,1]==2)){
-         ylabel = "Species richness"
-      }
-      if (all(hM$distr[,1]==3)){
-         ylabel = "Total count"
+      if(is.null(ylabel)){
+         ylabel = "Summed response"
+         if (all(hM$distr[,1]==2)){
+            ylabel = "Species richness"
+         }
+         if (all(hM$distr[,1]==3)){
+            ylabel = "Total count"
+         }
       }
    }
    if (measure == "Y") {
@@ -108,7 +111,9 @@ plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, index = 1, q
       qpred = apply(tmp, c(1, 2), quantile,
                     probs = q, na.rm=TRUE)
       qpred = qpred[, , index]
-      ylabel = hM$spNames[[index]]
+      if(is.null(ylabel)){
+         ylabel = hM$spNames[[index]]
+      }
    }
    if (measure == "T") {
       if (all(hM$distr[,1]==1)){
@@ -123,7 +128,9 @@ plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, index = 1, q
       qpred = apply(predT, c(1, 2), quantile,
                     probs = q, na.rm = TRUE)
       qpred = qpred[, , index]
-      ylabel = hM$trNames[[index]]
+      if(is.null(ylabel)){
+         ylabel = hM$trNames[[index]]
+      }
    }
 
    lo = qpred[1, ]
