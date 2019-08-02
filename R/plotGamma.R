@@ -30,6 +30,7 @@
 #' @param mar plotting margins
 #' @param smallplot passed to \code{\link{image.plot}}
 #' @param bigplot passed to \code{\link{image.plot}}
+#' @param newplot set to  false if the plot will be part of multi-panel plot
 #'
 #' @examples
 #' # Plot posterior support values of trait effects on environmental responses
@@ -51,7 +52,7 @@ plotGamma=function(hM, post, param = "Support", trOrder="Original",
   covNamesNumbers=c(T,T), supportLevel=.9, cex=c(.8,.8,.8),
   colors=colorRampPalette(c("blue","white","red")), colorLevels = NULL,
   mar=c(6,9,2,0),
-  smallplot=NULL, bigplot=NULL){
+  smallplot=NULL, bigplot=NULL, newplot=TRUE){
 
    if(is.null(colorLevels)){
       if(param=="Sign"){
@@ -133,7 +134,12 @@ plotGamma=function(hM, post, param = "Support", trOrder="Original",
    ADJy=1/(ncol(X)*2)
    ADJx=1/(nrow(X)*4)
 
-   par(fig = c(0,1,0,1),  mar = mar)
+   if(newplot){
+      par(fig = c(0,1,0,1),  mar = mar)
+   } else {
+      par(old.par, mar=mar)
+   }
+
    plot.new()
    axis(1,at = seq(START+ADJx, END-ADJx, by = ((END-ADJx) - (START+ADJx))/(nrow(X) - 1)), labels = F)
    axis(2,at = seq(ADJy, 1-ADJy, length.out=ncol(X)), labels = F)
@@ -165,6 +171,8 @@ plotGamma=function(hM, post, param = "Support", trOrder="Original",
       legend.only = FALSE, col = colors,
       lab.breaks = NULL, zlim = zlim)
 
-   par(old.par)
+   if(newplot){
+      par(old.par)
+   }
 }
 
