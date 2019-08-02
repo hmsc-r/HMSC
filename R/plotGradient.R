@@ -190,7 +190,7 @@ plotGradient=function (hM, Gradient, predY, measure, index = 1, q = c(0.025, 0.5
          points(dataToPlot, pch = 16, col = "lightgrey")
       }
       polygon(c(xx, rev(xx)), c(qpred[1, ], rev(qpred[3, ])),
-              col = rgb(0,0,1,alpha=.5), border = FALSE)
+              col =  cicol, border = FALSE)
       lines(xx, qpred[2, ], lwd = 2)
 
    }
