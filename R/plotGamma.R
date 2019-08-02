@@ -143,7 +143,7 @@ plotGamma=function(hM, post, param = "Support", trOrder="Original",
    text(y = seq(ADJy, 1-ADJy, length.out=ncol(X)), par("usr")[3] - 0.05, srt = 0, adj = 1,cex = cex[1],
       labels = trNames[trorder], xpd = TRUE)
 
-   if(all(is.na(X)) || sum(X)==0){
+   if(all(is.na(X)) || sum(abs(X))==0){
       warning("Nothing to plot at this level of posterior support")
       zlim = c(-1,1)
    } else{

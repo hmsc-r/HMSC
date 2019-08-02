@@ -182,7 +182,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
    }
 
    #Plot
-   if(all(is.na(X)) || sum(X)==0){
+   if(all(is.na(X)) || sum(abs(X))==0){
       warning("Nothing to plot at this level of posterior support")
       zlim = c(-1,1)
    } else{
