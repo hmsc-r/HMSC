@@ -9,7 +9,8 @@
 #' mean trait values ("T")
 #' @param index which species or trait to plot
 #' @param q quantiles of the credibility interval plotted
-#' @param cicol colour with which the credibility interval plotted
+#' @param cicol colour with which the credibility interval is plotted
+#' @param pointcol colour with which the data points are plotted
 #' @param showData whether raw data are plotted as well
 #' @param jigger the amount by which the raw data are to be jiggered in x-direction (for factors) or
 #' y-direction (for continuous covariates)
@@ -56,7 +57,7 @@
 #'
 #' @export
 
-plotGradient=function (hM, Gradient, predY, measure, index = 1, q = c(0.025, 0.5, 0.975), cicol = rgb(0,0,1,alpha=.5), showData = FALSE, jigger = 0, ...){
+plotGradient=function (hM, Gradient, predY, measure, index = 1, q = c(0.025, 0.5, 0.975), cicol = rgb(0,0,1,alpha=.5), pointcol = "lightgrey", showData = FALSE, jigger = 0, ...){
 
    Pr = NA
 
@@ -187,7 +188,7 @@ plotGradient=function (hM, Gradient, predY, measure, index = 1, q = c(0.025, 0.5
             pY = lo1 + de + (hi1-lo1-2*de)*(pY-lo1)/(hi1-lo1) + runif(n =length(pY),min = -jigger, max = jigger)
          }
          dataToPlot = cbind(pX,pY)
-         points(dataToPlot, pch = 16, col = "lightgrey")
+         points(dataToPlot, pch = 16, col = pointcol)
       }
       polygon(c(xx, rev(xx)), c(qpred[1, ], rev(qpred[3, ])),
               col =  cicol, border = FALSE)
