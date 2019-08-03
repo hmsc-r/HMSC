@@ -10,7 +10,8 @@ plotBeta(hM, post, param = "Support", plotTree = F,
   T), supportLevel = 0.9, split = 0.3, cex = c(0.7, 0.7, 0.8),
   colors = colorRampPalette(c("blue", "white", "red")),
   colorLevels = NULL, mar = NULL, marTree = c(6, 0, 2, 0),
-  smallplot = NULL, bigplot = NULL, newplot = TRUE)
+  mgp = c(3, 2, 0), smallplot = NULL, bigplot = NULL,
+  newplot = TRUE)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}
@@ -60,11 +61,13 @@ and color legend axis labels}
 
 \item{marTree}{plotting margins for phylogenetic tree}
 
+\item{mgp}{can be used to set the location of the scale bar}
+
 \item{smallplot}{passed to \code{\link{image.plot}}}
 
 \item{bigplot}{passed to \code{\link{image.plot}}}
 
-\item{newplot}{set to  false if the plot will be part of multi-panel plot}
+\item{newplot}{set to  false if the plot will be part of multi-panel plot initialized with par(mfrow)}
 }
 \description{
 Plots heatmaps of parameter estimates or posterior support values of species' environmental responses, i.e. how species in \code{Y} responds to covariates in \code{X}
