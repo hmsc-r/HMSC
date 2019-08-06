@@ -1,37 +1,39 @@
-#' @title hM$constructGradient
+#' @title constructGradient
 #'
 #' @description Constructs an environmental gradient over one of the variables included in \code{XData}
+#'
+#' @param hM a fitted \code{Hmsc} model object
 #' @param focalVariable focal variable over which the gradient is constructed
-#' @param non.focalVariable assumptions on how non-focal variables co-vary with the focal variable
-#' @param ngrid number of points along the gradient (for continuous focal variable)
+#' @param non.focalVariables list giving assumptions on how non-focal variables co-vary with the focal variable
+#' @param ngrid number of points along the gradient (for continuous focal variables)
 #'
-#'
-#' @return a named list with members \code{XDataNew}, \code{studyDesignNew} and \code{rLNew}
+#'#' @return a named list with slots \code{XDataNew}, \code{studyDesignNew} and \code{rLNew}
 #'
 #' @details
-#' non.focalVariables is a list, of which each element is of form variable=list(type,value).
+#' \code{non.focalVariables} is a list, of which each element is on the form variable=list(type,value),
 #' where variable is one of the non-focal variables, and the value is needed only if type = 3
 #' type = 1 sets the values of the non-focal variable
-#' to the most likely value (defined as expected value for covarites, mode for factors)
+#' to the most likely value (defined as expected value for covariates, mode for factors)
 #' type = 2 sets the values of the non-focal variable to most likely value, given the value of focal variable,
-#' based on linear relationship
+#' based on a linear relationship
 #' type = 3 fixes to the value given.
 #' if a non.focalVariable is not listed, type=2 is used as default
-#' note that if focal variable is continuous, selecting type 2 for a non-focal categorical variable can cause abrupt changes in response
+#' note that if the focal variable is continuous, selecting type 2 for a non-focal categorical variable can cause abrupt changes in response
 #'
 #' @seealso
 #' \code{\link{plotGradient}}, \code{\link{predict}}
 #'
 #' @examples
-#' \dontrun{
-#' Gradient = constructGradient(hM=m, focalVariable="x2", non.focalVariables=list(x1=list(3,1),x3=list(1)))
-#' predY = predict(m, Gradient=Gradient)
-#' plotGradient(m, Gradient, pred=predY, measure="S")
-#' }
+#' # Construct gradient for environmental covariate called 'x1'.
+#' Gradient = constructGradient(TD$m, focalVariable="x1")
+#'
+#' # Construct gradient for environmental covariate called 'x1'
+#' # while setting the other covariate to its most likely values
+#' Gradient = constructGradient(TD$m, focalVariable="x1",non.focalVariables=list(x2=list(1)))
 #'
 #' @importFrom stats lm predict
 #' @importFrom nnet multinom
-#' 
+#'
 #' @export
 
 constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid=20){

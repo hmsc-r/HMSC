@@ -1,0 +1,1224 @@
+
+R Under development (unstable) (2019-07-26 r76894) -- "Unsuffered Consequences"
+Copyright (C) 2019 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin18.6.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> pkgname <- "Hmsc"
+> source(file.path(R.home("share"), "R", "examples-header.R"))
+> options(warn = 1)
+> library('Hmsc')
+Loading required package: coda
+> 
+> base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
+> base::assign(".old_wd", base::getwd(), pos = 'CheckExEnv')
+> cleanEx()
+> nameEx("Hmsc")
+> ### * Hmsc
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: Hmsc
+> ### Title: Hmsc
+> ### Aliases: Hmsc
+> 
+> ### ** Examples
+> 
+> # Creating a Hmsc object without phylogeny, trait data or random levels
+> m = Hmsc(Y=TD$Y, XData=TD$X, XFormula=~x1+x2)
+> 
+> # Creating a Hmsc object with phylogeny and traits
+> m = Hmsc(Y=TD$Y, XData=TD$X, XFormula=~x1+x2,
++ TrData=TD$Tr, TrFormula=~T1+T2, phyloTree=TD$phylo)
+> 
+> # Creating a Hmsc object with 2 nested random levels (50 sampling units in 20 plots)
+> studyDesign = data.frame(sample = as.factor(1:50), plot = as.factor(sample(1:20,50,replace=TRUE)))
+> rL1 = HmscRandomLevel(units=TD$studyDesign$plot)
+> rL2 = HmscRandomLevel(units=TD$studyDesign$sample)
+> m = Hmsc(Y=TD$Y, XData=TD$X, XFormula=~x1+x2,
++ studyDesign=studyDesign,ranLevels=list("sample"=rL1,"plot"=rL2))
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("HmscRandomLevel")
+> ### * HmscRandomLevel
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: HmscRandomLevel
+> ### Title: Create an 'Hmsc' random level
+> ### Aliases: HmscRandomLevel
+> 
+> ### ** Examples
+> 
+> # Setting a random level with 50 units
+> rL = HmscRandomLevel(units=TD$studyDesign$sample)
+> 
+> # Setting a spatial random level
+> rL = HmscRandomLevel(sData=TD$xycoords)
+> 
+> # Setting a covariate-dependent random level.
+> rL = HmscRandomLevel(xData=data.frame(x1=rep(1,length(TD$X$x1)),x2=TD$X$x2))
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("alignPosterior")
+> ### * alignPosterior
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: alignPosterior
+> ### Title: alignPosterior
+> ### Aliases: alignPosterior
+> 
+> ### ** Examples
+> 
+> # Align the posterior for a previously fitted HMSC model
+> m = alignPosterior(TD$m)
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("biPlot")
+> ### * biPlot
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: biPlot
+> ### Title: biPlot
+> ### Aliases: biPlot
+> 
+> ### ** Examples
+> 
+> # Construct an ordination biplot using two chosen latent factors from a previously fitted HMSC model
+> etaPost = getPostEstimate(TD$m, "Eta")
+> lambdaPost=getPostEstimate(TD$m, "Lambda")
+> biPlot(TD$m, etaPost = etaPost, lambdaPost=lambdaPost, factors=c(1,2))
+> 
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("computeAssociations")
+> ### * computeAssociations
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: computeAssociations
+> ### Title: computeAssociations
+> ### Aliases: computeAssociations
+> 
+> ### ** Examples
+> 
+> # Compute the associations (residual correlations) between species from a HMSC model
+> assoc = computeAssociations(TD$m)
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("computePredictedValues")
+> ### * computePredictedValues
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: computePredictedValues
+> ### Title: computePredictedValues
+> ### Aliases: computePredictedValues
+> 
+> ### ** Examples
+> 
+> # Compute predicted values using a previously fitted HMSC model
+> preds = computePredictedValues(TD$m)
+> 
+> ## Not run: 
+> ##D # Compute predicted values for a previously fitted HMSC model using 2 folds
+> ##D partition = createPartition(TD$m, nfolds = 2)
+> ##D predsCV1 = computePredictedValues(TD$m,partition=partition)
+> ##D 
+> ##D # Compute conditional predictions for a previously fitted HMSC model using 2 folds
+> ##D partition = createPartition(TD$m, nfolds = 2)
+> ##D predsCV2 = computePredictedValues(TD$m, partition = partition,
+> ##D partition.sp = 1:m$ns, mcmcStep = 100)
+> ## End(Not run)
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("computeVariancePartitioning")
+> ### * computeVariancePartitioning
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: computeVariancePartitioning
+> ### Title: computeVariancePartitioning
+> ### Aliases: computeVariancePartitioning
+> 
+> ### ** Examples
+> 
+> # Partition the explained variance for a previously fitted model
+> # without grouping environmental covariates
+> VP = computeVariancePartitioning(TD$m)
+> 
+> # Partition the explained variance for a previously fitted model
+> # while grouping the two environmental variables together
+> VP = computeVariancePartitioning(TD$m, group=c(1,1), groupnames = c("Habitat"))
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("computeWAIC")
+> ### * computeWAIC
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: computeWAIC
+> ### Title: computeWAIC
+> ### Aliases: computeWAIC
+> 
+> ### ** Examples
+> 
+> # Compute WAIC of previously sampled Hmsc object
+> WAIC = computeWAIC(TD$m)
+> 
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("constructGradient")
+> ### * constructGradient
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: constructGradient
+> ### Title: constructGradient
+> ### Aliases: constructGradient
+> 
+> ### ** Examples
+> 
+> # Construct gradient for environmental covariate called 'x1'.
+> Gradient = constructGradient(TD$m, focalVariable="x1")
+# weights:  3 (2 variable)
+initial  value 34.657359 
+final  value 34.655390 
+converged
+> 
+> # Construct gradient for environmental covariate called 'x1'
+> # while setting the other covariate to its most likely values
+> Gradient = constructGradient(TD$m, focalVariable="x1",non.focalVariables=list(x2=list(1)))
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("convertToCodaObject")
+> ### * convertToCodaObject
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: convertToCodaObject
+> ### Title: convertToCodaObject
+> ### Aliases: convertToCodaObject
+> 
+> ### ** Examples
+> 
+> # Convert recorded posterior samples in \code{Hmsc} object to coda object
+> codaObject = convertToCodaObject(TD$m)
+> 
+> # Convert recorded posterior samples, starting from sample 100, in m object to coda object
+> codaObject = convertToCodaObject(TD$m, start=100)
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("createPartition")
+> ### * createPartition
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: createPartition
+> ### Title: createPartition
+> ### Aliases: createPartition
+> 
+> ### ** Examples
+> 
+> # Create 3 folds for a HMSC object
+> partition = createPartition(TD$m, nfolds = 3)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("evaluateModelFit")
+> ### * evaluateModelFit
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: evaluateModelFit
+> ### Title: evaluateModelFit
+> ### Aliases: evaluateModelFit
+> 
+> ### ** Examples
+> 
+> # Evaluate model fit
+> preds = computePredictedValues(TD$m)
+> MF = evaluateModelFit(hM=TD$m, predY=preds)
+> 
+> # Evaluate model performance based on cross validation
+> partition = createPartition(TD$m, nfolds = 2)
+> predsCV1 = computePredictedValues(TD$m, partition=partition)
+[1] "Cross-validation, fold 1 out of 2"
+[1] "Computing chain 1"
+[1] "Chain 1, iteration 1 of 150, (transient)"
+[1] "Chain 1, iteration 2 of 150, (transient)"
+[1] "Chain 1, iteration 3 of 150, (transient)"
+[1] "Chain 1, iteration 4 of 150, (transient)"
+[1] "Chain 1, iteration 5 of 150, (transient)"
+[1] "Chain 1, iteration 6 of 150, (transient)"
+[1] "Chain 1, iteration 7 of 150, (transient)"
+[1] "Chain 1, iteration 8 of 150, (transient)"
+[1] "Chain 1, iteration 9 of 150, (transient)"
+[1] "Chain 1, iteration 10 of 150, (transient)"
+[1] "Chain 1, iteration 11 of 150, (transient)"
+[1] "Chain 1, iteration 12 of 150, (transient)"
+[1] "Chain 1, iteration 13 of 150, (transient)"
+[1] "Chain 1, iteration 14 of 150, (transient)"
+[1] "Chain 1, iteration 15 of 150, (transient)"
+[1] "Chain 1, iteration 16 of 150, (transient)"
+[1] "Chain 1, iteration 17 of 150, (transient)"
+[1] "Chain 1, iteration 18 of 150, (transient)"
+[1] "Chain 1, iteration 19 of 150, (transient)"
+[1] "Chain 1, iteration 20 of 150, (transient)"
+[1] "Chain 1, iteration 21 of 150, (transient)"
+[1] "Chain 1, iteration 22 of 150, (transient)"
+[1] "Chain 1, iteration 23 of 150, (transient)"
+[1] "Chain 1, iteration 24 of 150, (transient)"
+[1] "Chain 1, iteration 25 of 150, (transient)"
+[1] "Chain 1, iteration 26 of 150, (transient)"
+[1] "Chain 1, iteration 27 of 150, (transient)"
+[1] "Chain 1, iteration 28 of 150, (transient)"
+[1] "Chain 1, iteration 29 of 150, (transient)"
+[1] "Chain 1, iteration 30 of 150, (transient)"
+[1] "Chain 1, iteration 31 of 150, (transient)"
+[1] "Chain 1, iteration 32 of 150, (transient)"
+[1] "Chain 1, iteration 33 of 150, (transient)"
+[1] "Chain 1, iteration 34 of 150, (transient)"
+[1] "Chain 1, iteration 35 of 150, (transient)"
+[1] "Chain 1, iteration 36 of 150, (transient)"
+[1] "Chain 1, iteration 37 of 150, (transient)"
+[1] "Chain 1, iteration 38 of 150, (transient)"
+[1] "Chain 1, iteration 39 of 150, (transient)"
+[1] "Chain 1, iteration 40 of 150, (transient)"
+[1] "Chain 1, iteration 41 of 150, (transient)"
+[1] "Chain 1, iteration 42 of 150, (transient)"
+[1] "Chain 1, iteration 43 of 150, (transient)"
+[1] "Chain 1, iteration 44 of 150, (transient)"
+[1] "Chain 1, iteration 45 of 150, (transient)"
+[1] "Chain 1, iteration 46 of 150, (transient)"
+[1] "Chain 1, iteration 47 of 150, (transient)"
+[1] "Chain 1, iteration 48 of 150, (transient)"
+[1] "Chain 1, iteration 49 of 150, (transient)"
+[1] "Chain 1, iteration 50 of 150, (transient)"
+[1] "Chain 1, iteration 51 of 150, (sampling)"
+[1] "Chain 1, iteration 52 of 150, (sampling)"
+[1] "Chain 1, iteration 53 of 150, (sampling)"
+[1] "Chain 1, iteration 54 of 150, (sampling)"
+[1] "Chain 1, iteration 55 of 150, (sampling)"
+[1] "Chain 1, iteration 56 of 150, (sampling)"
+[1] "Chain 1, iteration 57 of 150, (sampling)"
+[1] "Chain 1, iteration 58 of 150, (sampling)"
+[1] "Chain 1, iteration 59 of 150, (sampling)"
+[1] "Chain 1, iteration 60 of 150, (sampling)"
+[1] "Chain 1, iteration 61 of 150, (sampling)"
+[1] "Chain 1, iteration 62 of 150, (sampling)"
+[1] "Chain 1, iteration 63 of 150, (sampling)"
+[1] "Chain 1, iteration 64 of 150, (sampling)"
+[1] "Chain 1, iteration 65 of 150, (sampling)"
+[1] "Chain 1, iteration 66 of 150, (sampling)"
+[1] "Chain 1, iteration 67 of 150, (sampling)"
+[1] "Chain 1, iteration 68 of 150, (sampling)"
+[1] "Chain 1, iteration 69 of 150, (sampling)"
+[1] "Chain 1, iteration 70 of 150, (sampling)"
+[1] "Chain 1, iteration 71 of 150, (sampling)"
+[1] "Chain 1, iteration 72 of 150, (sampling)"
+[1] "Chain 1, iteration 73 of 150, (sampling)"
+[1] "Chain 1, iteration 74 of 150, (sampling)"
+[1] "Chain 1, iteration 75 of 150, (sampling)"
+[1] "Chain 1, iteration 76 of 150, (sampling)"
+[1] "Chain 1, iteration 77 of 150, (sampling)"
+[1] "Chain 1, iteration 78 of 150, (sampling)"
+[1] "Chain 1, iteration 79 of 150, (sampling)"
+[1] "Chain 1, iteration 80 of 150, (sampling)"
+[1] "Chain 1, iteration 81 of 150, (sampling)"
+[1] "Chain 1, iteration 82 of 150, (sampling)"
+[1] "Chain 1, iteration 83 of 150, (sampling)"
+[1] "Chain 1, iteration 84 of 150, (sampling)"
+[1] "Chain 1, iteration 85 of 150, (sampling)"
+[1] "Chain 1, iteration 86 of 150, (sampling)"
+[1] "Chain 1, iteration 87 of 150, (sampling)"
+[1] "Chain 1, iteration 88 of 150, (sampling)"
+[1] "Chain 1, iteration 89 of 150, (sampling)"
+[1] "Chain 1, iteration 90 of 150, (sampling)"
+[1] "Chain 1, iteration 91 of 150, (sampling)"
+[1] "Chain 1, iteration 92 of 150, (sampling)"
+[1] "Chain 1, iteration 93 of 150, (sampling)"
+[1] "Chain 1, iteration 94 of 150, (sampling)"
+[1] "Chain 1, iteration 95 of 150, (sampling)"
+[1] "Chain 1, iteration 96 of 150, (sampling)"
+[1] "Chain 1, iteration 97 of 150, (sampling)"
+[1] "Chain 1, iteration 98 of 150, (sampling)"
+[1] "Chain 1, iteration 99 of 150, (sampling)"
+[1] "Chain 1, iteration 100 of 150, (sampling)"
+[1] "Chain 1, iteration 101 of 150, (sampling)"
+[1] "Chain 1, iteration 102 of 150, (sampling)"
+[1] "Chain 1, iteration 103 of 150, (sampling)"
+[1] "Chain 1, iteration 104 of 150, (sampling)"
+[1] "Chain 1, iteration 105 of 150, (sampling)"
+[1] "Chain 1, iteration 106 of 150, (sampling)"
+[1] "Chain 1, iteration 107 of 150, (sampling)"
+[1] "Chain 1, iteration 108 of 150, (sampling)"
+[1] "Chain 1, iteration 109 of 150, (sampling)"
+[1] "Chain 1, iteration 110 of 150, (sampling)"
+[1] "Chain 1, iteration 111 of 150, (sampling)"
+[1] "Chain 1, iteration 112 of 150, (sampling)"
+[1] "Chain 1, iteration 113 of 150, (sampling)"
+[1] "Chain 1, iteration 114 of 150, (sampling)"
+[1] "Chain 1, iteration 115 of 150, (sampling)"
+[1] "Chain 1, iteration 116 of 150, (sampling)"
+[1] "Chain 1, iteration 117 of 150, (sampling)"
+[1] "Chain 1, iteration 118 of 150, (sampling)"
+[1] "Chain 1, iteration 119 of 150, (sampling)"
+[1] "Chain 1, iteration 120 of 150, (sampling)"
+[1] "Chain 1, iteration 121 of 150, (sampling)"
+[1] "Chain 1, iteration 122 of 150, (sampling)"
+[1] "Chain 1, iteration 123 of 150, (sampling)"
+[1] "Chain 1, iteration 124 of 150, (sampling)"
+[1] "Chain 1, iteration 125 of 150, (sampling)"
+[1] "Chain 1, iteration 126 of 150, (sampling)"
+[1] "Chain 1, iteration 127 of 150, (sampling)"
+[1] "Chain 1, iteration 128 of 150, (sampling)"
+[1] "Chain 1, iteration 129 of 150, (sampling)"
+[1] "Chain 1, iteration 130 of 150, (sampling)"
+[1] "Chain 1, iteration 131 of 150, (sampling)"
+[1] "Chain 1, iteration 132 of 150, (sampling)"
+[1] "Chain 1, iteration 133 of 150, (sampling)"
+[1] "Chain 1, iteration 134 of 150, (sampling)"
+[1] "Chain 1, iteration 135 of 150, (sampling)"
+[1] "Chain 1, iteration 136 of 150, (sampling)"
+[1] "Chain 1, iteration 137 of 150, (sampling)"
+[1] "Chain 1, iteration 138 of 150, (sampling)"
+[1] "Chain 1, iteration 139 of 150, (sampling)"
+[1] "Chain 1, iteration 140 of 150, (sampling)"
+[1] "Chain 1, iteration 141 of 150, (sampling)"
+[1] "Chain 1, iteration 142 of 150, (sampling)"
+[1] "Chain 1, iteration 143 of 150, (sampling)"
+[1] "Chain 1, iteration 144 of 150, (sampling)"
+[1] "Chain 1, iteration 145 of 150, (sampling)"
+[1] "Chain 1, iteration 146 of 150, (sampling)"
+[1] "Chain 1, iteration 147 of 150, (sampling)"
+[1] "Chain 1, iteration 148 of 150, (sampling)"
+[1] "Chain 1, iteration 149 of 150, (sampling)"
+[1] "Chain 1, iteration 150 of 150, (sampling)"
+[1] "Computing chain 2"
+[1] "Chain 2, iteration 1 of 150, (transient)"
+[1] "Chain 2, iteration 2 of 150, (transient)"
+[1] "Chain 2, iteration 3 of 150, (transient)"
+[1] "Chain 2, iteration 4 of 150, (transient)"
+[1] "Chain 2, iteration 5 of 150, (transient)"
+[1] "Chain 2, iteration 6 of 150, (transient)"
+[1] "Chain 2, iteration 7 of 150, (transient)"
+[1] "Chain 2, iteration 8 of 150, (transient)"
+[1] "Chain 2, iteration 9 of 150, (transient)"
+[1] "Chain 2, iteration 10 of 150, (transient)"
+[1] "Chain 2, iteration 11 of 150, (transient)"
+[1] "Chain 2, iteration 12 of 150, (transient)"
+[1] "Chain 2, iteration 13 of 150, (transient)"
+[1] "Chain 2, iteration 14 of 150, (transient)"
+[1] "Chain 2, iteration 15 of 150, (transient)"
+[1] "Chain 2, iteration 16 of 150, (transient)"
+[1] "Chain 2, iteration 17 of 150, (transient)"
+[1] "Chain 2, iteration 18 of 150, (transient)"
+[1] "Chain 2, iteration 19 of 150, (transient)"
+[1] "Chain 2, iteration 20 of 150, (transient)"
+[1] "Chain 2, iteration 21 of 150, (transient)"
+[1] "Chain 2, iteration 22 of 150, (transient)"
+[1] "Chain 2, iteration 23 of 150, (transient)"
+[1] "Chain 2, iteration 24 of 150, (transient)"
+[1] "Chain 2, iteration 25 of 150, (transient)"
+[1] "Chain 2, iteration 26 of 150, (transient)"
+[1] "Chain 2, iteration 27 of 150, (transient)"
+[1] "Chain 2, iteration 28 of 150, (transient)"
+[1] "Chain 2, iteration 29 of 150, (transient)"
+[1] "Chain 2, iteration 30 of 150, (transient)"
+[1] "Chain 2, iteration 31 of 150, (transient)"
+[1] "Chain 2, iteration 32 of 150, (transient)"
+[1] "Chain 2, iteration 33 of 150, (transient)"
+[1] "Chain 2, iteration 34 of 150, (transient)"
+[1] "Chain 2, iteration 35 of 150, (transient)"
+[1] "Chain 2, iteration 36 of 150, (transient)"
+[1] "Chain 2, iteration 37 of 150, (transient)"
+[1] "Chain 2, iteration 38 of 150, (transient)"
+[1] "Chain 2, iteration 39 of 150, (transient)"
+[1] "Chain 2, iteration 40 of 150, (transient)"
+[1] "Chain 2, iteration 41 of 150, (transient)"
+[1] "Chain 2, iteration 42 of 150, (transient)"
+[1] "Chain 2, iteration 43 of 150, (transient)"
+[1] "Chain 2, iteration 44 of 150, (transient)"
+[1] "Chain 2, iteration 45 of 150, (transient)"
+[1] "Chain 2, iteration 46 of 150, (transient)"
+[1] "Chain 2, iteration 47 of 150, (transient)"
+[1] "Chain 2, iteration 48 of 150, (transient)"
+[1] "Chain 2, iteration 49 of 150, (transient)"
+[1] "Chain 2, iteration 50 of 150, (transient)"
+[1] "Chain 2, iteration 51 of 150, (sampling)"
+[1] "Chain 2, iteration 52 of 150, (sampling)"
+[1] "Chain 2, iteration 53 of 150, (sampling)"
+[1] "Chain 2, iteration 54 of 150, (sampling)"
+[1] "Chain 2, iteration 55 of 150, (sampling)"
+[1] "Chain 2, iteration 56 of 150, (sampling)"
+[1] "Chain 2, iteration 57 of 150, (sampling)"
+[1] "Chain 2, iteration 58 of 150, (sampling)"
+[1] "Chain 2, iteration 59 of 150, (sampling)"
+[1] "Chain 2, iteration 60 of 150, (sampling)"
+[1] "Chain 2, iteration 61 of 150, (sampling)"
+[1] "Chain 2, iteration 62 of 150, (sampling)"
+[1] "Chain 2, iteration 63 of 150, (sampling)"
+[1] "Chain 2, iteration 64 of 150, (sampling)"
+[1] "Chain 2, iteration 65 of 150, (sampling)"
+[1] "Chain 2, iteration 66 of 150, (sampling)"
+[1] "Chain 2, iteration 67 of 150, (sampling)"
+[1] "Chain 2, iteration 68 of 150, (sampling)"
+[1] "Chain 2, iteration 69 of 150, (sampling)"
+[1] "Chain 2, iteration 70 of 150, (sampling)"
+[1] "Chain 2, iteration 71 of 150, (sampling)"
+[1] "Chain 2, iteration 72 of 150, (sampling)"
+[1] "Chain 2, iteration 73 of 150, (sampling)"
+[1] "Chain 2, iteration 74 of 150, (sampling)"
+[1] "Chain 2, iteration 75 of 150, (sampling)"
+[1] "Chain 2, iteration 76 of 150, (sampling)"
+[1] "Chain 2, iteration 77 of 150, (sampling)"
+[1] "Chain 2, iteration 78 of 150, (sampling)"
+[1] "Chain 2, iteration 79 of 150, (sampling)"
+[1] "Chain 2, iteration 80 of 150, (sampling)"
+[1] "Chain 2, iteration 81 of 150, (sampling)"
+[1] "Chain 2, iteration 82 of 150, (sampling)"
+[1] "Chain 2, iteration 83 of 150, (sampling)"
+[1] "Chain 2, iteration 84 of 150, (sampling)"
+[1] "Chain 2, iteration 85 of 150, (sampling)"
+[1] "Chain 2, iteration 86 of 150, (sampling)"
+[1] "Chain 2, iteration 87 of 150, (sampling)"
+[1] "Chain 2, iteration 88 of 150, (sampling)"
+[1] "Chain 2, iteration 89 of 150, (sampling)"
+[1] "Chain 2, iteration 90 of 150, (sampling)"
+[1] "Chain 2, iteration 91 of 150, (sampling)"
+[1] "Chain 2, iteration 92 of 150, (sampling)"
+[1] "Chain 2, iteration 93 of 150, (sampling)"
+[1] "Chain 2, iteration 94 of 150, (sampling)"
+[1] "Chain 2, iteration 95 of 150, (sampling)"
+[1] "Chain 2, iteration 96 of 150, (sampling)"
+[1] "Chain 2, iteration 97 of 150, (sampling)"
+[1] "Chain 2, iteration 98 of 150, (sampling)"
+[1] "Chain 2, iteration 99 of 150, (sampling)"
+[1] "Chain 2, iteration 100 of 150, (sampling)"
+[1] "Chain 2, iteration 101 of 150, (sampling)"
+[1] "Chain 2, iteration 102 of 150, (sampling)"
+[1] "Chain 2, iteration 103 of 150, (sampling)"
+[1] "Chain 2, iteration 104 of 150, (sampling)"
+[1] "Chain 2, iteration 105 of 150, (sampling)"
+[1] "Chain 2, iteration 106 of 150, (sampling)"
+[1] "Chain 2, iteration 107 of 150, (sampling)"
+[1] "Chain 2, iteration 108 of 150, (sampling)"
+[1] "Chain 2, iteration 109 of 150, (sampling)"
+[1] "Chain 2, iteration 110 of 150, (sampling)"
+[1] "Chain 2, iteration 111 of 150, (sampling)"
+[1] "Chain 2, iteration 112 of 150, (sampling)"
+[1] "Chain 2, iteration 113 of 150, (sampling)"
+[1] "Chain 2, iteration 114 of 150, (sampling)"
+[1] "Chain 2, iteration 115 of 150, (sampling)"
+[1] "Chain 2, iteration 116 of 150, (sampling)"
+[1] "Chain 2, iteration 117 of 150, (sampling)"
+[1] "Chain 2, iteration 118 of 150, (sampling)"
+[1] "Chain 2, iteration 119 of 150, (sampling)"
+[1] "Chain 2, iteration 120 of 150, (sampling)"
+[1] "Chain 2, iteration 121 of 150, (sampling)"
+[1] "Chain 2, iteration 122 of 150, (sampling)"
+[1] "Chain 2, iteration 123 of 150, (sampling)"
+[1] "Chain 2, iteration 124 of 150, (sampling)"
+[1] "Chain 2, iteration 125 of 150, (sampling)"
+[1] "Chain 2, iteration 126 of 150, (sampling)"
+[1] "Chain 2, iteration 127 of 150, (sampling)"
+[1] "Chain 2, iteration 128 of 150, (sampling)"
+[1] "Chain 2, iteration 129 of 150, (sampling)"
+[1] "Chain 2, iteration 130 of 150, (sampling)"
+[1] "Chain 2, iteration 131 of 150, (sampling)"
+[1] "Chain 2, iteration 132 of 150, (sampling)"
+[1] "Chain 2, iteration 133 of 150, (sampling)"
+[1] "Chain 2, iteration 134 of 150, (sampling)"
+[1] "Chain 2, iteration 135 of 150, (sampling)"
+[1] "Chain 2, iteration 136 of 150, (sampling)"
+[1] "Chain 2, iteration 137 of 150, (sampling)"
+[1] "Chain 2, iteration 138 of 150, (sampling)"
+[1] "Chain 2, iteration 139 of 150, (sampling)"
+[1] "Chain 2, iteration 140 of 150, (sampling)"
+[1] "Chain 2, iteration 141 of 150, (sampling)"
+[1] "Chain 2, iteration 142 of 150, (sampling)"
+[1] "Chain 2, iteration 143 of 150, (sampling)"
+[1] "Chain 2, iteration 144 of 150, (sampling)"
+[1] "Chain 2, iteration 145 of 150, (sampling)"
+[1] "Chain 2, iteration 146 of 150, (sampling)"
+[1] "Chain 2, iteration 147 of 150, (sampling)"
+[1] "Chain 2, iteration 148 of 150, (sampling)"
+[1] "Chain 2, iteration 149 of 150, (sampling)"
+[1] "Chain 2, iteration 150 of 150, (sampling)"
+[1] "Cross-validation, fold 2 out of 2"
+[1] "Computing chain 1"
+[1] "Chain 1, iteration 1 of 150, (transient)"
+[1] "Chain 1, iteration 2 of 150, (transient)"
+[1] "Chain 1, iteration 3 of 150, (transient)"
+[1] "Chain 1, iteration 4 of 150, (transient)"
+[1] "Chain 1, iteration 5 of 150, (transient)"
+[1] "Chain 1, iteration 6 of 150, (transient)"
+[1] "Chain 1, iteration 7 of 150, (transient)"
+[1] "Chain 1, iteration 8 of 150, (transient)"
+[1] "Chain 1, iteration 9 of 150, (transient)"
+[1] "Chain 1, iteration 10 of 150, (transient)"
+[1] "Chain 1, iteration 11 of 150, (transient)"
+[1] "Chain 1, iteration 12 of 150, (transient)"
+[1] "Chain 1, iteration 13 of 150, (transient)"
+[1] "Chain 1, iteration 14 of 150, (transient)"
+[1] "Chain 1, iteration 15 of 150, (transient)"
+[1] "Chain 1, iteration 16 of 150, (transient)"
+[1] "Chain 1, iteration 17 of 150, (transient)"
+[1] "Chain 1, iteration 18 of 150, (transient)"
+[1] "Chain 1, iteration 19 of 150, (transient)"
+[1] "Chain 1, iteration 20 of 150, (transient)"
+[1] "Chain 1, iteration 21 of 150, (transient)"
+[1] "Chain 1, iteration 22 of 150, (transient)"
+[1] "Chain 1, iteration 23 of 150, (transient)"
+[1] "Chain 1, iteration 24 of 150, (transient)"
+[1] "Chain 1, iteration 25 of 150, (transient)"
+[1] "Chain 1, iteration 26 of 150, (transient)"
+[1] "Chain 1, iteration 27 of 150, (transient)"
+[1] "Chain 1, iteration 28 of 150, (transient)"
+[1] "Chain 1, iteration 29 of 150, (transient)"
+[1] "Chain 1, iteration 30 of 150, (transient)"
+[1] "Chain 1, iteration 31 of 150, (transient)"
+[1] "Chain 1, iteration 32 of 150, (transient)"
+[1] "Chain 1, iteration 33 of 150, (transient)"
+[1] "Chain 1, iteration 34 of 150, (transient)"
+[1] "Chain 1, iteration 35 of 150, (transient)"
+[1] "Chain 1, iteration 36 of 150, (transient)"
+[1] "Chain 1, iteration 37 of 150, (transient)"
+[1] "Chain 1, iteration 38 of 150, (transient)"
+[1] "Chain 1, iteration 39 of 150, (transient)"
+[1] "Chain 1, iteration 40 of 150, (transient)"
+[1] "Chain 1, iteration 41 of 150, (transient)"
+[1] "Chain 1, iteration 42 of 150, (transient)"
+[1] "Chain 1, iteration 43 of 150, (transient)"
+[1] "Chain 1, iteration 44 of 150, (transient)"
+[1] "Chain 1, iteration 45 of 150, (transient)"
+[1] "Chain 1, iteration 46 of 150, (transient)"
+[1] "Chain 1, iteration 47 of 150, (transient)"
+[1] "Chain 1, iteration 48 of 150, (transient)"
+[1] "Chain 1, iteration 49 of 150, (transient)"
+[1] "Chain 1, iteration 50 of 150, (transient)"
+[1] "Chain 1, iteration 51 of 150, (sampling)"
+[1] "Chain 1, iteration 52 of 150, (sampling)"
+[1] "Chain 1, iteration 53 of 150, (sampling)"
+[1] "Chain 1, iteration 54 of 150, (sampling)"
+[1] "Chain 1, iteration 55 of 150, (sampling)"
+[1] "Chain 1, iteration 56 of 150, (sampling)"
+[1] "Chain 1, iteration 57 of 150, (sampling)"
+[1] "Chain 1, iteration 58 of 150, (sampling)"
+[1] "Chain 1, iteration 59 of 150, (sampling)"
+[1] "Chain 1, iteration 60 of 150, (sampling)"
+[1] "Chain 1, iteration 61 of 150, (sampling)"
+[1] "Chain 1, iteration 62 of 150, (sampling)"
+[1] "Chain 1, iteration 63 of 150, (sampling)"
+[1] "Chain 1, iteration 64 of 150, (sampling)"
+[1] "Chain 1, iteration 65 of 150, (sampling)"
+[1] "Chain 1, iteration 66 of 150, (sampling)"
+[1] "Chain 1, iteration 67 of 150, (sampling)"
+[1] "Chain 1, iteration 68 of 150, (sampling)"
+[1] "Chain 1, iteration 69 of 150, (sampling)"
+[1] "Chain 1, iteration 70 of 150, (sampling)"
+[1] "Chain 1, iteration 71 of 150, (sampling)"
+[1] "Chain 1, iteration 72 of 150, (sampling)"
+[1] "Chain 1, iteration 73 of 150, (sampling)"
+[1] "Chain 1, iteration 74 of 150, (sampling)"
+[1] "Chain 1, iteration 75 of 150, (sampling)"
+[1] "Chain 1, iteration 76 of 150, (sampling)"
+[1] "Chain 1, iteration 77 of 150, (sampling)"
+[1] "Chain 1, iteration 78 of 150, (sampling)"
+[1] "Chain 1, iteration 79 of 150, (sampling)"
+[1] "Chain 1, iteration 80 of 150, (sampling)"
+[1] "Chain 1, iteration 81 of 150, (sampling)"
+[1] "Chain 1, iteration 82 of 150, (sampling)"
+[1] "Chain 1, iteration 83 of 150, (sampling)"
+[1] "Chain 1, iteration 84 of 150, (sampling)"
+[1] "Chain 1, iteration 85 of 150, (sampling)"
+[1] "Chain 1, iteration 86 of 150, (sampling)"
+[1] "Chain 1, iteration 87 of 150, (sampling)"
+[1] "Chain 1, iteration 88 of 150, (sampling)"
+[1] "Chain 1, iteration 89 of 150, (sampling)"
+[1] "Chain 1, iteration 90 of 150, (sampling)"
+[1] "Chain 1, iteration 91 of 150, (sampling)"
+[1] "Chain 1, iteration 92 of 150, (sampling)"
+[1] "Chain 1, iteration 93 of 150, (sampling)"
+[1] "Chain 1, iteration 94 of 150, (sampling)"
+[1] "Chain 1, iteration 95 of 150, (sampling)"
+[1] "Chain 1, iteration 96 of 150, (sampling)"
+[1] "Chain 1, iteration 97 of 150, (sampling)"
+[1] "Chain 1, iteration 98 of 150, (sampling)"
+[1] "Chain 1, iteration 99 of 150, (sampling)"
+[1] "Chain 1, iteration 100 of 150, (sampling)"
+[1] "Chain 1, iteration 101 of 150, (sampling)"
+[1] "Chain 1, iteration 102 of 150, (sampling)"
+[1] "Chain 1, iteration 103 of 150, (sampling)"
+[1] "Chain 1, iteration 104 of 150, (sampling)"
+[1] "Chain 1, iteration 105 of 150, (sampling)"
+[1] "Chain 1, iteration 106 of 150, (sampling)"
+[1] "Chain 1, iteration 107 of 150, (sampling)"
+[1] "Chain 1, iteration 108 of 150, (sampling)"
+[1] "Chain 1, iteration 109 of 150, (sampling)"
+[1] "Chain 1, iteration 110 of 150, (sampling)"
+[1] "Chain 1, iteration 111 of 150, (sampling)"
+[1] "Chain 1, iteration 112 of 150, (sampling)"
+[1] "Chain 1, iteration 113 of 150, (sampling)"
+[1] "Chain 1, iteration 114 of 150, (sampling)"
+[1] "Chain 1, iteration 115 of 150, (sampling)"
+[1] "Chain 1, iteration 116 of 150, (sampling)"
+[1] "Chain 1, iteration 117 of 150, (sampling)"
+[1] "Chain 1, iteration 118 of 150, (sampling)"
+[1] "Chain 1, iteration 119 of 150, (sampling)"
+[1] "Chain 1, iteration 120 of 150, (sampling)"
+[1] "Chain 1, iteration 121 of 150, (sampling)"
+[1] "Chain 1, iteration 122 of 150, (sampling)"
+[1] "Chain 1, iteration 123 of 150, (sampling)"
+[1] "Chain 1, iteration 124 of 150, (sampling)"
+[1] "Chain 1, iteration 125 of 150, (sampling)"
+[1] "Chain 1, iteration 126 of 150, (sampling)"
+[1] "Chain 1, iteration 127 of 150, (sampling)"
+[1] "Chain 1, iteration 128 of 150, (sampling)"
+[1] "Chain 1, iteration 129 of 150, (sampling)"
+[1] "Chain 1, iteration 130 of 150, (sampling)"
+[1] "Chain 1, iteration 131 of 150, (sampling)"
+[1] "Chain 1, iteration 132 of 150, (sampling)"
+[1] "Chain 1, iteration 133 of 150, (sampling)"
+[1] "Chain 1, iteration 134 of 150, (sampling)"
+[1] "Chain 1, iteration 135 of 150, (sampling)"
+[1] "Chain 1, iteration 136 of 150, (sampling)"
+[1] "Chain 1, iteration 137 of 150, (sampling)"
+[1] "Chain 1, iteration 138 of 150, (sampling)"
+[1] "Chain 1, iteration 139 of 150, (sampling)"
+[1] "Chain 1, iteration 140 of 150, (sampling)"
+[1] "Chain 1, iteration 141 of 150, (sampling)"
+[1] "Chain 1, iteration 142 of 150, (sampling)"
+[1] "Chain 1, iteration 143 of 150, (sampling)"
+[1] "Chain 1, iteration 144 of 150, (sampling)"
+[1] "Chain 1, iteration 145 of 150, (sampling)"
+[1] "Chain 1, iteration 146 of 150, (sampling)"
+[1] "Chain 1, iteration 147 of 150, (sampling)"
+[1] "Chain 1, iteration 148 of 150, (sampling)"
+[1] "Chain 1, iteration 149 of 150, (sampling)"
+[1] "Chain 1, iteration 150 of 150, (sampling)"
+[1] "Computing chain 2"
+[1] "Chain 2, iteration 1 of 150, (transient)"
+[1] "Chain 2, iteration 2 of 150, (transient)"
+[1] "Chain 2, iteration 3 of 150, (transient)"
+[1] "Chain 2, iteration 4 of 150, (transient)"
+[1] "Chain 2, iteration 5 of 150, (transient)"
+[1] "Chain 2, iteration 6 of 150, (transient)"
+[1] "Chain 2, iteration 7 of 150, (transient)"
+[1] "Chain 2, iteration 8 of 150, (transient)"
+[1] "Chain 2, iteration 9 of 150, (transient)"
+[1] "Chain 2, iteration 10 of 150, (transient)"
+[1] "Chain 2, iteration 11 of 150, (transient)"
+[1] "Chain 2, iteration 12 of 150, (transient)"
+[1] "Chain 2, iteration 13 of 150, (transient)"
+[1] "Chain 2, iteration 14 of 150, (transient)"
+[1] "Chain 2, iteration 15 of 150, (transient)"
+[1] "Chain 2, iteration 16 of 150, (transient)"
+[1] "Chain 2, iteration 17 of 150, (transient)"
+[1] "Chain 2, iteration 18 of 150, (transient)"
+[1] "Chain 2, iteration 19 of 150, (transient)"
+[1] "Chain 2, iteration 20 of 150, (transient)"
+[1] "Chain 2, iteration 21 of 150, (transient)"
+[1] "Chain 2, iteration 22 of 150, (transient)"
+[1] "Chain 2, iteration 23 of 150, (transient)"
+[1] "Chain 2, iteration 24 of 150, (transient)"
+[1] "Chain 2, iteration 25 of 150, (transient)"
+[1] "Chain 2, iteration 26 of 150, (transient)"
+[1] "Chain 2, iteration 27 of 150, (transient)"
+[1] "Chain 2, iteration 28 of 150, (transient)"
+[1] "Chain 2, iteration 29 of 150, (transient)"
+[1] "Chain 2, iteration 30 of 150, (transient)"
+[1] "Chain 2, iteration 31 of 150, (transient)"
+[1] "Chain 2, iteration 32 of 150, (transient)"
+[1] "Chain 2, iteration 33 of 150, (transient)"
+[1] "Chain 2, iteration 34 of 150, (transient)"
+[1] "Chain 2, iteration 35 of 150, (transient)"
+[1] "Chain 2, iteration 36 of 150, (transient)"
+[1] "Chain 2, iteration 37 of 150, (transient)"
+[1] "Chain 2, iteration 38 of 150, (transient)"
+[1] "Chain 2, iteration 39 of 150, (transient)"
+[1] "Chain 2, iteration 40 of 150, (transient)"
+[1] "Chain 2, iteration 41 of 150, (transient)"
+[1] "Chain 2, iteration 42 of 150, (transient)"
+[1] "Chain 2, iteration 43 of 150, (transient)"
+[1] "Chain 2, iteration 44 of 150, (transient)"
+[1] "Chain 2, iteration 45 of 150, (transient)"
+[1] "Chain 2, iteration 46 of 150, (transient)"
+[1] "Chain 2, iteration 47 of 150, (transient)"
+[1] "Chain 2, iteration 48 of 150, (transient)"
+[1] "Chain 2, iteration 49 of 150, (transient)"
+[1] "Chain 2, iteration 50 of 150, (transient)"
+[1] "Chain 2, iteration 51 of 150, (sampling)"
+[1] "Chain 2, iteration 52 of 150, (sampling)"
+[1] "Chain 2, iteration 53 of 150, (sampling)"
+[1] "Chain 2, iteration 54 of 150, (sampling)"
+[1] "Chain 2, iteration 55 of 150, (sampling)"
+[1] "Chain 2, iteration 56 of 150, (sampling)"
+[1] "Chain 2, iteration 57 of 150, (sampling)"
+[1] "Chain 2, iteration 58 of 150, (sampling)"
+[1] "Chain 2, iteration 59 of 150, (sampling)"
+[1] "Chain 2, iteration 60 of 150, (sampling)"
+[1] "Chain 2, iteration 61 of 150, (sampling)"
+[1] "Chain 2, iteration 62 of 150, (sampling)"
+[1] "Chain 2, iteration 63 of 150, (sampling)"
+[1] "Chain 2, iteration 64 of 150, (sampling)"
+[1] "Chain 2, iteration 65 of 150, (sampling)"
+[1] "Chain 2, iteration 66 of 150, (sampling)"
+[1] "Chain 2, iteration 67 of 150, (sampling)"
+[1] "Chain 2, iteration 68 of 150, (sampling)"
+[1] "Chain 2, iteration 69 of 150, (sampling)"
+[1] "Chain 2, iteration 70 of 150, (sampling)"
+[1] "Chain 2, iteration 71 of 150, (sampling)"
+[1] "Chain 2, iteration 72 of 150, (sampling)"
+[1] "Chain 2, iteration 73 of 150, (sampling)"
+[1] "Chain 2, iteration 74 of 150, (sampling)"
+[1] "Chain 2, iteration 75 of 150, (sampling)"
+[1] "Chain 2, iteration 76 of 150, (sampling)"
+[1] "Chain 2, iteration 77 of 150, (sampling)"
+[1] "Chain 2, iteration 78 of 150, (sampling)"
+[1] "Chain 2, iteration 79 of 150, (sampling)"
+[1] "Chain 2, iteration 80 of 150, (sampling)"
+[1] "Chain 2, iteration 81 of 150, (sampling)"
+[1] "Chain 2, iteration 82 of 150, (sampling)"
+[1] "Chain 2, iteration 83 of 150, (sampling)"
+[1] "Chain 2, iteration 84 of 150, (sampling)"
+[1] "Chain 2, iteration 85 of 150, (sampling)"
+[1] "Chain 2, iteration 86 of 150, (sampling)"
+[1] "Chain 2, iteration 87 of 150, (sampling)"
+[1] "Chain 2, iteration 88 of 150, (sampling)"
+[1] "Chain 2, iteration 89 of 150, (sampling)"
+[1] "Chain 2, iteration 90 of 150, (sampling)"
+[1] "Chain 2, iteration 91 of 150, (sampling)"
+[1] "Chain 2, iteration 92 of 150, (sampling)"
+[1] "Chain 2, iteration 93 of 150, (sampling)"
+[1] "Chain 2, iteration 94 of 150, (sampling)"
+[1] "Chain 2, iteration 95 of 150, (sampling)"
+[1] "Chain 2, iteration 96 of 150, (sampling)"
+[1] "Chain 2, iteration 97 of 150, (sampling)"
+[1] "Chain 2, iteration 98 of 150, (sampling)"
+[1] "Chain 2, iteration 99 of 150, (sampling)"
+[1] "Chain 2, iteration 100 of 150, (sampling)"
+[1] "Chain 2, iteration 101 of 150, (sampling)"
+[1] "Chain 2, iteration 102 of 150, (sampling)"
+[1] "Chain 2, iteration 103 of 150, (sampling)"
+[1] "Chain 2, iteration 104 of 150, (sampling)"
+[1] "Chain 2, iteration 105 of 150, (sampling)"
+[1] "Chain 2, iteration 106 of 150, (sampling)"
+[1] "Chain 2, iteration 107 of 150, (sampling)"
+[1] "Chain 2, iteration 108 of 150, (sampling)"
+[1] "Chain 2, iteration 109 of 150, (sampling)"
+[1] "Chain 2, iteration 110 of 150, (sampling)"
+[1] "Chain 2, iteration 111 of 150, (sampling)"
+[1] "Chain 2, iteration 112 of 150, (sampling)"
+[1] "Chain 2, iteration 113 of 150, (sampling)"
+[1] "Chain 2, iteration 114 of 150, (sampling)"
+[1] "Chain 2, iteration 115 of 150, (sampling)"
+[1] "Chain 2, iteration 116 of 150, (sampling)"
+[1] "Chain 2, iteration 117 of 150, (sampling)"
+[1] "Chain 2, iteration 118 of 150, (sampling)"
+[1] "Chain 2, iteration 119 of 150, (sampling)"
+[1] "Chain 2, iteration 120 of 150, (sampling)"
+[1] "Chain 2, iteration 121 of 150, (sampling)"
+[1] "Chain 2, iteration 122 of 150, (sampling)"
+[1] "Chain 2, iteration 123 of 150, (sampling)"
+[1] "Chain 2, iteration 124 of 150, (sampling)"
+[1] "Chain 2, iteration 125 of 150, (sampling)"
+[1] "Chain 2, iteration 126 of 150, (sampling)"
+[1] "Chain 2, iteration 127 of 150, (sampling)"
+[1] "Chain 2, iteration 128 of 150, (sampling)"
+[1] "Chain 2, iteration 129 of 150, (sampling)"
+[1] "Chain 2, iteration 130 of 150, (sampling)"
+[1] "Chain 2, iteration 131 of 150, (sampling)"
+[1] "Chain 2, iteration 132 of 150, (sampling)"
+[1] "Chain 2, iteration 133 of 150, (sampling)"
+[1] "Chain 2, iteration 134 of 150, (sampling)"
+[1] "Chain 2, iteration 135 of 150, (sampling)"
+[1] "Chain 2, iteration 136 of 150, (sampling)"
+[1] "Chain 2, iteration 137 of 150, (sampling)"
+[1] "Chain 2, iteration 138 of 150, (sampling)"
+[1] "Chain 2, iteration 139 of 150, (sampling)"
+[1] "Chain 2, iteration 140 of 150, (sampling)"
+[1] "Chain 2, iteration 141 of 150, (sampling)"
+[1] "Chain 2, iteration 142 of 150, (sampling)"
+[1] "Chain 2, iteration 143 of 150, (sampling)"
+[1] "Chain 2, iteration 144 of 150, (sampling)"
+[1] "Chain 2, iteration 145 of 150, (sampling)"
+[1] "Chain 2, iteration 146 of 150, (sampling)"
+[1] "Chain 2, iteration 147 of 150, (sampling)"
+[1] "Chain 2, iteration 148 of 150, (sampling)"
+[1] "Chain 2, iteration 149 of 150, (sampling)"
+[1] "Chain 2, iteration 150 of 150, (sampling)"
+> MF = evaluateModelFit(hM=TD$m, predY=predsCV1)
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("getPostEstimate")
+> ### * getPostEstimate
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: getPostEstimate
+> ### Title: getPostEstimate
+> ### Aliases: getPostEstimate
+> 
+> ### ** Examples
+> 
+> # Get posterior mean and support for species' responses to environmental covariates
+> postBeta = getPostEstimate(TD$m, parName='Beta')
+> 
+> # Get posterior mean and support for species' responses to latent factors for the first random level
+> postLambda = getPostEstimate(TD$m, parName='Lambda', r=1)
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("plotBeta")
+> ### * plotBeta
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: plotBeta
+> ### Title: plotBeta
+> ### Aliases: plotBeta
+> 
+> ### ** Examples
+> 
+> # Plot posterior support values of species' environmental responses
+> betaPost=getPostEstimate(TD$m, "Beta")
+> plotBeta(TD$m, post=betaPost, param="Support")
+> 
+> # Plot parameter estimates of species' environmental responses together with the phylogenetic tree
+> betaPost=getPostEstimate(TD$m, "Beta")
+> plotBeta(TD$m, post=betaPost, param="Mean", plotTree=TRUE)
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("plotGamma")
+> ### * plotGamma
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: plotGamma
+> ### Title: plotGamma
+> ### Aliases: plotGamma
+> 
+> ### ** Examples
+> 
+> # Plot posterior support values of trait effects on environmental responses
+> gammaPost=getPostEstimate(TD$m, "Gamma")
+> plotGamma(TD$m, post=gammaPost, param="Support")
+> 
+> # Plot parameter estimates of trait effects on environmental responses
+> gammaPost=getPostEstimate(TD$m, "Gamma")
+> plotGamma(TD$m, post=gammaPost, param="Mean")
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("plotGradient")
+> ### * plotGradient
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: plotGradient
+> ### Title: plotGradient
+> ### Aliases: plotGradient
+> 
+> ### ** Examples
+> 
+> # Plot response of species 2 over the gradient of environmental variable x1
+> Gradient = constructGradient(TD$m, focalVariable="x1")
+# weights:  3 (2 variable)
+initial  value 34.657359 
+final  value 34.655390 
+converged
+> predY = predict(TD$m, Gradient=Gradient)
+> plotGradient(TD$m, Gradient, pred=predY, measure="Y", index = 2, showData = TRUE, jigger = 0.05)
+[1] 0.98
+> 
+> # Plot modelled species richness over the gradient of environmental variable x1
+> Gradient = constructGradient(TD$m, focalVariable="x1")
+# weights:  3 (2 variable)
+initial  value 34.657359 
+final  value 34.655390 
+converged
+> predY = predict(TD$m, Gradient=Gradient)
+> plotGradient(TD$m, Gradient, pred=predY, measure="S")
+[1] 0.995
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("plotVariancePartitioning")
+> ### * plotVariancePartitioning
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: plotVariancePartitioning
+> ### Title: plotVariancePartitioning
+> ### Aliases: plotVariancePartitioning
+> 
+> ### ** Examples
+> 
+> # Plot how the explained variance of a previously fitted model is partitioned
+> VP = computeVariancePartitioning(TD$m)
+> plotVariancePartitioning(TD$m, VP)
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("poolMcmcChains")
+> ### * poolMcmcChains
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: poolMcmcChains
+> ### Title: poolMcmcChains
+> ### Aliases: poolMcmcChains
+> 
+> ### ** Examples
+> 
+> # Combine the posteriors from all chains in a Hmsc object
+> postList = TD$m$postList
+> pooledPost = poolMcmcChains(postList)
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("prepareGradient")
+> ### * prepareGradient
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: prepareGradient
+> ### Title: prepareGradient
+> ### Aliases: prepareGradient
+> 
+> ### ** Examples
+> 
+> ## Not run: 
+> ##D Gradient = prepareGradient(hM=m, XDataNew=XDataNew, sDataNew=sDataNew)
+> ##D predY = predict(m, Gradient=Gradient)
+> ## End(Not run)
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("sampleMcmc")
+> ### * sampleMcmc
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: sampleMcmc
+> ### Title: sampleMCMC
+> ### Aliases: sampleMcmc
+> 
+> ### ** Examples
+> 
+> # Record 100 posterior samples from a Hmsc object
+> m = sampleMcmc(TD$m, samples=100)
+[1] "Chain 1, iteration 1 of 100, (sampling)"
+[1] "Chain 1, iteration 2 of 100, (sampling)"
+[1] "Chain 1, iteration 3 of 100, (sampling)"
+[1] "Chain 1, iteration 4 of 100, (sampling)"
+[1] "Chain 1, iteration 5 of 100, (sampling)"
+[1] "Chain 1, iteration 6 of 100, (sampling)"
+[1] "Chain 1, iteration 7 of 100, (sampling)"
+[1] "Chain 1, iteration 8 of 100, (sampling)"
+[1] "Chain 1, iteration 9 of 100, (sampling)"
+[1] "Chain 1, iteration 10 of 100, (sampling)"
+[1] "Chain 1, iteration 11 of 100, (sampling)"
+[1] "Chain 1, iteration 12 of 100, (sampling)"
+[1] "Chain 1, iteration 13 of 100, (sampling)"
+[1] "Chain 1, iteration 14 of 100, (sampling)"
+[1] "Chain 1, iteration 15 of 100, (sampling)"
+[1] "Chain 1, iteration 16 of 100, (sampling)"
+[1] "Chain 1, iteration 17 of 100, (sampling)"
+[1] "Chain 1, iteration 18 of 100, (sampling)"
+[1] "Chain 1, iteration 19 of 100, (sampling)"
+[1] "Chain 1, iteration 20 of 100, (sampling)"
+[1] "Chain 1, iteration 21 of 100, (sampling)"
+[1] "Chain 1, iteration 22 of 100, (sampling)"
+[1] "Chain 1, iteration 23 of 100, (sampling)"
+[1] "Chain 1, iteration 24 of 100, (sampling)"
+[1] "Chain 1, iteration 25 of 100, (sampling)"
+[1] "Chain 1, iteration 26 of 100, (sampling)"
+[1] "Chain 1, iteration 27 of 100, (sampling)"
+[1] "Chain 1, iteration 28 of 100, (sampling)"
+[1] "Chain 1, iteration 29 of 100, (sampling)"
+[1] "Chain 1, iteration 30 of 100, (sampling)"
+[1] "Chain 1, iteration 31 of 100, (sampling)"
+[1] "Chain 1, iteration 32 of 100, (sampling)"
+[1] "Chain 1, iteration 33 of 100, (sampling)"
+[1] "Chain 1, iteration 34 of 100, (sampling)"
+[1] "Chain 1, iteration 35 of 100, (sampling)"
+[1] "Chain 1, iteration 36 of 100, (sampling)"
+[1] "Chain 1, iteration 37 of 100, (sampling)"
+[1] "Chain 1, iteration 38 of 100, (sampling)"
+[1] "Chain 1, iteration 39 of 100, (sampling)"
+[1] "Chain 1, iteration 40 of 100, (sampling)"
+[1] "Chain 1, iteration 41 of 100, (sampling)"
+[1] "Chain 1, iteration 42 of 100, (sampling)"
+[1] "Chain 1, iteration 43 of 100, (sampling)"
+[1] "Chain 1, iteration 44 of 100, (sampling)"
+[1] "Chain 1, iteration 45 of 100, (sampling)"
+[1] "Chain 1, iteration 46 of 100, (sampling)"
+[1] "Chain 1, iteration 47 of 100, (sampling)"
+[1] "Chain 1, iteration 48 of 100, (sampling)"
+[1] "Chain 1, iteration 49 of 100, (sampling)"
+[1] "Chain 1, iteration 50 of 100, (sampling)"
+[1] "Chain 1, iteration 51 of 100, (sampling)"
+[1] "Chain 1, iteration 52 of 100, (sampling)"
+[1] "Chain 1, iteration 53 of 100, (sampling)"
+[1] "Chain 1, iteration 54 of 100, (sampling)"
+[1] "Chain 1, iteration 55 of 100, (sampling)"
+[1] "Chain 1, iteration 56 of 100, (sampling)"
+[1] "Chain 1, iteration 57 of 100, (sampling)"
+[1] "Chain 1, iteration 58 of 100, (sampling)"
+[1] "Chain 1, iteration 59 of 100, (sampling)"
+[1] "Chain 1, iteration 60 of 100, (sampling)"
+[1] "Chain 1, iteration 61 of 100, (sampling)"
+[1] "Chain 1, iteration 62 of 100, (sampling)"
+[1] "Chain 1, iteration 63 of 100, (sampling)"
+[1] "Chain 1, iteration 64 of 100, (sampling)"
+[1] "Chain 1, iteration 65 of 100, (sampling)"
+[1] "Chain 1, iteration 66 of 100, (sampling)"
+[1] "Chain 1, iteration 67 of 100, (sampling)"
+[1] "Chain 1, iteration 68 of 100, (sampling)"
+[1] "Chain 1, iteration 69 of 100, (sampling)"
+[1] "Chain 1, iteration 70 of 100, (sampling)"
+[1] "Chain 1, iteration 71 of 100, (sampling)"
+[1] "Chain 1, iteration 72 of 100, (sampling)"
+[1] "Chain 1, iteration 73 of 100, (sampling)"
+[1] "Chain 1, iteration 74 of 100, (sampling)"
+[1] "Chain 1, iteration 75 of 100, (sampling)"
+[1] "Chain 1, iteration 76 of 100, (sampling)"
+[1] "Chain 1, iteration 77 of 100, (sampling)"
+[1] "Chain 1, iteration 78 of 100, (sampling)"
+[1] "Chain 1, iteration 79 of 100, (sampling)"
+[1] "Chain 1, iteration 80 of 100, (sampling)"
+[1] "Chain 1, iteration 81 of 100, (sampling)"
+[1] "Chain 1, iteration 82 of 100, (sampling)"
+[1] "Chain 1, iteration 83 of 100, (sampling)"
+[1] "Chain 1, iteration 84 of 100, (sampling)"
+[1] "Chain 1, iteration 85 of 100, (sampling)"
+[1] "Chain 1, iteration 86 of 100, (sampling)"
+[1] "Chain 1, iteration 87 of 100, (sampling)"
+[1] "Chain 1, iteration 88 of 100, (sampling)"
+[1] "Chain 1, iteration 89 of 100, (sampling)"
+[1] "Chain 1, iteration 90 of 100, (sampling)"
+[1] "Chain 1, iteration 91 of 100, (sampling)"
+[1] "Chain 1, iteration 92 of 100, (sampling)"
+[1] "Chain 1, iteration 93 of 100, (sampling)"
+[1] "Chain 1, iteration 94 of 100, (sampling)"
+[1] "Chain 1, iteration 95 of 100, (sampling)"
+[1] "Chain 1, iteration 96 of 100, (sampling)"
+[1] "Chain 1, iteration 97 of 100, (sampling)"
+[1] "Chain 1, iteration 98 of 100, (sampling)"
+[1] "Chain 1, iteration 99 of 100, (sampling)"
+[1] "Chain 1, iteration 100 of 100, (sampling)"
+> 
+> ## Not run: 
+> ##D # Record 1000 posterior samples while skipping 1 MCMC step between samples
+> ##D # from 3 chains after discarding the first 500 MCMC steps
+> ##D m = sampleMcmc(TD$m, samples=1000, transient=500, thin=2, nChains=2, nParallel=1)
+> ## End(Not run)
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("setPriors")
+> ### * setPriors
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: setPriors
+> ### Title: setPriors
+> ### Aliases: setPriors
+> 
+> ### ** Examples
+> 
+> # Set priors for random level so that there is minimum of 2 latent factors and maximum of 3
+> rL1 = HmscRandomLevel(units=TD$studyDesign$plot)
+> rL1 = setPriors(rL1, nfMax=3, nfMin=2)
+> 
+> # Set shrinkage parameters for priors of random level
+> rL1 = HmscRandomLevel(units=TD$studyDesign$plot)
+> rL1 = setPriors(rL1, a1=10, a2=10, b1=1, b2=1)
+> 
+> 
+> 
+> 
+> ### * <FOOTER>
+> ###
+> cleanEx()
+> options(digits = 7L)
+> base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
+Time elapsed:  43.496 0.565 44.511 0.006 0.009 
+> grDevices::dev.off()
+null device 
+          1 
+> ###
+> ### Local variables: ***
+> ### mode: outline-minor ***
+> ### outline-regexp: "\\(> \\)?### [*]+" ***
+> ### End: ***
+> quit('no')

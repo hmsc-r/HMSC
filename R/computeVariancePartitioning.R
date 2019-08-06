@@ -1,10 +1,14 @@
-#' @title Hmsc$computeVariancePartitioning
+#' @title computeVariancePartitioning
 #'
-#' @description Computes variance partitions with respect to given grouping of fixed effects and levels of random effects
+#' @description Computes variance components with respect to given grouping of fixed effects and levels
+#' of random effects
+#'
+#' @param hM a fitted \code{Hmsc} model object
 #' @param group vector of numeric values corresponding to group identifiers in groupnames
-#' @param groupnames vector of names for each random and fixed effect
+#' @param groupnames vector of names for each group of fixed effect
 #' @param start index of first MCMC sample included
-#' @param na.ignore Logical. If TRUE, covariates are ignored for sites where the focal species is NA when computing variance-covariance matrices for each species
+#' @param na.ignore logical. If TRUE, covariates are ignored for sites where the focal species
+#' is NA when computing variance-covariance matrices for each species
 #'
 #'
 #' @return
@@ -12,23 +16,25 @@
 #'
 #' @details
 #' The vector \code{group} has one value for each column of the matrix \code{hM$X}, describing the index of the
-#' group to which this column is to be included. The names of the group are given by \code{groupnames}. The output object
-#' \code{VP$vals} gives the variance proportion for each group and species. The output object \code{VP$R2T} has shows the
-#' variance among species explained by traits, measured for species niches (\code{VP$R2T$Beta}) and species occurrences
+#' group in which this column is to be included. The names of the group are given by \code{groupnames}. The output object
+#' \code{VP$vals} gives the variance proportion for each group and species. The output object \code{VP$R2T} gives the
+#' variance among species explained by traits, measured for species' responses to covariates (\code{VP$R2T$Beta}) and species occurrences
 #' (\code{VP$R2T$Y})
 #'
 #'
 #' @examples
-#' \dontrun{
-#' VP = computeVariancePartitioning(m, group=c(1,1,1,2,2), groupnames = c("habitat quality","climate"))
-#' VP$R2T
-#' plotVariancePartitioning(m,VP)
-#' }
+#' # Partition the explained variance for a previously fitted model
+#' # without grouping environmental covariates
+#' VP = computeVariancePartitioning(TD$m)
+#'
+#' # Partition the explained variance for a previously fitted model
+#' # while grouping the two environmental variables together
+#' VP = computeVariancePartitioning(TD$m, group=c(1,1), groupnames = c("Habitat"))
 #'
 #' @importFrom stats cov cor
 #' @export
 
-computeVariancePartitioning = function(hM, group=NULL, groupnames=NULL, start=1, na.ignore = F){
+computeVariancePartitioning = function(hM, group=NULL, groupnames=NULL, start=1, na.ignore=F){
    ny = hM$ny
    nc = hM$nc
    nt = hM$nt
@@ -37,8 +43,14 @@ computeVariancePartitioning = function(hM, group=NULL, groupnames=NULL, start=1,
    nr = hM$nr
 
    if(is.null(group)){
-      group = seq_len(nc-1)
-      groupnames = hM$covNames[2:nc]
+      if(nc>1){
+         group = c(1,seq_len(nc-1))
+         groupnames = hM$covNames[2:nc]
+      } else {
+         group = c(1)
+         groupnames = hM$covNames[1]
+      }
+
    }
    ngroups = max(group);
    fixed = matrix(0,nrow=ns,ncol=1);

@@ -22,3 +22,9 @@ a list with combined MCMC samples
 \description{
 Combines a list of single or several MCMC chains into a single chain
 }
+\examples{
+# Combine the posteriors from all chains in a Hmsc object
+postList = TD$m$postList
+pooledPost = poolMcmcChains(postList)
+
+}

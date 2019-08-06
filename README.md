@@ -1,7 +1,9 @@
 # Hmsc
 
+[![Build Status](https://travis-ci.org/hmsc-r/HMSC.svg?branch=master)](https://travis-ci.org/hmsc-r/HMSC)
+
 ## Description
-Hierarchical Modelling of Species Communities (`Hmsc`) is a flexible framework for Joint Species Distribution Modelling (JSDMs). The framework can be used to relate species occurrences or abundances to environmental covariates, species traits and phylogenetic relationships. JSDMs are a special case of species distribution models (SDMs) that take into account the multivariate nature of communities which allows us to estimate community level responses as well capture biotic interactions and the influence of missing covariates in residual species associations. 
+Hierarchical Modelling of Species Communities (`Hmsc`) is a flexible framework for Joint Species Distribution Modelling (JSDMs). The framework can be used to relate species occurrences or abundances to environmental covariates, species traits and phylogenetic relationships. JSDMs are a special case of species distribution models (SDMs) that take into account the multivariate nature of communities which allows us to estimate community level responses as well capture biotic interactions and the influence of missing covariates in residual species associations.
 
 The `Hmsc` package contains functions to fit JSDMs, analyze the output and to generate predictions with these JSDMs. The obligatory data for a Hmsc analysis includes a matrix of species occurrences or abundances and a matrix of environmental covariates. Optionally, the user can include information species traits, phylogenetic relationships and information on the spatiotemporal context of the sampling design to account for dependencies among the sampling units. 
 
@@ -13,7 +15,7 @@ The following lines should sucessfully install Hmsc to your R in most cases:
 ```R
 library(devtools)
 install_url('https://cran.r-project.org/src/contrib/Archive/BayesLogit/BayesLogit_0.6.tar.gz')
-install_github("hmsc-r/HMSC", build_opts = c("--no-resave-data", "--no-manual")))
+install_github("hmsc-r/HMSC", build_opts = c("--no-resave-data", "--no-manual"))
 ```
 
 ## Documentation

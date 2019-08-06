@@ -1,24 +1,45 @@
 #' @title plotGamma
 #'
-#' @description Plots heatmaps of parameter estimates or posterior support values of trait effects on species' environmental responses, i.e. how environmental responses in \code{Beta} responds to covariates in \code{X}
-#' @param post Posterior summary of Gamma parameters obtained from \code{\link{getPostEstimate}}
-#' @param param Controls which parameter is plotted, current options include "Mean" for posterior mean estimate, "Support" for the level of statistical support measured by posterior probability for a positive or negative response, and "Sign" to indicate whether the response is positive, negative, or neither of these given the chosen \code{supportLevel}
-#' @param trOrder Controls the ordering of traits, current options are "Original", and "Vector". If trOrder = "Vector", an ordering vector must be provided (see trVector)
-#' @param trVector Controls the ordering of traits if trOrder = "Vector". If a subset of traits are listed, only those will be plotted
-#' @param covOrder Controls the ordering of covariates, current options are "Original" and "Vector". If covOrder = "Vector", an ordering vector must be provided (see covVector)
-#' @param covVector Controls the ordering of covariates if covOrder = "Vector". If a subset of covariates are listed, only those will be plotted
-#' @param trNamesNumbers Logical of length 2, where first entry controls whether trait names are added to axes, and second entry controls whether traits numbers are added
-#' @param covNamesNumbers Logical of length 2, where first entry controls whether covariate names are added to axes, and second entry controls whether covariate numbers are added
-#' @param supportLevel Controls threshold posterior support for plotting
-#' @param cex Controls character expansion (font size). Three values, controlling covariate names, trait names, and color legend axis labels
-#' @param colors Controls the colors of the heatmap, default value \code{colorRampPalette(c("blue","white","red"))}
+#' @description Plots heatmaps of parameter estimates or posterior support values of trait effects
+#' on species' environmental responses, i.e. how environmental responses in \code{Beta} responds to
+#' covariates in \code{X}
 #'
+#' @param hM a fitted \code{Hmsc} model object
+#' @param post posterior summary of Gamma parameters obtained from \code{\link{getPostEstimate}}
+#' @param param controls which parameter is plotted, current options include "Mean" for posterior mean
+#' estimate, "Support" for the level of statistical support measured by posterior probability for a
+#' positive or negative response, and "Sign" to indicate whether the response is positive,
+#' negative, or neither of these given the chosen \code{supportLevel}
+#' @param trOrder controls the ordering of traits, current options are "Original", and "Vector".
+#' If trOrder = "Vector", an ordering vector must be provided (see trVector)
+#' @param trVector controls the ordering of traits if trOrder = "Vector". If a subset of traits
+#' are listed, only those will be plotted
+#' @param covOrder controls the ordering of covariates, current options are "Original" and
+#' "Vector". If covOrder = "Vector", an ordering vector must be provided (see covVector)
+#' @param covVector controls the ordering of covariates if covOrder = "Vector". If a subset of
+#' covariates are listed, only those will be plotted
+#' @param trNamesNumbers logical of length 2, where first entry controls whether trait names
+#' are added to axes, and second entry controls whether traits numbers are added
+#' @param covNamesNumbers logical of length 2, where first entry controls whether covariate names
+#' are added to axes, and second entry controls whether covariate numbers are added
+#' @param supportLevel controls threshold posterior support for plotting
+#' @param cex controls character expansion (font size). Three values, controlling covariate names,
+#' trait names, and color legend axis labels
+#' @param colors controls the colors of the heatmap, default value \code{colorRampPalette(c("blue","white","red"))}
+#' @param colorLevels number of color levels used in the heatmap
+#' @param mar plotting margins
+#' @param smallplot passed to \code{\link{image.plot}}
+#' @param bigplot passed to \code{\link{image.plot}}
+#' @param newplot set to  false if the plot will be part of multi-panel plot
 #'
 #' @examples
-#' \dontrun{
-#' gammaPost=getPostEstimate(hM, "Gamma")
-#' plotGamma(hM, post = gammaPost, param = "Support)
-#' }
+#' # Plot posterior support values of trait effects on environmental responses
+#' gammaPost=getPostEstimate(TD$m, "Gamma")
+#' plotGamma(TD$m, post=gammaPost, param="Support")
+#'
+#' # Plot parameter estimates of trait effects on environmental responses
+#' gammaPost=getPostEstimate(TD$m, "Gamma")
+#' plotGamma(TD$m, post=gammaPost, param="Mean")
 #'
 #' @importFrom graphics par plot.new axis text
 #' @importFrom grDevices colorRampPalette
@@ -26,12 +47,12 @@
 #'
 #' @export
 
-plotGamma=function(hM, post, param = "Gamma", trOrder="Original",
-  trVector= NULL, covOrder="Original",covVector=NULL, trNamesNumbers=c(T,T),
-  covNamesNumbers=c(T,T),supportLevel=.9,cex=c(.8,.8,.8),
-  colors=colorRampPalette(c("blue","white","red")),colorLevels = NULL,
+plotGamma=function(hM, post, param = "Support", trOrder="Original",
+  trVector= NULL, covOrder="Original", covVector=NULL, trNamesNumbers=c(T,T),
+  covNamesNumbers=c(T,T), supportLevel=.9, cex=c(.8,.8,.8),
+  colors=colorRampPalette(c("blue","white","red")), colorLevels = NULL,
   mar=c(6,9,2,0),
-  smallplot=NULL, bigplot=NULL){
+  smallplot=NULL, bigplot=NULL, newplot=TRUE){
 
    if(is.null(colorLevels)){
       if(param=="Sign"){
@@ -113,7 +134,12 @@ plotGamma=function(hM, post, param = "Gamma", trOrder="Original",
    ADJy=1/(ncol(X)*2)
    ADJx=1/(nrow(X)*4)
 
-   par(fig = c(0,1,0,1),  mar = mar)
+   if(newplot){
+      par(fig = c(0,1,0,1),  mar = mar)
+   } else {
+      par(old.par, mar=mar)
+   }
+
    plot.new()
    axis(1,at = seq(START+ADJx, END-ADJx, by = ((END-ADJx) - (START+ADJx))/(nrow(X) - 1)), labels = F)
    axis(2,at = seq(ADJy, 1-ADJy, length.out=ncol(X)), labels = F)
@@ -123,7 +149,7 @@ plotGamma=function(hM, post, param = "Gamma", trOrder="Original",
    text(y = seq(ADJy, 1-ADJy, length.out=ncol(X)), par("usr")[3] - 0.05, srt = 0, adj = 1,cex = cex[1],
       labels = trNames[trorder], xpd = TRUE)
 
-   if(all(is.na(X)) || sum(X)==0){
+   if(all(is.na(X)) || sum(abs(X))==0){
       warning("Nothing to plot at this level of posterior support")
       zlim = c(-1,1)
    } else{
@@ -145,6 +171,8 @@ plotGamma=function(hM, post, param = "Gamma", trOrder="Original",
       legend.only = FALSE, col = colors,
       lab.breaks = NULL, zlim = zlim)
 
-   par(old.par)
+   if(newplot){
+      par(old.par)
+   }
 }
 

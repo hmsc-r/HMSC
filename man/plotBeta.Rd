@@ -10,35 +10,75 @@ plotBeta(hM, post, param = "Support", plotTree = F,
   T), supportLevel = 0.9, split = 0.3, cex = c(0.7, 0.7, 0.8),
   colors = colorRampPalette(c("blue", "white", "red")),
   colorLevels = NULL, mar = NULL, marTree = c(6, 0, 2, 0),
-  smallplot = NULL, bigplot = NULL)
+  mgp = c(3, 2, 0), smallplot = NULL, bigplot = NULL,
+  newplot = TRUE)
 }
 \arguments{
-\item{post}{Posterior summary of Beta parameters obtained from \code{\link{getPostEstimate}}}
+\item{hM}{a fitted \code{Hmsc} model object}
 
-\item{param}{Controls which parameter is plotted, current options include "Mean" for posterior mean estimate, "Support" for the level of statistical support measured by posterior probability for a positive or negative response, and "Sign" to indicate whether the response is positive, negative, or neither of these given the chosen \code{supportLevel}}
+\item{post}{posterior summary of Beta parameters obtained from \code{\link{getPostEstimate}}}
 
-\item{plotTree}{Logical. Whether species' environmental responses is to be mapped onto the phylogeny used in model fitting}
+\item{param}{controls which parameter is plotted, current options include "Mean" for posterior mean estimate,
+"Support" for the level of statistical support measured by posterior probability for a positive or negative
+response, and "Sign" to indicate whether the response is positive, negative, or neither of these given the
+chosen \code{supportLevel}}
 
-\item{SpeciesOrder}{Controls the ordering of species, current options are "Original", "Tree", and "Vector". If SpeciesOrder = "Vector", an ordering vector must be provided (see SpVector). If plotTree = T, SpeciesOrder is ignored}
+\item{plotTree}{logical. Whether species' environmental responses is to be mapped onto the phylogeny used in
+model fitting}
 
-\item{SpVector}{Controls the ordering of species if SpeciesOrder = "Vector". If a subset of species are listed, only those will be plotted. For alphabetic ordering, try \code{match(1:hM$ns, as.numeric(as.factor(colnames(hM$Y))))}}
+\item{SpeciesOrder}{controls the ordering of species, current options are "Original", "Tree", and "Vector".
+If SpeciesOrder = "Vector", an ordering vector must be provided (see SpVector). If plotTree = T, SpeciesOrder
+is ignored}
 
-\item{covOrder}{Controls the ordering of covariates, current options are "Original" and "Vector". If covOrder = "Vector", an ordering vector must be provided (see covVector)}
+\item{SpVector}{controls the ordering of species if SpeciesOrder = "Vector". If a subset of species are listed,
+only those will be plotted. For alphabetic ordering, try
+\code{match(1:hM$ns, as.numeric(as.factor(colnames(hM$Y))))}}
 
-\item{covVector}{Controls the ordering of covariates if covOrder = "Vector". If a subset of covariates are listed, only those will be plotted}
+\item{covOrder}{controls the ordering of covariates, current options are "Original" and "Vector".
+If covOrder = "Vector", an ordering vector must be provided (see covVector)}
 
-\item{spNamesNumbers}{Logical of length 2, where first entry controls whether species names are added to axes, and second entry controls whether species numbers are added}
+\item{covVector}{controls the ordering of covariates if covOrder = "Vector". If a subset of covariates are listed,
+only those will be plotted}
 
-\item{covNamesNumbers}{Logical of length 2, where first entry controls whether covariate names are added to axes, and second entry controls whether covariate numbers are added}
+\item{spNamesNumbers}{logical of length 2, where first entry controls whether species names are added to axes,
+and second entry controls whether species numbers are added}
 
-\item{supportLevel}{Controls threshold posterior support for plotting}
+\item{covNamesNumbers}{logical of length 2, where first entry controls whether covariate names are added to axes,
+and second entry controls whether covariate numbers are added}
 
-\item{split}{If plotTree = T, controls the division of the plotting window between the tree and the heatmap.}
+\item{supportLevel}{controls threshold posterior support for plotting}
 
-\item{cex}{Controls character expansion (font size). Three values, controlling covariate names, species names, and color legend axis labels}
+\item{split}{if plotTree = T, controls the division of the plotting window between the tree and the heatmap.}
 
-\item{colors}{Controls the colors of the heatmap, default value \code{colorRampPalette(c("blue","white","red"))}}
+\item{cex}{controls character expansion (font size). Three values, controlling covariate names, species names,
+and color legend axis labels}
+
+\item{colors}{controls the colors of the heatmap, default value \code{colorRampPalette(c("blue","white","red"))}}
+
+\item{colorLevels}{number of color levels used in the heatmap}
+
+\item{mar}{plotting margins}
+
+\item{marTree}{plotting margins for phylogenetic tree}
+
+\item{mgp}{can be used to set the location of the scale bar}
+
+\item{smallplot}{passed to \code{\link{image.plot}}}
+
+\item{bigplot}{passed to \code{\link{image.plot}}}
+
+\item{newplot}{set to  false if the plot will be part of multi-panel plot initialized with par(mfrow)}
 }
 \description{
 Plots heatmaps of parameter estimates or posterior support values of species' environmental responses, i.e. how species in \code{Y} responds to covariates in \code{X}
+}
+\examples{
+# Plot posterior support values of species' environmental responses
+betaPost=getPostEstimate(TD$m, "Beta")
+plotBeta(TD$m, post=betaPost, param="Support")
+
+# Plot parameter estimates of species' environmental responses together with the phylogenetic tree
+betaPost=getPostEstimate(TD$m, "Beta")
+plotBeta(TD$m, post=betaPost, param="Mean", plotTree=TRUE)
+
 }

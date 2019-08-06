@@ -1,9 +1,9 @@
 Package: Hmsc
-Title: Hierarchical model of species communities
+Title: Hierarchical Model of Species Communities
 Type: Package
 Version: 0.4.3.0
-Author: Gleb Tikhonov
-Maintainer: Otso Ovaskainen <otso.ovaskainen@helsinki.fi>, Gleb Tikhonov <gleb.tikhonov@helsinki.fi>
+Author: Gleb Tikhonov, Otso Ovaskainen, Jari Oksanen, Melinda de Jonge, Oystein Opedal, Tad Dallas
+Maintainer: Otso Ovaskainen <otso.ovaskainen@helsinki.fi>
 Description: Hierarchical Modelling of Species Communities (HMSC) is 
    a model-based approach for analyzing community ecological data. 
    This package implements it in the Bayesian framework with Gibbs MCMC sampling.
@@ -11,8 +11,9 @@ License: GPL-3 | file LICENSE
 URL: https://www.helsinki.fi/en/researchgroups/metapopulation-research-centre/hmsc
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.1
-Suggests: R.rsp
+RoxygenNote: 6.1.1.9000
+Suggests: R.rsp,
+   testthat
 VignetteBuilder: R.rsp
 Depends:
    R (>= 3.0.2),
@@ -29,9 +30,9 @@ Imports:
    methods,
    mvtnorm,
    nnet,
+   parallel,
    pdist,
    pROC,
    phytools,
-   snow,
    statmod,
    truncnorm

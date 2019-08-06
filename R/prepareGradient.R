@@ -1,6 +1,8 @@
-#' @title hM$prepareGradient
+#' @title prepareGradient
 #'
 #' @description prepares a user-made environmental and/or spatial gradient to be used for prediction
+#'
+#' @param hM a fitted \code{Hmsc} model object
 #' @param XDataNew a dataframe of the new XData
 #' @param sDataNew a list of the new sData
 #'
@@ -9,7 +11,7 @@
 #'
 #' @details
 #' The dataframe \code{XDataNew} is the for output as for input. The main purpose of this function is to prepare
-#' the study design and random levels ready to be made for prediction with the \code{\link{predict}} function.
+#' the study design and random levels so that predictions can be made with the \code{\link{predict}} function.
 #' Note that the difference between \code{constructGradient} and \code{prepareGradient} is that while
 #' \code{prepareGradient} takes as input the new environmental and spatial data, \code{constructGradient}
 #' generates those data to represent a new environmental gradient.

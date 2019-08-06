@@ -1,41 +1,47 @@
-#' @title Hmsc$evaluateModelFit
+#' @title evaluateModelFit
 #'
-#' @description Computes several measures of model fit
+#' @description Computes measures of model fit for a \code{Hmsc} model
+#'
+#' @param hM a fitted \code{Hmsc} model object
 #' @param predY array of predictions, typically posterior sample
 #'
 #' @return a list of measures of model fit
 #'
-#' @details All measures of model fit are based on comparing posterior predictive distribution (\code{predY)})
-#' to observed values (\code{hM$Y}). The predicted distribution is first summarized to
+#' @details All measures of model fit are based on comparing the posterior predictive distribution (\code{predY)})
+#' to the observed values (\code{hM$Y}). The predicted distribution is first summarized to
 #' a single matrix of predicted values by taking the posterior mean (for normal and probit models)
-#' or posterior median (for Poisson models). All measures of model fit are given as vectors which have
+#' or posterior median (for Poisson models). All measures of model fit are given as vectors with
 #' one value for each species.
 #'
-#' The types of measures of model fit depend on the type of response variable.
+#' The kinds of measures of model fit depend on the type of response variable.
 #' For all types of response variables, root-mean-square error (RMSE) between predicted
 #' and observed values is computed.
 #' For normal models, R2 is computed as squared pearson
 #' correlation between observed and predicted values, times the sign of the correlation.
-#' For probit models, TjurR2 and AUC are
+#' For probit models, Tjur R2 and AUC are
 #' computed. For Poisson models, a pseudo-R2 is computed as
 #' squared spearman correlation between observed and predicted values, times the sign of the correlation (SR2).
 #' For Poisson models, the observed and predicted data are also truncated to occurrences (presence-absences),
 #' for which the same measures are given as for the probit models (O.RMSE, O.AUC and O.TjurR2).
 #' For Poisson models, the observed and predicted data are also subsetted to conditional on presence,
-#' for which subset the root-mean-square error  and pseudo-R2 based on  squared spearman correlation
+#' for which the root-mean-square error and pseudo-R2 based on squared spearman correlation
 #' are computed (C.RMSE, C.SR2).
 #'
 #' The measures O.RMSE, O.AUC, O.TjurR2, C.RMSE and C.SR2 can be computed only if the option
-#' expected=FALSE has been used when making the predictions
+#' \code{expected=FALSE} has been used when making the predictions
 #'
-#' If the model involves a mixture of response variable types, the resulting measures of model fit
-#' contain NA:s for those response variables for which they cannot be computed.
+#' If the model includes a mixture of response variable types, the resulting measures of model fit
+#' contain NA's for those response variables for which they cannot be computed.
 #'
 #' @examples
-#' \dontrun{
-#' preds = computePredictedValues(m)
-#' MF = evaluateModelFit(hM=m, predY=preds)
-#' }
+#' # Evaluate model fit
+#' preds = computePredictedValues(TD$m)
+#' MF = evaluateModelFit(hM=TD$m, predY=preds)
+#'
+#' # Evaluate model performance based on cross validation
+#' partition = createPartition(TD$m, nfolds = 2)
+#' predsCV1 = computePredictedValues(TD$m, partition=partition)
+#' MF = evaluateModelFit(hM=TD$m, predY=predsCV1)
 #'
 #' @importFrom stats cor median
 #' @importFrom pROC auc

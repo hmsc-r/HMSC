@@ -2,12 +2,12 @@
 % Please edit documentation in R/computeWAIC.R
 \name{computeWAIC}
 \alias{computeWAIC}
-\title{Hmsc$computeWAIC}
+\title{computeWAIC}
 \usage{
 computeWAIC(hM, ghN = 11)
 }
 \arguments{
-\item{hM}{fitted Hmsc model}
+\item{hM}{a fitted \code{Hmsc} model object}
 
 \item{ghN}{order of Gauss-Hermite quadrature for approximate numerical integration}
 }
@@ -15,14 +15,15 @@ computeWAIC(hM, ghN = 11)
 the scalar WAIC
 }
 \description{
-Computes WAIC (Widely Applicable Information Criterion) of the HMSC model
+Computes the value of WAIC (Widely Applicable Information Criterion) for the \code{Hmsc} model
 }
 \details{
-The result is exact for normal and probit observational models. For Poisson-type observational observational model the result is obtained through numerical integration using Gauss-Hermite quadrature.
+The result is exact for normal and probit observational models. For Poisson-type
+observational model the result is obtained through numerical integration using Gauss-Hermite quadrature.
 }
 \examples{
-\dontrun{
-WAIC = computeWAIC(hM=m)
-}
+# Compute WAIC of previously sampled Hmsc object
+WAIC = computeWAIC(TD$m)
+
 
 }

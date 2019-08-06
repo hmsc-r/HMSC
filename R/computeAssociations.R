@@ -1,10 +1,16 @@
 #' @title computeAssociations
 #'
-#' @description Computes the species association matrices
+#' @description Computes the species association matrices associated with each random level
+#'
+#' @param hM a fitted \code{Hmsc} model object
 #' @param start index of first MCMC sample included
+#' @param thin thinning interval of posterior distribution
 #'
 #' @return list of association matrices (\eqn{\omega}) corresponding to each random level in the model
 #'
+#' @examples
+#' # Compute the associations (residual correlations) between species from a HMSC model
+#' assoc = computeAssociations(TD$m)
 #'
 #' @importFrom abind abind
 #'

@@ -1,16 +1,21 @@
 #' @title createPartition
 #'
 #' @description Constructs a partition vector given the number of folds and column of study design
-#' @param nfolds number of cross-validation folds
-#' @param column name or index of the column in studyDesign matrix, corresponding to the level, units of which are splitted to folds
 #'
+#' @param hM a fitted \code{Hmsc} model object
+#' @param nfolds number of cross-validation folds
+#' @param column name or index of the column in the \code{studyDesign} matrix, corresponding to the level for which units are splitted into folds
+#'
+#' @examples
+#' # Create 3 folds for a HMSC object
+#' partition = createPartition(TD$m, nfolds = 3)
 #' @export
 
 createPartition = function(hM, nfolds=10, column=NULL){
    if(ncol(hM$studyDesign)>0 && !is.null(column)){
       np = length(unique(hM$studyDesign[,column]))
       if(np < nfolds){
-         stop("HMSC.createPartition: nfolds must be no bigger than number of units in specified random level")
+         stop("HMSC.createPartition: nfolds cannot exceed the number of units in the specified random level")
       }
       level = hM$studyDesign[,column]
       levels = unique(hM$studyDesign[,column])

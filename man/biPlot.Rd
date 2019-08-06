@@ -4,24 +4,32 @@
 \alias{biPlot}
 \title{biPlot}
 \usage{
-biPlot(hM, etaPost, lambdaPost, factors = c(1, 2), col = NULL,
+biPlot(hM, etaPost, lambdaPost, factors = c(1, 2), colVar = NULL,
   spNames = hM$spNames, ...)
 }
 \arguments{
-\item{etaPost}{Posterior distribution of site loadings Eta}
+\item{hM}{a fitted \code{Hmsc} model object}
 
-\item{lambdaPost}{Posterior distribution of species loadings Lambda}
+\item{etaPost}{posterior distribution of site loadings (Eta)}
 
-\item{factors}{Indices of the two factors to be plotted}
+\item{lambdaPost}{posterior distribution of species loadings (Lambda)}
 
-\item{colvar}{The environmental covariate from XData according to which the sites are to be coloured}
+\item{factors}{indices of the two factors to be plotted}
+
+\item{colVar}{the environmental covariate from XData according to which the sites are to be coloured}
+
+\item{spNames}{a vector of species names to be added to the ordination diagram}
+
+\item{\dots}{other parameters passed to the function.}
 }
 \description{
-Constructs a ordination biplot based on the fitted model
+Constructs an ordination biplot based on the fitted model
 }
 \examples{
-\dontrun{
-biPlot(m, etaPost = getPostEstimate(m, "Eta"), lambdaPost=getPostEstimate(m, "Lambda"), factors=c(1,2))
-}
+# Construct an ordination biplot using two chosen latent factors from a previously fitted HMSC model
+etaPost = getPostEstimate(TD$m, "Eta")
+lambdaPost=getPostEstimate(TD$m, "Lambda")
+biPlot(TD$m, etaPost = etaPost, lambdaPost=lambdaPost, factors=c(1,2))
+
 
 }

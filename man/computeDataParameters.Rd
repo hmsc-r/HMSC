@@ -2,13 +2,13 @@
 % Please edit documentation in R/computeDataParameters.R
 \name{computeDataParameters}
 \alias{computeDataParameters}
-\title{computeInitialParameters}
+\title{computeDataParameters}
 \usage{
 computeDataParameters(hM)
 }
 \arguments{
-\item{initPar}{initial parameters value}
+\item{hM}{a fitted \code{Hmsc} model object}
 }
 \description{
-Computes the initial values before the sampling starts
+Computes initial values before the sampling starts
 }
