@@ -167,7 +167,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
       for(iter in seq_len(transient+samples*thin)){
 
          if(!identical(updater$Gamma2, FALSE) && is.matrix(X))
-            Gamma = updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,
+            Gamma = updateGamma2(Z=Z,iV=iV,iSigma=iSigma,
                Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,C=C,rL=hM$rL, iQg=iQg,
                mGamma=mGamma,iUGamma=iUGamma)
 
