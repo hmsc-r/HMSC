@@ -5,7 +5,7 @@
 \title{biPlot}
 \usage{
 biPlot(hM, etaPost, lambdaPost, factors = c(1, 2), colVar = NULL,
-  spNames = hM$spNames, ...)
+  colors = NULL, spNames = hM$spNames, ...)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}
@@ -17,6 +17,8 @@ biPlot(hM, etaPost, lambdaPost, factors = c(1, 2), colVar = NULL,
 \item{factors}{indices of the two factors to be plotted}
 
 \item{colVar}{the environmental covariate from XData according to which the sites are to be coloured}
+
+\item{colors}{controls the colors of the heatmap. For continuous covariates, colors should be given as a palette, with default value \code{colorRampPalette(c("blue","white","red"))}. For factors, colors should be given as a list of colors, e.g. \code{c("blue","red")}.}
 
 \item{spNames}{a vector of species names to be added to the ordination diagram}
 
