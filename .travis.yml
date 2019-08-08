@@ -13,7 +13,10 @@ sudo: false
 
 addons:
   apt: 
-    packages: libmagick++-dev
+    packages:
+      -libmagickcore
+      -libmagick++ 
+      -libmagick++-dev
 
 r_binary_packages:
   - coda
