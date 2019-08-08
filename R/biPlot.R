@@ -19,7 +19,7 @@
 #'
 #'
 #' @importFrom graphics plot points text
-#' @importFrom grDevices colorRampPalette
+#' @importFrom grDevices colorRampPalette palette
 #'
 #' @export
 
