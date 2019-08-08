@@ -50,9 +50,10 @@ biPlot=function(hM, etaPost, lambdaPost, factors=c(1,2), colVar=NULL, colors = N
    scale2 = abs(c(min(etaPost$mean[,factors[2]]),max(etaPost$mean[,factors[2]])))
    scale1 = min(scale1/abs(c(min(lambdaPost$mean[factors[1],]),max(lambdaPost$mean[factors[1],]))))
    scale2 = min(scale2/abs(c(min(lambdaPost$mean[factors[2],]),max(lambdaPost$mean[factors[2],]))))
+   scale <- min(scale1, scale2)
    plot(etaPost$mean[,factors[1]][plotorder], etaPost$mean[,factors[2]][plotorder],pch=16, col=cols,
         xlab=paste("Latent variable", factors[1]), ylab=paste("Latent variable", factors[2]),
         asp = 1, ...)
-   points(scale1*lambdaPost$mean[factors[1],], scale2*lambdaPost$mean[factors[2],],pch=17, cex=1)
-   text(scale1*lambdaPost$mean[factors[1],], scale2*lambdaPost$mean[factors[2],], spNames, pos=1, cex=1)
+   points(scale*lambdaPost$mean[factors[1],], scale*lambdaPost$mean[factors[2],],pch=17, cex=1)
+   text(scale*lambdaPost$mean[factors[1],], scale*lambdaPost$mean[factors[2],], spNames, pos=1, cex=1)
 }
