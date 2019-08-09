@@ -172,14 +172,14 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
             tmp1 = lapply(postList, getEta, r=r)
             tmp2 = lapply(tmp1, function(A) cbind(A, matrix(0,nrow(A),nfMax[r]-ncol(A))))
             tmp = do.call(rbind, lapply(tmp2, as.vector))
-            colnames(tmp) = sprintf("Eta%d[%s, factor%s]",r,hM$dfPi[(rep(1:hM$np[r],nfMax[r])),r],as.character(rep(1:nfMax[r],each=hM$np[r])))
+            colnames(tmp) = sprintf("Eta%d[%s, factor%s]",r,levels(hM$dfPi[,r])[(rep(1:hM$np[r],nfMax[r]))],as.character(rep(1:nfMax[r],each=hM$np[r])))
             postEta1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
          }
 
          if (Lambda)      {
             tmp1 = lapply(postList, getLambda, r=r)
             tmp2 = lapply(tmp1, function(A) rbind(A, matrix(0,nfMax[r]-nrow(A),ncol(A))))
-            tmp = do.call(rbind, lapply(tmp2, as.vector))
+            tmp = do.call(rbind, lapply(tmp2, function(A) as.vector(t(A)) ))
             colnames(tmp) = sprintf("Lambda%d[%s, factor%s]",r,spNames[rep(1:ns,nfMax[r])],as.character(rep(1:nfMax[r],each=ns)) )
             postLambda1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
          }
@@ -199,7 +199,7 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
          if (Psi)    {
             tmp1 = lapply(postList, getPsi, r=r)
             tmp2 = lapply(tmp1, function(A) rbind(A, matrix(0,nfMax[r]-nrow(A),ncol(A))))
-            tmp = do.call(rbind, lapply(tmp2, as.vector))
+            tmp = do.call(rbind, lapply(tmp2, function(A) as.vector(t(A)) ))
             colnames(tmp) = sprintf("Psi%d[%s, factor%s]",r,spNames[rep(1:ns,nfMax[r])],as.character(rep(1:nfMax[r],each=ns)) )
             postPsi1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
          }
