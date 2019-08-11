@@ -3,7 +3,7 @@
 
 #' @importFrom stats rnorm
 #'
-updateGamma2 = function(Z,iV,iSigma,Eta,Lambda, X,Pi,dfPi,Tr,C,rL, iQg, mGamma,iUGamma){
+updateGamma2 = function(Z,Gamma=Gamma,iV,iSigma,Eta,Lambda, X,Pi,dfPi,Tr,C,rL, iQg, mGamma,iUGamma){
    ns = ncol(Z)
    ny = nrow(Z)
    nc = nrow(iV)

@@ -76,6 +76,8 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
       warning('Number of cores cannot be greater than the number of chains')
       nParallel <- nChains
    }
+   if(any(adaptNf>transient))
+      stop('transient parameter should be no less than any element of adaptNf parameter')
 
    #X1 is the original X matrix (scaled version).
    #X used in computations is modified from X1 by variable selection and dimension reduction.
@@ -174,7 +176,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
       for(iter in seq_len(transient+samples*thin)){
 
          if(!identical(updater$Gamma2, FALSE) && is.matrix(X))
-            Gamma = updateGamma2(Z=Z,iV=iV,iSigma=iSigma,
+            Gamma = updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,
                Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,C=C,rL=hM$rL, iQg=iQg,
                mGamma=mGamma,iUGamma=iUGamma)
 
