@@ -84,14 +84,13 @@ computeDataParameters = function(hM){
                    if(!is.null(hM$rL[[r]]$distMat)){
                       stop("computeDataParameters: Nearest neighbours not available for distance matrices")
                    }
-                   Wg = list()
-                   iWg = list() #slow??
+                   iWg = list()
                    RiWg = list()
                    detWg = rep(NA,alphaN)
                    s = hM$rL[[r]]$s[levels(hM$dfPi[,r]),]
                    indNN = get.knn(s,k=hM$rL[[r]]$nNeighbours)[[1]] #This uses FNN package, may be updated later to incorporate distance matrices
                    indNN = t(apply(indNN,1,sort,decreasing=FALSE))
-                   indices = list() #slow?
+                   indices = list()
                    distList = list()
                    for(i in 2:np){
                       ind = indNN[i,]
@@ -127,12 +126,12 @@ computeDataParameters = function(hM){
                          iW = Matrix::t(RiW) %*% RiW
                          detW = sum(log(D))
                       }
-                      Wg[[ag]] = Matrix::solve(iW,.sparseDiagonal(np))
                       iWg[[ag]] = iW
                       RiWg[[ag]] = RiW
                       detWg[ag] = detW
                    }
-                   rLPar[[r]] = list(Wg = Wg, iWg=iWg, RiWg=RiWg, detWg=detWg)
+                   rLPar[[r]] = list(iWg=iWg, RiWg=RiWg, detWg=detWg)
+
                 },
                 "GPP" = {
                    if(!is.null(hM$rL[[r]]$distMat)){

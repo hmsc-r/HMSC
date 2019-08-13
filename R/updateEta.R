@@ -1,5 +1,6 @@
 #' @importFrom stats rnorm
 #' @importFrom Matrix bdiag Diagonal sparseMatrix t Matrix
+#' @importFrom SparseM chol backsolve
 #'
 updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
    ny = nrow(Z)
@@ -136,10 +137,20 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                    }
                 },
                 "NNGP" = {
+                   #iWs = bdiag(lapply(seq_len(nf), function(x) iWg[[alpha[x]]]))
+                   #LamInvSigLam = tcrossprod(lambda*matrix(sqrt(iSigma),nf,ns,byrow=TRUE))
+                   #P = sparseMatrix(i=1:ny,j=lPi)
+                   #tmp1 = Matrix::kronecker(LamInvSigLam, Diagonal(x=Matrix::colSums(P)))
+                   #fS = Matrix::tcrossprod(Matrix::crossprod(P,S), lambda*matrix(iSigma,nf,ns,byrow=TRUE))
+                   #iUEta = iWs + tmp1
+                   #R = SparseM::chol(iUEta) #alternative faster decomposition
+                   #tmp2 = as.vector(Matrix::solve(R, as.vector(fS),transpose=TRUE)) + rnorm(np[r]*nf)
+                   #feta = as.vector(Matrix::solve(R, tmp2))
+                   #eta = matrix(feta,np[r],nf)
                    iWs = bdiag(lapply(seq_len(nf), function(x) iWg[[alpha[x]]]))
                    LamInvSigLam = tcrossprod(lambda*matrix(sqrt(iSigma),nf,ns,byrow=TRUE))
                    P = sparseMatrix(i=1:ny,j=lPi)
-                   tmp1 = kronecker(LamInvSigLam, Diagonal(x=Matrix::colSums(P)))
+                   tmp1 = Matrix::kronecker(LamInvSigLam, Diagonal(x=Matrix::colSums(P)))
                    fS = Matrix::tcrossprod(Matrix::crossprod(P,S), lambda*matrix(iSigma,nf,ns,byrow=TRUE))
                    iUEta = iWs + tmp1
                    R = chol(iUEta)
