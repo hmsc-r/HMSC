@@ -49,7 +49,7 @@
 
 computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1, thin=1,
                                   Yc=NULL, mcmcStep=1, expected=TRUE, initPar=NULL,
-                                  nParallel=1, nChains = length(hM$postList),  updater=list(), verbose = hM$verbose){
+                                  nParallel=1, nChains = length(hM$postList), updater=list(), verbose = hM$verbose){
    if(is.null(partition)){
       postList = poolMcmcChains(hM$postList, start=start, thin=thin)
       pred = predict(hM, post=postList, Yc=Yc, mcmcStep=1, expected=expected)

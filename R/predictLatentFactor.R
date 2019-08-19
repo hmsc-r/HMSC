@@ -116,8 +116,10 @@ predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predict
                          }
                       },
                       'NNGP' = {
-                         sOld = rL$s[units,]
-                         sNew = rL$s[unitsPred[indNew],]
+                         unitsAll = c(units,unitsPred[indNew])
+                         s = rL$s[unitsAll,]
+                         sOld = s[1:np,]
+                         sNew = s[np+(1:nn),]
                          indNN = knnx.index(sOld,sNew,k=rL$nNeighbours)
                          indices = list()
                          dist12 = matrix(NA,nrow=rL$nNeighbours,ncol=nn)
@@ -158,42 +160,43 @@ predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predict
                          s = rL$s[unitsAll,]
                          dss = as.matrix(dist(sKnot))
                          das = matrix(0,nrow=nrow(s),ncol=nrow(sKnot))
+
                          for(j in 1:rL$sDim){
-                            xx2 =  matrix(rep(sKnot[,j],nrow(rL$s)),ncol=nrow(rL$s))
+                            xx2 =  matrix(rep(sKnot[,j],nrow(s)),ncol=nrow(s))
                             xx1 =  matrix(rep(s[,j],nrow(sKnot)),ncol=nrow(sKnot))
                             dx = xx1 - t(xx2)
                             das = das + dx^2
                          }
                          das = sqrt(das)
                          dns = das[np+(1:nn),]
-                         dnsOls = das[1:np,]
+                         dnsOld = das[1:np,]
                          for(h in 1:nf){
-                            if(alphapw[alpha[h],1] > 0){
-                               W12 = exp(-dnsOls/alphapw[alpha[h],1])
-                               WssgA = exp(-dss/alphapw[alpha[h],1])
-                               iWssgA = solve(WssgA)
-                               D =  W12%*%iWssgA%*%t(W12)
+                            ag = alpha[nf]
+                            if(alphapw[ag,1]>0){
+                               Wns = exp(-dns/alphapw[ag,1])
+                               W12 = exp(-dnsOld/alphapw[ag,1])
+                               Wss = exp(-dss/alphapw[ag,1])
+                               iWss= solve(Wss)
+                               Wns = exp(-dns/alphapw[ag,1])
+                               WnsiWss = Wns%*%iWss
+                               dDn = 1 - rowSums(WnsiWss*Wns)
+                               D =  W12%*%iWss%*%t(W12)
                                dD = 1-diag(D)
                                idD = 1/dD
                                tmp0 = matrix(rep(idD,nrow(sKnot)),ncol=nrow(sKnot))
                                idDW12 = tmp0*W12
-                               FMat = WssgA + t(W12)%*%idDW12
-                               iF = solve(FMat)
+                               FMat = Wss + t(W12)%*%idDW12
+                               iF= solve(FMat)
                                LiF = chol(iF)
-
-                               WnsgA = exp(-dns/alphapw[alpha[h],1])
-                               WnsiWss = WnsgA%*%iWssgA
-                               dDngA = 1 - colSums(WnsiWss*WnsgA)
                                muS1 = iF%*%t(idDW12)%*%eta[,h]
-                               epsS1 = LiF%*%rnorm(nrow(WssgA))
-                               m = WnsgA%*%(muS1+epsS1)
-                               etaPred[indNew,h] = as.numeric(m + sqrt(dDngA)*rnorm(nn))
+                               epsS1 = LiF%*%rnorm(nrow(Wss))
+                               m = Wns%*%(muS1+epsS1)
+                               etaPred[indNew,h] = as.numeric(m + sqrt(dDn)*rnorm(nn))
                             } else{
                                etaPred[indNew,h] = rnorm(nn)
-                            }
-                         }
+                           }
                       }
-                      )
+                      })
             }
          }
       }
