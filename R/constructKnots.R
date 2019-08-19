@@ -15,7 +15,7 @@
 #'
 #'
 #' @examples
-#' #Creating knots for some random xy data
+#' #Creating knots for some 2 dimensional spatial data
 #' n = 100
 #' xycoords = matrix(runif(2*n),ncol=2)
 #' xyKnots = constructKnots(xycoords,knotDist = 0.2, minKnotDist = 0.5)

@@ -12,8 +12,6 @@
 #' @param N number of unique units on this level
 #' @param nNeighbours a scalar specifying the number of neighbours to be used in case the spatial method is set to \code{NNGP}. Only positive values smaller than the total number of plots are allowed.
 #' @param sKnot a dataframe containing the knot locations to be used for the gaussian predictive process if sMethod is set to \code{GPP}
-#' @param knotDist distance between knots used in gaussian predictive proces if sMethod is set to \code{GPP}.
-#' @param minKnotDist minimum distance of knot to neareast point in sData
 #' @return a \code{HmscRandomLevel}-class object that can be used for \code{Hmsc}-class object construction
 #'
 #' @details Only one of \code{sData}, \code{distMat}, \code{xData}, \code{units} and \code{N} arguments can be

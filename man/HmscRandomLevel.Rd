@@ -25,10 +25,6 @@ associations}
 \item{nNeighbours}{a scalar specifying the number of neighbours to be used in case the spatial method is set to \code{NNGP}. Only positive values smaller than the total number of plots are allowed.}
 
 \item{sKnot}{a dataframe containing the knot locations to be used for the gaussian predictive process if sMethod is set to \code{GPP}}
-
-\item{knotDist}{distance between knots used in gaussian predictive proces if sMethod is set to \code{GPP}.}
-
-\item{minKnotDist}{minimum distance of knot to neareast point in sData}
 }
 \value{
 a \code{HmscRandomLevel}-class object that can be used for \code{Hmsc}-class object construction
