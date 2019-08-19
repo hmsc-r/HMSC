@@ -1,4 +1,4 @@
-#' @title hM$prepareGradient
+#' @title prepareGradient
 #'
 #' @description prepares a user-made environmental and/or spatial gradient to be used for prediction
 #'

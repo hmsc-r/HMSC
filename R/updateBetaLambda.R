@@ -1,7 +1,7 @@
-#' @title updateBetaLambda
-#'
-#' @description updates beta lambda
-#'
+# @title updateBetaLambda
+#
+# @description updates beta lambda
+#
 #' @importFrom stats rnorm
 #' @importFrom Matrix bdiag Diagonal sparseMatrix
 #'
@@ -12,9 +12,7 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,d
    nt = ncol(Tr)
    nr = ncol(Pi)
 
-   LFix = 0
-   S = Z - LFix
-
+   S = Z
    Lambda = vector("list", nr)
    if(nr > 0){
       EtaFull = vector("list", nr)

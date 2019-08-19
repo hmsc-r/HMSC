@@ -11,6 +11,8 @@
 \arguments{
 \item{rL}{a fitted \code{HmscRandomLevel} model object}
 
+\item{nu, a1, b1, a2, b2}{parameters of the multiplicative gamma process shrinking prior}
+
 \item{alphapw}{discrete grid prior for spatial scale parameter}
 
 \item{nfMax}{maximum number of latent factors to be sampled}
@@ -18,6 +20,8 @@
 \item{nfMin}{minimum number of latent factors to be sampled}
 
 \item{setDefault}{logical indicating whether default priors should be used}
+
+\item{...}{other arguments (ignored)}
 }
 \value{
 Modified HmscRandomLevel object

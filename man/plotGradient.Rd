@@ -2,10 +2,12 @@
 % Please edit documentation in R/plotGradient.R
 \name{plotGradient}
 \alias{plotGradient}
-\title{Hmsc$plotGradient}
+\title{plotGradient}
 \usage{
-plotGradient(hM, Gradient, predY, measure, index = 1, prob = c(0.025,
-  0.5, 0.975), showData = FALSE, jigger = 0, ...)
+plotGradient(hM, Gradient, predY, measure, xlabel = NULL,
+  ylabel = NULL, index = 1, q = c(0.025, 0.5, 0.975),
+  cicol = rgb(0, 0, 1, alpha = 0.5), pointcol = "lightgrey",
+  pointsize = 1, showData = FALSE, jigger = 0, ...)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}
@@ -17,14 +19,26 @@ plotGradient(hM, Gradient, predY, measure, index = 1, prob = c(0.025,
 \item{measure}{whether to plot species richness ("S"), an individual species ("Y") or community-weighted
 mean trait values ("T")}
 
+\item{xlabel}{label for x-axis}
+
+\item{ylabel}{label for y-axis}
+
 \item{index}{which species or trait to plot}
 
-\item{prob}{quantiles of the credibility interval plotted}
+\item{q}{quantiles of the credibility interval plotted}
+
+\item{cicol}{colour with which the credibility interval is plotted}
+
+\item{pointcol}{colour with which the data points are plotted}
+
+\item{pointsize}{size in which the data points are plotted}
 
 \item{showData}{whether raw data are plotted as well}
 
 \item{jigger}{the amount by which the raw data are to be jiggered in x-direction (for factors) or
 y-direction (for continuous covariates)}
+
+\item{...}{additional arguments for plot}
 }
 \value{
 For the case of a continuous covariate, returns the posterior probability that the plotted

@@ -1,6 +1,6 @@
 #' @importFrom stats rnorm
 #' @importFrom MCMCpack rwish
-#' 
+#'
 updateGammaV = function(Beta,Gamma,iV,rho, Tr,C, iQg,RQg, mGamma,iUGamma,V0,f0){
    ns = ncol(Beta)
    nc = nrow(Beta)
@@ -28,7 +28,7 @@ updateGammaV = function(Beta,Gamma,iV,rho, Tr,C, iQg,RQg, mGamma,iUGamma,V0,f0){
    # Gamma = matrix(Gamma,nc,nt,byrow=T)
 
    R = chol(iUGamma + kronecker(crossprod(backsolve(RQ,Tr,transpose=TRUE)), iV))
-   mg = chol2inv(R) %*% as.vector((iV%*%Beta)%*%(iQ%*%Tr))
+   mg = chol2inv(R) %*% (iUGamma%*%mGamma + as.vector((iV%*%Beta)%*%(iQ%*%Tr)))
    Gamma = matrix(mg + backsolve(R,rnorm(nc*nt)),nc,nt)
    return(list(Gamma=Gamma, iV=iV))
 }

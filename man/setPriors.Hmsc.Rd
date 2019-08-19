@@ -24,6 +24,8 @@
 
 \item{bSigma}{rate parameter for the prior gamma distribution for the variance parameter, only for normal & lognormal Poisson models}
 
+\item{nuRRR, a1RRR, b1RRR, a2RRR, b2RRR}{parameters of the multiplicative gamma process shrinking prior for reduced rank regression}
+
 \item{rhopw}{discrete grid prior for phylogenetic signal, should be a matrix of 2 columns}
 
 \item{setDefault}{logical indicating whether default priors should be used}

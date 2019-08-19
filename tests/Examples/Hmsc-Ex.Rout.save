@@ -1,7 +1,7 @@
 
-R version 3.4.4 (2018-03-15) -- "Someone to Lean On"
-Copyright (C) 2018 The R Foundation for Statistical Computing
-Platform: x86_64-pc-linux-gnu (64-bit)
+R Under development (unstable) (2019-07-26 r76894) -- "Unsuffered Consequences"
+Copyright (C) 2019 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin18.6.0 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -24,6 +24,7 @@ Type 'q()' to quit R.
 Loading required package: coda
 > 
 > base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
+> base::assign(".old_wd", base::getwd(), pos = 'CheckExEnv')
 > cleanEx()
 > nameEx("Hmsc")
 > ### * Hmsc
@@ -170,7 +171,7 @@ Loading required package: coda
 > flush(stderr()); flush(stdout())
 > 
 > ### Name: computeVariancePartitioning
-> ### Title: Hmsc$computeVariancePartitioning
+> ### Title: computeVariancePartitioning
 > ### Aliases: computeVariancePartitioning
 > 
 > ### ** Examples
@@ -193,7 +194,7 @@ Loading required package: coda
 > flush(stderr()); flush(stdout())
 > 
 > ### Name: computeWAIC
-> ### Title: Hmsc$computeWAIC
+> ### Title: computeWAIC
 > ### Aliases: computeWAIC
 > 
 > ### ** Examples
@@ -212,7 +213,7 @@ Loading required package: coda
 > flush(stderr()); flush(stdout())
 > 
 > ### Name: constructGradient
-> ### Title: hM$constructGradient
+> ### Title: constructGradient
 > ### Aliases: constructGradient
 > 
 > ### ** Examples
@@ -238,7 +239,7 @@ converged
 > flush(stderr()); flush(stdout())
 > 
 > ### Name: convertToCodaObject
-> ### Title: Hmsc$convertToCodaObject
+> ### Title: convertToCodaObject
 > ### Aliases: convertToCodaObject
 > 
 > ### ** Examples
@@ -276,7 +277,7 @@ converged
 > flush(stderr()); flush(stdout())
 > 
 > ### Name: evaluateModelFit
-> ### Title: Hmsc$evaluateModelFit
+> ### Title: evaluateModelFit
 > ### Aliases: evaluateModelFit
 > 
 > ### ** Examples
@@ -906,7 +907,7 @@ converged
 > flush(stderr()); flush(stdout())
 > 
 > ### Name: getPostEstimate
-> ### Title: Hmsc$getPostEstimate
+> ### Title: getPostEstimate
 > ### Aliases: getPostEstimate
 > 
 > ### ** Examples
@@ -973,7 +974,7 @@ converged
 > flush(stderr()); flush(stdout())
 > 
 > ### Name: plotGradient
-> ### Title: Hmsc$plotGradient
+> ### Title: plotGradient
 > ### Aliases: plotGradient
 > 
 > ### ** Examples
@@ -1046,7 +1047,7 @@ converged
 > flush(stderr()); flush(stdout())
 > 
 > ### Name: prepareGradient
-> ### Title: hM$prepareGradient
+> ### Title: prepareGradient
 > ### Aliases: prepareGradient
 > 
 > ### ** Examples
@@ -1208,9 +1209,10 @@ converged
 > 
 > ### * <FOOTER>
 > ###
+> cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  44.071 0.12 44.243 0.005 0.002 
+Time elapsed:  43.496 0.565 44.511 0.006 0.009 
 > grDevices::dev.off()
 null device 
           1 

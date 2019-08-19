@@ -1,4 +1,4 @@
-#' @title Hmsc$plotGradient
+#' @title plotGradient
 #'
 #' @description Plots an environmental gradient over one of the variables included in \code{XData}
 #'
@@ -8,10 +8,16 @@
 #' @param measure whether to plot species richness ("S"), an individual species ("Y") or community-weighted
 #' mean trait values ("T")
 #' @param index which species or trait to plot
-#' @param prob quantiles of the credibility interval plotted
+#' @param q quantiles of the credibility interval plotted
+#' @param xlabel label for x-axis
+#' @param ylabel label for y-axis
+#' @param cicol colour with which the credibility interval is plotted
+#' @param pointcol colour with which the data points are plotted
+#' @param pointsize size in which the data points are plotted
 #' @param showData whether raw data are plotted as well
 #' @param jigger the amount by which the raw data are to be jiggered in x-direction (for factors) or
 #' y-direction (for continuous covariates)
+#' @param ... additional arguments for plot
 #'
 #' @return For the case of a continuous covariate, returns the posterior probability that the plotted
 #' variable is greater for the last sampling unit of the gradient than for the first sampling unit of
@@ -54,18 +60,20 @@
 #'
 #' @export
 
-plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 0.5, 0.975), showData = FALSE, jigger = 0, ...){
+plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = NULL, index = 1, q = c(0.025, 0.5, 0.975), cicol = rgb(0,0,1,alpha=.5), pointcol = "lightgrey",  pointsize = 1, showData = FALSE, jigger = 0, ...){
 
    Pr = NA
 
-   switch(class(hM$X),
-          matrix = {
-             xlabel = colnames(Gradient$XDataNew)[[1]]
-          },
-          list = {
-             xlabel = colnames(Gradient$XDataNew[[1]])[[1]]
-          }
-   )
+   if(is.null(xlabel)){
+      switch(class(hM$X),
+             matrix = {
+                xlabel = colnames(Gradient$XDataNew)[[1]]
+             },
+             list = {
+                xlabel = colnames(Gradient$XDataNew[[1]])[[1]]
+             }
+      )
+   }
 
    switch(class(hM$X),
           matrix = {
@@ -86,22 +94,26 @@ plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 
       predS = abind(lapply(predY, rowSums),along=2)
       Pr = mean(predS[ngrid,]>predS[1,])
       qpred = apply(predS, c(1), quantile,
-                    prob = prob, na.rm=TRUE)
-      ylabel = "Summed response"
-      if (all(hM$distr[,1]==2)){
-         ylabel = "Species richness"
-      }
-      if (all(hM$distr[,1]==3)){
-         ylabel = "Total count"
+                    probs = q, na.rm=TRUE)
+      if(is.null(ylabel)){
+         ylabel = "Summed response"
+         if (all(hM$distr[,1]==2)){
+            ylabel = "Species richness"
+         }
+         if (all(hM$distr[,1]==3)){
+            ylabel = "Total count"
+         }
       }
    }
    if (measure == "Y") {
       tmp = abind(predY, along = 3)
       Pr = mean(tmp[ngrid,index,]>tmp[1,index,])
       qpred = apply(tmp, c(1, 2), quantile,
-                    prob = prob, na.rm=TRUE)
+                    probs = q, na.rm=TRUE)
       qpred = qpred[, , index]
-      ylabel = hM$spNames[[index]]
+      if(is.null(ylabel)){
+         ylabel = hM$spNames[[index]]
+      }
    }
    if (measure == "T") {
       if (all(hM$distr[,1]==1)){
@@ -114,9 +126,11 @@ plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 
       predT = abind(predT, along = 3)
       Pr = mean(predT[ngrid,index,]>predT[1,index,])
       qpred = apply(predT, c(1, 2), quantile,
-                    prob = prob, na.rm = TRUE)
+                    probs = q, na.rm = TRUE)
       qpred = qpred[, , index]
-      ylabel = hM$trNames[[index]]
+      if(is.null(ylabel)){
+         ylabel = hM$trNames[[index]]
+      }
    }
 
    lo = qpred[1, ]
@@ -169,7 +183,7 @@ plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 
             pX = pX + runif(n =length(pY),min = -jigger, max = jigger)
          }
          dataToPlot = data.frame(pX = pX, pY = pY)
-         pl = pl + geom_point(data = dataToPlot, aes_string(x = pX, y = pY))
+         pl = pl + geom_point(data = dataToPlot, aes_string(x = pX, y = pY), size = pointsize)
       }
       #plot(pl)
    } else {
@@ -185,10 +199,10 @@ plotGradient=function (hM, Gradient, predY, measure, index = 1, prob = c(0.025, 
             pY = lo1 + de + (hi1-lo1-2*de)*(pY-lo1)/(hi1-lo1) + runif(n =length(pY),min = -jigger, max = jigger)
          }
          dataToPlot = cbind(pX,pY)
-         points(dataToPlot, pch = 16, col = "lightgrey")
+         points(dataToPlot, pch = 16, col = pointcol)
       }
       polygon(c(xx, rev(xx)), c(qpred[1, ], rev(qpred[3, ])),
-              col = rgb(0,0,1,alpha=.5), border = FALSE)
+              col =  cicol, border = FALSE)
       lines(xx, qpred[2, ], lwd = 2)
 
    }

@@ -10,7 +10,7 @@ plotGamma(hM, post, param = "Support", trOrder = "Original",
   supportLevel = 0.9, cex = c(0.8, 0.8, 0.8),
   colors = colorRampPalette(c("blue", "white", "red")),
   colorLevels = NULL, mar = c(6, 9, 2, 0), smallplot = NULL,
-  bigplot = NULL)
+  bigplot = NULL, newplot = TRUE)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}
@@ -54,6 +54,8 @@ trait names, and color legend axis labels}
 \item{smallplot}{passed to \code{\link{image.plot}}}
 
 \item{bigplot}{passed to \code{\link{image.plot}}}
+
+\item{newplot}{set to  false if the plot will be part of multi-panel plot}
 }
 \description{
 Plots heatmaps of parameter estimates or posterior support values of trait effects

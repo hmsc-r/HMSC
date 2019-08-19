@@ -1,3 +1,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.travis\.yml$
+^travis-tool\.sh
 ^data-raw$

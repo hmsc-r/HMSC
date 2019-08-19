@@ -2,7 +2,7 @@
 % Please edit documentation in R/constructGradient.R
 \name{constructGradient}
 \alias{constructGradient}
-\title{hM$constructGradient}
+\title{constructGradient}
 \usage{
 constructGradient(hM, focalVariable, non.focalVariables = list(),
   ngrid = 20)

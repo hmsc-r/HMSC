@@ -32,8 +32,10 @@
 #' @param colorLevels number of color levels used in the heatmap
 #' @param mar plotting margins
 #' @param marTree plotting margins for phylogenetic tree
+#' @param mgp can be used to set the location of the scale bar
 #' @param smallplot passed to \code{\link{image.plot}}
 #' @param bigplot passed to \code{\link{image.plot}}
+#' @param newplot set to  false if the plot will be part of multi-panel plot initialized with par(mfrow)
 
 #'
 #'
@@ -55,12 +57,12 @@
 
 
 plotBeta = function(hM, post, param = "Support", plotTree = F,
-  SpeciesOrder = "Original", SpVector = NULL, covOrder="Original",
-  covVector=NULL, spNamesNumbers = c(T,T), covNamesNumbers = c(T,T),
-  supportLevel = 0.9, split = 0.3, cex = c(0.7,0.7,0.8),
-  colors = colorRampPalette(c("blue","white","red")), colorLevels = NULL,
-  mar=NULL, marTree=c(6,0,2,0),
-  smallplot=NULL, bigplot=NULL){
+                    SpeciesOrder = "Original", SpVector = NULL, covOrder="Original",
+                    covVector=NULL, spNamesNumbers = c(T,T), covNamesNumbers = c(T,T),
+                    supportLevel = 0.9, split = 0.3, cex = c(0.7,0.7,0.8),
+                    colors = colorRampPalette(c("blue","white","red")), colorLevels = NULL,
+                    mar=NULL, marTree=c(6,0,2,0),mgp=c(3,2,0),
+                    smallplot=NULL, bigplot=NULL,newplot=TRUE){
 
    if(is.null(colorLevels)){
       if(param=="Sign"){
@@ -90,7 +92,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
       }
       if (spNamesNumbers[2]) {
          spNames[i] = paste(spNames[i], sprintf("(S%d)", i),
-            sep = sep)
+                            sep = sep)
       }
    }
 
@@ -103,7 +105,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
       }
       if (covNamesNumbers[2]) {
          covNames[i] = paste(covNames[i], sprintf("(C%d)",
-            i), sep = sep)
+                                                  i), sep = sep)
       }
    }
 
@@ -144,16 +146,35 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
    X = t(betaMat[covorder,order])
 
    old.par = par(no.readonly = TRUE)
-   colors =colors(colorLevels)
+   colors = colors(colorLevels)
 
    #With tree
    if(plotTree){
-      par(fig = c(0,split[1],0,1), mar=marTree)
+      if(newplot){
+         par(fig = c(0,split[1],0,1), mar=marTree)
+      } else {
+         plot.new()
+         cpar = par(no.readonly = TRUE)
+         cfig = cpar$fig
+         nfig = cfig
+         nfig[2] = cfig[1]+split[1]*(cfig[2]-cfig[1])
+         par(fig=nfig,mar=marTree,new=T)
+      }
+
       if(sum(!spNamesNumbers)==2){plot(tree,show.tip.label=F)}
       else{tree$tip.label[match(gsub(" ", "_", hM$spNames),tree$tip.label)]=spNames
       plot(tree, show.tip.label=T,adj=1,align.tip.label=T,cex=cex[2])}
 
-      par(fig = c(split[1],1,0,1),  mar=mar, new=T)
+      if(newplot){
+         par(fig = c(split[1],1,0,1),  mar=mar, new=T)
+      } else {
+         nfig = cfig
+         nfig[1] = cfig[1]+split[1]*(cfig[2]-cfig[1])
+         par(fig=nfig,new=T)
+
+         par(old.par, mar=mar, new=T)
+      }
+
       START = .05
       END = .7
       ADJy=0
@@ -161,7 +182,8 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
       plot.new()
       axis(1,seq((START+ADJx), (END-ADJx), by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)), labels = F)
       text(x=seq((START+ADJx), (END-ADJx), by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)), par("usr")[3] - 0.05, srt = 90, adj = 1,cex=cex[1],
-         labels = covNames[covorder], xpd = TRUE)
+           labels = covNames[covorder], xpd = TRUE)
+      print(par(no.readonly = TRUE)$fig)
    }
 
    #No tree
@@ -171,18 +193,24 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
       ADJy=1/(nrow(X)*4)
       ADJx=1/(ncol(X)*4)
 
-      par(fig = c(0,1,0,1),  mar=mar)
       plot.new()
+      if(newplot){
+         par(fig = c(0,1,0,1),  mar = mar)
+      } else {
+         cpar = par(no.readonly = TRUE)
+         cfig = cpar$fig
+         par(fig=cfig,mar=mar,new=T)
+      }
       axis(1,at = seq((START+ADJx), (END-ADJx), by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)), labels = F)
       text(x=seq((START+ADJx), (END-ADJx), by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)), par("usr")[3] - 0.05, srt = 90, adj = 1,cex=cex[1],
-         labels = covNames[covorder], xpd = TRUE)
+           labels = covNames[covorder], xpd = TRUE)
       names=gsub("_"," ",spNames[order])
       text(y = seq(ADJy, 1-ADJy, length.out=nrow(X)),par("usr")[3] - 0.05, srt = 0, adj = 1,cex=cex[2],
-         labels = as.expression(lapply(names, function(names) bquote(italic(.(names))))), xpd = TRUE)
+           labels = as.expression(lapply(names, function(names) bquote(italic(.(names))))), xpd = TRUE)
    }
 
    #Plot
-   if(all(is.na(X)) || sum(X)==0){
+   if(all(is.na(X)) || sum(abs(X))==0){
       warning("Nothing to plot at this level of posterior support")
       zlim = c(-1,1)
    } else{
@@ -190,16 +218,36 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
    }
 
    image.plot(x = seq(START+ADJx, END-ADJx, by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)),
-      y = seq(ADJy, 1-ADJy, length.out=nrow(X)),
-      z = t(X), add = TRUE, nlevel = colorLevels, box=T,
-      legend.width = 2, legend.mar = NULL,
-      legend.cex=cex,
-      axis.args=if(param=="Sign")
-         {list(labels=c("+","0","-"),at=c(1,0,-1),cex.axis=cex[3],mgp=c(3,2,0),hadj=1)
-         } else {
-           list(cex.axis=cex[3],mgp=c(3,2,0),hadj=1)
-        },
-       graphics.reset = TRUE, horizontal = FALSE, bigplot = bigplot, smallplot = smallplot,
-      legend.only = FALSE, col = colors,zlim = zlim)
-   par(old.par)
+              y = seq(ADJy, 1-ADJy, length.out=nrow(X)),
+              z = t(X), add = TRUE, nlevel = colorLevels, box=T,
+              legend.width = 2, legend.mar = NULL,
+              legend.cex=cex,
+              axis.args=if(param=="Sign")
+              {list(labels=c("+","0","-"),at=c(1,0,-1),cex.axis=cex[3],mgp=mgp,hadj=1)
+              } else {
+                 list(cex.axis=cex[3],mgp=mgp,hadj=1)
+              },
+              graphics.reset = TRUE, horizontal = FALSE, bigplot = bigplot, smallplot = smallplot,
+              legend.only = FALSE, col = colors,zlim = zlim)
+
+   if(newplot){
+      par(old.par)
+   } else {
+      par(mfrow=cpar$mfrow)
+      cmfg=cpar$mfg
+      if(cmfg[2]<cmfg[4]){
+         cmfg[2] = cmfg[2]+1
+      } else {
+         if(cmfg[1]<cmfg[3]){
+            cmfg[2]=1
+            cmfg[1] = cmfg[1]+1
+         }
+         else{
+            cmfg[1]=1
+            cmfg[2]=1
+         }
+      }
+      par(mfg=cmfg,mar=cpar$mar)
+   }
 }
+

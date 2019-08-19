@@ -76,6 +76,8 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
       warning('Number of cores cannot be greater than the number of chains')
       nParallel <- nChains
    }
+   if(any(adaptNf>transient))
+      stop('transient parameter should be no less than any element of adaptNf parameter')
 
    #X1 is the original X matrix (scaled version).
    #X used in computations is modified from X1 by variable selection and dimension reduction.

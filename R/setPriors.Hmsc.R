@@ -8,6 +8,7 @@
 #' @param UGamma covariance matrix for the prior multivariate Gaussian distribution for Gamma parameters
 #' @param aSigma shape parameter for the prior gamma distribution for the variance parameter, only for normal & lognormal Poisson models
 #' @param bSigma rate parameter for the prior gamma distribution for the variance parameter, only for normal & lognormal Poisson models
+#' @param nuRRR,a1RRR,b1RRR,a2RRR,b2RRR parameters of the multiplicative gamma process shrinking prior for reduced rank regression
 #' @param rhopw discrete grid prior for phylogenetic signal, should be a matrix of 2 columns
 #' @param setDefault logical indicating whether default priors should be used
 #' @param \dots other parameters passed to the function.

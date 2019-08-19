@@ -7,6 +7,7 @@
 #' @param lambdaPost posterior distribution of species loadings (Lambda)
 #' @param factors indices of the two factors to be plotted
 #' @param colVar the environmental covariate from XData according to which the sites are to be coloured
+#' @param colors controls the colors of the heatmap. For continuous covariates, colors should be given as a palette, with default value \code{colorRampPalette(c("blue","white","red"))}. For factors, colors should be given as a list of colors, e.g. \code{c("blue","red")}.
 #' @param spNames a vector of species names to be added to the ordination diagram
 #' @param \dots other parameters passed to the function.
 #'
@@ -18,19 +19,26 @@
 #'
 #'
 #' @importFrom graphics plot points text
-#' @importFrom grDevices colorRampPalette
+#' @importFrom grDevices colorRampPalette palette
 #'
 #' @export
 
-biPlot=function(hM, etaPost, lambdaPost, factors=c(1,2), colVar=NULL, spNames=hM$spNames, ...){
+biPlot=function(hM, etaPost, lambdaPost, factors=c(1,2), colVar=NULL, colors = NULL, spNames=hM$spNames, ...){
    if(!is.null(colVar)){
       col = hM$XData[,colVar]
       if (!class(col)=="factor"){
-         cols=colorRampPalette(c("blue","white","red"))(hM$np)
+         if(is.null(colors)){
+            colors = colorRampPalette(c("blue","white","red"))
+         }
+         cols=colors(100)
          plotorder=order(hM$XData[,which(colnames(hM$XData)==colVar)])
       } else
       {
-         cols = col
+         if(is.null(colors)){
+            colors = palette("default")
+            cols = colors[col]
+         }
+         cols = colors[col]
          plotorder = 1:hM$ny
       }
    }

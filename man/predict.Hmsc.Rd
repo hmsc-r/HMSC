@@ -42,14 +42,7 @@ an alternative for providing \code{XData}, \code{studyDesign} and \code{ranLevel
 
 \item{Yc}{a matrix of the outcomes that are assumed to be known for conditional predictions.}
 
-\item{mcmcStep}{the number of extra mcmc steps used for updating the random effects
-(Eta parameters) starting from the samples of the fitted Hmsc model in order to
-account for the conditional infromation provided in the Yc argument. The higher this number is,
-the more the obtained updated samples are unaffected by the posterior estimates of latent factors
-in the model fitted to the training data and more resembles the true conditional posterior. However,
-the elapsed time for conditional prediction grows approximately linearly as this parameter increases.
-The exact number for sufficient is problem-dependent and should be assessed by e.g. gradually
-increasing this parameter till the stationarity of the produced predictions.}
+\item{mcmcStep}{the number of extra mcmc steps used for updating the random effects}
 
 \item{expected}{boolean flag indicating whether to return the location parameter of the observation
 models or sample the values from those.}
@@ -69,6 +62,16 @@ the \code{post} argument)
 }
 \description{
 Calculates predicted values from a fitted \code{Hmsc} model.
+}
+\details{
+In \code{mcmcStep,the number of extra mcmc steps used for updating the random effects
+for the Eta parameters, starting from the samples of the fitted Hmsc model in order to
+account for the conditional infromation provided in the Yc argument. The higher this number is,
+the more the obtained updated samples are unaffected by the posterior estimates of latent factors
+in the model fitted to the training data and more resembles the true conditional posterior. However,
+the elapsed time for conditional prediction grows approximately linearly as this parameter increases.
+The exact number for sufficient is problem-dependent and should be assessed by e.g. gradually
+increasing this parameter till the stationarity of the produced predictions.}
 }
 \seealso{
 \code{\link{predictLatentFactor}}

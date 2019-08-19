@@ -2,7 +2,7 @@
 % Please edit documentation in R/evaluateModelFit.R
 \name{evaluateModelFit}
 \alias{evaluateModelFit}
-\title{Hmsc$evaluateModelFit}
+\title{evaluateModelFit}
 \usage{
 evaluateModelFit(hM, predY)
 }
