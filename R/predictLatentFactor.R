@@ -127,7 +127,12 @@ predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predict
                          for(i in 1:nn){
                             ind = indNN[i,]
                             indices[[i]] = rbind(i*rep(1,length(ind)),ind)
-                            dist12[,i] = sqrt(rowSums((sOld[ind,] - t(matrix(rep(sNew[i,],rL$nNeighbours),ncol=rL$nNeighbours)))^2))
+                            das = matrix(0,nrow=rL$nNeighbours,ncol=1)
+                            for(dim in 1:rL$sDim){
+                               xx = sOld[ind,dim] - rep(sNew[i,dim],rL$nNeighbours)
+                               das = das+xx^2
+                            }
+                            dist12[,i] = sqrt(das)
                             dist11[,,i] = as.matrix(dist(sOld[ind,]))
                          }
                          BgA = list()
@@ -140,8 +145,7 @@ predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predict
                                K11 = exp(-dist11/alphapw[alpha[h],1])
                                K21iK11 = matrix(NA,ncol=nn,nrow=rL$nNeighbours)
                                for(i in 1:nn){
-                                  iK11 = solve(chol(K11[,,i]),diag(rL$nNeighbours))
-                                  iK11 = iK11 + t(iK11)-diag(rL$nNeighbours)*diag(iK11)
+                                  iK11 = solve(K11[,,i])
                                   K21iK11[,i] = K12[,i]%*%iK11
                                }
                                B = Matrix(0,nrow=nn, ncol=np,sparse=TRUE)
