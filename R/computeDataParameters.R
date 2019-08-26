@@ -105,7 +105,7 @@ computeDataParameters = function(hM){
                       if(alpha==0){
                          iW = .sparseDiagonal(np)
                          RiW = .sparseDiagonal(np)
-                         detW = 1
+                         detW = 0
                       } else{
                          D = rep(0,np)
                          D[1] = 1
@@ -167,7 +167,7 @@ computeDataParameters = function(hM){
                          W22 = exp(-di22/alpha)
                          W12 = exp(-di12/alpha)
                       }
-                      iW22 = solve(W22)  #May be slow, use cholesky decomp to calculate inverse?
+                      iW22 = solve(W22)
                       D = W12%*%iW22%*%t(W12)
                       dD = 1 - diag(D)
 

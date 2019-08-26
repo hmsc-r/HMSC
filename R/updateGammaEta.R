@@ -151,8 +151,7 @@ updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,dfPi,rL, rLP
                       iK = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$iWg[,,Alpha[[r]][x]]))
                    },
                    "NNGP" = {
-                      K = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$Wg[[Alpha[[r]][x]]]))
-                      iK = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$iWg[[Alpha[[r]][x]]]))
+                      stop("updataGammaEta: no method implemented yet for nearest neighbour gaussian process with GammaEta updater")
                    },
                    "GPP" = {
                       stop("updataGammaEta: no method implemented yet for gaussian predictive process with GammaEta updater")
