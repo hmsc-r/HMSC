@@ -23,6 +23,7 @@ Imports:
    ape,
    BayesLogit,
    fields,
+   FNN,
    ggplot2,
    MASS,
    Matrix,
@@ -34,5 +35,6 @@ Imports:
    pdist,
    pROC,
    phytools,
+   SparseM,
    statmod,
    truncnorm

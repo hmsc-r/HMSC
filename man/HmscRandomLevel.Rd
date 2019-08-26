@@ -4,11 +4,14 @@
 \alias{HmscRandomLevel}
 \title{Create an \code{Hmsc} random level}
 \usage{
-HmscRandomLevel(sData = NULL, distMat = NULL, xData = NULL,
-  units = NULL, N = NULL)
+HmscRandomLevel(sData = NULL, sMethod = "Full", distMat = NULL,
+  xData = NULL, units = NULL, N = NULL, nNeighbours = NULL,
+  sKnot = NULL)
 }
 \arguments{
 \item{sData}{a dataframe containing spatial or temporal coordinates of units of the random level}
+
+\item{sMethod}{a string specifying which spatial method to be used. Possible values are \code{Full}, \code{GPP} and \code{NNGP}}
 
 \item{distMat}{a distance matrix containing the distances between units of the random level}
 
@@ -17,7 +20,11 @@ associations}
 
 \item{units}{a vector, specifying the names of the units of a non-structured level}
 
-\item{N}{number of unique units for this level}
+\item{N}{number of unique units on this level}
+
+\item{nNeighbours}{a scalar specifying the number of neighbours to be used in case the spatial method is set to \code{NNGP}. Only positive values smaller than the total number of plots are allowed.}
+
+\item{sKnot}{a dataframe containing the knot locations to be used for the gaussian predictive process if sMethod is set to \code{GPP}}
 }
 \value{
 a \code{HmscRandomLevel}-class object that can be used for \code{Hmsc}-class object construction

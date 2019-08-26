@@ -270,6 +270,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
                XScalePar=hM$XScalePar, XInterceptInd=hM$XInterceptInd, XRRRScalePar=hM$XRRRScalePar,
                nt=hM$nt, TrScalePar=hM$TrScalePar, TrInterceptInd=hM$TrInterceptInd, rhopw=rhopw)
          }
+
          if((verbose > 0) && (iter%%verbose == 0)){
             if(iter > transient){
                samplingStatusString = "sampling"

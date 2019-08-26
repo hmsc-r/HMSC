@@ -94,8 +94,9 @@ computeInitialParameters = function(hM, initPar){
       } else{
          Beta = matrix(NA, hM$nc, hM$ns)
          Mu = tcrossprod(Gamma,hM$Tr)
-         for(j in 1:hM$ns)
+         for(j in 1:hM$ns){
             Beta[,j] = rmvnorm(1, Mu[,j], V)
+         }
       }
    }
 
@@ -170,14 +171,17 @@ computeInitialParameters = function(hM, initPar){
       if(is.null(initPar$Delta[[r]])){
          if(hM$rL[[r]]$xDim == 0){
             Delta[[r]] = matrix(c(rgamma(1,hM$rL[[r]]$a1,hM$rL[[r]]$b1), rgamma(nf[r]-1,hM$rL[[r]]$a2,hM$rL[[r]]$b2)))
-         } else
+         } else{
             Delta[[r]] = matrix(c(rgamma(ncr[r],hM$rL[[r]]$a1,hM$rL[[r]]$b1), rgamma(ncr[r]*(nf[r]-1),hM$rL[[r]]$a2,hM$rL[[r]]$b2)), nf[r],ncr[r],byrow=TRUE)
+         }
+
       }
       if(is.null(initPar$Psi[[r]])){
          if(hM$rL[[r]]$xDim == 0){
             Psi[[r]] = matrix(rgamma(nf[r]*hM$ns, hM$rL[[r]]$nu/2, hM$rL[[r]]$nu/2), nf[r], hM$ns)
-         } else
+         } else {
             Psi[[r]] = array(rgamma(nf[r]*hM$ns*ncr[r], hM$rL[[r]]$nu/2, hM$rL[[r]]$nu/2), dim=c(nf[r],hM$ns,ncr[r]))
+         }
       }
       if(is.null(initPar$Lambda[[r]])){
          tau = matrix(apply(Delta[[r]], 2, cumprod), nf[r], ncr[r])

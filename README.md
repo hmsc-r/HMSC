@@ -38,5 +38,3 @@ For covariate dependent species associations:
 *Tikhonov, G., Abrego, N., Dunson, D. and Ovaskainen, O. 2017. Using joint species distribution models for evaluating how species-to-species associations depend on the environmental context. Methods in Ecology and Evolution 8, 443-452. [https://doi.org/10.1111/2041-210X.12723](https://doi.org/10.1111/2041-210X.12723)*
 
 To get started with the package, we recommend to start with following the vignettes and reading the help pages for the `Hmsc`, `HmscRandomLevel` and `sampleMcmc` function.   
-
-

@@ -3,7 +3,7 @@
 #' @importFrom methods as
 #' @importFrom stats rnorm
 #' @importFrom Matrix Diagonal sparseMatrix bdiag
-#' 
+#'
 updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,dfPi,rL, rLPar,Q,iQ,RQ,U,iU){
    ny = nrow(Z)
    ns = ncol(Z)
@@ -145,10 +145,19 @@ updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,dfPi,rL, rLP
             LamiDLam_PtP = kronecker(LamiDLam, PtP)
             LamiD_PtX = kronecker(LamiD, PtX)
             LamiDT_PtX = kronecker(LamiD%*%Tr,PtX)
-
-            K = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$Wg[,,Alpha[[r]][x]]))
-            iK = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$iWg[,,Alpha[[r]][x]]))
-
+            switch(rL[[r]]$spatialMethod,
+                   "Full" = {
+                      K = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$Wg[,,Alpha[[r]][x]]))
+                      iK = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$iWg[,,Alpha[[r]][x]]))
+                   },
+                   "NNGP" = {
+                      K = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$Wg[[Alpha[[r]][x]]]))
+                      iK = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$iWg[[Alpha[[r]][x]]]))
+                   },
+                   "GPP" = {
+                      stop("updataGammaEta: no method implemented yet for gaussian predictive process with GammaEta updater")
+                   }
+            )
             W = iK + LamiDLam_PtP
             RW = chol(W)
 
