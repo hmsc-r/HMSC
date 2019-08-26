@@ -1,7 +1,7 @@
 
-R Under development (unstable) (2019-07-26 r76894) -- "Unsuffered Consequences"
+R version 3.6.1 (2019-07-05) -- "Action of the Toes"
 Copyright (C) 2019 The R Foundation for Statistical Computing
-Platform: x86_64-apple-darwin18.6.0 (64-bit)
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -233,6 +233,26 @@ converged
 > 
 > 
 > cleanEx()
+> nameEx("constructKnots")
+> ### * constructKnots
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: constructKnots
+> ### Title: constructKnots
+> ### Aliases: constructKnots
+> 
+> ### ** Examples
+> 
+> #Creating knots for some random xy data
+> n = 100
+> xycoords = matrix(runif(2*n),ncol=2)
+> xyKnots = constructKnots(xycoords,knotDist = 0.2, minKnotDist = 0.5)
+> 
+> 
+> 
+> 
+> cleanEx()
 > nameEx("convertToCodaObject")
 > ### * convertToCodaObject
 > 
@@ -285,6 +305,14 @@ converged
 > # Evaluate model fit
 > preds = computePredictedValues(TD$m)
 > MF = evaluateModelFit(hM=TD$m, predY=preds)
+Setting levels: control = 0, case = 1
+Setting direction: controls < cases
+Setting levels: control = 0, case = 1
+Setting direction: controls < cases
+Setting levels: control = 0, case = 1
+Setting direction: controls < cases
+Setting levels: control = 0, case = 1
+Setting direction: controls < cases
 > 
 > # Evaluate model performance based on cross validation
 > partition = createPartition(TD$m, nfolds = 2)
@@ -896,6 +924,14 @@ converged
 [1] "Chain 2, iteration 149 of 150, (sampling)"
 [1] "Chain 2, iteration 150 of 150, (sampling)"
 > MF = evaluateModelFit(hM=TD$m, predY=predsCV1)
+Setting levels: control = 0, case = 1
+Setting direction: controls > cases
+Setting levels: control = 0, case = 1
+Setting direction: controls < cases
+Setting levels: control = 0, case = 1
+Setting direction: controls > cases
+Setting levels: control = 0, case = 1
+Setting direction: controls < cases
 > 
 > 
 > 
@@ -940,6 +976,7 @@ converged
 > # Plot parameter estimates of species' environmental responses together with the phylogenetic tree
 > betaPost=getPostEstimate(TD$m, "Beta")
 > plotBeta(TD$m, post=betaPost, param="Mean", plotTree=TRUE)
+[1] 0.3 1.0 0.0 1.0
 > 
 > 
 > 
@@ -1212,7 +1249,7 @@ converged
 > cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  43.496 0.565 44.511 0.006 0.009 
+Time elapsed:  45.594 0.341 46.011 0.008 0.01 
 > grDevices::dev.off()
 null device 
           1 
