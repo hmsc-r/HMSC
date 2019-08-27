@@ -26,6 +26,7 @@ r_binary_packages:
   - R.rsp
   - abind
   - ape
+  - FNN
   - fields
   - ggplot2
   - MASS
@@ -35,6 +36,7 @@ r_binary_packages:
   - nnet
   - pdist
   - pROC
+  - SparseM
   - statmod
   - truncnorm
   
