@@ -15,6 +15,11 @@ addons:
   apt: 
     packages: libmagick++-dev
 
+r_packages:
+  - magick
+  - animation
+  - phytools
+
 r_binary_packages:
   - coda
   - testthat
@@ -30,9 +35,6 @@ r_binary_packages:
   - nnet
   - pdist
   - pROC
-  - magick
-  - animation
-  - phytools
   - statmod
   - truncnorm
   
