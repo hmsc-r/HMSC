@@ -36,6 +36,5 @@ Imports:
    pdist,
    pROC,
    phytools,
-   SparseM,
    statmod,
    truncnorm
