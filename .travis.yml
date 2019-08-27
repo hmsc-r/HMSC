@@ -36,7 +36,6 @@ r_binary_packages:
   - nnet
   - pdist
   - pROC
-  - SparseM
   - statmod
   - truncnorm
   
