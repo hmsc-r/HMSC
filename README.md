@@ -17,6 +17,8 @@ library(devtools)
 install_url('https://cran.r-project.org/src/contrib/Archive/BayesLogit/BayesLogit_0.6.tar.gz')
 install_github("hmsc-r/HMSC", build_opts = c("--no-resave-data", "--no-manual"))
 ```
+## Getting started
+To get started with the package, we recommend to start with following the vignettes and reading the help pages for the `Hmsc`, `HmscRandomLevel` and `sampleMcmc` functions. The vignettes are available in the 'vignette' folder, or can be accessed from within R by typing e.g. vignette(topic = "vigette_1_univariate", package = "Hmsc"). To see a list of vignettes, type vignette(package = "Hmsc").   
 
 ## Documentation
 A good place to start for those interested in using the `Hmsc` package are the following papers: 
@@ -36,5 +38,3 @@ For analysis of time series data:
 For covariate dependent species associations:
 
 *Tikhonov, G., Abrego, N., Dunson, D. and Ovaskainen, O. 2017. Using joint species distribution models for evaluating how species-to-species associations depend on the environmental context. Methods in Ecology and Evolution 8, 443-452. [https://doi.org/10.1111/2041-210X.12723](https://doi.org/10.1111/2041-210X.12723)*
-
-To get started with the package, we recommend to start with following the vignettes and reading the help pages for the `Hmsc`, `HmscRandomLevel` and `sampleMcmc` function.   
