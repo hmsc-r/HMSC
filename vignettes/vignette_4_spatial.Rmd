@@ -26,8 +26,9 @@ references:
     given: D.
   - family: Ovaskainen
     given: O.
-  year: in review
+  year: in press
   type: article-journal
+  journal: Ecology
 ---
   
 # Introduction
@@ -115,7 +116,7 @@ if (test.run){
    # the .pdf version
    thin = 10
    samples = 1000
-   transient = 2000
+   transient = 1000
    verbose = 0
 }
 
@@ -171,14 +172,9 @@ We observe that both the explanatory and the predictive power is lower than for 
 For large datasets, i.e. those with > 1000 sampling units, the standard spatial models as described above may become computationally infeasible. For such datasets, we implemented two alternative approaches to account for the spatial structure in the data: the 'Nearest Neighbour Gaussian Process (NNGP)' and the 'Gaussian Predictive Process (GPP)'. The detailes of this method are described in @Tikhonov2019. 
 
 ## NNGP models
-If we want to fit a NNGP model we have to set `sMethod` to 'NNGP' when constructing the random level. Additionally, we can specify how many neighbours we want to use by setting the `nNeighbours` argument. When we do not explicitely set `nNeighbours` when constructing the random level, this parameters is set to 10 as a standard. Additionally, we have to order the samples. 
+If we want to fit a NNGP model we have to set `sMethod` to 'NNGP' when constructing the random level. Additionally, we can specify how many neighbours we want to use by setting the `nNeighbours` argument. When we do not explicitely set `nNeighbours` when constructing the random level, this parameters is set to 10 as a standard.
 
 ```{r}
-# alpha = 1/2
-# val = xycoords%*%c(cos(alpha),sin(alpha))
-# yprob = yprob[order(val),]
-# XData = data.frame(x1 = XData[order(val),])
-# xycoords = xycoords[order(val),]
 rL.nngp = HmscRandomLevel(sData = xycoords, sMethod = 'NNGP', nNeighbours = 10)
 rL.nngp = setPriors(rL.nngp,nfMin=1,nfMax=1)
 ```
@@ -239,9 +235,9 @@ cvMF.gpp
 ```
 
 ```{r, fig.height=4, fig.width=7, fig.cap="\\label{fig: III} Posterior trace plot of the spatial scale parameter of the nngp spatial model."}
-m.gpp = convertToCodaObject(m.gpp)
-plot(m.gpp$Alpha[[1]])
-summary(m.gpp$Alpha[[1]])
+mpost.gpp = convertToCodaObject(m.gpp)
+plot(mpost.gpp$Alpha[[1]])
+summary(mpost.gpp$Alpha[[1]])
 ```
 
 For this small dataset of 200 sampling units, you will notice that the sampling times for the three spatial models are very similar. However, for larger datasets, the sampling times of the NNGP and GPP method are much shorter than for the standard spatial model. 
