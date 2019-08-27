@@ -15,7 +15,7 @@ RoxygenNote: 6.1.1.9000
 Suggests: R.rsp,
    testthat
 VignetteBuilder: R.rsp
-Additional_repositories: jarioksa.github.io/drat
+Additional_repositories: https://jarioksa.github.io/drat
 Depends:
    R (>= 3.0.2),
    coda
