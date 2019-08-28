@@ -26,9 +26,13 @@ references:
     given: D.
   - family: Ovaskainen
     given: O.
-  year: in press
+  container-title: Ecology (in Press)
+  DOI: 
+  volume: 
+  page: 
   type: article-journal
-  journal: Ecology
+  issued: 
+   year: 2019
 ---
   
 # Introduction
@@ -38,7 +42,6 @@ To get HMSC-R in use, you need to first install it [https://github.com/hmsc-r/HM
 
 ```{r, message = F}
 library(Hmsc)
-library(corrplot)
 library(MASS)
 set.seed(6)
 ```
@@ -46,8 +49,7 @@ set.seed(6)
 We also set the random number seed to make the results presented here reproducible.
 
 # Generating simulated data
-To illustrate how to use spatial models in Hmsc, we generate data for 5 species (`ns`) on 100 sampling units (`n`). We include only one environmental predictor (`x1`) and give the true intercept (`alpha`) and slope (`beta1`) parameters to construct the matrix of the linear predictors. So far, this is similar to what we did in the low-dimensional multivariate case, but note that we now call this linear predictor `Lf` instead of `L`. This indicates that this is the fixed effects part of the linear predictor, i.e. the effect that can be explained by the environmental covariates. In addition to the effect from the environmental covariates, we now add spatially structured residuals, indicated by `Lr`. To generate these spatial residuals, we first simulate some random x and y coordinates for all sampling units (`xycoords`). We then generate a spatial predictor (`eta1`) using an exponentially decreasing spatial covariance function where we have set the spatial scale parameter (`alpha`) to 0.35. Next, we set the true slope parameters (`lambda1`) for the species responses to the spatial predictor and compute the spatial residuals for each species in `Lr`.
-
+To illustrate how to use spatial models in Hmsc, we generate data for 5 species (`ns`) on 100 sampling units (`n`). We include only one environmental predictor (`x1`) and give the true intercept (`alpha`) and slope (`beta1`) parameters to construct the matrix of the linear predictors. So far, this is similar to what we did in the low-dimensional multivariate case, but note that we now call this linear predictor `Lf` instead of `L`. This indicates that this is the fixed effects part of the linear predictor, i.e. the effect that can be explained by the environmental covariates. In addition to the effect from the environmental covariates, we now add spatially structured residuals which follow the same spatial structure for all species, indicated by `Lr`. To generate these spatial residuals, we first simulate some random x and y coordinates for all sampling units (`xycoords`). We then generate a spatially structured latent predictor (`eta1`) using an exponentially decreasing spatial covariance function where we have set the spatial scale parameter (`alpha`) to 0.35. Next, we set the true slope parameters (`lambda1`) for the species responses to the latent predictor and compute the spatial residuals for each species in `Lr`. 
 
 ```{r}
 n = 100
@@ -55,9 +57,7 @@ ns = 5
 beta1 = c(-2,-1,0,1,2)
 alpha = rep(0,ns)
 beta = cbind(alpha,beta1)
-sigma = rep(1,ns)
-x1 = rnorm(n)
-x = cbind(rep(1,n),x1)
+x = cbind(rep(1,n),rnorm(n))
 Lf = x%*%t(beta)
 
 xycoords = matrix(runif(2*n),ncol=2)
@@ -95,7 +95,7 @@ To fit a spatially explicit model with Hmsc, we construct the random effect usin
 ```{r}
 studyDesign = data.frame(sample = as.factor(1:n))
 rL.spatial = HmscRandomLevel(sData = xycoords)
-rL.spatial = setPriors(rL.spatial,nfMin=1,nfMax=1) #We limit the model to two latent variables for visualization purposes
+rL.spatial = setPriors(rL.spatial,nfMin=1,nfMax=1) #We limit the model to one latent variables for visualization purposes
 m.spatial = Hmsc(Y=yprob, XData=XData, XFormula=~x1,
 studyDesign=studyDesign, ranLevels=list("sample"=rL.spatial),distr="probit")
 ```
