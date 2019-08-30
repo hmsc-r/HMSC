@@ -11,7 +11,7 @@
 #' @param plotTree logical. Whether species' environmental responses is to be mapped onto the phylogeny used in
 #' model fitting
 #' @param SpeciesOrder controls the ordering of species, current options are "Original", "Tree", and "Vector".
-#' If SpeciesOrder = "Vector", an ordering vector must be provided (see SpVector). If plotTree = T, SpeciesOrder
+#' If SpeciesOrder = "Vector", an ordering vector must be provided (see SpVector). If plotTree = TRUE, SpeciesOrder
 #' is ignored
 #' @param SpVector controls the ordering of species if SpeciesOrder = "Vector". If a subset of species are listed,
 #' only those will be plotted. For alphabetic ordering, try
@@ -25,7 +25,7 @@
 #' @param covNamesNumbers logical of length 2, where first entry controls whether covariate names are added to axes,
 #' and second entry controls whether covariate numbers are added
 #' @param supportLevel controls threshold posterior support for plotting
-#' @param split if plotTree = T, controls the division of the plotting window between the tree and the heatmap.
+#' @param split if plotTree = TRUE, controls the division of the plotting window between the tree and the heatmap.
 #' @param cex controls character expansion (font size). Three values, controlling covariate names, species names,
 #' and color legend axis labels
 #' @param colors controls the colors of the heatmap, default value \code{colorRampPalette(c("blue","white","red"))}
@@ -56,9 +56,10 @@
 #' @export
 
 
-plotBeta = function(hM, post, param = "Support", plotTree = F,
+plotBeta = function(hM, post, param = "Support", plotTree = FALSE,
                     SpeciesOrder = "Original", SpVector = NULL, covOrder="Original",
-                    covVector=NULL, spNamesNumbers = c(T,T), covNamesNumbers = c(T,T),
+                    covVector=NULL, spNamesNumbers = c(TRUE, TRUE),
+                    covNamesNumbers = c(TRUE, TRUE),
                     supportLevel = 0.9, split = 0.3, cex = c(0.7,0.7,0.8),
                     colors = colorRampPalette(c("blue","white","red")), colorLevels = NULL,
                     mar=NULL, marTree=c(6,0,2,0),mgp=c(3,2,0),
@@ -158,21 +159,20 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
          cfig = cpar$fig
          nfig = cfig
          nfig[2] = cfig[1]+split[1]*(cfig[2]-cfig[1])
-         par(fig=nfig,mar=marTree,new=T)
+         par(fig=nfig, mar=marTree, new=TRUE)
       }
 
-      if(sum(!spNamesNumbers)==2){plot(tree,show.tip.label=F)}
+      if(sum(!spNamesNumbers)==2){plot(tree, show.tip.label=FALSE)}
       else{tree$tip.label[match(gsub(" ", "_", hM$spNames),tree$tip.label)]=spNames
-      plot(tree, show.tip.label=T,adj=1,align.tip.label=T,cex=cex[2])}
+      plot(tree, show.tip.label=TRUE, adj=1, align.tip.label=TRUE, cex=cex[2])}
 
       if(newplot){
-         par(fig = c(split[1],1,0,1),  mar=mar, new=T)
+          par(fig = c(split[1],1,0,1),  mar=mar, new=TRUE)
       } else {
          nfig = cfig
          nfig[1] = cfig[1]+split[1]*(cfig[2]-cfig[1])
-         par(fig=nfig,new=T)
-
-         par(old.par, mar=mar, new=T)
+         par(fig=nfig, new=TRUE)
+         par(old.par, mar=mar, new=TRUE)
       }
 
       START = .05
@@ -180,7 +180,8 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
       ADJy=0
       ADJx=1/(ncol(X)*4)
       plot.new()
-      axis(1,seq((START+ADJx), (END-ADJx), by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)), labels = F)
+      axis(1,seq((START+ADJx), (END-ADJx),
+                 by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)), labels = FALSE)
       text(x=seq((START+ADJx), (END-ADJx), by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)), par("usr")[3] - 0.05, srt = 90, adj = 1,cex=cex[1],
            labels = covNames[covorder], xpd = TRUE)
       print(par(no.readonly = TRUE)$fig)
@@ -199,9 +200,11 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
       } else {
          cpar = par(no.readonly = TRUE)
          cfig = cpar$fig
-         par(fig=cfig,mar=mar,new=T)
+         par(fig=cfig, mar=mar, new=TRUE)
       }
-      axis(1,at = seq((START+ADJx), (END-ADJx), by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)), labels = F)
+      axis(1,at = seq((START+ADJx), (END-ADJx),
+                      by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)),
+           labels = FALSE)
       text(x=seq((START+ADJx), (END-ADJx), by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)), par("usr")[3] - 0.05, srt = 90, adj = 1,cex=cex[1],
            labels = covNames[covorder], xpd = TRUE)
       names=gsub("_"," ",spNames[order])
@@ -219,7 +222,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = F,
 
    image.plot(x = seq(START+ADJx, END-ADJx, by = ((END-ADJx) - (START+ADJx))/(ncol(X) - 1)),
               y = seq(ADJy, 1-ADJy, length.out=nrow(X)),
-              z = t(X), add = TRUE, nlevel = colorLevels, box=T,
+              z = t(X), add = TRUE, nlevel = colorLevels, box=TRUE,
               legend.width = 2, legend.mar = NULL,
               legend.cex=cex,
               axis.args=if(param=="Sign")

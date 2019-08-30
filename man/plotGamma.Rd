@@ -6,7 +6,7 @@
 \usage{
 plotGamma(hM, post, param = "Support", trOrder = "Original",
   trVector = NULL, covOrder = "Original", covVector = NULL,
-  trNamesNumbers = c(T, T), covNamesNumbers = c(T, T),
+  trNamesNumbers = c(TRUE, TRUE), covNamesNumbers = c(TRUE, TRUE),
   supportLevel = 0.9, cex = c(0.8, 0.8, 0.8),
   colors = colorRampPalette(c("blue", "white", "red")),
   colorLevels = NULL, mar = c(6, 9, 2, 0), smallplot = NULL,

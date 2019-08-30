@@ -95,11 +95,13 @@ evaluateModelFit = function(hM, predY){
    mPredY = matrix(NA, nrow=hM$ny, ncol=hM$ns)
    sel = hM$distr[,1]==3
    if (sum(sel)>0){
-      mPredY[,sel] = as.matrix(apply(abind(predY[,sel,,drop=F],along=3),c(1,2),median2))
+       mPredY[,sel] = as.matrix(apply(abind(predY[,sel,,drop=FALSE], along=3),
+                                      c(1,2), median2))
    }
    sel = !hM$distr[,1]==3
    if (sum(sel)>0){
-      mPredY[,sel] = as.matrix(apply(abind(predY[,sel,,drop=F],along=3),c(1,2),mean2))
+       mPredY[,sel] = as.matrix(apply(abind(predY[,sel,,drop=FALSE], along=3),
+                                      c(1,2), mean2))
    }
 
    RMSE = computeRMSE(hM$Y, mPredY)
@@ -116,15 +118,15 @@ evaluateModelFit = function(hM, predY){
    sel = hM$distr[,1]==1
    if (sum(sel)>0){
       R2 = rep(NA,hM$ns)
-      R2[sel] = computeR2(hM$Y[,sel,drop=F],mPredY[,sel,drop=F])
+      R2[sel] = computeR2(hM$Y[,sel,drop=FALSE],mPredY[,sel,drop=FALSE])
    }
 
    sel = hM$distr[,1]==2
    if (sum(sel)>0){
       AUC = rep(NA,hM$ns)
       TjurR2 = rep(NA,hM$ns)
-      AUC[sel] = computeAUC(hM$Y[,sel,drop=F], mPredY[,sel,drop=F])
-      TjurR2[sel] = computeTjurR2(hM$Y[,sel,drop=F], mPredY[,sel,drop=F])
+      AUC[sel] = computeAUC(hM$Y[,sel,drop=FALSE], mPredY[,sel,drop=FALSE])
+      TjurR2[sel] = computeTjurR2(hM$Y[,sel,drop=FALSE], mPredY[,sel,drop=FALSE])
    }
 
    sel = hM$distr[,1]==3
@@ -135,14 +137,14 @@ evaluateModelFit = function(hM, predY){
       O.RMSE = rep(NA,hM$ns)
       C.SR2 = rep(NA,hM$ns)
       C.RMSE = rep(NA,hM$ns)
-      SR2[sel] = computeR2(hM$Y[,sel,drop=F],mPredY[,sel,drop=F], method="spearman")
-      predO = 1*(predY[,sel,,drop=F]>0)
+      SR2[sel] = computeR2(hM$Y[,sel,drop=FALSE],mPredY[,sel,drop=FALSE], method="spearman")
+      predO = 1*(predY[,sel,,drop=FALSE]>0)
       mPredO = as.matrix(apply(abind(predO,along=3),c(1,2),mean2))
-      O.AUC[sel] = computeAUC(1*(hM$Y[,sel,drop=F]>0),mPredO)
-      O.TjurR2[sel] = computeTjurR2(1*(hM$Y[,sel,drop=F]>0), mPredO)
-      O.RMSE[sel] = computeRMSE(1*(hM$Y[,sel,drop=F]>0), mPredO)
-      mPredCY = mPredY[,sel,drop=F]/mPredO
-      CY=hM$Y[,sel,drop=F]
+      O.AUC[sel] = computeAUC(1*(hM$Y[,sel,drop=FALSE]>0),mPredO)
+      O.TjurR2[sel] = computeTjurR2(1*(hM$Y[,sel,drop=FALSE]>0), mPredO)
+      O.RMSE[sel] = computeRMSE(1*(hM$Y[,sel,drop=FALSE]>0), mPredO)
+      mPredCY = mPredY[,sel,drop=FALSE]/mPredO
+      CY=hM$Y[,sel,drop=FALSE]
       CY[CY==0]=NA
       C.SR2[sel] = computeR2(CY, mPredCY, method="spearman")
       C.RMSE[sel] = computeRMSE(CY, mPredCY)

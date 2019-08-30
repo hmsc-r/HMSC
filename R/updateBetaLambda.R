@@ -145,7 +145,7 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,d
       m1 = backsolve(RiU, P%*%as.vector(t(Mu)) + as.vector(t(isXTS)), transpose=TRUE)
       BetaLambda = matrix(backsolve(RiU, m1 + rnorm(ns*(nc+nfSum))), nc+nfSum, ns, byrow=TRUE)
    }
-   Beta = BetaLambda[1:nc,,drop=F]
+   Beta = BetaLambda[1:nc,,drop=FALSE]
    nfCumSum = c(0,cumsum(nf*ncr)) + nc
    for(r in seq_len(nr)){
       if(rL[[r]]$xDim == 0){

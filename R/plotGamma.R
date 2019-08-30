@@ -48,8 +48,8 @@
 #' @export
 
 plotGamma=function(hM, post, param = "Support", trOrder="Original",
-  trVector= NULL, covOrder="Original", covVector=NULL, trNamesNumbers=c(T,T),
-  covNamesNumbers=c(T,T), supportLevel=.9, cex=c(.8,.8,.8),
+  trVector= NULL, covOrder="Original", covVector=NULL, trNamesNumbers=c(TRUE,TRUE),
+  covNamesNumbers=c(TRUE,TRUE), supportLevel=.9, cex=c(.8,.8,.8),
   colors=colorRampPalette(c("blue","white","red")), colorLevels = NULL,
   mar=c(6,9,2,0),
   smallplot=NULL, bigplot=NULL, newplot=TRUE){
@@ -141,8 +141,10 @@ plotGamma=function(hM, post, param = "Support", trOrder="Original",
    }
 
    plot.new()
-   axis(1,at = seq(START+ADJx, END-ADJx, by = ((END-ADJx) - (START+ADJx))/(nrow(X) - 1)), labels = F)
-   axis(2,at = seq(ADJy, 1-ADJy, length.out=ncol(X)), labels = F)
+    axis(1, at = seq(START+ADJx, END-ADJx,
+                    by = ((END-ADJx) - (START+ADJx))/(nrow(X) - 1)),
+         labels = FALSE)
+   axis(2, at = seq(ADJy, 1-ADJy, length.out=ncol(X)), labels = FALSE)
 
    text(x = seq(START+ADJx, END-ADJx, by = ((END-ADJx) - (START+ADJx))/(nrow(X) - 1)), par("usr")[3] - 0.05, srt = 90, adj = 1,cex=cex[2],
       labels = covNames[covorder], xpd = TRUE)
