@@ -34,7 +34,9 @@
 #' @importFrom stats cov cor
 #' @export
 
-computeVariancePartitioning = function(hM, group=NULL, groupnames=NULL, start=1, na.ignore=F){
+computeVariancePartitioning =
+    function(hM, group=NULL, groupnames=NULL, start=1, na.ignore=FALSE)
+{
    ny = hM$ny
    nc = hM$nc
    nt = hM$nt

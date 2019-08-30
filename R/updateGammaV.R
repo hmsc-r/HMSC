@@ -25,7 +25,7 @@ updateGammaV = function(Beta,Gamma,iV,rho, Tr,C, iQg,RQg, mGamma,iUGamma,V0,f0){
    # res = tmp %*% crossprod(Beta, iV)
    # mGammaS = chol2inv(R) %*% (iUGamma %*% mGamma + as.vector(res))
    # Gamma = mGammaS + backsolve(R,rnorm(nc*nt))
-   # Gamma = matrix(Gamma,nc,nt,byrow=T)
+   # Gamma = matrix(Gamma,nc,nt,byrow=TRUE)
 
    R = chol(iUGamma + kronecker(crossprod(backsolve(RQ,Tr,transpose=TRUE)), iV))
    mg = chol2inv(R) %*% (iUGamma%*%mGamma + as.vector((iV%*%Beta)%*%(iQ%*%Tr)))

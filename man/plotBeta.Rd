@@ -4,12 +4,12 @@
 \alias{plotBeta}
 \title{plotBeta}
 \usage{
-plotBeta(hM, post, param = "Support", plotTree = F,
+plotBeta(hM, post, param = "Support", plotTree = FALSE,
   SpeciesOrder = "Original", SpVector = NULL, covOrder = "Original",
-  covVector = NULL, spNamesNumbers = c(T, T), covNamesNumbers = c(T,
-  T), supportLevel = 0.9, split = 0.3, cex = c(0.7, 0.7, 0.8),
-  colors = colorRampPalette(c("blue", "white", "red")),
-  colorLevels = NULL, mar = NULL, marTree = c(6, 0, 2, 0),
+  covVector = NULL, spNamesNumbers = c(TRUE, TRUE),
+  covNamesNumbers = c(TRUE, TRUE), supportLevel = 0.9, split = 0.3,
+  cex = c(0.7, 0.7, 0.8), colors = colorRampPalette(c("blue", "white",
+  "red")), colorLevels = NULL, mar = NULL, marTree = c(6, 0, 2, 0),
   mgp = c(3, 2, 0), smallplot = NULL, bigplot = NULL,
   newplot = TRUE)
 }
@@ -27,7 +27,7 @@ chosen \code{supportLevel}}
 model fitting}
 
 \item{SpeciesOrder}{controls the ordering of species, current options are "Original", "Tree", and "Vector".
-If SpeciesOrder = "Vector", an ordering vector must be provided (see SpVector). If plotTree = T, SpeciesOrder
+If SpeciesOrder = "Vector", an ordering vector must be provided (see SpVector). If plotTree = TRUE, SpeciesOrder
 is ignored}
 
 \item{SpVector}{controls the ordering of species if SpeciesOrder = "Vector". If a subset of species are listed,
@@ -48,7 +48,7 @@ and second entry controls whether covariate numbers are added}
 
 \item{supportLevel}{controls threshold posterior support for plotting}
 
-\item{split}{if plotTree = T, controls the division of the plotting window between the tree and the heatmap.}
+\item{split}{if plotTree = TRUE, controls the division of the plotting window between the tree and the heatmap.}
 
 \item{cex}{controls character expansion (font size). Three values, controlling covariate names, species names,
 and color legend axis labels}
