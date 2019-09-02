@@ -120,6 +120,38 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
    hM$repList = vector("list", nChains)
    initSeed = sample.int(.Machine$integer.max, nChains)
 
+   ######## switching of the augmented updaters if the required conditions are not met
+   EPS = 1e-6
+   updaterWarningFlag = TRUE
+   # updater$Gamma2
+   if(!identical(updater$Gamma2, FALSE) && any(abs(mGamma) > EPS)){
+      updater$Gamma2 = FALSE
+      if(updaterWarningFlag)
+         print("Setting updater$Gamma2=FALSE due to non-zero mGamma")
+   }
+   if(!identical(updater$Gamma2, FALSE) && any(abs(iUGamma - kronecker(iUGamma[1:hM$nc,1:hM$nc], diag(hM$nt))) > EPS)){
+      updater$Gamma2 = FALSE
+      if(updaterWarningFlag)
+         print("Setting updater$Gamma2=FALSE due to non-kronecker structure of UGamma matrix")
+   }
+   if(!identical(updater$Gamma2, FALSE) && (!is.null(C))){
+      updater$Gamma2 = FALSE
+      if(updaterWarningFlag)
+         print("Setting updater$Gamma2=FALSE due to specified phylogeny matrix")
+   }
+   # updater$GammaEta
+   if(!identical(updater$GammaEta, FALSE) && any(abs(mGamma) > EPS)){
+      updater$GammaEta = FALSE
+      if(updaterWarningFlag)
+         print("Setting updater$GammaEta=FALSE due to non-zero mGamma")
+   }
+   if(!identical(updater$GammaEta, FALSE) && hM$nr==0){
+      updater$GammaEta = FALSE
+      if(updaterWarningFlag)
+         print("Setting updater$GammaEta=FALSE due to absence of random effects included to the model")
+   }
+
+
    sampleChain = function(chain){
       if(nChains>1)
          print(sprintf("Computing chain %d", chain))
@@ -172,15 +204,26 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
          }
       }
 
+      if(!identical(updater$Gamma2, FALSE) && (!is.matrix(X))){
+         updater$Gamma2 = FALSE
+         if(updaterWarningFlag)
+            print("Setting updater$Gamma2=FALSE due to X is not a matrix")
+      }
+      if(!identical(updater$GammaEta, FALSE) && (!is.matrix(X))){
+         updater$GammaEta = FALSE
+         if(updaterWarningFlag)
+            print("Setting updater$GammaEta=FALSE due to X is not a matrix")
+      }
+
       postList = vector("list", samples)
       for(iter in seq_len(transient+samples*thin)){
 
-         if(!identical(updater$Gamma2, FALSE) && is.matrix(X))
+         if(!identical(updater$Gamma2, FALSE))
             Gamma = updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,
                Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,C=C,rL=hM$rL, iQg=iQg,
                mGamma=mGamma,iUGamma=iUGamma)
 
-         if(!identical(updater$GammaEta, FALSE) && hM$nr>0 && identical(mGamma,rep(0,hM$nc*hM$nt)) && is.matrix(X)){ # assumes mGamma = 0
+         if(!identical(updater$GammaEta, FALSE)){
             GammaEtaList = updateGammaEta(Z=Z,Gamma=Gamma,V=chol2inv(chol(iV)),iV=iV,id=iSigma,
                Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,rL=hM$rL, rLPar=rLPar,Q=Qg[,,rho],iQ=iQg[,,rho],RQ=RQg[,,rho],U=hM$UGamma,iU=iUGamma)
             Gamma = GammaEtaList$Gamma
