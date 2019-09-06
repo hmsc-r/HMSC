@@ -18,7 +18,7 @@ install_url('https://cran.r-project.org/src/contrib/Archive/BayesLogit/BayesLogi
 install_github("hmsc-r/HMSC", build_opts = c("--no-resave-data", "--no-manual"))
 ```
 ## Getting started
-To get started with the package, we recommend to start with following the vignettes and reading the help pages for the `Hmsc`, `HmscRandomLevel` and `sampleMcmc` functions. The vignettes are available in the 'vignette' folder, or can be accessed from within R by typing e.g. `vignette(topic = "vignette_1_univariate", package = "Hmsc")`. To see a list of vignettes, type `vignette(package = "Hmsc")`.   
+To get started with the package, we recommend to start with reading the package documentation which can be found by typing ```help('Hmsc-package')```, following the vignettes and reading the help pages for the `Hmsc`, `HmscRandomLevel` and `sampleMcmc` functions. The vignettes are available in the 'vignette' folder, or can be accessed from within R by typing e.g. `vignette(topic = "vignette_1_univariate", package = "Hmsc")`. To see a list of vignettes, type `vignette(package = "Hmsc")`.   
 
 ## Documentation
 A good place to start for those interested in using the `Hmsc` package are the following papers: 
