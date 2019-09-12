@@ -42,7 +42,7 @@ updateAlpha = function(Eta ,rL, rLPar){
                    tmpMat3 = array(NA,dim=c(nf,nK,gN))
                    tmpMat4 = array(NA,dim=c(nf,nf,gN))
                    for(g in 1:gN){
-                      tmpMat2[,,g] = t(eta)%*%idDW12g[,,g]
+                      tmpMat2[,,g] = crossprod(eta,idDW12g[,,g])
                       tmpMat3[,,g] = tmpMat2[,,g]%*%iFg[,,g]
                       tmpMat4[,,g] = matrix(tmpMat3[,,g],ncol=nK,nrow=nf)%*%t(matrix(tmpMat2[,,g],,ncol=nK,nrow=nf)) #This extra matrix wrap is neccessary in case there is only one LV
                    }

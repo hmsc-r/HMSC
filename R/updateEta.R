@@ -142,8 +142,8 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                    iUEta = iWs + tmp1
                    R = chol(iUEta)
                    tmp2 = backsolve(R, as.vector(fS), transpose=TRUE) + rnorm(np[r]*nf)
-                   feta = backsolve(R, tmp2);
-                   eta = matrix(feta,np[r],nf);
+                   feta = backsolve(R, tmp2)
+                   eta = matrix(feta,np[r],nf)
                 },
                 "GPP" = {
                    idDg = rLPar[[r]]$idDg
@@ -169,8 +169,10 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                    B0[ind] = B0[ind] + idDV
 
                    B1 = array(NA,c(ny,nf,nf))
+                   LB1 = array(NA,c(ny,nf,nf))
                    for(i in 1:ny){
-                      B1[i,,] = solve(B0[,,i])
+                      B1[i,,] = chol2inv(chol((B0[,,i])))
+                      LB1[i,,] = t(chol(B1[i,,]))
                    }
                    tmp1 = t(matrix((1:nf-1),nrow=nf,ncol=ny)) * ny
                    ind1 = rep(1:(nf*ny),nf)
@@ -178,10 +180,6 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                    ind2 = rep(1:ny,nf^2) + t(matrix(tmp1,nrow=1))
                    iA = Matrix(0,nrow=nf*ny, ncol=nf*ny,sparse=TRUE)
                    iA[t(matrix(rbind(ind1,as.vector(ind2)),nrow=2))] = as.vector(B1)
-                   LB1 = array(NA,c(ny,nf,nf))
-                   for(i in 1:ny){
-                      LB1[i,,] = t(chol(B1[i,,]))
-                   }
                    LiA = Matrix(0,nrow=nf*ny, ncol=nf*ny,sparse=TRUE)
                    LiA[t(matrix(rbind(ind1,as.vector(ind2)),nrow=2))] = as.vector(LB1)
                    iAidD1W12 = iA %*% idD1W12
