@@ -46,10 +46,10 @@ colnames(TD$Y) = colnames(TD$C)
 TD$Y = 1*(TD$Y>0)
 
 #Testmodel
-rL1 = HmscRandomLevel(sData = TD$xycoords)
-rL2 = HmscRandomLevel(units = TD$studyDesign$sample)
-rL1 = setPriors(rL1, nfMax=2, nfMin=2)
-rL2 = setPriors(rL2, nfMax=2, nfMin=2)
+TD$rL1 = HmscRandomLevel(sData = TD$xycoords)
+TD$rL2 = HmscRandomLevel(units = TD$studyDesign$sample)
+TD$rL1 = setPriors(rL1, nfMax=2, nfMin=2)
+TD$rL2 = setPriors(rL2, nfMax=2, nfMin=2)
 TD$Tr = data.frame(TD$Tr)
 TD$Tr = cbind(TD$Tr, as.factor(c('A','B','B','A')))
 colnames(TD$Tr) = c('Intercept','T1','T2')
@@ -63,7 +63,7 @@ TD$m = Hmsc(Y=TD$Y,
          TrData=TD$Tr,
          TrFormula = ~T1 + T2,
          phyloTree=TD$phy,
-         ranLevels=list("sample"=rL2,"plot"=rL1),
+         ranLevels=list("sample"=TD$rL2,"plot"=TD$rL1),
          studyDesign = TD$studyDesign,
          distr=c('probit'))
 
