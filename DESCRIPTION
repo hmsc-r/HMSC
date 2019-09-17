@@ -14,7 +14,8 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1.9000
 Suggests: R.rsp,
-   testthat
+   testthat,
+   corrplot
 VignetteBuilder: R.rsp
 Additional_repositories: https://jarioksa.github.io/drat
 Depends:

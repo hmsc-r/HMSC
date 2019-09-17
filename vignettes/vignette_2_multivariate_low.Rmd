@@ -1,8 +1,8 @@
 ---
 title:  |
-  | HMSC-R 3.0: Getting started with HMSC-R: low-dimensional multivariate models
-author: "Gleb Tikhonov, Øystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen & Otso Ovaskainen"
-date: "8 June 2019"
+  | Hmsc-R 3.0: Getting started with HMSC-R: low-dimensional multivariate models
+author: "Gleb Tikhonov, Oystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen, Melinda M. J. de Jonge, Jari Oksanen & Otso Ovaskainen"
+date: "17 September 2019"
 output:
   pdf_document: default
   word_document: default
@@ -11,9 +11,9 @@ fig_caption: yes
 ---
 
 # Introduction
-The Hierarchical Modelling of Species Communities (HMSC) framework is a statistical framework for analysis of multivariate data, typically from species communities. We assume that the reader has already gone through the vignette "HMSC-R 3.0: Getting started with HMSC-R: univariate models". Here we continue by demonstrating how to get started with multivariate analyses. We consider here the low-dimensional case, i.e. the case where the number of species is small. The high-dimensional case of a species-rich community is considered in the next vignette "HMSC-R 3.0: Getting started with HMSC-R: high-dimensional multivariate models".
+The Hierarchical Modelling of Species Communities (HMSC) framework is a statistical framework for analysis of multivariate data, typically from species communities. We assume that the reader has already gone through the vignette "Hmsc-R 3.0: Getting started with HMSC-R: univariate models". Here we continue by demonstrating how to get started with multivariate analyses. We consider here the low-dimensional case, i.e. the case where the number of species is small. The high-dimensional case of a species-rich community is considered in the next vignette "Hmsc-R 3.0: Getting started with HMSC-R: high-dimensional multivariate models".
 
-To get HMSC in use, you need to first install it [https://github.com/hmsc-r/HMSC] and then load it.
+To get Hmsc-R in use, you need to first install it [https://github.com/hmsc-r/HMSC] and then load it.
 
 ```{r I, message = F}
 library(Hmsc)
