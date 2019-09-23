@@ -1,6 +1,6 @@
 ---
 title:  |
-  | Hmsc-R 3.0: Getting started with HMSC-R: low-dimensional multivariate models
+  | Hmsc 3.0: Getting started with Hmsc: low-dimensional multivariate models
 author: "Gleb Tikhonov, Oystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen, Melinda M. J. de Jonge, Jari Oksanen & Otso Ovaskainen"
 date: "17 September 2019"
 output:
@@ -11,7 +11,7 @@ fig_caption: yes
 ---
 
 # Introduction
-The Hierarchical Modelling of Species Communities (HMSC) framework is a statistical framework for analysis of multivariate data, typically from species communities. We assume that the reader has already gone through the vignette "Hmsc-R 3.0: Getting started with HMSC-R: univariate models". Here we continue by demonstrating how to get started with multivariate analyses. We consider here the low-dimensional case, i.e. the case where the number of species is small. The high-dimensional case of a species-rich community is considered in the next vignette "Hmsc-R 3.0: Getting started with HMSC-R: high-dimensional multivariate models".
+The Hierarchical Modelling of Species Communities (HMSC) framework is a statistical framework for analysis of multivariate data, typically from species communities. We assume that the reader has already gone through the vignette "Hmsc 3.0: Getting started with Hmsc: univariate models". Here we continue by demonstrating how to get started with multivariate analyses. We consider here the low-dimensional case, i.e. the case where the number of species is small. The high-dimensional case of a species-rich community is considered in the next vignette "Hmsc 3.0: Getting started with Hmsc: high-dimensional multivariate models".
 
 To get Hmsc-R in use, you need to first install it [https://github.com/hmsc-r/HMSC] and then load it.
 
@@ -30,7 +30,6 @@ As the first case study, we use HMSC to fit a multivariate linear model.
 For illustrative purposes, we use simulated data for which we know the parameter values.
 
 ```{r II}
-set.seed(1)
 n = 100
 x1 = rnorm(n)
 x2 = rnorm(n)
@@ -70,7 +69,8 @@ if (test.run){
    transient = 5
    verbose = 0
 } else {
-   #with this option, the vignette evaluates slow but it reproduces the results of the .pdf version
+   #with this option, the vignette evaluates slow but it reproduces the results of the 
+   #.pdf version
    thin = 10
    samples = 1000
    transient = 500*thin

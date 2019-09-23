@@ -1,6 +1,6 @@
 ---
 title: |
-  | Hmsc-R 3.0: Getting started with HMSC-R: univariate models
+  | Hmsc 3.0: Getting started with Hmsc: univariate models
 author: "Gleb Tikhonov, Oystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen, Melinda M. J. de Jonge, Jari Oksanen & Otso Ovaskainen"
 date: "17 September 2019"
 output:
@@ -75,7 +75,8 @@ if (test.run){
    transient = 5
    verbose = 5
 } else {
-   #with this option, the vignette evaluates slow but it reproduces the results of the .pdf version
+   #with this option, the vignette evaluates slow but it reproduces the results of the 
+   #.pdf version
    thin = 5
    samples = 1000
    transient = 500*thin

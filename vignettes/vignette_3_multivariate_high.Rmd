@@ -1,6 +1,6 @@
 ---
 title:  |
-  | Hmsc-R 3.0: Getting started with HMSC-R: high-dimensional multivariate models
+  | Hmsc 3.0: Getting started with Hmsc: high-dimensional multivariate models
 author: "Gleb Tikhonov, Oystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen, Melinda M. J. de Jonge, Jari Oksanen & Otso Ovaskainen"
 date: "17 September 2019"
 output:
@@ -133,7 +133,7 @@ We then choose the MCMC sampling parameters and fit the model. If the aim of the
 
 ```{r XII}
 nChains = 2
-test.run = FALSE
+test.run = TRUE
 if (test.run){
    #with this option, the vignette evaluates in ca. 10 minutes in a laptop
    thin = 1
@@ -230,7 +230,7 @@ The traits explain a substantial proportion of variation also in species abundan
 As we have `r ns` species and four species-specific parameters (one for each column of the design matrix), there are `r 4*ns` $\beta$ parameters in total. Thus it is more convenient to look at these as a figure rather than a vast table of numbers. In the function `plotBeta`, we use the option `plotTree = TRUE` to plot the phylogenetic tree next to the parameter estimates, thus 'mapping' the environmental responses onto the phylogeny.
 
 ```{r XVII, fig.height=5, fig.width=4, fig.cap="\\label{fig: XVII} Heatmap of species' environmental responses mapped onto the phylogeny"}
-postBeta = getPostEstimate(m, parName = "Mean")
+postBeta = getPostEstimate(m, parName = "Beta")
 plotBeta(m, post = postBeta, param = "Support",
          plotTree = TRUE, supportLevel = 0.95, split=.4, spNamesNumbers = c(F,F))
 ```
@@ -240,7 +240,7 @@ This figure contains a lot of information. First of all, there is strong posteri
 While the `Beta` parameters model species niches, the `Gamma` parameters model how species traits influence their niches. Let us next visualize these parameters.
 
 ```{r XVIII, fig.height=4, fig.width=5, fig.cap="\\label{fig: XVIII} Heatmap showing how species traits influence environmental responses"}
-postGamma = getPostEstimate(m, parName = "Mean")
+postGamma = getPostEstimate(m, parName = "Gamma")
 plotGamma(m, post=postGamma, param="Support", supportLevel = 0.95)
 ```
 
