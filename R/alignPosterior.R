@@ -40,12 +40,24 @@ alignPosterior=function(hM){
             } else
                s = rbind(s,abind(lapply(LambdaPostList, function(a) sign(LambdaPostMean[k,])*sign(a[k,]))))
          }
+         s[is.na(s)] = 0
          for(j in 1:length(cpL)){
             for(k in 1:nf){
                if(s[k,j]<0){
                   cpL[[j]]$Lambda[[r]][k,] = -cpL[[j]]$Lambda[[r]][k,]
                   cpL[[j]]$Eta[[r]][,k] = -cpL[[j]]$Eta[[r]][,k]
                }
+            }
+            if(nf < nfMax){
+               LambdaAddDim = dim(cpL[[j]]$Lambda[[r]])
+               LambdaAddDim[1] = nfMax-nf
+               cpL[[j]]$Lambda[[r]] = abind(cpL[[j]]$Lambda[[r]], array(0,LambdaAddDim), along=1)
+               cpL[[j]]$Psi[[r]] = abind(cpL[[j]]$Psi[[r]], array(0,LambdaAddDim), along=1)
+               DeltaAddDim = LambdaAddDim[-2]
+               cpL[[j]]$Delta[[r]] = abind(cpL[[j]]$Delta[[r]], array(1,DeltaAddDim), along=1)
+               cpL[[j]]$Eta[[r]] = abind(cpL[[j]]$Eta[[r]], matrix(0,nrow(cpL[[j]]$Eta[[r]]),nfMax-nf), along=2)
+               if(hM$rL[[r]]$sDim > 0)
+                  cpL[[j]]$Alpha[[r]] = abind(cpL[[j]]$Alpha[[r]], rep(0,nfMax-nf), along=1)
             }
          }
          hM$postList[[cInd]] = cpL
