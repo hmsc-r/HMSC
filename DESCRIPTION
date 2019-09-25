@@ -17,7 +17,6 @@ Suggests: R.rsp,
    testthat,
    corrplot
 VignetteBuilder: R.rsp
-Additional_repositories: https://jarioksa.github.io/drat
 Depends:
    R (>= 3.0.2),
    coda
