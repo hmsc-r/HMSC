@@ -8,8 +8,8 @@ Hierarchical Modelling of Species Communities (**Hmsc**) is a flexible framework
 The **Hmsc** package contains functions to fit JSDMs, analyze the output and to generate predictions with these JSDMs. The obligatory data for a HMSC analysis includes a matrix of species occurrences or abundances and a matrix of environmental covariates. Optionally, the user can include information species traits, phylogenetic relationships and information on the spatiotemporal context of the sampling design to account for dependencies among the sampling units. 
 
 ## Installation notes
-Currently the recommended way to install the **Hmsc** package is to use `install_github` function from the `devtools` package, available from CRAN.
 
+The latest version othe **Hmsc** package can be installed from github using `install_github` function from the **devtools** package, available from CRAN.
 The following lines should sucessfully install **Hmsc** to your **R** in most cases:
 
 ```R
@@ -17,6 +17,12 @@ install.packages("devtools") # if not yet installed
 library(devtools)
 install_github("hmsc-r/HMSC", build_opts = c("--no-resave-data", "--no-manual"))
 ```
+
+To install a specific tagged version of **Hmsc**, you must a `ref` argument. For instance, to install version 3.0-0, modify the githut installation line to:
+```r
+install_github("hmsc-r/HMSC", ref = "v3.0-0")
+```
+
 ## Getting started
 To get started with the package, we recommend to start with reading the package documentation which can be found by typing ```help('Hmsc-package')```, following the vignettes and reading the help pages for the `Hmsc`, `HmscRandomLevel` and `sampleMcmc` functions. The vignettes are available in the 'vignette' folder, or can be accessed from within **R** by typing e.g. `vignette(topic = "vignette_1_univariate", package = "Hmsc")`. To see a list of vignettes, type `vignette(package = "Hmsc")`.   
 
