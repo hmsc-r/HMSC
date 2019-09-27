@@ -3,29 +3,35 @@
 [![Build Status](https://travis-ci.org/hmsc-r/HMSC.svg?branch=master)](https://travis-ci.org/hmsc-r/HMSC)
 
 ## Description
-Hierarchical Modelling of Species Communities (`Hmsc`) is a flexible framework for Joint Species Distribution Modelling (JSDMs). The framework can be used to relate species occurrences or abundances to environmental covariates, species traits and phylogenetic relationships. JSDMs are a special case of species distribution models (SDMs) that take into account the multivariate nature of communities which allows us to estimate community level responses as well capture biotic interactions and the influence of missing covariates in residual species associations.
+Hierarchical Modelling of Species Communities (**Hmsc**) is a flexible framework for Joint Species Distribution Modelling (JSDMs). The framework can be used to relate species occurrences or abundances to environmental covariates, species traits and phylogenetic relationships. JSDMs are a special case of species distribution models (SDMs) that take into account the multivariate nature of communities which allows us to estimate community level responses as well capture biotic interactions and the influence of missing covariates in residual species associations.
 
-The `Hmsc` package contains functions to fit JSDMs, analyze the output and to generate predictions with these JSDMs. The obligatory data for a Hmsc analysis includes a matrix of species occurrences or abundances and a matrix of environmental covariates. Optionally, the user can include information species traits, phylogenetic relationships and information on the spatiotemporal context of the sampling design to account for dependencies among the sampling units. 
+The **Hmsc** package contains functions to fit JSDMs, analyze the output and to generate predictions with these JSDMs. The obligatory data for a HMSC analysis includes a matrix of species occurrences or abundances and a matrix of environmental covariates. Optionally, the user can include information species traits, phylogenetic relationships and information on the spatiotemporal context of the sampling design to account for dependencies among the sampling units. 
 
 ## Installation notes
-Currently the recommended way to install the `HMSC` package is to use `install_github` function from the `devtools` package, available from CRAN. Additionally, since `HMSC` is dependent on the `BayesLogit`package to support observation models for count data, and `BayesLogit` was temporary removed from CRAN, it is necessary to install it before installing `HMSC`.
 
-The following lines should sucessfully install Hmsc to your R in most cases:
+The latest version othe **Hmsc** package can be installed from github using `install_github` function from the **devtools** package, available from CRAN.
+The following lines should sucessfully install **Hmsc** to your **R** in most cases:
 
 ```R
+install.packages("devtools") # if not yet installed
 library(devtools)
-install_url('https://cran.r-project.org/src/contrib/Archive/BayesLogit/BayesLogit_0.6.tar.gz')
 install_github("hmsc-r/HMSC", build_opts = c("--no-resave-data", "--no-manual"))
 ```
+
+To install a specific tagged version of **Hmsc**, you must a `ref` argument. For instance, to install version 3.0-0, modify the githut installation line to:
+```r
+install_github("hmsc-r/HMSC", ref = "v3.0-0")
+```
+
 ## Getting started
-To get started with the package, we recommend to start with reading the package documentation which can be found by typing ```help('Hmsc-package')```, following the vignettes and reading the help pages for the `Hmsc`, `HmscRandomLevel` and `sampleMcmc` functions. The vignettes are available in the 'vignette' folder, or can be accessed from within R by typing e.g. `vignette(topic = "vignette_1_univariate", package = "Hmsc")`. To see a list of vignettes, type `vignette(package = "Hmsc")`.   
+To get started with the package, we recommend to start with reading the package documentation which can be found by typing ```help('Hmsc-package')```, following the vignettes and reading the help pages for the `Hmsc`, `HmscRandomLevel` and `sampleMcmc` functions. The vignettes are available in the 'vignette' folder, or can be accessed from within **R** by typing e.g. `vignette(topic = "vignette_1_univariate", package = "Hmsc")`. To see a list of vignettes, type `vignette(package = "Hmsc")`.   
 
 ## Documentation
-A good place to start for those interested in using the `Hmsc` package are the following papers: 
+A good place to start for those interested in using the **Hmsc** package are the following papers: 
 
 *Ovaskainen, O., Tikhonov, G., Norberg, A., Blanchet, F. G., Duan, L., Dunson, D., Roslin, T. and Abrego, N. 2017. How to make more out of community data? A conceptual framework and its implementation as models and software. Ecology Letters 20, 561-576 [https://doi.org/10.1111/ele.12757](https://doi.org/10.1111/ele.12757)*
 
-During the development of `Hmsc` several papers have been published describing the different components of the model. To learn more about these different components and Joint Species Distribution Modelling in general we recommend to read these articles. 
+During the development of **Hmsc** several papers have been published describing the different components of the model. To learn more about these different components and Joint Species Distribution Modelling in general we recommend to read these articles. 
 
 For spatial latent factors:
 
