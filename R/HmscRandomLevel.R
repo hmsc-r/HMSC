@@ -57,6 +57,7 @@ HmscRandomLevel = function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NUL
       rL$distMat = distMat
       rL$N = nrow(distMat)
       rL$pi = sort(rownames(distMat))
+      rL$spatialMethod = sMethod
       rL$sDim = Inf
    }
    if(!is.null(xData)){
