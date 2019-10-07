@@ -9,7 +9,7 @@ The **Hmsc** package contains functions to fit JSDMs, analyze the output and to 
 
 ## Installation notes
 
-The latest version othe **Hmsc** package can be installed from github using `install_github` function from the **devtools** package, available from CRAN.
+The latest version othe **Hmsc** package can be installed from GitHub using `install_github` function from the **devtools** package, available from CRAN.
 The following lines should sucessfully install **Hmsc** to your **R** in most cases:
 
 ```R
@@ -18,7 +18,7 @@ library(devtools)
 install_github("hmsc-r/HMSC", build_opts = c("--no-resave-data", "--no-manual"))
 ```
 
-To install a specific tagged version of **Hmsc**, you must a `ref` argument. For instance, to install version 3.0-0, modify the githut installation line to:
+To install a specific tagged version of **Hmsc**, you must add a `ref` argument. For instance, to install version 3.0-0, modify the GitHub installation line to:
 ```r
 install_github("hmsc-r/HMSC", ref = "v3.0-0")
 ```
