@@ -38,11 +38,12 @@
 #' preds = computePredictedValues(TD$m)
 #' MF = evaluateModelFit(hM=TD$m, predY=preds)
 #'
-#' # Evaluate model performance based on cross validation
+#' # Evaluate model performance based on cross validation: this will be slow
+#' \dontrun{
 #' partition = createPartition(TD$m, nfolds = 2)
 #' predsCV1 = computePredictedValues(TD$m, partition=partition)
 #' MF = evaluateModelFit(hM=TD$m, predY=predsCV1)
-#'
+#' }
 #' @importFrom stats cor median
 #' @importFrom pROC auc
 #' @importFrom abind abind
