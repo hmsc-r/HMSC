@@ -73,12 +73,12 @@ The exact number of samples to be recorded in order to get a proper estimate of 
   results.
 }
 \examples{
-# Record 100 posterior samples from a Hmsc object
+## Record 100 posterior samples from a Hmsc object
 m = sampleMcmc(TD$m, samples=100)
 
 \dontrun{
-# Record 1000 posterior samples while skipping 1 MCMC step between samples
-# from 3 chains after discarding the first 500 MCMC steps
+## Record 1000 posterior samples while skipping 1 MCMC step between samples
+## from 2 chains after discarding the first 500 MCMC steps
 m = sampleMcmc(TD$m, samples=1000, transient=500, thin=2, nChains=2, nParallel=1)
 }
 

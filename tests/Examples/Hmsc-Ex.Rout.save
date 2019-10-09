@@ -1111,7 +1111,7 @@ converged
 > 
 > ### ** Examples
 > 
-> # Record 100 posterior samples from a Hmsc object
+> ## Record 100 posterior samples from a Hmsc object
 > m = sampleMcmc(TD$m, samples=100)
 [1] "Setting updater$Gamma2=FALSE due to specified phylogeny matrix"
 [1] "Chain 1, iteration 1 of 100, (sampling)"
@@ -1216,8 +1216,8 @@ converged
 [1] "Chain 1, iteration 100 of 100, (sampling)"
 > 
 > ## Not run: 
-> ##D # Record 1000 posterior samples while skipping 1 MCMC step between samples
-> ##D # from 3 chains after discarding the first 500 MCMC steps
+> ##D ## Record 1000 posterior samples while skipping 1 MCMC step between samples
+> ##D ## from 2 chains after discarding the first 500 MCMC steps
 > ##D m = sampleMcmc(TD$m, samples=1000, transient=500, thin=2, nChains=2, nParallel=1)
 > ## End(Not run)
 > 
@@ -1252,7 +1252,7 @@ converged
 > cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  42.89 0.533 44.263 0.009 0.013 
+Time elapsed:  42.355 0.583 43.336 0.007 0.011 
 > grDevices::dev.off()
 null device 
           1 
