@@ -244,7 +244,7 @@ converged
 > 
 > ### ** Examples
 > 
-> #Creating knots for some random xy data
+> #Creating knots for some 2 dimensional spatial data
 > n = 100
 > xycoords = matrix(runif(2*n),ncol=2)
 > xyKnots = constructKnots(xycoords,knotDist = 0.2, minKnotDist = 0.5)
@@ -318,6 +318,7 @@ Setting direction: controls < cases
 > partition = createPartition(TD$m, nfolds = 2)
 > predsCV1 = computePredictedValues(TD$m, partition=partition)
 [1] "Cross-validation, fold 1 out of 2"
+[1] "Setting updater$Gamma2=FALSE due to specified phylogeny matrix"
 [1] "Computing chain 1"
 [1] "Chain 1, iteration 1 of 150, (transient)"
 [1] "Chain 1, iteration 2 of 150, (transient)"
@@ -621,6 +622,7 @@ Setting direction: controls < cases
 [1] "Chain 2, iteration 149 of 150, (sampling)"
 [1] "Chain 2, iteration 150 of 150, (sampling)"
 [1] "Cross-validation, fold 2 out of 2"
+[1] "Setting updater$Gamma2=FALSE due to specified phylogeny matrix"
 [1] "Computing chain 1"
 [1] "Chain 1, iteration 1 of 150, (transient)"
 [1] "Chain 1, iteration 2 of 150, (transient)"
@@ -1111,6 +1113,7 @@ converged
 > 
 > # Record 100 posterior samples from a Hmsc object
 > m = sampleMcmc(TD$m, samples=100)
+[1] "Setting updater$Gamma2=FALSE due to specified phylogeny matrix"
 [1] "Chain 1, iteration 1 of 100, (sampling)"
 [1] "Chain 1, iteration 2 of 100, (sampling)"
 [1] "Chain 1, iteration 3 of 100, (sampling)"
@@ -1249,7 +1252,7 @@ converged
 > cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  45.594 0.341 46.011 0.008 0.01 
+Time elapsed:  42.89 0.533 44.263 0.009 0.013 
 > grDevices::dev.off()
 null device 
           1 
