@@ -4,6 +4,8 @@
 #'
 #' @param hM a fitted \code{Hmsc} model object
 #'
+#' @return an \code{Hmsc} model object that is identical to the input except the posterior being aligned
+#'
 #' @examples
 #' # Align the posterior for a previously fitted HMSC model
 #' m = alignPosterior(TD$m)

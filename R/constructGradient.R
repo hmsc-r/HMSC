@@ -7,7 +7,7 @@
 #' @param non.focalVariables list giving assumptions on how non-focal variables co-vary with the focal variable
 #' @param ngrid number of points along the gradient (for continuous focal variables)
 #'
-#'#' @return a named list with slots \code{XDataNew}, \code{studyDesignNew} and \code{rLNew}
+#' @return a named list with slots \code{XDataNew}, \code{studyDesignNew} and \code{rLNew}
 #'
 #' @details
 #' \code{non.focalVariables} is a list, of which each element is on the form variable=list(type,value),

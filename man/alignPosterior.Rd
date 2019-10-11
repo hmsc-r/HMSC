@@ -9,6 +9,9 @@ alignPosterior(hM)
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}
 }
+\value{
+an \code{Hmsc} model object that is identical to the input except the posterior being aligned
+}
 \description{
 Aligns posterior in terms of variables susceptible to label switching
 }

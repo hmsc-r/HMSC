@@ -36,6 +36,9 @@ computePredictedValues(hM, partition = NULL, partition.sp = NULL,
 
 \item{verbose}{the interval between MCMC steps printed to the console}
 }
+\value{
+an array of model predictions, made for each posterior sample
+}
 \description{
 Computes predicted values from the fitted \code{Hmsc} model
 }

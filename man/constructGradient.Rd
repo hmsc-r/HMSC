@@ -14,9 +14,10 @@ constructGradient(hM, focalVariable, non.focalVariables = list(),
 
 \item{non.focalVariables}{list giving assumptions on how non-focal variables co-vary with the focal variable}
 
-\item{ngrid}{number of points along the gradient (for continuous focal variables)
-
-#' @return a named list with slots \code{XDataNew}, \code{studyDesignNew} and \code{rLNew}}
+\item{ngrid}{number of points along the gradient (for continuous focal variables)}
+}
+\value{
+a named list with slots \code{XDataNew}, \code{studyDesignNew} and \code{rLNew}
 }
 \description{
 Constructs an environmental gradient over one of the variables included in \code{XData}

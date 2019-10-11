@@ -5,9 +5,10 @@
 #' @param hM a fitted \code{Hmsc} model object
 #' @param dataParList list of data parameters (see \code{\link{computeDataParameters}})
 #'
+#' @return A named list containing the Hmsc model parameters
+#'
 #' @importFrom stats rgamma rnorm
 #' @importFrom mvtnorm rmvnorm
-## is the next a typo of the previous?
 #' @importFrom MASS mvrnorm
 #' @importFrom MCMCpack riwish
 

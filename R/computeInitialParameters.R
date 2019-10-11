@@ -5,6 +5,8 @@
 #' @param hM a fitted \code{Hmsc} model object
 #' @param initPar initial parameter values
 #'
+#' @return a list of Hmsc model parameters
+#'
 #' @importFrom stats glm.fit lm.fit coef rgamma rnorm binomial poisson
 #'    cov runif
 #' @importFrom abind abind

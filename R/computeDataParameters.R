@@ -4,6 +4,8 @@
 #'
 #' @param hM a fitted \code{Hmsc} model object
 #'
+#' @return a list including pre-computed matrix inverses and determinants (for phylogenetic and spatial random effects) needed in MCMC sampling
+#'
 #' @importFrom stats dist
 #' @importFrom FNN get.knn
 #' @importFrom Matrix .sparseDiagonal t solve

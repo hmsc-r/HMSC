@@ -11,6 +11,9 @@ computeInitialParameters(hM, initPar)
 
 \item{initPar}{initial parameter values}
 }
+\value{
+a list of Hmsc model parameters
+}
 \description{
 Computes initial parameter values before the sampling starts
 }

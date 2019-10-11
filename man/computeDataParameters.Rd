@@ -9,6 +9,9 @@ computeDataParameters(hM)
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}
 }
+\value{
+a list including pre-computed matrix inverses and determinants (for phylogenetic and spatial random effects) needed in MCMC sampling
+}
 \description{
 Computes initial values before the sampling starts
 }

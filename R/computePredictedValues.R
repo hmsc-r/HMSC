@@ -16,6 +16,8 @@
 #' @param updater a named list, specifying which conditional updaters should be ommitted
 #' @param verbose the interval between MCMC steps printed to the console
 #'
+#' @return an array of model predictions, made for each posterior sample
+#'
 #' @details If the option \code{partition} is not used, the posterior predictive distribution is based on the model
 #' fitted to the full data. If the option \code{partition} is used but \code{partition.sp} is not used, the posterior predictive distribution
 #' is based on cross-validation over the sampling units. If \code{partition.sp} is additionally used, then, when predictions are made for

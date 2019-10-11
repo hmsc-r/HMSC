@@ -6,6 +6,8 @@
 #' @param nfolds number of cross-validation folds
 #' @param column name or index of the column in the \code{studyDesign} matrix, corresponding to the level for which units are splitted into folds
 #'
+#' @return a vector describing the fold of each sampling unit
+#'
 #' @examples
 #' # Create 3 folds for a HMSC object
 #' partition = createPartition(TD$m, nfolds = 3)

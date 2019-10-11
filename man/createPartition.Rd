@@ -13,6 +13,9 @@ createPartition(hM, nfolds = 10, column = NULL)
 
 \item{column}{name or index of the column in the \code{studyDesign} matrix, corresponding to the level for which units are splitted into folds}
 }
+\value{
+a vector describing the fold of each sampling unit
+}
 \description{
 Constructs a partition vector given the number of folds and column of study design
 }

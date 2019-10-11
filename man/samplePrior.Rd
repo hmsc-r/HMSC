@@ -11,6 +11,9 @@ samplePrior(hM, dataParList = NULL)
 
 \item{dataParList}{list of data parameters (see \code{\link{computeDataParameters}})}
 }
+\value{
+A named list containing the Hmsc model parameters
+}
 \description{
 Samples the parameter vector from prior
 }
