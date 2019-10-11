@@ -1,14 +1,18 @@
 Package: Hmsc
 Title: Hierarchical Model of Species Communities
 Type: Package
-Version: 3.0-1
-Author: Gleb Tikhonov, Otso Ovaskainen, Jari Oksanen, Melinda de Jonge,
-   Oystein Opedal, Tad Dallas
-Maintainer: Otso Ovaskainen <otso.ovaskainen@helsinki.fi>
-Description: Hierarchical Modelling of Species Communities ('HMSC') is 
+Version: 3.0-2
+Authors@R: c(person(given = "Gleb", family="Tikhonov", role="aut"),
+   person(given="Otso", family="Ovaskainen",
+      email="otso.ovaskainen@helsinki.fi", role=c("aut","cre")),
+   person(given="Jari", family="Oksanen", role="aut"),
+   person(given="Melinda", family=c("de", "Jonge"), role="aut"),
+   person(given="Oystein", family="Opedal", role="aut"),
+   person(given="Tad", family="Dallas", role="aut"))
+Description: Hierarchical Modelling of Species Communities (HMSC) is
    a model-based approach for analyzing community ecological data. 
-   This package implements it in the Bayesian framework with Gibbs MCMC
-   sampling.
+   This package implements it in the Bayesian framework with Gibbs
+   Markov chain Monte Carlo (MCMC) sampling.
 License: GPL-3 | file LICENSE
 URL: https://www.helsinki.fi/en/researchgroups/metapopulation-research-centre/hmsc
 BugReports: https://github.com/hmsc-r/HMSC/issues
