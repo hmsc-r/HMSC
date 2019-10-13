@@ -18,9 +18,10 @@ library(devtools)
 install_github("hmsc-r/HMSC", build_opts = c("--no-resave-data", "--no-manual"))
 ```
 
-To install a specific tagged version of **Hmsc**, you must add a `ref` argument. For instance, to install version 3.0-0, modify the GitHub installation line to:
+To install a specific tagged version of **Hmsc**, you must add a `ref` argument. For instance, to install the 
+first CRAN release version 3.0-2, modify the GitHub installation line to:
 ```r
-install_github("hmsc-r/HMSC", ref = "v3.0-0")
+install_github("hmsc-r/HMSC", ref = "v3.0-2")
 ```
 
 ## Getting started
