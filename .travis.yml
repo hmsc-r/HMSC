@@ -16,12 +16,12 @@ addons:
     packages: libmagick++-dev
 
 r_packages:
+  - BayesLogit
   - magick
   - animation
   - phytools
 
 r_binary_packages:
-  - BayesLogit
   - coda
   - testthat
   - R.rsp
