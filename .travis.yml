@@ -21,6 +21,7 @@ r_packages:
   - phytools
 
 r_binary_packages:
+  - BayesLogit
   - coda
   - testthat
   - R.rsp
@@ -38,9 +39,6 @@ r_binary_packages:
   - pROC
   - statmod
   - truncnorm
-  
-r_github_packages:
-  - jarioksa/BayesLogit-1
 
 warnings_are_errors: false
 
