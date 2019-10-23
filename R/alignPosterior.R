@@ -51,11 +51,13 @@ alignPosterior=function(hM){
                }
             }
             if(nf < nfMax){
+               print(dim(cpL[[j]]$Delta[[r]]))
                LambdaAddDim = dim(cpL[[j]]$Lambda[[r]])
                LambdaAddDim[1] = nfMax-nf
                cpL[[j]]$Lambda[[r]] = abind(cpL[[j]]$Lambda[[r]], array(0,LambdaAddDim), along=1)
                cpL[[j]]$Psi[[r]] = abind(cpL[[j]]$Psi[[r]], array(0,LambdaAddDim), along=1)
-               DeltaAddDim = LambdaAddDim[-2]
+               DeltaAddDim = dim(cpL[[j]]$Delta[[r]])
+               DeltaAddDim[1] = nfMax-nf
                cpL[[j]]$Delta[[r]] = abind(cpL[[j]]$Delta[[r]], array(1,DeltaAddDim), along=1)
                cpL[[j]]$Eta[[r]] = abind(cpL[[j]]$Eta[[r]], matrix(0,nrow(cpL[[j]]$Eta[[r]]),nfMax-nf), along=2)
                if(hM$rL[[r]]$sDim > 0)
