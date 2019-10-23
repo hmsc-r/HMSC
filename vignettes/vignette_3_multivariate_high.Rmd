@@ -2,7 +2,7 @@
 title:  |
   | Hmsc 3.0: Getting started with Hmsc: high-dimensional multivariate models
 author: "Gleb Tikhonov, Oystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen, Melinda M. J. de Jonge, Jari Oksanen & Otso Ovaskainen"
-date: "17 September 2019"
+date: "21 October 2019"
 output:
   pdf_document: default
   word_document: default
@@ -11,18 +11,22 @@ fig_caption: yes
 ---
 
 # Introduction
-The Hierarchical Modelling of Species Communities (HMSC) framework is a statistical framework for analysis of multivariate data, typically from species communities. We assume that the reader has already gone through the vignettes "HMSC-R 3.0: Getting started with HMSC-R: univariate models" and "Hmsc-R 3.0: Getting started with Hmsc-R: low-dimensional multivariate models". Here we continue with high-dimensional multivariate models, i.e. models for species-rich communities consisting of many species.
+The Hierarchical Modelling of Species Communities (HMSC) framework is a statistical framework for analysis of multivariate data, typically from species communities. We assume that the reader has already gone through the vignettes "Hmsc 3.0: Getting started with Hmsc: univariate models" and "Hmsc 3.0: Getting started with Hmsc: low-dimensional multivariate models". Here we continue with high-dimensional multivariate models, i.e. models for species-rich communities consisting of many species.
 
-The main difference between the low- and high-dimensional cases is that only the latter truly benefits from the hierarchical structure of HMSC. By the hierarchical structure we refer to the species responses to environmental covariates being modelled jointly, and as a function of species traits and phylogenetic relationships. In this context, each species can be considered as one data point. Thus, if there are only a handful of species, there is insufficient data to accurately model the influence of traits and phylogenies. In contrast, if there are many (say, several tens) of species, accounting for traits and phylogenies becomes meaningful.
+The main difference between the low- and high-dimensional cases is that only the latter truly benefits from the hierarchical structure of `Hmsc`. By the hierarchical structure we refer to the species responses to environmental covariates being modelled jointly, and as a function of species traits and phylogenetic relationships. In this context, each species can be considered as one data point. Thus, if there are only a handful of species, there is insufficient data to accurately model the influence of traits and phylogenies. In contrast, if there are many (say, several tens) of species, accounting for traits and phylogenies becomes meaningful.
 
-To get Hmsc-R in use, you need to first install it [https://github.com/hmsc-r/HMSC] and then load it.
+To get `Hmsc` in use, you need to first install it [https://github.com/hmsc-r/HMSC] and then load it.
 
-```{r echo=FALSE}
+```{r echo=FALSE, message = F}
 library(knitr)
+library(ape)
+library(MASS)
+library(fields)
 ```
 
 ```{r I, message = F}
 library(Hmsc)
+library(parallel)
 library(corrplot)
 set.seed(1)
 ```
@@ -34,9 +38,9 @@ We also loaded the `corrplot` package which will be used for plotting, and we se
 ## Simulating phylogeny and species traits
 As an example, we will consider a community of 50 species. To bring an evolutionary perspective to our analyses, we start by simulating a phylogeny describing how the species have evolved from their common ancestor. We simulate a phylogeny with the `rcoal` function of the `ape` package.
 
-```{r II, fig.height=5, fig.width=4, fig.cap="\\label{fig: II} Simulated phylogeny of 50 species"}
+```{r II, fig.height=5, fig.width=4, fig.cap="\\label{fig: I} Simulated phylogeny of 50 species"}
 ns = 50
-phy = rcoal(n=ns, tip.label = sprintf('species_%.3d',1:ns), br = "coalescent")
+phy = ape::rcoal(n=ns, tip.label = sprintf('species_%.3d',1:ns), br = "coalescent")
 plot(phy, show.tip.label = FALSE, no.margin = TRUE)
 ```
 
@@ -58,7 +62,7 @@ traits = as.data.frame(traits)
 
 We next visualize the trait distributions by plotting them next to the phylogenetic tree.
 
-```{r V, fig.height=6, fig.width=6, fig.cap="\\label{fig: I} Phylogenetic patterns of species' trait values"}
+```{r IV, fig.height=6, fig.width=6, fig.cap="\\label{fig: II} Phylogenetic patterns of species' trait values"}
 par(fig = c(0,0.6,0,0.8), mar=c(6,0,2,0))
 plot(phy, show.tip.label = FALSE)
 par(fig = c(0.6,0.9,0.025,0.775), mar=c(6,0,2,0), new=T)
@@ -69,12 +73,12 @@ text(x=1.1, y=0.72, srt = 90,  "H", cex=0.9, pos = 4)
 text(x=1.4, y=0.72, srt = 90,  "T", cex=0.9, pos = 4)
 ```
 
-As expected, both traits exhibit a clear phylogenetic signal, i.e. related species show similar trait values.
+As expected, both traits exhibit a clear phylogenetic signal, i.e. related species have similar trait values.
 
 ## Simulating environmental and species data
 Next, we simulate the environmental and species data. With respect to the environmental conditions, we assume that there is variation in habitat type and in climatic conditions. Concerning habitat, we assume that the sampling units are located either in open habitats or in forested habitats. Concerning climate, we assume that the sampling units differ in their thermal conditions, which we characterize by a continuous covariate.
 
-```{r VI}
+```{r V}
 n = 200
 habitat = factor(sample(x = c("forest","open"), size = n, replace=TRUE))
 climate = rnorm(n)
@@ -83,7 +87,7 @@ climate = rnorm(n)
 The next step is to define the species niches, i.e. how the species abundances depend on the match between their traits and the environmental conditions. Below, we assume that the trait 'habitat use' measures the species' preference for forests, so that for forest habitats we add this trait value to the linear predictor whereas for open habitats we subtract it. We further add the term $-(C_i-T_j)^2/4$ where $C_i$ is the climatic condition at location $i$ and $T_j$ is the thermal optimum of the species $j$. This makes the linear predictor and hence species abundances the largest when the species thermal optimum matches with the climatic conditions. We can write these choices as the equation  $E[L_{ij}]=H_j F_i - H_j (1-F_i)-(C_i-T_j)^2/4$. Here $E[L_{ij}]$ is the expected value of the linear predictor, $H_j$ is the habitat-use trait of the species $j$, $F_i=1$ if location $i$ is located in a forest and $F_i=0$ if it is located in an open area. To see how this equation is implemented below, we note that 
 $E[L_{ij}]=[-T_j^2/4-H_j ]+[2 H_j] F_i + [T_j/2]C_i+[-1/4]C_i^2$. Note that we have also added some random noise to the species niches $\beta$ so that they are not fully determined by the traits.
 
-```{r VII}
+```{r VI}
 nc = 4
 mu = matrix(0,nrow=nc,ncol=ns)
 #expected niche of each species related to the "covariate" intercept
@@ -104,7 +108,7 @@ Finally, to generate the species data, we need to decide about the link function
 
 To make the species data interpretable with respect to the phylogenetic and trait information, we associate the data matrix `Y` with the species names.
 
-```{r X}
+```{r VII}
 Y = L + mvrnorm(n=n, mu=rep(0,ns), Sigma=diag(ns))
 colnames(Y) = spnames
 ```
@@ -113,14 +117,15 @@ colnames(Y) = spnames
 
 We are now ready to analyse the data with HMSC. In this section, we consider the "correct" model for which the assumptions are exactly in line with how we generated the data. Let us note in passing that with real data, the model will always be to some extent misspecified as the underlying mechanisms are not known. In the next sections, we will examine the influence of model misspecification by examining how the results of the analyses change if we e.g. fail to account for some of the traits or environmental covariates.
 
-To define a HMSC model that best corresponds to how the data were simulated, we include as fixed effects the categorical variable habitat type and the continuous covariate climate. To allow for the possibility of an intermediate thermal optimum, we also include the squared effect of climate. As species traits, we include habitat use (H) and thermal optimum (T). We also include the phylogenetic relationships among the species to estimate the strength of the phylogenetic signal in the data. We thus construct the HMSC model as
+To define a HMSC model that best corresponds to how the data were simulated, we include as fixed effects the categorical variable habitat type and the continuous covariate climate. To allow for the possibility of an intermediate thermal optimum, we also include the squared effect of climate. As species traits, we include habitat use (H) and thermal optimum (T). We also include the phylogenetic relationships among the species to estimate the strength of the phylogenetic signal in the data. We thus construct the `Hmsc` model as
 
-```{r XI}
+```{r VIII}
 XData = data.frame(climate = climate, habitat = habitat)
 XFormula = ~habitat + poly(climate,degree = 2,raw = TRUE)
 TrFormula = ~habitat.use + thermal.optimum
 studyDesign = data.frame(sample = sprintf('sample_%.3d',1:n))
 rL = HmscRandomLevel(units = studyDesign$sample)
+rL$nfMax = 15
 m = Hmsc(Y = Y, XData = XData, XFormula = XFormula,
          TrData = traits, TrFormula = TrFormula,
          phyloTree = phy,
@@ -131,14 +136,14 @@ In the above model, we included a random effect at the sampling unit level. In t
 
 We then choose the MCMC sampling parameters and fit the model. If the aim of the reader is to run through the markdown behind the vignette fast to see how the model objects are constructed and how the functions are called, we recommend running minimal amount of MCMC sampling, which can be obtained by setting `test.run = TRUE`. If the aim is to replicate the results that are given in the pdf version of the vignette, the user should increase the amount of MCMC sampling, e.g. by setting `test.run = FALSE`.
 
-```{r XII}
+```{r IX}
 nChains = 2
 test.run = TRUE
 if (test.run){
    #with this option, the vignette evaluates in ca. 10 minutes in a laptop
    thin = 1
-   samples = 1000
-   transient = 500
+   samples = 100
+   transient = 50
 } else {
    #with this option, the vignette evaluates in ca. 2 hrs in a laptop
    thin = 10
@@ -147,14 +152,14 @@ if (test.run){
 }
 verbose = 0
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
-                    nChains = nChains, verbose = verbose)
+                    nChains = nChains, nParallel = nChains, verbose = verbose)
 ```
 
 ## MCMC convergence
 
 We evaluate MCMC convergence in terms of four kinds of parameters that we are especially interested in: the species niches `Beta`, the influence of traits on species niches `Gamma`, residual species associations `Omega`, and the strength of phylogenetic signal `rho`. As there are `r ns` species, the matrix `Omega` is a `r ns` x `r ns` matrix with `r ns*ns` elements. To avoid excessive computational times, we evaluate MCMC convergence for `Omega` only for a subsample of 100 randomly selected species pairs.
 
-```{r XIII, fig.height=7, fig.width=6, fig.cap="\\label{fig: XIII} Histograms of effective sample sizes and potential scale reduction factors (psrf) for Beta, Gamma, and Omega parameters"}
+```{r X, fig.height=7, fig.width=6, fig.cap="\\label{fig: III} Histograms of effective sample sizes and potential scale reduction factors (psrf) for Beta, Gamma, and Omega parameters"}
 mpost = convertToCodaObject(m)
 par(mfrow=c(3,2))
 ess.beta = effectiveSize(mpost$Beta)
@@ -186,7 +191,7 @@ The convergence diagnostics suggest reasonably good MCMC convergence, as most po
 
 With normally distributed data, we measure the explanatory power of the model by $R^2$.
 
-```{r XIV, fig.height=4, fig.width=4, fig.cap="\\label{fig: XIV} Histogram of species-specific explanatory r2 values"}
+```{r XI, fig.height=4, fig.width=4, fig.cap="\\label{fig: IV} Histogram of species-specific explanatory r2 values"}
 preds = computePredictedValues(m)
 MF = evaluateModelFit(hM=m, predY=preds)
 hist(MF$R2, xlim = c(0,1), main=paste0("Mean = ", round(mean(MF$R2),2)))
@@ -196,7 +201,7 @@ We observe that the explanatory power is relatively high for all species, which 
 
 The explained variation can be partitioned into components related to the fixed and the random effects. Before doing so, let us have a look at the design matrix `X` of the model.
 
-```{r XV}
+```{r XII}
 head(m$X)
 ```
 
@@ -205,7 +210,7 @@ The design matrix `X` has been derived from `XData` and `XFormula` when construc
 When performing a variance partitioning, the user can group the fixed effects (i.e., the columns of the design matrix) in any way that works best for presenting the results. It is generally recommended to group variables related to the same theme, as then the variance component accounts also for co-variation within the group, whereas co-variation among groups is ignored in the way variance partitioning is computed in HMSC. Here we wish to show separately the influences of habitat and climate. We call habitat group 1, and climate group 2. The column 2 of the design matrix belongs to group 1, so we define `group[2]=1`.
 The columns 3 and 4 of the design matrix belongs to group 2, so we define `group[3]=2` and `group[4]=2`. The intercept does not have any variation, and thus it will not contribute to the variance partitioning. Thus we may place it e.g. to group 1 as `group[1]=1`.
 
-```{r XVI, fig.height=5, fig.width=7, fig.cap="\\label{fig: XVI} Variance partitioning for each of 50 species"}
+```{r XIII, fig.height=5, fig.width=7, fig.cap="\\label{fig: V} Variance partitioning for each of 50 species"}
 VP = computeVariancePartitioning(m, group = c(1,1,2,2), groupnames = c("habitat","climate"))
 plotVariancePartitioning(m, VP = VP)
 ```
@@ -214,13 +219,13 @@ We observe that both components of environmental variation (climate and habitat)
 
 Let us then ask how much the traits explain out of the variation among the species in their responses to environmental covariates.
 
-```{r}
+```{r XIV}
 kable(VP$R2T$Beta)
 ```
 
 The traits explain a substantial proportion of the variation in the species niches. This is because we have included in the HMSC model those traits that truly matter in how species respond to the environmental variation. We next ask how the influence of traits on species niches propagates into the influence of traits on species abundances.
 
-```{r}
+```{r XV}
 VP$R2T$Y
 ```
 
@@ -229,7 +234,7 @@ The traits explain a substantial proportion of variation also in species abundan
 ## Parameter estimates
 As we have `r ns` species and four species-specific parameters (one for each column of the design matrix), there are `r 4*ns` $\beta$ parameters in total. Thus it is more convenient to look at these as a figure rather than a vast table of numbers. In the function `plotBeta`, we use the option `plotTree = TRUE` to plot the phylogenetic tree next to the parameter estimates, thus 'mapping' the environmental responses onto the phylogeny.
 
-```{r XVII, fig.height=5, fig.width=4, fig.cap="\\label{fig: XVII} Heatmap of species' environmental responses mapped onto the phylogeny"}
+```{r XVI, fig.height=5, fig.width=4, fig.cap="\\label{fig: VI} Heatmap of species' environmental responses mapped onto the phylogeny"}
 postBeta = getPostEstimate(m, parName = "Beta")
 plotBeta(m, post = postBeta, param = "Support",
          plotTree = TRUE, supportLevel = 0.95, split=.4, spNamesNumbers = c(F,F))
@@ -239,7 +244,7 @@ This figure contains a lot of information. First of all, there is strong posteri
 
 While the `Beta` parameters model species niches, the `Gamma` parameters model how species traits influence their niches. Let us next visualize these parameters.
 
-```{r XVIII, fig.height=4, fig.width=5, fig.cap="\\label{fig: XVIII} Heatmap showing how species traits influence environmental responses"}
+```{r XVII, fig.height=4, fig.width=5, fig.cap="\\label{fig: VII} Heatmap showing how species traits influence environmental responses"}
 postGamma = getPostEstimate(m, parName = "Gamma")
 plotGamma(m, post=postGamma, param="Support", supportLevel = 0.95)
 ```
@@ -248,7 +253,7 @@ In this figure, the rows correspond to the species traits (more precisely, the c
 
 Let us next visualize the estimated residual associations among the species.
 
-```{r XIX, fig.height=5, fig.width=5, fig.cap="\\label{fig: XIX} Heatmap showing species residual associations"}
+```{r XVIII, fig.height=5, fig.width=5, fig.cap="\\label{fig: VIII} Heatmap showing species residual associations"}
 OmegaCor = computeAssociations(m)
 supportLevel = 0.95
 toPlot = ((OmegaCor[[1]]$support>supportLevel) 
@@ -263,18 +268,18 @@ The fact that there are no associations with high statistical support is in line
 
 We finally look at the strength of the phylogenetic signal that was estimated from the data.
 
-```{r XXII}
+```{r XIX}
 summary(mpost$Rho)
 ```
 
-We note that the phylogenetic signal parameter $\rho$ of HMSC does not ask whether the species traits are correlated with the phylogeny, a question that is often in the focus of phylogenetic comparative analyses. Instead, the phylogenetic signal parameter $\rho$ measures whether the species niches (i.e., their responses to the environmental covariates, as measured by the $\beta$ parameters) show phylogenetic correlations. Furthermore, this is evaluated after accounting for the influence of species traits on species niches (as modelled by the $\gamma$ parameters). We do not see strong evidence for phylogenetic signal, as the 95%CI of $\rho$ includes zero. This is consistent with how we generated the data, because we propagated the influence of phylogeny solely through those species traits that we included in the HMSC model.
+We note that the phylogenetic signal parameter $\rho$ of `Hmsc` does not ask whether the species traits are correlated with the phylogeny, a question that is often in the focus of phylogenetic comparative analyses. Instead, the phylogenetic signal parameter $\rho$ measures whether the species niches (i.e., their responses to the environmental covariates, as measured by the $\beta$ parameters) show phylogenetic correlations. Furthermore, this is evaluated after accounting for the influence of species traits on species niches (as modelled by the $\gamma$ parameters). We do not see strong evidence for phylogenetic signal, as the 95%CI of $\rho$ includes zero. This is consistent with how we generated the data, because we propagated the influence of phylogeny solely through those species traits that we included in the HMSC model.
 
 ## Plotting variation over environmental gradients
 
 The values of the primary parameters `Beta` and `Gamma` can sometimes be difficult to interpret, especially if there are categorical traits or environmental covariates in which case their effects are coded through dummy variables. One alternative for visualizing the results is to plot how the community changes over some environmental gradient of interest. This can be done in HMSC by constructing environmental gradients with the function `constructGradient`, then predicting communities over those gradients by the function `predict`, and finally using `plotGradient`to visualize the predicted variation. We consider first a climatic gradient.
 
 
-```{r XXIII}
+```{r XX}
 Gradient = constructGradient(m,focalVariable = "climate",
                              non.focalVariables = list("habitat"=list(3,"open")))
 Gradient$XDataNew
@@ -282,7 +287,7 @@ Gradient$XDataNew
 
 As `climate` is a continuous covariate, the constructed gradient involves a grid of its values ranging from the smallest to the largest value observed in the data. As we will make predictions of species communities, we need to assume values for all explanatory variables, not only to the focal one. We have set here the value of the non-focal variable habitat to open habitat, and we thus imagine that we sample different parts of the climatic gradient solely in open habitats. We then generate predictions for this community, and plot them over the environmental gradient.  
 
-```{r XXIV, fig.height=4, fig.width=5, fig.cap="\\label{fig: XXIV} Effect of climate on total abundance"}
+```{r XXI, fig.height=4, fig.width=5, fig.cap="\\label{fig: IX} Effect of climate on total abundance"}
 predY = predict(m, XData=Gradient$XDataNew, studyDesign=Gradient$studyDesignNew, 
                 ranLevels=Gradient$rLNew, expected=TRUE)
 plotGradient(m, Gradient, pred=predY, measure="S", showData = TRUE)
@@ -292,13 +297,13 @@ We set `measure="S"` to plot the summed abundance over all species, i.e. the row
 
 We can visualize the same predictions for individual species by setting `measure="Y"` and by using `index` to select the species to be visualized (as ordered in the matrix `m$Y`).
 
-```{r XXV, fig.height=4, fig.width=5, fig.cap="\\label{fig: XXV} Effect of climate on the abundance of species 1"}
+```{r XXII, fig.height=4, fig.width=5, fig.cap="\\label{fig: X} Effect of climate on the abundance of species 1"}
 plotGradient(m, Gradient, pred=predY, measure="Y", index = 1, showData = TRUE)
 ```
 
 This figure shows that `species_089` is most abundant under relatively cold climates. Finally, by selecting `measure="T"` we can visualize how community-weighted mean trait values behave over the environmental gradient. Now `index` selects the trait (as ordered in the matrix `m$Tr`).
 
-```{r XXVI, fig.height=4, fig.width=5, fig.cap="\\label{fig: XXVI} Effect of climate on community-weighted mean thermal optimum"}
+```{r XXIII, fig.height=4, fig.width=5, fig.cap="\\label{fig: XI} Effect of climate on community-weighted mean thermal optimum"}
 plotGradient(m, Gradient, pred=predY, measure="T", index = 3, showData = TRUE)
 ```
 
@@ -306,7 +311,7 @@ This figure shows that, as expected, the community-weighted mean of thermal opti
 
 Let us then construct an environmental gradient over the habitat types.
 
-```{r XXVII}
+```{r XXIV}
 Gradient = constructGradient(m,focalVariable = "habitat",
                              non.focalVariables = list("climate"=list(1)))
 Gradient$XDataNew
@@ -316,7 +321,7 @@ As habitat is a categorical variable, the gradient involves only two sampling un
 
 Let us select the species for which the trait value for habitat use is the highest, and then plot how that species responds to the habitat gradient.
 
-```{r XXVIII, fig.height=4, fig.width=5, fig.cap="\\label{fig: XXVIII} Effect of habitat on the abundance of the most habitat-responsive species"}
+```{r XXV, fig.height=4, fig.width=5, fig.cap="\\label{fig: XII} Effect of habitat on the abundance of the most habitat-responsive species"}
 predY = predict(m, XData=Gradient$XDataNew, studyDesign=Gradient$studyDesignNew,
                 ranLevels=Gradient$rLNew, expected=TRUE)
 plotGradient(m, Gradient, pred=predY, measure="Y", index=which.max(m$TrData$habitat.use),
@@ -327,7 +332,7 @@ As expected, this species exhibits a stronger predicted response to forests than
 
 We finally set `measure="T"` to examine how the community-weighted mean of the trait habitat use varies between the two habitat types.
 
-```{r XXIX, fig.height=4, fig.width=5, fig.cap="\\label{fig: XXIX} Effect of habitat on community-weighted mean habitat use"}
+```{r XXVI, fig.height=4, fig.width=5, fig.cap="\\label{fig: XIII} Effect of habitat on community-weighted mean habitat use"}
 plotGradient(m, Gradient, pred=predY, measure="T", index=2, showData = TRUE, jigger = 0.2)
 ```
 
@@ -341,26 +346,26 @@ With real data, there is no "correct" model structure that would exactly corresp
 
 We first repeat some of the above analyses with a missing environmental covariate. We assume that the researcher would not have realized that the data are sampled from two different habitats, or that the researcher did not consider it to matter for the species abundances. Thus, we fit otherwise the same model, but include only climate as a fixed effect.
 
-```{r XXX, fig.height=4, fig.width=4, fig.cap="\\label{fig: XXX} Histogram of species-specific r2 values"}
+```{r XXVII, warning=FALSE}
 XFormula.1 = ~poly(climate, degree = 2, raw = TRUE)
-m = Hmsc(Y=Y, XData=XData, XFormula = XFormula.1,
+ma50 = Hmsc(Y=Y, XData=XData, XFormula = XFormula.1,
          TrData = traits, TrFormula = TrFormula,
          phyloTree = phy,
          studyDesign=studyDesign, ranLevels=list(sample=rL))
 
-m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
-                    nChains = nChains, verbose = verbose)
+ma50 = sampleMcmc(ma50, thin = thin, samples = samples, transient = transient,
+                    nChains = nChains, nParallel = nChains, verbose = verbose)
 ```
 
-```{r XXXI, fig.height=5, fig.width=7, fig.cap="\\label{fig: XXXI} Variance partitioning for each of 50 species"}
-VP = computeVariancePartitioning(m, group = c(1,1,1), groupnames=c("climate"))
-plotVariancePartitioning(m, VP = VP)
+```{r XXVIII, fig.height=5, fig.width=7, fig.cap="\\label{fig: XIV} Variance partitioning for each of 50 species"}
+VP = computeVariancePartitioning(ma50, group = c(1,1,1), groupnames=c("climate"))
+plotVariancePartitioning(ma50, VP = VP)
 ```
 
 Expectedly, the random effects now play a bigger role. Let us plot the structure of the species associations, as estimated by the random effect.
 
-```{r XXXII, fig.height=5, fig.width=5, fig.cap="\\label{fig: XXXII} Heatmap showing species residual associations"}
-OmegaCor = computeAssociations(m)
+```{r XXIX, fig.height=5, fig.width=5, fig.cap="\\label{fig: XV} Heatmap showing species residual associations"}
+OmegaCor = computeAssociations(ma50)
 supportLevel = 0.95
 toPlot = ((OmegaCor[[1]]$support>supportLevel) 
           + (OmegaCor[[1]]$support<(1-supportLevel))>0)*OmegaCor[[1]]$mean
@@ -376,7 +381,7 @@ We now observe a much richer structure of associations. This is because the resp
 
 Let us next assume that we would have trait data only on habitat use, but we would lack information on thermal optima. We repeat the above analyses with a model modified to correspond to this assumption.
 
-```{r XXXIII, fig.height=4, fig.width=4, fig.cap="\\label{fig: XXXIII} Variance partitioning for each of 50 species"}
+```{r, XXX}
 TrFormula.1 = ~habitat.use
 m = Hmsc(Y=Y, XData=XData, XFormula = XFormula,
          TrData = traits, TrFormula = TrFormula.1,
@@ -384,23 +389,24 @@ m = Hmsc(Y=Y, XData=XData, XFormula = XFormula,
          studyDesign=studyDesign, ranLevels=list(sample=rL))
 
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
-                    nChains = nChains, verbose = verbose)
+                    nChains = nChains, nParallel = nChains, verbose = verbose)
 ```
 
-```{r XXXIV, fig.height=5, fig.width=7, fig.cap="\\label{fig: XXXIV} Variance partitioning for each of 50 species"}
+```{r XXXI, fig.height=5, fig.width=7, fig.cap="\\label{fig: XVI} Variance partitioning for each of 50 species"}
 VP = computeVariancePartitioning(m, group = c(1,1,2,2), groupnames=c("habitat","climate"))
 plotVariancePartitioning(m, VP = VP)
 ```
 
 This model is very similar to the full model in terms of the variance partitioning. Let us then ask how much the traits explain out of the variation among the species in their responses to environmental covariates.
 
-```{r}
+\newpage
+```{r XXXII}
 kable(VP$R2T$Beta)
 ```
 
-As expected, now the traits do not explain how species respond to climatic variation. Let us now ask how much the traits explain out of their variation in species abundances :
+As expected, now the traits do not explain how species respond to climatic variation. Let us now ask how much the traits explain out of their variation in species abundances.
 
-```{r}
+```{r XXXIII}
 VP$R2T$Y
 ```
 
@@ -408,9 +414,75 @@ The traits now explain a smaller part of the variation in abundance than was the
 
 Finally, we examine the posterior distribution for the phylogenetic signal parameter.
 
-```{r XXXV}
+```{r XXXIV}
 mpost = convertToCodaObject(m)
 summary(mpost$Rho)
 ```
 
 Now residual variation in species niches (not explained by the traits) include a phylogenetic signal. This is generated by the phylogenetic structure of the missing trait of thermal optimum.
+
+## Changing prior distribution for the species loadings
+
+The prior for the species loadings is the multiplicative gamma process shrinking prior that Bhattacharya and Dunson (2011) proposed for modelling of high-dimensional covariance matrices. Of particular interest is the $a_1$ and $a_2$ parameters of the prior, which controls the amount of shrinkage applied. The default values are $a=(50,50)$. Increasing the value of the $a_1$ parameter increases shrinkage in general, whereas increasing the value of the $a_2$ parameter increasese how much additional shrinkage is applied to factor $h+1$ compared to factor $h$.
+
+To illustrate the consequences of this choice for the inference of residual species associations, we will refit the model with $a_1=a_2=5$ (less shrinkage), and $a1=a2=500$ (more shrinkage). To do this, we use the `setPriors` function.
+
+```{r XXXV, warning=FALSE}
+XFormula.1 = ~poly(climate, degree = 2, raw = TRUE)
+rL=setPriors(rL, a1=5, a2=5)
+str(rL)
+ma5 = Hmsc(Y=Y, XData=XData, XFormula = XFormula.1,
+         TrData = traits, TrFormula = TrFormula,
+         phyloTree = phy,
+         studyDesign=studyDesign, ranLevels=list(sample=rL))
+
+ma5 = sampleMcmc(ma5, thin = thin, samples = samples, transient = transient,
+                    nChains = nChains, nParallel = nChains, verbose = verbose)
+```
+
+```{r XXXVI, warning=FALSE}
+XFormula.1 = ~poly(climate, degree = 2, raw = TRUE)
+rL = HmscRandomLevel(units = studyDesign$sample)
+rL=setPriors(rL, a1=500, a2=500)
+str(rL)
+ma500 = Hmsc(Y=Y, XData=XData, XFormula = XFormula.1,
+         TrData = traits, TrFormula = TrFormula,
+         phyloTree = phy,
+         studyDesign=studyDesign, ranLevels=list(sample=rL))
+
+ma500 = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
+                    nChains = nChains, nParallel = nChains, verbose = verbose)
+```
+
+```{r XXXVII, fig.height=4, fig.width=10, fig.cap="\\label{fig: XVII} Effects of prior shrinkage values on inferred residual associations"}
+par(mfrow=c(1,3), mar=c(0,0,0,0))
+
+OmegaCor = computeAssociations(ma5)
+supportLevel = 0.95
+toPlot = ((OmegaCor[[1]]$support>supportLevel) 
+          + (OmegaCor[[1]]$support<(1-supportLevel))>0)*OmegaCor[[1]]$mean
+corrplot(toPlot, method = "color", 
+         col=colorRampPalette(c("blue","white","red"))(200),
+         tl.cex=.6, tl.col="black",
+         title="a1 = a2 = 5", mar=c(0,0,1,0))
+
+OmegaCor = computeAssociations(ma50)
+toPlot = ((OmegaCor[[1]]$support>supportLevel) 
+          + (OmegaCor[[1]]$support<(1-supportLevel))>0)*OmegaCor[[1]]$mean
+corrplot(toPlot, method = "color", 
+         col=colorRampPalette(c("blue","white","red"))(200),
+         tl.cex=.6, tl.col="black",
+         title="a1 = a2 = 50", mar=c(0,0,1,0))
+
+OmegaCor = computeAssociations(ma500)
+toPlot = ((OmegaCor[[1]]$support>supportLevel) 
+          + (OmegaCor[[1]]$support<(1-supportLevel))>0)*OmegaCor[[1]]$mean
+corrplot(toPlot, method = "color", 
+         col=colorRampPalette(c("blue","white","red"))(200),
+         tl.cex=.6, tl.col="black",
+         title="a1 = a2 = 500", mar=c(0,0,1,0))
+```
+
+By plotting the inferred residual associations side by side, we can see that when we apply very strong shrinkage, the inferred associations disappear. At low to medium shrinkage, the inferred associations remain largely similar. This example illustrates how too much shrinkage can lead to losing the signal. In contrast, too little shrinkage may lead to overfitting and thus modelling also noise, not just signal. Whether the estimated associations model signal or noise can be tested e.g. by conditional cross-validation, i.e. by testing if it helps to account the known occurrences of some species when predicting the occurrences of other species."
+
+Other prior parameters of the `Hmsc` model can also be adjusted, see Appendix S1 for details.

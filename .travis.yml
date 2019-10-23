@@ -16,6 +16,7 @@ addons:
     packages: libmagick++-dev
 
 r_packages:
+  - BayesLogit
   - magick
   - animation
   - phytools
@@ -38,9 +39,6 @@ r_binary_packages:
   - pROC
   - statmod
   - truncnorm
-  
-r_github_packages:
-  - jarioksa/BayesLogit-1
 
 warnings_are_errors: false
 
