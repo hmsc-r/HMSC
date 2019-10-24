@@ -76,7 +76,7 @@ evaluateModelFit = function(hM, predY){
       AUC = rep(NA,ns)
       for (i in 1:ns){
          sel = !is.na(Y[,i])
-         if(length(unique(Y[sel,i]))==2) {AUC[i] = auc(Y[sel,i],predY[sel,i])}
+         if(length(unique(Y[sel,i]))==2) {AUC[i] = auc(Y[sel,i],predY[sel,i], levels=c(0,1),direction="<")}
       }
       return(AUC)
    }
