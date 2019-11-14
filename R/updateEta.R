@@ -95,7 +95,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
             unLPi = unique(lPi)
             unLdfPi = unique(as.character(ldfPi))
             for(q in 1:np[r]){
-               lambdaLocal = rowSums(lambda * array(rep(rL[[r]]$x[unLdfPi[q],],each=nf*ns), c(nf,ns,ncr)), dims=2)
+               lambdaLocal = rowSums(lambda * array(unlist(rep(rL[[r]]$x[unLdfPi[q],],each=nf*ns)), c(nf,ns,ncr)), dims=2)
                rows = which(lPi==unLPi[q])
                LiSL = matrix(0,nf,nf)
                for(p in 1:length(rows))
