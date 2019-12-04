@@ -273,7 +273,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       )
 
    }
-   switch (class(hM$X),
+   switch (class(hM$X)[1],
            "matrix" = {hM$covNames = colnames(hM$X)},
            "list" = {hM$covNames = colnames(hM$X[[1]])}
    )
@@ -283,7 +283,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       hM$XScaled = hM$X
       hM$XInterceptInd = NULL
    } else{
-      switch(class(hM$X),
+      switch(class(hM$X)[1],
              matrix = {
                 XStack = hM$X
              },
@@ -319,7 +319,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       }
       XScaled[,scaleInd] = sc[,scaleInd]
       hM$XScalePar = XScalePar
-      switch(class(hM$X),
+      switch(class(hM$X)[1],
              matrix = {
                 hM$XScaled = XScaled
              },
@@ -360,7 +360,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       hM$ncRRR = ncRRR
    }
    if(!is.null(XRRR)){
-      if(!class(XRRR)=="matrix")
+      if(!is.matrix(XRRR))
       {
          stop("Hmsc.setData: XRRR must be a matrix")
       }
@@ -581,7 +581,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
               }
       )
    }
-   if(length(distr)>0 & !class(distr)=="matrix"){
+   if(length(distr) > 0 && !is.matrix(distr)){
       distr2 = matrix(0,hM$ns,4)
       for (i in 1:hM$ns){
          switch (distr[i],
