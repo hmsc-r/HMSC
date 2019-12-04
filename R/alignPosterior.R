@@ -10,7 +10,7 @@
 #' # Align the posterior for a previously fitted HMSC model
 #' m = alignPosterior(TD$m)
 #'
-#' @importFrom stats cor
+#' @importFrom stats cor sd
 #' @importFrom abind abind
 #'
 #' @export
