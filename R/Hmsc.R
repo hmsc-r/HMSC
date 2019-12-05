@@ -188,7 +188,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
                 if(length(XData) != hM$ns){
                    stop("Hmsc.setData: the length of XData list argument must be equal to the number of species")
                 }
-                if(any(unlist(lapply(XData, class)) != "data.frame")){
+                if(any(!unlist(lapply(XData, is.data.frame)))){
                    stop("Hmsc.setData: each element of X list must be a data.frame")
                 }
                 if(any(unlist(lapply(XData, function(a) nrow(a) != hM$ny)))){
@@ -225,7 +225,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
                 if(length(X) != hM$ns){
                    stop("Hmsc.setData: the length of X list argument must be equal to the number of species")
                 }
-                if(any(unlist(lapply(X, class)) != "matrix")){
+                if(any(!unlist(lapply(X, is.matrix)))){
                    stop("Hmsc.setData: each element of X list must be a matrix")
                 }
                 if(any(unlist(lapply(X, function(a) nrow(a) != hM$ny)))){
