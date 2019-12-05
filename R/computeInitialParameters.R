@@ -31,7 +31,7 @@ computeInitialParameters = function(hM, initPar){
       DeltaRRR = NULL
    }
 
-   switch(class(hM$X),
+   switch(class(hM$X)[1L],
           matrix = {
              XScaled = hM$XScaled
              if(hM$ncRRR>0){
@@ -53,7 +53,7 @@ computeInitialParameters = function(hM, initPar){
       cat("Hmsc::computeInitialParameter - initializing fixed effects with SSDM estimates\n")
       Beta = matrix(NA,hM$nc,hM$ns)
       for(j in 1:hM$ns){
-         switch(class(hM$X),
+         switch(class(hM$X)[1L],
             matrix = {
               XEff = XScaled
             },
@@ -226,7 +226,7 @@ computeInitialParameters = function(hM, initPar){
       rho = 1
    }
 
-   switch(class(XScaled),
+   switch(class(XScaled)[1L],
       matrix = {
          LFix = XScaled %*% Beta
       },

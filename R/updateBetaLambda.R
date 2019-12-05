@@ -31,7 +31,7 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,d
       }
       nfSum = sum(nf*ncr)
       EtaSt = matrix(unlist(EtaFull),ny,nfSum)
-      switch(class(X),
+      switch(class(X)[1L],
          matrix = {
             XEta = cbind(X,EtaSt)
          },
@@ -60,7 +60,7 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,d
    }
 
    Mu = rbind(tcrossprod(Gamma,Tr), matrix(0,nfSum,ns))
-   switch(class(X),
+   switch(class(X)[1L],
       matrix = {
          XEtaTXEta = crossprod(XEta)
          isXTS = crossprod(XEta,S) * matrix(iSigma,nc+nfSum,ns,byrow=TRUE)
@@ -87,7 +87,7 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,d
       for(j in which(indColFull)){ # test whether worthy to rewrite with tensorA?
          P = P0
          diag(P) = c(diagiV, priorLambda[,j])
-         switch(class(X),
+         switch(class(X)[1L],
             matrix = {
                iU = P + XEtaTXEta*iSigma[j]
             },
@@ -102,7 +102,7 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,d
       }
       for(j in which(indColNA)){
          indObs = Yx[,j]
-         switch(class(X),
+         switch(class(X)[1L],
             matrix = {
                XEtaTXEta = crossprod(XEta[indObs,,drop=FALSE])
                isXTS = crossprod(XEta[indObs,,drop=FALSE],S[indObs,j]) * iSigma[j]
@@ -124,7 +124,7 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,d
    } else{
       # available phylogeny information
       P = bdiag(kronecker(iV,iQ), Diagonal(x=t(priorLambda)))
-      switch(class(X),
+      switch(class(X)[1L],
          matrix = {
             RiU = chol(kronecker(XEtaTXEta,diag(iSigma)) + P)
          },

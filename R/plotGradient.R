@@ -65,7 +65,7 @@ plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = NUL
    Pr = NA
 
    if(is.null(xlabel)){
-      switch(class(hM$X),
+      switch(class(hM$X)[1L],
              matrix = {
                 xlabel = colnames(Gradient$XDataNew)[[1]]
              },
@@ -75,7 +75,7 @@ plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = NUL
       )
    }
 
-   switch(class(hM$X),
+   switch(class(hM$X)[1L],
           matrix = {
              xx = Gradient$XDataNew[, 1]
           },
@@ -141,7 +141,7 @@ plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = NUL
    hi1 = max(hi)
 
    if(showData){
-      switch(class(hM$X),
+      switch(class(hM$X)[1L],
              matrix = {
                 XDatacol = which(colnames(Gradient$XDataNew)[[1]]==colnames(hM$XData))
              },
@@ -187,7 +187,7 @@ plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = NUL
       }
       #plot(pl)
    } else {
-      if (class(hM$X)=="list" & (!measure=="Y")){
+      if (inherits(hM$X,"list") && !measure=="Y") {
          plot(xx, qpred[2, ], ylim = c(lo1, hi1), type = "l", xaxt = "n", xlab = xlabel, ylab = ylabel, ...)
          axis(1,c(min(xx),(min(xx)+max(xx))/2,max(xx)),c("min","mean","max"))
       } else {
