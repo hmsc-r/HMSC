@@ -9,7 +9,7 @@ updatewRRR = function(Z,Beta,iSigma,Eta,Lambda,X1A,XRRR,Pi,dfPi,rL,PsiRRR,DeltaR
    ns = ncol(Z)
    nr = ncol(Pi)
    np = apply(Pi, 2, function(a) length(unique(a)))
-   if(class(X1A)=="matrix"){
+   if(is.matrix(X1A)){
        ncNRRR = dim(X1A)[2]
    } else {
        ncNRRR = dim(X1A[[1]])[2]
@@ -20,7 +20,7 @@ updatewRRR = function(Z,Beta,iSigma,Eta,Lambda,X1A,XRRR,Pi,dfPi,rL,PsiRRR,DeltaR
    BetaNRRR = Beta[1:ncNRRR,]
    BetaRRR = matrix(Beta[-c(1:ncNRRR),],nrow=ncRRR)
 
-   switch(class(X1A),
+   switch(class(X1A)[1L],
           matrix = {
              LFix = X1A%*%BetaNRRR
           },
@@ -63,7 +63,7 @@ updatewRRR = function(Z,Beta,iSigma,Eta,Lambda,X1A,XRRR,Pi,dfPi,rL,PsiRRR,DeltaR
 
    if(ncRRR>0){
       XB=XRRR%*%t(wRRR)
-      if(class(X)=="matrix"){
+      if(is.matrix(X)){
          X=cbind(X,XB)
       } else {
          for (j in 1:ns){

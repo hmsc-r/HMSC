@@ -112,7 +112,7 @@ samplePrior = function(hM, dataParList=NULL){
       Beta = t(matrix(mvrnorm(mu=as.vector(t(Mu)),Sigma = kronecker(V,Qg[,,rho])), hM$ns, hM$nc))
    }
 
-   switch(class(hM$XScaled),
+   switch(class(hM$XScaled)[1L],
           matrix = {
              LFix = hM$XScaled %*% Beta
           },

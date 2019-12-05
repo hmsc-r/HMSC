@@ -26,7 +26,7 @@
 biPlot=function(hM, etaPost, lambdaPost, factors=c(1,2), colVar=NULL, colors = NULL, spNames=hM$spNames, ...){
    if(!is.null(colVar)){
       col = hM$XData[,colVar]
-      if (!class(col)=="factor"){
+      if (!is.factor(col)){
          if(is.null(colors)){
             colors = colorRampPalette(c("blue","white","red"))
          }
