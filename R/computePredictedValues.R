@@ -72,7 +72,7 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
          for(r in seq_len(hM$nr)){
             dfPi[,r] = factor(hM$dfPi[train,r])
          }
-         switch(class(hM$X),
+         switch(class(hM$X)[1L],
                 matrix = {
                    XTrain = hM$X[train,,drop=FALSE]
                    XVal = hM$X[val,,drop=FALSE]
@@ -96,7 +96,7 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
          hM1$YScaled = (hM1$Y - matrix(hM1$YScalePar[1,],hM1$ny,hM1$ns,byrow=TRUE)) / matrix(hM1$YScalePar[2,],hM1$ny,hM1$ns,byrow=TRUE)
          hM1$XInterceptInd = hM$XInterceptInd
          hM1$XScalePar = hM$XScalePar
-         switch(class(hM$X),
+         switch(class(hM$X)[1L],
                 matrix = {
                    hM1$XScaled = (hM1$X - matrix(hM1$XScalePar[1,],hM1$ny,hM1$ncNRRR,byrow=TRUE)) / matrix(hM1$XScalePar[2,],hM1$ny,hM1$ncNRRR,byrow=TRUE)
                 },

@@ -1,5 +1,5 @@
 #' @importFrom stats rgamma
-#' 
+#'
 updateInvSigma = function(Y,Z,Beta,iSigma,Eta,Lambda, distr,X,Pi,dfPi,rL, aSigma,bSigma){
    indVarSigma = (distr[,2]==1)
    if(any(indVarSigma)){
@@ -7,7 +7,7 @@ updateInvSigma = function(Y,Z,Beta,iSigma,Eta,Lambda, distr,X,Pi,dfPi,rL, aSigma
       ns = ncol(Z)
       nr = ncol(Pi)
 
-      switch(class(X),
+      switch(class(X)[1L],
          matrix = {
             LFix = X%*%Beta
          },

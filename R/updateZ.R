@@ -8,7 +8,7 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind){
    nr = ncol(Pi)
    np = apply(Pi, 2, function(a) length(unique(a)))
 
-   switch(class(X),
+   switch(class(X)[1L],
           matrix = {
              LFix = X%*%Beta
           },

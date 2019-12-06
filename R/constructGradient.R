@@ -77,7 +77,7 @@ constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid
             vals[[length(vals)+1]] = NA
          }
       }
-      switch(class(hM$XData),
+      switch(class(hM$XData)[1L],
              matrix = {
                 if (is.factor(hM$XData[,vars[i]])){
                    factors[i] = TRUE
@@ -96,7 +96,7 @@ constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid
    }
 
 
-   switch(class(hM$XData),
+   switch(class(hM$XData)[1L],
           matrix = {
              nz = 1
           },
@@ -109,7 +109,7 @@ constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid
    )
 
    for(case in 1:nz){
-      switch(class(hM$XData),
+      switch(class(hM$XData)[1L],
              matrix = {
                 XData = hM$XData
              },
@@ -166,9 +166,9 @@ constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid
             }
          }
       }
-      if(class(hM$XData)=="list"){XDataNewList[[case]]=XDataNew}
+      if(inherits(hM$XData, "list")) {XDataNewList[[case]]=XDataNew}
    }
-   if(class(hM$XData)=="list"){XDataNew = XDataNewList}
+   if(inherits(hM$XData, "list")){XDataNew = XDataNewList}
 
    dfPiNew = matrix(NA,ngrid,hM$nr)
    colnames(dfPiNew) = hM$rLNames

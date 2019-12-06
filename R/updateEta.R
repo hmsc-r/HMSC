@@ -8,7 +8,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
    np = apply(Pi, 2, function(a) length(unique(a)))
    Yx = !is.na(Y)
 
-   switch(class(X),
+   switch(class(X)[1L],
           matrix = {
              LFix = X%*%Beta
           },

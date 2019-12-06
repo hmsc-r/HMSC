@@ -183,12 +183,12 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       stop("Hmsc.setData: only single of XData and X arguments must be specified")
    }
    if(!is.null(XData)){
-      switch(class(XData),
+      switch(class(XData)[1L],
              list={
                 if(length(XData) != hM$ns){
                    stop("Hmsc.setData: the length of XData list argument must be equal to the number of species")
                 }
-                if(any(unlist(lapply(XData, class)) != "data.frame")){
+                if(any(!unlist(lapply(XData, is.data.frame)))){
                    stop("Hmsc.setData: each element of X list must be a data.frame")
                 }
                 if(any(unlist(lapply(XData, function(a) nrow(a) != hM$ny)))){
@@ -220,12 +220,12 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       )
    }
    if(!is.null(X)){
-      switch(class(X),
+      switch(class(X)[1L],
              list={
                 if(length(X) != hM$ns){
                    stop("Hmsc.setData: the length of X list argument must be equal to the number of species")
                 }
-                if(any(unlist(lapply(X, class)) != "matrix")){
+                if(any(!unlist(lapply(X, is.matrix)))){
                    stop("Hmsc.setData: each element of X list must be a matrix")
                 }
                 if(any(unlist(lapply(X, function(a) nrow(a) != hM$ny)))){
@@ -262,7 +262,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    }
 
    if(is.null(colnames(hM$X))){
-      switch(class(X),
+      switch(class(X)[1L],
              matrix = {
                 colnames(hM$X) = sprintf(sprintf("cov%%.%dd",ceiling(log10(hM$nc))), 1:hM$nc)
              },
@@ -273,7 +273,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       )
 
    }
-   switch (class(hM$X),
+   switch (class(hM$X)[1L],
            "matrix" = {hM$covNames = colnames(hM$X)},
            "list" = {hM$covNames = colnames(hM$X[[1]])}
    )
@@ -283,7 +283,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       hM$XScaled = hM$X
       hM$XInterceptInd = NULL
    } else{
-      switch(class(hM$X),
+      switch(class(hM$X)[1L],
              matrix = {
                 XStack = hM$X
              },
@@ -319,7 +319,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       }
       XScaled[,scaleInd] = sc[,scaleInd]
       hM$XScalePar = XScalePar
-      switch(class(hM$X),
+      switch(class(hM$X)[1L],
              matrix = {
                 hM$XScaled = XScaled
              },
@@ -343,7 +343,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    #covariates for reduced-rank regression
    hM$ncNRRR = hM$nc
    if(!is.null(XRRRData)){
-      if(!class(XRRRData)=="data.frame")
+      if(!is.data.frame(XRRRData))
       {
          stop("Hmsc.setData: XRRRData must be a data.frame")
       }
@@ -360,7 +360,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       hM$ncRRR = ncRRR
    }
    if(!is.null(XRRR)){
-      if(!class(XRRR)=="matrix")
+      if(!is.matrix(XRRR))
       {
          stop("Hmsc.setData: XRRR must be a matrix")
       }
@@ -581,7 +581,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
               }
       )
    }
-   if(length(distr)>0 & !class(distr)=="matrix"){
+   if(length(distr) > 0 && !is.matrix(distr)){
       distr2 = matrix(0,hM$ns,4)
       for (i in 1:hM$ns){
          switch (distr[i],

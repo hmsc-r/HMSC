@@ -17,7 +17,7 @@
 
 setPriors.HmscRandomLevel = function(rL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=NULL, alphapw=NULL, nfMax=NULL, nfMin=NULL, setDefault=FALSE, ...)
 {
-   stopifnot(class(rL) == "HmscRandomLevel")
+   stopifnot(inherits(rL, "HmscRandomLevel"))
    xDim = max(rL$xDim, 1)
    if(!is.null(nu)){
       if(length(nu) == 1){

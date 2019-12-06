@@ -83,7 +83,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
    #X used in computations is modified from X1 by variable selection and dimension reduction.
    X1 = hM$XScaled
    if (hM$ncsel>0){
-      if(class(X1)=="matrix"){
+      if(is.matrix(X1)){
          X2=X1
          X1=list()
          for (j in 1:hM$ns){
@@ -195,7 +195,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
       X = X1A
       if(hM$ncRRR>0){
          XB=hM$XRRRScaled%*%t(wRRR)
-         if(class(X)=="matrix"){
+         if(is.matrix(X)){
             X=cbind(X,XB)
          } else {
             for (j in 1:hM$ns){

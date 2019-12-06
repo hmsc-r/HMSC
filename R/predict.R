@@ -74,7 +74,7 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
    if(predictEtaMean==TRUE && predictEtaMeanField==TRUE)
       stop("Hmsc.predict: predictEtaMean and predictEtaMeanField arguments cannot be TRUE simultanuisly")
    if(!is.null(XData)){
-      switch(class(XData),
+      switch(class(XData)[1L],
              list={
                 xlev = lapply(Reduce(rbind,object$XData), levels)[unlist(lapply(Reduce(rbind,object$XData), is.factor))]
                 X = lapply(XData, function(a) model.matrix(object$XFormula, a, xlev=xlev))
@@ -96,7 +96,7 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
       if(is.null(XRRR) && object$ncRRR>0)
          XRRR=object$XRRR
    }
-   switch(class(X),
+   switch(class(X)[1L],
           list={
              nyNew = nrow(X[[1]])
           },
@@ -144,7 +144,7 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
       if(object$ncRRR>0){
          XB=XRRR%*%t(sam$wRRR)
       }
-      switch(class(X),
+      switch(class(X)[1L],
              matrix = {
                 X1=X
                 if(object$ncRRR>0){

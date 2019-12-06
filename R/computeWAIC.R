@@ -51,7 +51,7 @@ computeWAIC = function(hM, ghN=11){
       Eta = post[[sN]]$Eta
       Lambda = post[[sN]]$Lambda
       sigma = post[[sN]]$sigma
-      switch(class(X),
+      switch(class(X)[1L],
              matrix = {
                 LFix = X%*%Beta
              },

@@ -60,7 +60,7 @@ plotGamma=function(hM, post, param = "Support", trOrder="Original",
             colorLevels=200
          }
    }
-  switch(class(hM$X),
+  switch(class(hM$X)[1L],
          matrix = {
            ncolsX = ncol(hM$X)
          },
