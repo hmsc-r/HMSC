@@ -111,10 +111,13 @@ plotBeta = function(hM, post, param = "Support", plotTree = FALSE,
    }
 
    if(plotTree){order=tree$tip.label}
-   if(!plotTree & SpeciesOrder=="Vector"){order=SpVector}
-   if(!plotTree & SpeciesOrder=="Original"){order=rev(1:ncol(hM$Y))}
-   if(!plotTree & SpeciesOrder=="Tree"){order=match(tree$tip.label,colnames(hM$Y))}
-   if(!plotTree & SpeciesOrder=="Tree"){order=match(tree$tip.label,hM$spNames)}
+   if(!plotTree && SpeciesOrder=="Vector"){order=SpVector}
+   if(!plotTree && SpeciesOrder=="Original"){order=rev(1:ncol(hM$Y))}
+   if(!plotTree && SpeciesOrder=="Tree"){order=match(tree$tip.label,colnames(hM$Y))}
+   ## NB: This has the same condition as above and will over-write the
+   ## previous value of order. However, whole function will ERROR with
+   ## arguments plotTree=FALSE, SpeciesOrder="Tree" -- FIXME!
+   if(!plotTree && SpeciesOrder=="Tree"){order=match(tree$tip.label,hM$spNames)}
 
    if(covOrder=="Vector"){covorder=covVector}
    if(covOrder=="Original"){covorder=1:hM$nc}
