@@ -117,16 +117,17 @@ plotBeta = function(hM, post, param = "Support", plotTree = FALSE,
       }
    }
 
-   if(plotTree){order=tree$tip.label}
-   if(!plotTree && SpeciesOrder=="Vector"){order=SpVector}
-   if(!plotTree && SpeciesOrder=="Original"){order=rev(1:ncol(hM$Y))}
-   if(!plotTree && SpeciesOrder=="Tree"){order=match(tree$tip.label,colnames(hM$Y))}
-   ## NB: This has the same condition as above and will over-write the
-   ## previous value of order with identical value.
-   if(!plotTree && SpeciesOrder=="Tree"){order=match(tree$tip.label,hM$spNames)}
-
+    if(plotTree){
+        order=tree$tip.label
+    } else {
+        order <-
+            switch(SpeciesOrder,
+                   "Vector" = SpVector,
+                   "Original" = rev(1:ncol(hM$Y)),
+                   "Tree" = match(tree$tip.label,colnames(hM$Y)))
+    }
    if(covOrder=="Vector"){covorder=covVector}
-   if(covOrder=="Original"){covorder=1:hM$nc}
+   else if(covOrder=="Original"){covorder=1:hM$nc}
 
    mbeta=post$mean
    betaP=post$support
@@ -136,17 +137,15 @@ plotBeta = function(hM, post, param = "Support", plotTree = FALSE,
       toPlot = toPlot * ((betaP>supportLevel) + (betaP<(1-supportLevel))>0)
       betaMat = matrix(toPlot, nrow=hM$nc, ncol=ncol(hM$Y))
    }
-   if(param=="Mean"){
+   else if(param=="Mean"){
       toPlot = mbeta
       toPlot = toPlot * ((betaP>supportLevel) + (betaP<(1-supportLevel))>0)
       betaMat = matrix(toPlot, nrow=hM$nc, ncol=ncol(hM$Y))
    }
-   else{
-      if(param=="Support"){
-         toPlot = 2*betaP-1
-         toPlot = toPlot * ((betaP>supportLevel) + (betaP<(1-supportLevel))>0)
-         betaMat = matrix(toPlot, nrow=hM$nc, ncol=ncol(hM$Y))
-      }
+   else{ # param == "Support"
+       toPlot = 2*betaP-1
+       toPlot = toPlot * ((betaP>supportLevel) + (betaP<(1-supportLevel))>0)
+       betaMat = matrix(toPlot, nrow=hM$nc, ncol=ncol(hM$Y))
    }
 
    rownames(betaMat) = covNames
