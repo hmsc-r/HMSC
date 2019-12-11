@@ -57,7 +57,8 @@
 
 
 plotBeta = function(hM, post, param = "Support", plotTree = FALSE,
-                    SpeciesOrder = "Original", SpVector = NULL, covOrder="Original",
+                    SpeciesOrder = "Original", SpVector = NULL,
+                    covOrder="Original",
                     covVector=NULL, spNamesNumbers = c(TRUE, TRUE),
                     covNamesNumbers = c(TRUE, TRUE),
                     supportLevel = 0.9, split = 0.3, cex = c(0.7,0.7,0.8),
@@ -65,6 +66,11 @@ plotBeta = function(hM, post, param = "Support", plotTree = FALSE,
                     mar=NULL, marTree=c(6,0,2,0),mgp=c(3,2,0),
                     smallplot=NULL, bigplot=NULL,newplot=TRUE)
 {
+    ## Check that text arguments are acceptable, and expand to full
+    ## names if abbreviated.
+    param <- match.arg(param, c("Mean", "Support", "Sign"))
+    SpeciesOrder <- match.arg(SpeciesOrder, c("Original", "Vector", "Tree"))
+    covOrder <- match.arg(covOrder, c("Original", "Vector"))
 
    if(is.null(colorLevels)){
       if(param=="Sign"){
