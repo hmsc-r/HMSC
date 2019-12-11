@@ -63,7 +63,8 @@ plotBeta = function(hM, post, param = "Support", plotTree = FALSE,
                     supportLevel = 0.9, split = 0.3, cex = c(0.7,0.7,0.8),
                     colors = colorRampPalette(c("blue","white","red")), colorLevels = NULL,
                     mar=NULL, marTree=c(6,0,2,0),mgp=c(3,2,0),
-                    smallplot=NULL, bigplot=NULL,newplot=TRUE){
+                    smallplot=NULL, bigplot=NULL,newplot=TRUE)
+{
 
    if(is.null(colorLevels)){
       if(param=="Sign"){
@@ -79,7 +80,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = FALSE,
       }
    }
 
-   if(plotTree){
+   if(plotTree || SpeciesOrder == "Tree"){
       tree = keep.tip(hM$phyloTree,hM$spNames)
       tree = untangle(tree,"read.tree")
    }
@@ -115,8 +116,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = FALSE,
    if(!plotTree && SpeciesOrder=="Original"){order=rev(1:ncol(hM$Y))}
    if(!plotTree && SpeciesOrder=="Tree"){order=match(tree$tip.label,colnames(hM$Y))}
    ## NB: This has the same condition as above and will over-write the
-   ## previous value of order. However, whole function will ERROR with
-   ## arguments plotTree=FALSE, SpeciesOrder="Tree" -- FIXME!
+   ## previous value of order with identical value.
    if(!plotTree && SpeciesOrder=="Tree"){order=match(tree$tip.label,hM$spNames)}
 
    if(covOrder=="Vector"){covorder=covVector}
