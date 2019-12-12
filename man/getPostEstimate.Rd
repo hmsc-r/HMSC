@@ -4,8 +4,16 @@
 \alias{getPostEstimate}
 \title{getPostEstimate}
 \usage{
-getPostEstimate(hM, parName, r = 1, x = NULL, q = c(),
-  chainIndex = 1:length(hM$postList), start = 1, thin = 1)
+getPostEstimate(
+  hM,
+  parName,
+  r = 1,
+  x = NULL,
+  q = c(),
+  chainIndex = 1:length(hM$postList),
+  start = 1,
+  thin = 1
+)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}

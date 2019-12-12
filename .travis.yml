@@ -18,8 +18,6 @@ addons:
 r_packages:
   - BayesLogit
   - magick
-  - animation
-  - phytools
 
 r_binary_packages:
   - coda

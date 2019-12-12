@@ -4,10 +4,21 @@
 \alias{computePredictedValues}
 \title{computePredictedValues}
 \usage{
-computePredictedValues(hM, partition = NULL, partition.sp = NULL,
-  start = 1, thin = 1, Yc = NULL, mcmcStep = 1, expected = TRUE,
-  initPar = NULL, nParallel = 1, nChains = length(hM$postList),
-  updater = list(), verbose = hM$verbose)
+computePredictedValues(
+  hM,
+  partition = NULL,
+  partition.sp = NULL,
+  start = 1,
+  thin = 1,
+  Yc = NULL,
+  mcmcStep = 1,
+  expected = TRUE,
+  initPar = NULL,
+  nParallel = 1,
+  nChains = length(hM$postList),
+  updater = list(),
+  verbose = hM$verbose
+)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}

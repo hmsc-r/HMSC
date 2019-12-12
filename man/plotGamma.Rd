@@ -4,13 +4,25 @@
 \alias{plotGamma}
 \title{plotGamma}
 \usage{
-plotGamma(hM, post, param = "Support", trOrder = "Original",
-  trVector = NULL, covOrder = "Original", covVector = NULL,
-  trNamesNumbers = c(TRUE, TRUE), covNamesNumbers = c(TRUE, TRUE),
-  supportLevel = 0.9, cex = c(0.8, 0.8, 0.8),
+plotGamma(
+  hM,
+  post,
+  param = "Support",
+  trOrder = "Original",
+  trVector = NULL,
+  covOrder = "Original",
+  covVector = NULL,
+  trNamesNumbers = c(TRUE, TRUE),
+  covNamesNumbers = c(TRUE, TRUE),
+  supportLevel = 0.9,
+  cex = c(0.8, 0.8, 0.8),
   colors = colorRampPalette(c("blue", "white", "red")),
-  colorLevels = NULL, mar = c(6, 9, 2, 0), smallplot = NULL,
-  bigplot = NULL, newplot = TRUE)
+  colorLevels = NULL,
+  mar = c(6, 9, 2, 0),
+  smallplot = NULL,
+  bigplot = NULL,
+  newplot = TRUE
+)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}

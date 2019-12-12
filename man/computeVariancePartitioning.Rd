@@ -4,8 +4,13 @@
 \alias{computeVariancePartitioning}
 \title{computeVariancePartitioning}
 \usage{
-computeVariancePartitioning(hM, group = NULL, groupnames = NULL,
-  start = 1, na.ignore = FALSE)
+computeVariancePartitioning(
+  hM,
+  group = NULL,
+  groupnames = NULL,
+  start = 1,
+  na.ignore = FALSE
+)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}

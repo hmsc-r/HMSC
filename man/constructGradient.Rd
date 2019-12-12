@@ -4,8 +4,7 @@
 \alias{constructGradient}
 \title{constructGradient}
 \usage{
-constructGradient(hM, focalVariable, non.focalVariables = list(),
-  ngrid = 20)
+constructGradient(hM, focalVariable, non.focalVariables = list(), ngrid = 20)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}

@@ -4,13 +4,31 @@
 \alias{Hmsc}
 \title{Hmsc}
 \usage{
-Hmsc(Y, XFormula = ~., XData = NULL, X = NULL, XScale = TRUE,
-  XSelect = NULL, XRRRData = NULL, XRRRFormula = ~. - 1,
-  XRRR = NULL, ncRRR = 2, XRRRScale = TRUE, YScale = FALSE,
-  studyDesign = NULL, ranLevels = NULL,
-  ranLevelsUsed = names(ranLevels), TrFormula = NULL, TrData = NULL,
-  Tr = NULL, TrScale = TRUE, phyloTree = NULL, C = NULL,
-  distr = "normal", truncateNumberOfFactors = TRUE)
+Hmsc(
+  Y,
+  XFormula = ~.,
+  XData = NULL,
+  X = NULL,
+  XScale = TRUE,
+  XSelect = NULL,
+  XRRRData = NULL,
+  XRRRFormula = ~. - 1,
+  XRRR = NULL,
+  ncRRR = 2,
+  XRRRScale = TRUE,
+  YScale = FALSE,
+  studyDesign = NULL,
+  ranLevels = NULL,
+  ranLevelsUsed = names(ranLevels),
+  TrFormula = NULL,
+  TrData = NULL,
+  Tr = NULL,
+  TrScale = TRUE,
+  phyloTree = NULL,
+  C = NULL,
+  distr = "normal",
+  truncateNumberOfFactors = TRUE
+)
 }
 \arguments{
 \item{Y}{a matrix of species occurences or abundances}

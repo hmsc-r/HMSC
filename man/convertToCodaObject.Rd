@@ -4,11 +4,24 @@
 \alias{convertToCodaObject}
 \title{convertToCodaObject}
 \usage{
-convertToCodaObject(hM, start = 1, spNamesNumbers = c(TRUE, TRUE),
-  covNamesNumbers = c(TRUE, TRUE), trNamesNumbers = c(TRUE, TRUE),
-  Beta = TRUE, Gamma = TRUE, V = TRUE, Sigma = TRUE, Rho = TRUE,
-  Eta = TRUE, Lambda = TRUE, Alpha = TRUE, Omega = TRUE,
-  Psi = TRUE, Delta = TRUE)
+convertToCodaObject(
+  hM,
+  start = 1,
+  spNamesNumbers = c(TRUE, TRUE),
+  covNamesNumbers = c(TRUE, TRUE),
+  trNamesNumbers = c(TRUE, TRUE),
+  Beta = TRUE,
+  Gamma = TRUE,
+  V = TRUE,
+  Sigma = TRUE,
+  Rho = TRUE,
+  Eta = TRUE,
+  Lambda = TRUE,
+  Alpha = TRUE,
+  Omega = TRUE,
+  Psi = TRUE,
+  Delta = TRUE
+)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}
@@ -53,7 +66,7 @@ A named list that can be analysed with \CRANpkg{coda} functions.
 Converts the Hmsc posterior into a named list of mcmc.list objects
 }
 \examples{
-# Convert recorded posterior samples in \\code{Hmsc} object to coda object
+# Convert recorded posterior samples in \code{Hmsc} object to coda object
 codaObject = convertToCodaObject(TD$m)
 
 # Convert recorded posterior samples, starting from sample 100, in m object to coda object

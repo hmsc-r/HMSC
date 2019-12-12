@@ -4,8 +4,7 @@
 \alias{poolMcmcChains}
 \title{poolMcmcChains}
 \usage{
-poolMcmcChains(postList, chainIndex = 1:length(postList), start = 1,
-  thin = 1)
+poolMcmcChains(postList, chainIndex = 1:length(postList), start = 1, thin = 1)
 }
 \arguments{
 \item{postList}{list of posterior chains}

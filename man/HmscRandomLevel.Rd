@@ -4,9 +4,16 @@
 \alias{HmscRandomLevel}
 \title{Create an \code{Hmsc} random level}
 \usage{
-HmscRandomLevel(sData = NULL, sMethod = "Full", distMat = NULL,
-  xData = NULL, units = NULL, N = NULL, nNeighbours = NULL,
-  sKnot = NULL)
+HmscRandomLevel(
+  sData = NULL,
+  sMethod = "Full",
+  distMat = NULL,
+  xData = NULL,
+  units = NULL,
+  N = NULL,
+  nNeighbours = NULL,
+  sKnot = NULL
+)
 }
 \arguments{
 \item{sData}{a dataframe containing spatial or temporal coordinates of units of the random level}

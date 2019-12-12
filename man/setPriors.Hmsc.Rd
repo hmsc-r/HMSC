@@ -4,10 +4,23 @@
 \alias{setPriors.Hmsc}
 \title{setPriors.Hmsc}
 \usage{
-\method{setPriors}{Hmsc}(hM, V0 = NULL, f0 = NULL, mGamma = NULL,
-  UGamma = NULL, aSigma = NULL, bSigma = NULL, nuRRR = NULL,
-  a1RRR = NULL, b1RRR = NULL, a2RRR = NULL, b2RRR = NULL,
-  rhopw = NULL, setDefault = FALSE, ...)
+\method{setPriors}{Hmsc}(
+  hM,
+  V0 = NULL,
+  f0 = NULL,
+  mGamma = NULL,
+  UGamma = NULL,
+  aSigma = NULL,
+  bSigma = NULL,
+  nuRRR = NULL,
+  a1RRR = NULL,
+  b1RRR = NULL,
+  a2RRR = NULL,
+  b2RRR = NULL,
+  rhopw = NULL,
+  setDefault = FALSE,
+  ...
+)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}

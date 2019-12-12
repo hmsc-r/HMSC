@@ -4,9 +4,19 @@
 \alias{setPriors.HmscRandomLevel}
 \title{setPriors.HmscRandomLevel}
 \usage{
-\method{setPriors}{HmscRandomLevel}(rL, nu = NULL, a1 = NULL,
-  a2 = NULL, b1 = NULL, b2 = NULL, alphapw = NULL, nfMax = NULL,
-  nfMin = NULL, setDefault = FALSE, ...)
+\method{setPriors}{HmscRandomLevel}(
+  rL,
+  nu = NULL,
+  a1 = NULL,
+  a2 = NULL,
+  b1 = NULL,
+  b2 = NULL,
+  alphapw = NULL,
+  nfMax = NULL,
+  nfMin = NULL,
+  setDefault = FALSE,
+  ...
+)
 }
 \arguments{
 \item{rL}{a fitted \code{HmscRandomLevel} model object}
