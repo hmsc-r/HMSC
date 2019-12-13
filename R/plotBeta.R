@@ -36,7 +36,7 @@
 #' @param smallplot passed to \code{\link{image.plot}}
 #' @param bigplot passed to \code{\link{image.plot}}
 #' @param newplot set to  false if the plot will be part of multi-panel plot initialized with par(mfrow)
-
+#'
 #'
 #'
 #' @examples
@@ -50,7 +50,7 @@
 #'
 #' @importFrom graphics par plot plot.new axis text
 #' @importFrom grDevices colorRampPalette
-#' @importFrom ape keep.tip Ntip read.tree write.tree
+#' @importFrom ape keep.tip read.tree write.tree
 #' @importFrom fields image.plot
 #' @export
 
@@ -86,19 +86,17 @@ plotBeta = function(hM, post, param = "Support", plotTree = FALSE,
    }
 
    if(plotTree || SpeciesOrder == "Tree"){
-
-    untangle<-function(tree){
-      if(!inherits(tree,"phylo")) stop("tree should be an object of class \"phylo\".")
-	    obj<-attributes(tree)
-      tree <- ape::read.tree(text=ape::write.tree(tree))
-	    ii <- !names(obj) %in% names(attributes(tree))
-	    attributes(tree)<-c(attributes(tree),obj[ii])
-      tree
-    }
+      untangle<-function(tree){
+         if(!inherits(tree,"phylo")) stop("tree should be an object of class \"phylo\".")
+         obj<-attributes(tree)
+         tree <- ape::read.tree(text=ape::write.tree(tree))
+         ii <- !names(obj) %in% names(attributes(tree))
+         attributes(tree)<-c(attributes(tree),obj[ii])
+         tree
+       }
       tree = keep.tip(hM$phyloTree,hM$spNames)
       tree = untangle(tree)
    }
-
 
    spNames = character(hM$ns)
    for (i in 1:hM$ns) {
