@@ -1,7 +1,7 @@
 # Hmsc
 
 [![Build Status](https://travis-ci.org/hmsc-r/HMSC.svg?branch=master)](https://travis-ci.org/hmsc-r/HMSC)
-[![CRAN version](https://www.r-pkg.org/badges/version/Hmsc)](https://cran.rstudio.com/web/packages/Hmsc/index.html) [![](https://cranlogs.r-pkg.org/badges/grand-total/Hmsc)](http://cran.rstudio.com/web/packages/Hmsc/index.html)
+[![CRAN version](https://www.r-pkg.org/badges/version/Hmsc)](https://cran.rstudio.com/web/packages/Hmsc/index.html) [![](https://cranlogs.r-pkg.org/badges/grand-total/Hmsc)](https://cran.rstudio.com/web/packages/Hmsc/index.html)
 
 ## Description
 Hierarchical Modelling of Species Communities (**Hmsc**) is a flexible framework for Joint Species Distribution Modelling (JSDMs). The framework can be used to relate species occurrences or abundances to environmental covariates, species traits and phylogenetic relationships. JSDMs are a special case of species distribution models (SDMs) that take into account the multivariate nature of communities which allows us to estimate community level responses as well capture biotic interactions and the influence of missing covariates in residual species associations.
