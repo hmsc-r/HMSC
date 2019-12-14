@@ -16,9 +16,9 @@ Version 3.0-4
 ### New Features
 
 * `evaluateModelFit` can now handle probit models where binary data
-  was given as `TRUE`/`FALSE`. Earlier only numeric data (`0`/`1`)
+  were given as `TRUE`/`FALSE`. Earlier only numeric data (`0`/`1`)
   were accepted. See
-  [github issue #30]((https://github.com/hmsc-r/HMSC/issues/30).
+  [github issue #30](https://github.com/hmsc-r/HMSC/issues/30).
 
 ### Documentation
 
