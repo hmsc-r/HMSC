@@ -4,8 +4,15 @@
 \alias{predictLatentFactor}
 \title{predictLatentFactor}
 \usage{
-predictLatentFactor(unitsPred, units, postEta, postAlpha, rL,
-  predictMean = FALSE, predictMeanField = FALSE)
+predictLatentFactor(
+  unitsPred,
+  units,
+  postEta,
+  postAlpha,
+  rL,
+  predictMean = FALSE,
+  predictMeanField = FALSE
+)
 }
 \arguments{
 \item{unitsPred}{a factor vector with random level units for which predictions are to be made}

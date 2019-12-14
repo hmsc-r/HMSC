@@ -15,11 +15,11 @@ addons:
   apt: 
     packages: libmagick++-dev
 
+
 r_packages:
   - BayesLogit
   - magick
-  - animation
-  - phytools
+
 
 r_binary_packages:
   - coda

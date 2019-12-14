@@ -4,10 +4,22 @@
 \alias{plotGradient}
 \title{plotGradient}
 \usage{
-plotGradient(hM, Gradient, predY, measure, xlabel = NULL,
-  ylabel = NULL, index = 1, q = c(0.025, 0.5, 0.975),
-  cicol = rgb(0, 0, 1, alpha = 0.5), pointcol = "lightgrey",
-  pointsize = 1, showData = FALSE, jigger = 0, ...)
+plotGradient(
+  hM,
+  Gradient,
+  predY,
+  measure,
+  xlabel = NULL,
+  ylabel = NULL,
+  index = 1,
+  q = c(0.025, 0.5, 0.975),
+  cicol = rgb(0, 0, 1, alpha = 0.5),
+  pointcol = "lightgrey",
+  pointsize = 1,
+  showData = FALSE,
+  jigger = 0,
+  ...
+)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}

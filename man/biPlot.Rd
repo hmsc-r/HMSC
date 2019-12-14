@@ -4,8 +4,16 @@
 \alias{biPlot}
 \title{biPlot}
 \usage{
-biPlot(hM, etaPost, lambdaPost, factors = c(1, 2), colVar = NULL,
-  colors = NULL, spNames = hM$spNames, ...)
+biPlot(
+  hM,
+  etaPost,
+  lambdaPost,
+  factors = c(1, 2),
+  colVar = NULL,
+  colors = NULL,
+  spNames = hM$spNames,
+  ...
+)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}

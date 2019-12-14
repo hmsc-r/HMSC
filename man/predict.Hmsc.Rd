@@ -4,11 +4,23 @@
 \alias{predict.Hmsc}
 \title{predict}
 \usage{
-\method{predict}{Hmsc}(object, post = poolMcmcChains(object$postList),
-  XData = NULL, X = NULL, XRRRData = NULL, XRRR = NULL,
-  studyDesign = object$studyDesign, ranLevels = object$ranLevels,
-  Gradient = NULL, Yc = NULL, mcmcStep = 1, expected = FALSE,
-  predictEtaMean = FALSE, predictEtaMeanField = FALSE, ...)
+\method{predict}{Hmsc}(
+  object,
+  post = poolMcmcChains(object$postList),
+  XData = NULL,
+  X = NULL,
+  XRRRData = NULL,
+  XRRR = NULL,
+  studyDesign = object$studyDesign,
+  ranLevels = object$ranLevels,
+  Gradient = NULL,
+  Yc = NULL,
+  mcmcStep = 1,
+  expected = FALSE,
+  predictEtaMean = FALSE,
+  predictEtaMeanField = FALSE,
+  ...
+)
 }
 \arguments{
 \item{object}{a fitted \code{Hmsc} model object}

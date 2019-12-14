@@ -4,10 +4,21 @@
 \alias{sampleMcmc}
 \title{sampleMCMC}
 \usage{
-sampleMcmc(hM, samples, transient = 0, thin = 1, initPar = NULL,
-  verbose = samples * thin/100, adaptNf = rep(transient, hM$nr),
-  nChains = 1, nParallel = 1, dataParList = NULL, updater = list(),
-  fromPrior = FALSE, alignPost = TRUE)
+sampleMcmc(
+  hM,
+  samples,
+  transient = 0,
+  thin = 1,
+  initPar = NULL,
+  verbose = samples * thin/100,
+  adaptNf = rep(transient, hM$nr),
+  nChains = 1,
+  nParallel = 1,
+  dataParList = NULL,
+  updater = list(),
+  fromPrior = FALSE,
+  alignPost = TRUE
+)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}

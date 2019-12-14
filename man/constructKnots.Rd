@@ -4,8 +4,7 @@
 \alias{constructKnots}
 \title{constructKnots}
 \usage{
-constructKnots(sData, nKnots = NULL, knotDist = NULL,
-  minKnotDist = NULL)
+constructKnots(sData, nKnots = NULL, knotDist = NULL, minKnotDist = NULL)
 }
 \arguments{
 \item{sData}{a dataframe containing spatial or temporal coordinates of units of the random level}

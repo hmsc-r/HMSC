@@ -4,14 +4,29 @@
 \alias{plotBeta}
 \title{plotBeta}
 \usage{
-plotBeta(hM, post, param = "Support", plotTree = FALSE,
-  SpeciesOrder = "Original", SpVector = NULL, covOrder = "Original",
-  covVector = NULL, spNamesNumbers = c(TRUE, TRUE),
-  covNamesNumbers = c(TRUE, TRUE), supportLevel = 0.9, split = 0.3,
-  cex = c(0.7, 0.7, 0.8), colors = colorRampPalette(c("blue", "white",
-  "red")), colorLevels = NULL, mar = NULL, marTree = c(6, 0, 2, 0),
-  mgp = c(3, 2, 0), smallplot = NULL, bigplot = NULL,
-  newplot = TRUE)
+plotBeta(
+  hM,
+  post,
+  param = "Support",
+  plotTree = FALSE,
+  SpeciesOrder = "Original",
+  SpVector = NULL,
+  covOrder = "Original",
+  covVector = NULL,
+  spNamesNumbers = c(TRUE, TRUE),
+  covNamesNumbers = c(TRUE, TRUE),
+  supportLevel = 0.9,
+  split = 0.3,
+  cex = c(0.7, 0.7, 0.8),
+  colors = colorRampPalette(c("blue", "white", "red")),
+  colorLevels = NULL,
+  mar = NULL,
+  marTree = c(6, 0, 2, 0),
+  mgp = c(3, 2, 0),
+  smallplot = NULL,
+  bigplot = NULL,
+  newplot = TRUE
+)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}
