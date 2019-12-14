@@ -1,8 +1,5 @@
 # Hmsc
 
-[![Build Status](https://travis-ci.org/hmsc-r/HMSC.svg?branch=master)](https://travis-ci.org/hmsc-r/HMSC)
-[![CRAN version](https://www.r-pkg.org/badges/version/Hmsc)](https://cran.rstudio.com/web/packages/Hmsc/index.html) [![](https://cranlogs.r-pkg.org/badges/grand-total/Hmsc)](https://cran.rstudio.com/web/packages/Hmsc/index.html)
-
 ## Description
 
 Hierarchical Modelling of Species Communities (**Hmsc**) is a flexible
@@ -23,29 +20,16 @@ user can include information species traits, phylogenetic
 relationships and information on the spatiotemporal context of the
 sampling design to account for dependencies among the sampling units.
 
-## Installation notes
-
-The latest version othe **Hmsc** package can be installed from GitHub
-using `install_github` function from the **devtools** package,
-available from CRAN.  The following lines should sucessfully install
-**Hmsc** to your **R** in most cases:
-
-```R
-install.packages("devtools") # if not yet installed
-library(devtools)
-install_github("hmsc-r/HMSC", build_opts = c("--no-resave-data", "--no-manual"))
-```
-
-To install a specific tagged version of **Hmsc**, you must add a `ref`
-argument. For instance, to install the first CRAN release
-version 3.0-2, modify the GitHub installation line to:
-```r
-install_github("hmsc-r/HMSC", ref = "v3.0-2")
-```
-
 ## Getting started
 
-To get started with the package, we recommend to start with reading the package documentation which can be found by typing ```help('Hmsc-package')```, following the vignettes and reading the help pages for the `Hmsc`, `HmscRandomLevel` and `sampleMcmc` functions. The vignettes are available in the 'vignette' folder, or can be accessed from within **R** by typing e.g. `vignette(topic = "vignette_1_univariate", package = "Hmsc")`. To see a list of vignettes, type `vignette(package = "Hmsc")`.
+To get started with the package, we recommend to start with reading
+the package documentation which can be found by typing
+`help('Hmsc-package')`, following the vignettes and reading the help
+pages for the `Hmsc`, `HmscRandomLevel` and `sampleMcmc`
+functions. The vignettes are available in the 'vignette' folder, or
+can be accessed from within **R** by typing e.g. `vignette(topic =
+"vignette_1_univariate", package = "Hmsc")`. To see a list of
+vignettes, type `vignette(package = "Hmsc")`.
 
 ## Documentation
 
