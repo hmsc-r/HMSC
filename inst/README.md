@@ -36,38 +36,38 @@ vignettes, type `vignette(package = "Hmsc")`.
 A good place to start for those interested in using the **Hmsc**
 package are the following papers:
 
-*Ovaskainen, O., Tikhonov, G., Norberg, A., Blanchet, F. G., Duan, L.,
- Dunson, D., Roslin, T. and Abrego, N. 2017. How to make more out of
- community data? A conceptual framework and its implementation as
- models and software. Ecology Letters 20, 561-576
- [https://doi.org/10.1111/ele.12757](https://doi.org/10.1111/ele.12757)*
+Ovaskainen, O., Tikhonov, G., Norberg, A., Blanchet, F. G., Duan, L.,
+Dunson, D., Roslin, T. and Abrego, N. 2017. How to make more out of
+community data? A conceptual framework and its implementation as
+models and software. _Ecology Letters_ **20,** 561-576
+[https://doi.org/10.1111/ele.12757](https://doi.org/10.1111/ele.12757)
 
 During the development of **Hmsc** several papers have been published
 describing the different components of the model. To learn more about
 these different components and Joint Species Distribution Modelling in
 general we recommend to read these articles.
 
-For spatial latent factors:
+#### For spatial latent factors:
 
-*Ovaskainen, O., Roy, D. B., Fox, R., and Anderson,
- B. J. 2017. Uncovering hidden spatial structure in species
- communities with spatially explicit joint species distribution
- models. Methods in Ecology and Evolution, 7,
- 428-436. [https://doi.org/10.1111/2041-210X.12502](https://doi.org/10.1111/2041-210X.12502)*
+Ovaskainen, O., Roy, D. B., Fox, R., and Anderson,
+B. J. 2017. Uncovering hidden spatial structure in species communities
+with spatially explicit joint species distribution models.  _Methods
+in Ecology and Evolution,_ **7,** 428-436.
+[https://doi.org/10.1111/2041-210X.12502](https://doi.org/10.1111/2041-210X.12502)
 
-For analysis of time series data:
+#### For analysis of time series data:
 
-*Ovaskainen, O., Tikhonov, G., Dunson, D., Grøtan, V., Engen, S.,
- Sæther, B.-E. and Abrego, N. 2017. How are species interactions
- structured in species rich communities? A new method for analysing
- time-series data. Proceedings of the Royal Society B: Biological
- Sciences,
- 284, 20170768. [https://doi.org/10.1098/rspb.2017.0768](https://doi.org/10.1098/rspb.2017.0768)*
+Ovaskainen, O., Tikhonov, G., Dunson, D., Grøtan, V., Engen, S.,
+Sæther, B.-E. and Abrego, N. 2017. How are species interactions
+structured in species rich communities? A new method for analysing
+time-series data. _Proceedings of the Royal Society B: Biological
+Sciences,_ **284,** 20170768.
+[https://doi.org/10.1098/rspb.2017.0768](https://doi.org/10.1098/rspb.2017.0768)
 
-For covariate dependent species associations:
+#### For covariate dependent species associations:
 
-*Tikhonov, G., Abrego, N., Dunson, D. and Ovaskainen, O. 2017. Using
- joint species distribution models for evaluating how
- species-to-species associations depend on the environmental
- context. Methods in Ecology and Evolution 8,
- 443-452. [https://doi.org/10.1111/2041-210X.12723](https://doi.org/10.1111/2041-210X.12723)*
+Tikhonov, G., Abrego, N., Dunson, D. and Ovaskainen, O. 2017. Using
+joint species distribution models for evaluating how
+species-to-species associations depend on the environmental
+context. _Methods in Ecology and Evolution_ **8,** 443-452.
+[https://doi.org/10.1111/2041-210X.12723](https://doi.org/10.1111/2041-210X.12723)
