@@ -1,16 +1,22 @@
 Version 3.0-4
 =============
 
+### Installation
+
+* **Hmsc** no longer depends on **phytools** package, and external
+  **ImageMagick** software is no longer needed.
+
 ### Bug Fixes
 
 * Several functions failed in the development version of **R** (to be
-  released as **R** version 4).
+  released as **R** version 4). The failures were caused by changes in
+  **R** internals.
 
 * Fixed bug with delta for `alignPosterior` which influences
 `sampleMcmc`. See
 [github issue #27](https://github.com/hmsc-r/HMSC/issues/27).
 
-* `plotBeta` failed with options `plotTree = FALSE` and
+* `plotBeta` failed with arguments `plotTree = FALSE` together with
 `SpeciesOrder = "Tree"`.
 
 ### New Features
