@@ -84,8 +84,9 @@ The exact number of samples to be recorded in order to get a proper estimate of 
   results.
 }
 \examples{
-## Record 100 posterior samples from a Hmsc object
-m = sampleMcmc(TD$m, samples=100)
+## samples=20 is ridiculously low, but runs fast: see the second
+## example for more proper usage
+m = sampleMcmc(TD$m, samples=20)
 
 \dontrun{
 ## Record 1000 posterior samples while skipping 1 MCMC step between samples

@@ -305,14 +305,6 @@ converged
 > # Evaluate model fit
 > preds = computePredictedValues(TD$m)
 > MF = evaluateModelFit(hM=TD$m, predY=preds)
-Setting levels: control = 0, case = 1
-Setting direction: controls < cases
-Setting levels: control = 0, case = 1
-Setting direction: controls < cases
-Setting levels: control = 0, case = 1
-Setting direction: controls < cases
-Setting levels: control = 0, case = 1
-Setting direction: controls < cases
 > 
 > # Evaluate model performance based on cross validation: this will be slow
 > ## Not run: 
@@ -496,109 +488,30 @@ converged
 > 
 > ### ** Examples
 > 
-> ## Record 100 posterior samples from a Hmsc object
-> m = sampleMcmc(TD$m, samples=100)
+> ## samples=20 is ridiculously low, but runs fast: see the second
+> ## example for more proper usage
+> m = sampleMcmc(TD$m, samples=20)
 [1] "Setting updater$Gamma2=FALSE due to specified phylogeny matrix"
-[1] "Chain 1, iteration 1 of 100, (sampling)"
-[1] "Chain 1, iteration 2 of 100, (sampling)"
-[1] "Chain 1, iteration 3 of 100, (sampling)"
-[1] "Chain 1, iteration 4 of 100, (sampling)"
-[1] "Chain 1, iteration 5 of 100, (sampling)"
-[1] "Chain 1, iteration 6 of 100, (sampling)"
-[1] "Chain 1, iteration 7 of 100, (sampling)"
-[1] "Chain 1, iteration 8 of 100, (sampling)"
-[1] "Chain 1, iteration 9 of 100, (sampling)"
-[1] "Chain 1, iteration 10 of 100, (sampling)"
-[1] "Chain 1, iteration 11 of 100, (sampling)"
-[1] "Chain 1, iteration 12 of 100, (sampling)"
-[1] "Chain 1, iteration 13 of 100, (sampling)"
-[1] "Chain 1, iteration 14 of 100, (sampling)"
-[1] "Chain 1, iteration 15 of 100, (sampling)"
-[1] "Chain 1, iteration 16 of 100, (sampling)"
-[1] "Chain 1, iteration 17 of 100, (sampling)"
-[1] "Chain 1, iteration 18 of 100, (sampling)"
-[1] "Chain 1, iteration 19 of 100, (sampling)"
-[1] "Chain 1, iteration 20 of 100, (sampling)"
-[1] "Chain 1, iteration 21 of 100, (sampling)"
-[1] "Chain 1, iteration 22 of 100, (sampling)"
-[1] "Chain 1, iteration 23 of 100, (sampling)"
-[1] "Chain 1, iteration 24 of 100, (sampling)"
-[1] "Chain 1, iteration 25 of 100, (sampling)"
-[1] "Chain 1, iteration 26 of 100, (sampling)"
-[1] "Chain 1, iteration 27 of 100, (sampling)"
-[1] "Chain 1, iteration 28 of 100, (sampling)"
-[1] "Chain 1, iteration 29 of 100, (sampling)"
-[1] "Chain 1, iteration 30 of 100, (sampling)"
-[1] "Chain 1, iteration 31 of 100, (sampling)"
-[1] "Chain 1, iteration 32 of 100, (sampling)"
-[1] "Chain 1, iteration 33 of 100, (sampling)"
-[1] "Chain 1, iteration 34 of 100, (sampling)"
-[1] "Chain 1, iteration 35 of 100, (sampling)"
-[1] "Chain 1, iteration 36 of 100, (sampling)"
-[1] "Chain 1, iteration 37 of 100, (sampling)"
-[1] "Chain 1, iteration 38 of 100, (sampling)"
-[1] "Chain 1, iteration 39 of 100, (sampling)"
-[1] "Chain 1, iteration 40 of 100, (sampling)"
-[1] "Chain 1, iteration 41 of 100, (sampling)"
-[1] "Chain 1, iteration 42 of 100, (sampling)"
-[1] "Chain 1, iteration 43 of 100, (sampling)"
-[1] "Chain 1, iteration 44 of 100, (sampling)"
-[1] "Chain 1, iteration 45 of 100, (sampling)"
-[1] "Chain 1, iteration 46 of 100, (sampling)"
-[1] "Chain 1, iteration 47 of 100, (sampling)"
-[1] "Chain 1, iteration 48 of 100, (sampling)"
-[1] "Chain 1, iteration 49 of 100, (sampling)"
-[1] "Chain 1, iteration 50 of 100, (sampling)"
-[1] "Chain 1, iteration 51 of 100, (sampling)"
-[1] "Chain 1, iteration 52 of 100, (sampling)"
-[1] "Chain 1, iteration 53 of 100, (sampling)"
-[1] "Chain 1, iteration 54 of 100, (sampling)"
-[1] "Chain 1, iteration 55 of 100, (sampling)"
-[1] "Chain 1, iteration 56 of 100, (sampling)"
-[1] "Chain 1, iteration 57 of 100, (sampling)"
-[1] "Chain 1, iteration 58 of 100, (sampling)"
-[1] "Chain 1, iteration 59 of 100, (sampling)"
-[1] "Chain 1, iteration 60 of 100, (sampling)"
-[1] "Chain 1, iteration 61 of 100, (sampling)"
-[1] "Chain 1, iteration 62 of 100, (sampling)"
-[1] "Chain 1, iteration 63 of 100, (sampling)"
-[1] "Chain 1, iteration 64 of 100, (sampling)"
-[1] "Chain 1, iteration 65 of 100, (sampling)"
-[1] "Chain 1, iteration 66 of 100, (sampling)"
-[1] "Chain 1, iteration 67 of 100, (sampling)"
-[1] "Chain 1, iteration 68 of 100, (sampling)"
-[1] "Chain 1, iteration 69 of 100, (sampling)"
-[1] "Chain 1, iteration 70 of 100, (sampling)"
-[1] "Chain 1, iteration 71 of 100, (sampling)"
-[1] "Chain 1, iteration 72 of 100, (sampling)"
-[1] "Chain 1, iteration 73 of 100, (sampling)"
-[1] "Chain 1, iteration 74 of 100, (sampling)"
-[1] "Chain 1, iteration 75 of 100, (sampling)"
-[1] "Chain 1, iteration 76 of 100, (sampling)"
-[1] "Chain 1, iteration 77 of 100, (sampling)"
-[1] "Chain 1, iteration 78 of 100, (sampling)"
-[1] "Chain 1, iteration 79 of 100, (sampling)"
-[1] "Chain 1, iteration 80 of 100, (sampling)"
-[1] "Chain 1, iteration 81 of 100, (sampling)"
-[1] "Chain 1, iteration 82 of 100, (sampling)"
-[1] "Chain 1, iteration 83 of 100, (sampling)"
-[1] "Chain 1, iteration 84 of 100, (sampling)"
-[1] "Chain 1, iteration 85 of 100, (sampling)"
-[1] "Chain 1, iteration 86 of 100, (sampling)"
-[1] "Chain 1, iteration 87 of 100, (sampling)"
-[1] "Chain 1, iteration 88 of 100, (sampling)"
-[1] "Chain 1, iteration 89 of 100, (sampling)"
-[1] "Chain 1, iteration 90 of 100, (sampling)"
-[1] "Chain 1, iteration 91 of 100, (sampling)"
-[1] "Chain 1, iteration 92 of 100, (sampling)"
-[1] "Chain 1, iteration 93 of 100, (sampling)"
-[1] "Chain 1, iteration 94 of 100, (sampling)"
-[1] "Chain 1, iteration 95 of 100, (sampling)"
-[1] "Chain 1, iteration 96 of 100, (sampling)"
-[1] "Chain 1, iteration 97 of 100, (sampling)"
-[1] "Chain 1, iteration 98 of 100, (sampling)"
-[1] "Chain 1, iteration 99 of 100, (sampling)"
-[1] "Chain 1, iteration 100 of 100, (sampling)"
+[1] "Chain 1, iteration 1 of 20, (sampling)"
+[1] "Chain 1, iteration 2 of 20, (sampling)"
+[1] "Chain 1, iteration 3 of 20, (sampling)"
+[1] "Chain 1, iteration 4 of 20, (sampling)"
+[1] "Chain 1, iteration 5 of 20, (sampling)"
+[1] "Chain 1, iteration 6 of 20, (sampling)"
+[1] "Chain 1, iteration 7 of 20, (sampling)"
+[1] "Chain 1, iteration 8 of 20, (sampling)"
+[1] "Chain 1, iteration 9 of 20, (sampling)"
+[1] "Chain 1, iteration 10 of 20, (sampling)"
+[1] "Chain 1, iteration 11 of 20, (sampling)"
+[1] "Chain 1, iteration 12 of 20, (sampling)"
+[1] "Chain 1, iteration 13 of 20, (sampling)"
+[1] "Chain 1, iteration 14 of 20, (sampling)"
+[1] "Chain 1, iteration 15 of 20, (sampling)"
+[1] "Chain 1, iteration 16 of 20, (sampling)"
+[1] "Chain 1, iteration 17 of 20, (sampling)"
+[1] "Chain 1, iteration 18 of 20, (sampling)"
+[1] "Chain 1, iteration 19 of 20, (sampling)"
+[1] "Chain 1, iteration 20 of 20, (sampling)"
 > 
 > ## Not run: 
 > ##D ## Record 1000 posterior samples while skipping 1 MCMC step between samples
@@ -637,7 +550,7 @@ converged
 > cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  8.332 0.242 8.651 0.008 0.01 
+Time elapsed:  4.158 0.213 4.473 0.004 0.005 
 > grDevices::dev.off()
 null device 
           1 
