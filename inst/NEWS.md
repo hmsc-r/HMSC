@@ -32,6 +32,8 @@ Version 3.0-4
   were accepted. See
   [github issue #30](https://github.com/hmsc-r/HMSC/issues/30).
 
+* `biPlot` uses equal aspect ratio in ordination biplots.
+
 ### Documentation
 
 * Added section on priors in vignette on high-dimensional multivariate models.
