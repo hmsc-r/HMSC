@@ -629,7 +629,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    }
 
    hM = setPriors(hM, setDefault=TRUE)
-
-   return(hM)
+   hM$call <- match.call()
+   hM
 }
 
