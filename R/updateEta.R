@@ -137,8 +137,14 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                 "NNGP" = {
                    iWs = bdiag(lapply(seq_len(nf), function(x) iWg[[alpha[x]]]))
                    LamInvSigLam = tcrossprod(lambda*matrix(sqrt(iSigma),nf,ns,byrow=TRUE))
-                   tmp1 = kronecker(LamInvSigLam, Diagonal(ny))
-                   fS = tcrossprod(S[order(lPi),,drop=FALSE],lambda*matrix(iSigma,nf,ns,byrow=TRUE))
+                   if(np[r] == ny){
+                      tmp1 = kronecker(LamInvSigLam, Diagonal(ny))
+                      fS = tcrossprod(S[order(lPi),,drop=FALSE],lambda*matrix(iSigma,nf,ns,byrow=TRUE))
+                   }else{
+                      P = sparseMatrix(i=1:ny,j=lPi)
+                      tmp1 = kronecker(LamInvSigLam, Diagonal(x=Matrix::colSums(P)))
+                      fS = Matrix::tcrossprod(Matrix::crossprod(P,S), lambda*matrix(iSigma,nf,ns,byrow=TRUE))
+                   }
                    iUEta = iWs + tmp1
                    R = chol(iUEta)
                    tmp2 = backsolve(R, as.vector(fS), transpose=TRUE) + rnorm(np[r]*nf)
