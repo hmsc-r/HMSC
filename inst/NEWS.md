@@ -21,6 +21,13 @@ Version 3.0-4
 * `plotBeta` failed with argument `plotTree = FALSE` together with
 `SpeciesOrder = "Tree"`.
 
+* Spatial models with Nearest Neighbour Gaussian Process (NNGP) failed
+  when the number spatial locations was not equal to the number of
+  sampling units. This could happen, for instance, if there are
+  multiple observations on the same spatial location. The problem
+  still persists in spatial models with Gaussian Predictive Process
+  (GPP).
+
 ### New Features
 
 * `Hmsc` models can be modified using `update(<Hmsc model>, <new
