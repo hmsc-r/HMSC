@@ -152,53 +152,57 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                    eta = matrix(feta,np[r],nf)
                 },
                 "GPP" = {
-                   idDg = rLPar[[r]]$idDg
-                   idDW12g = rLPar[[r]]$idDW12g
-                   Fg = rLPar[[r]]$Fg
-                   nK = nrow(Fg)
-                   idD = idDg[,alpha]
-                   Fmat = matrix(0,nrow=(nK*nf),ncol=(nK*nf))
-                   idD1W12 = matrix(0,nrow=(np[r]*nf),ncol=(nK*nf))
-                   for(h in 1:nf){
-                      Fmat[(h-1)*nK+(1:nK), (h-1)*nK+(1:nK)] = Fg[,,alpha[h]]
-                      idD1W12[(h-1)*np[r]+(1:np[r]), (h-1)*nK+(1:nK)] = idDW12g[,,alpha[h]]
+                   if(np[r] == ny){
+                      idDg = rLPar[[r]]$idDg
+                      idDW12g = rLPar[[r]]$idDW12g
+                      Fg = rLPar[[r]]$Fg
+                      nK = nrow(Fg)
+                      idD = idDg[,alpha]
+                      Fmat = matrix(0,nrow=(nK*nf),ncol=(nK*nf))
+                      idD1W12 = matrix(0,nrow=(np[r]*nf),ncol=(nK*nf))
+                      for(h in 1:nf){
+                         Fmat[(h-1)*nK+(1:nK), (h-1)*nK+(1:nK)] = Fg[,,alpha[h]]
+                         idD1W12[(h-1)*np[r]+(1:np[r]), (h-1)*nK+(1:nK)] = idDW12g[,,alpha[h]]
+                      }
+                      tmp = diag(iSigma)%*%t(lambda)
+                      fS = S[order(lPi),,drop=FALSE]%*%tmp
+                      fS = matrix(fS,ncol=1)
+                      LamSigLamT = lambda%*%tmp
+
+                      B0 = array(LamSigLamT,c(nrow(LamSigLamT),ncol(LamSigLamT),ny))
+                      idDV = matrix(t(idD),nrow=1)
+                      tmp = t(matrix((c(1:ny)-1),nrow=ny,ncol=nf))
+                      ind = matrix(tmp,nrow=1)*nf^2 + rep(nf*((1:nf)-1)+(1:nf),ny)
+                      B0[ind] = B0[ind] + idDV
+
+                      B1 = array(NA,c(ny,nf,nf))
+                      LB1 = array(NA,c(ny,nf,nf))
+                      for(i in 1:ny){
+                         B1[i,,] = chol2inv(chol((B0[,,i])))
+                         LB1[i,,] = t(chol(B1[i,,]))
+                      }
+                      tmp1 = t(matrix((1:nf-1),nrow=nf,ncol=ny)) * ny
+                      ind1 = rep(1:(nf*ny),nf)
+                      tmp1 = t(matrix((1:nf-1),nrow=nf,ncol=(ny*nf))) * ny
+                      ind2 = rep(1:ny,nf^2) + t(matrix(tmp1,nrow=1))
+                      iA = Matrix(0,nrow=nf*ny, ncol=nf*ny,sparse=TRUE)
+                      iA[t(matrix(rbind(ind1,as.vector(ind2)),nrow=2))] = as.vector(B1)
+                      LiA = Matrix(0,nrow=nf*ny, ncol=nf*ny,sparse=TRUE)
+                      LiA[t(matrix(rbind(ind1,as.vector(ind2)),nrow=2))] = as.vector(LB1)
+                      iAidD1W12 = iA %*% idD1W12
+                      H = Fmat - t(idD1W12)%*%iAidD1W12
+                      RH = chol(as.matrix(H))
+                      iRH = solve(RH)
+
+                      mu1 = iA%*%fS
+                      tmp1 = iAidD1W12 %*% iRH
+                      mu2 = tmp1%*%(Matrix::t(tmp1)%*%fS)
+
+                      etaR = LiA%*%rnorm(np[r]*nf[r])+tmp1%*%rnorm(nK*nf)
+                      eta = matrix(mu1+mu2+etaR,ncol=nf,nrow=np[r])
+                   } else {
+                      stop("updateEta: predictive gaussian process not available when number of spatial locations is less than number of sampling units")
                    }
-                   tmp = diag(iSigma)%*%t(lambda)
-                   fS = S[order(lPi),,drop=FALSE]%*%tmp
-                   fS = matrix(fS,ncol=1)
-                   LamSigLamT = lambda%*%tmp
-
-                   B0 = array(LamSigLamT,c(nrow(LamSigLamT),ncol(LamSigLamT),ny))
-                   idDV = matrix(t(idD),nrow=1)
-                   tmp = t(matrix((c(1:ny)-1),nrow=ny,ncol=nf))
-                   ind = matrix(tmp,nrow=1)*nf^2 + rep(nf*((1:nf)-1)+(1:nf),ny)
-                   B0[ind] = B0[ind] + idDV
-
-                   B1 = array(NA,c(ny,nf,nf))
-                   LB1 = array(NA,c(ny,nf,nf))
-                   for(i in 1:ny){
-                      B1[i,,] = chol2inv(chol((B0[,,i])))
-                      LB1[i,,] = t(chol(B1[i,,]))
-                   }
-                   tmp1 = t(matrix((1:nf-1),nrow=nf,ncol=ny)) * ny
-                   ind1 = rep(1:(nf*ny),nf)
-                   tmp1 = t(matrix((1:nf-1),nrow=nf,ncol=(ny*nf))) * ny
-                   ind2 = rep(1:ny,nf^2) + t(matrix(tmp1,nrow=1))
-                   iA = Matrix(0,nrow=nf*ny, ncol=nf*ny,sparse=TRUE)
-                   iA[t(matrix(rbind(ind1,as.vector(ind2)),nrow=2))] = as.vector(B1)
-                   LiA = Matrix(0,nrow=nf*ny, ncol=nf*ny,sparse=TRUE)
-                   LiA[t(matrix(rbind(ind1,as.vector(ind2)),nrow=2))] = as.vector(LB1)
-                   iAidD1W12 = iA %*% idD1W12
-                   H = Fmat - t(idD1W12)%*%iAidD1W12
-                   RH = chol(as.matrix(H))
-                   iRH = solve(RH)
-
-                   mu1 = iA%*%fS
-                   tmp1 = iAidD1W12 %*% iRH
-                   mu2 = tmp1%*%(Matrix::t(tmp1)%*%fS)
-
-                   etaR = LiA%*%rnorm(np[r]*nf[r])+tmp1%*%rnorm(nK*nf)
-                   eta = matrix(mu1+mu2+etaR,ncol=nf,nrow=np[r])
                 }
                 )
       }
