@@ -7,7 +7,7 @@
 #' @param transient the number of MCMC steps that are executed before starting recording posterior samples
 #' @param thin the number of MCMC steps between each recording of samples from the posterior
 #' @param initPar a named list of parameter values used for initiation of MCMC states
-#' @param verbose the interval between MCMC steps printed to the console
+#' @param verbose the interval between MCMC steps printed to the console (default is an interval that prints ca. 50 reports)
 #' @param adaptNf a vector of length \eqn{n_r} with number of MCMC steps at which the adaptation of the
 #' number of latent factors is conducted
 #' @param nChains number of independent MCMC chains to be run
@@ -61,15 +61,22 @@
 #' m = sampleMcmc(TD$m, samples=1000, transient=500, thin=2, nChains=2, nParallel=1)
 #' }
 #'
-## J.O. thinks that these functions should rather be imported from
-## parallel which is a standard package supported by the R Core.
 #' @importFrom parallel makeCluster clusterExport clusterEvalQ clusterApplyLB stopCluster
 #' @export
 
-sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
-                      verbose=samples*thin/100, adaptNf=rep(transient,hM$nr),
-                      nChains=1, nParallel=1, dataParList=NULL, updater=list(),
-                      fromPrior = FALSE, alignPost = TRUE){
+sampleMcmc =
+    function(hM, samples, transient=0, thin=1, initPar=NULL,
+             verbose, adaptNf=rep(transient,hM$nr),
+             nChains=1, nParallel=1, dataParList=NULL, updater=list(),
+             fromPrior = FALSE, alignPost = TRUE)
+{
+   if (missing(verbose)) {
+       if (samples*thin <= 50) # report every sampling
+           verbose <- 1
+       else                    # report ~50 steps of sampling
+           verbose <- samples*thin/50
+   }
+   verbose <- as.integer(verbose) # truncate to integer
    if(fromPrior)
       nParallel = 1
    force(adaptNf)
