@@ -10,7 +10,7 @@ sampleMcmc(
   transient = 0,
   thin = 1,
   initPar = NULL,
-  verbose = samples * thin/100,
+  verbose,
   adaptNf = rep(transient, hM$nr),
   nChains = 1,
   nParallel = 1,
@@ -31,7 +31,7 @@ sampleMcmc(
 
 \item{initPar}{a named list of parameter values used for initiation of MCMC states}
 
-\item{verbose}{the interval between MCMC steps printed to the console}
+\item{verbose}{the interval between MCMC steps printed to the console (default is an interval that prints ca. 50 reports)}
 
 \item{adaptNf}{a vector of length \eqn{n_r} with number of MCMC steps at which the adaptation of the
 number of latent factors is conducted}
