@@ -61,15 +61,16 @@
 #' m = sampleMcmc(TD$m, samples=1000, transient=500, thin=2, nChains=2, nParallel=1)
 #' }
 #'
-## J.O. thinks that these functions should rather be imported from
-## parallel which is a standard package supported by the R Core.
 #' @importFrom parallel makeCluster clusterExport clusterEvalQ clusterApplyLB stopCluster
 #' @export
 
-sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
-                      verbose=samples*thin/100, adaptNf=rep(transient,hM$nr),
-                      nChains=1, nParallel=1, dataParList=NULL, updater=list(),
-                      fromPrior = FALSE, alignPost = TRUE){
+sampleMcmc =
+    function(hM, samples, transient=0, thin=1, initPar=NULL,
+             verbose=samples*thin/100, adaptNf=rep(transient,hM$nr),
+             nChains=1, nParallel=1, dataParList=NULL, updater=list(),
+             fromPrior = FALSE, alignPost = TRUE)
+{
+   verbose <- as.integer(verbose) # truncate to integer
    if(fromPrior)
       nParallel = 1
    force(adaptNf)
