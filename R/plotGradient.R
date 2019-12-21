@@ -45,7 +45,6 @@
 #' Gradient = constructGradient(TD$m, focalVariable="x1")
 #' predY = predict(TD$m, Gradient=Gradient)
 #' plotGradient(TD$m, Gradient, pred=predY, measure="Y", index = 2, showData = TRUE, jigger = 0.05)
-#'
 #' # Plot modelled species richness over the gradient of environmental variable x1
 #' Gradient = constructGradient(TD$m, focalVariable="x1")
 #' predY = predict(TD$m, Gradient=Gradient)
@@ -164,9 +163,16 @@ plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = NUL
          }
          pY = tmp[,index]
       }
-      pX = hM$XData[,XDatacol]
 
-      lo1 = min(lo1,min(pY,na.rm = TRUE))
+      switch(class(hM$X)[1L],
+             matrix = {
+                pX = hM$XData[,XDatacol]
+             },
+             list = {
+                pX = hM$XData[[1]][,XDatacol]
+             }
+      )
+
       hi1 = max(hi1,max(pY,na.rm = TRUE))
    }
 
