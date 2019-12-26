@@ -46,7 +46,7 @@ updatewRRR = function(Z,Beta,iSigma,Eta,Lambda,X1A,XRRR,Pi,dfPi,rL,PsiRRR,DeltaR
       S = Z - LFix
    }
 
-   A1 = BetaRRR%*%diag(iSigma)%*%t(BetaRRR)
+   A1 = BetaRRR%*%diag(iSigma,nrow = length(iSigma))%*%t(BetaRRR)
    A2 = t(XRRR)%*%XRRR
    QtiSigmaQ = kronecker(A2,A1)
    tauRRR = matrix(apply(DeltaRRR, 2, cumprod), ncRRR, 1)
@@ -54,7 +54,7 @@ updatewRRR = function(Z,Beta,iSigma,Eta,Lambda,X1A,XRRR,Pi,dfPi,rL,PsiRRR,DeltaR
    iU=diag(as.vector(PsiRRR*tauMatRRR))+QtiSigmaQ
    RiU = chol(iU)
    U = chol2inv(RiU)
-   mu1 = as.vector(BetaRRR%*%diag(iSigma)%*%t(S)%*%XRRR)
+   mu1 = as.vector(BetaRRR%*%diag(iSigma,nrow = length(iSigma))%*%t(S)%*%XRRR)
    mu = U %*% (mu1)
    we = mu + backsolve(RiU, rnorm(ncRRR*ncORRR))
    wRRR = matrix(we,nrow = ncRRR)

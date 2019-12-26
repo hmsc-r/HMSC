@@ -261,18 +261,20 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       hM$nc = 0
    }
 
-   if(is.null(colnames(hM$X))){
-      switch(class(X)[1L],
-             matrix = {
+   switch(class(hM$X)[1L],
+          matrix = {
+             if(is.null(colnames(hM$X))){
                 colnames(hM$X) = sprintf(sprintf("cov%%.%dd",ceiling(log10(hM$nc))), 1:hM$nc)
-             },
+             }
+          },
+          if(is.null(colnames(hM$X[[1]]))){
              list = {
                 for(j in 1:hM$ns)
                    colnames(hM$X[[j]]) = sprintf(sprintf("cov%%.%dd",ceiling(log10(hM$nc))), 1:hM$nc)
              }
-      )
+          }
+   )
 
-   }
    switch (class(hM$X)[1L],
            "matrix" = {hM$covNames = colnames(hM$X)},
            "list" = {hM$covNames = colnames(hM$X[[1]])}
@@ -410,10 +412,10 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
             XRRRsc = scale(XRRRStack)
             XRRRScalePar[,XRRRscaleInd] = rbind(attr(XRRRsc,"scaled:center"), attr(XRRRsc,"scaled:scale"))[,XRRRscaleInd]
          } else{
-            XRRRsc = scale(XStack, center=FALSE)
+            XRRRsc = scale(XRRRStack, center=FALSE)
             XRRRScalePar[2,XRRRscaleInd] = attr(sc,"scaled:scale")[XRRRscaleInd]
          }
-          XRRRScaled[,XRRRscaleInd] = XRRRsc[,XRRRscaleInd]
+         XRRRScaled[,XRRRscaleInd] = XRRRsc[,XRRRscaleInd]
          hM$XRRRScalePar = XRRRScalePar
          hM$XRRRScaled = XRRRScaled
       }
