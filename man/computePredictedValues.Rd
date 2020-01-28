@@ -17,7 +17,8 @@ computePredictedValues(
   nParallel = 1,
   nChains = length(hM$postList),
   updater = list(),
-  verbose = hM$verbose
+  verbose = hM$verbose,
+  alignPost = TRUE
 )
 }
 \arguments{
@@ -43,9 +44,11 @@ computePredictedValues(
 
 \item{nChains}{number of independent MCMC chains to be run}
 
-\item{updater}{a named list, specifying which conditional updaters should be ommitted}
+\item{updater}{a named list, specifying which conditional updaters should be omitted}
 
 \item{verbose}{the interval between MCMC steps printed to the console}
+
+\item{alignPost}{boolean flag indicating whether the posterior of each chains should be aligned}
 }
 \value{
 an array of model predictions, made for each posterior sample
