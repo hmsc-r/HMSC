@@ -1,5 +1,5 @@
 #' Script used to generate test data 'TD.Rdata'
-#' Last run: 09/07/2019
+#' Last run: 2020-02-28
 
 library(ape)
 library(MASS)
@@ -46,8 +46,8 @@ colnames(TD$Y) = colnames(TD$C)
 TD$Y = 1*(TD$Y>0)
 
 #Testmodel
-TD$rL1 = HmscRandomLevel(sData = TD$xycoords)
-TD$rL2 = HmscRandomLevel(units = TD$studyDesign$sample)
+rL1 = HmscRandomLevel(sData = TD$xycoords)
+rL2 = HmscRandomLevel(units = TD$studyDesign$sample)
 TD$rL1 = setPriors(rL1, nfMax=2, nfMin=2)
 TD$rL2 = setPriors(rL2, nfMax=2, nfMin=2)
 TD$Tr = data.frame(TD$Tr)
