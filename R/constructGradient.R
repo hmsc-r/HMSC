@@ -170,12 +170,9 @@ constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid
    }
    if(inherits(hM$XData, "list")){XDataNew = XDataNewList}
 
-   dfPiNew = matrix(NA,ngrid,hM$nr)
+   dfPiNew = matrix("new_unit", ngrid, hM$nr)
    colnames(dfPiNew) = hM$rLNames
-   for (r in seq_len(hM$nr)){
-      dfPiNew[,r] = sprintf('new_unit',1:(ngrid))
-   }
-   dfPiNew = as.data.frame(dfPiNew)
+   dfPiNew = as.data.frame(dfPiNew, stringsAsFactors = TRUE)
 
    rLNew = vector("list", hM$nr)
    names(rLNew) = hM$rLNames
