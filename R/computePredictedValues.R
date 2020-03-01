@@ -66,7 +66,7 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
       postN = Reduce(sum, lapply(hM$postList, length))
       predArray = array(NA,c(hM$ny,hM$ns,postN))
       for (k in 1:nfolds){
-         print(sprintf("Cross-validation, fold %d out of %d", k, nfolds))
+         cat(sprintf("Cross-validation, fold %d out of %d\n", k, nfolds))
          train = (partition!=k)
          val = (partition==k)
          dfPi = as.data.frame(matrix(NA,sum(train),hM$nr))
