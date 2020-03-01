@@ -1,9 +1,17 @@
 #' Script used to generate test data 'TD.Rdata'
-#' Last run: 09/07/2019
+#' Last run: 2020-02-29
+
+### This script works only in RStudio. If you cannot or do not work in
+### RStudio alternatives: use the plain R alternative that is now
+### commented out on the last line. To use the plain R alternative,
+### comment out the usethis::use_data() line and remove comment dashes
+### from the last line starting save(). Plain R alternative should be
+### run in 'data-raw' working directory.
 
 library(ape)
 library(MASS)
 library(Hmsc)
+## you need the next only if you want to use RStudio. 
 library(usethis)
 
 #Set random seed for reproducibility
@@ -46,8 +54,8 @@ colnames(TD$Y) = colnames(TD$C)
 TD$Y = 1*(TD$Y>0)
 
 #Testmodel
-TD$rL1 = HmscRandomLevel(sData = TD$xycoords)
-TD$rL2 = HmscRandomLevel(units = TD$studyDesign$sample)
+rL1 = HmscRandomLevel(sData = TD$xycoords)
+rL2 = HmscRandomLevel(units = TD$studyDesign$sample)
 TD$rL1 = setPriors(rL1, nfMax=2, nfMin=2)
 TD$rL2 = setPriors(rL2, nfMax=2, nfMin=2)
 TD$Tr = data.frame(TD$Tr)
@@ -68,4 +76,9 @@ TD$m = Hmsc(Y=TD$Y,
          distr=c('probit'))
 
 TD$m = sampleMcmc(TD$m,thin=1,samples=100,transient=50,nChains=2)
+## The next works only within RStudio
 usethis::use_data(TD, overwrite=TRUE)
+## If you are not in RStudio use instead the following in the data-raw
+## directory
+
+## save(TD, file = file.path("..", "data", "TD.rda"), version = 2)
