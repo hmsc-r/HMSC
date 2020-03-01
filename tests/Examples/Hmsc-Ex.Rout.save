@@ -158,7 +158,7 @@ Loading required package: coda
 > ##D # Compute conditional predictions for a previously fitted HMSC model using 2 folds
 > ##D partition = createPartition(TD$m, nfolds = 2)
 > ##D predsCV2 = computePredictedValues(TD$m, partition = partition,
-> ##D partition.sp = 1:m$ns, mcmcStep = 100)
+> ##D partition.sp = 1:TD$m$ns, mcmcStep = 100)
 > ## End(Not run)
 > 
 > 
@@ -549,7 +549,7 @@ Chain 1, iteration 20 of 20, (sampling)
 > cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  4.569 0.268 4.934 0.005 0.007 
+Time elapsed:  4.265 0.217 4.53 0.004 0.005 
 > grDevices::dev.off()
 null device 
           1 
