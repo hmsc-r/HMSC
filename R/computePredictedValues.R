@@ -43,7 +43,7 @@
 #' # Compute conditional predictions for a previously fitted HMSC model using 2 folds
 #' partition = createPartition(TD$m, nfolds = 2)
 #' predsCV2 = computePredictedValues(TD$m, partition = partition,
-#' partition.sp = 1:m$ns, mcmcStep = 100)
+#' partition.sp = 1:TD$m$ns, mcmcStep = 100)
 #' }
 #'
 #' @importFrom stats predict
