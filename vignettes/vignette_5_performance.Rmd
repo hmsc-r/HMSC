@@ -1,7 +1,7 @@
 ---
 title:  |   
   | \LARGE{Hmsc 3.0: Testing the performance of Hmsc with simulated data} \vspace{0.5cm}
-author: "Gleb Tikhonov, Øystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen, Melinda M. J. de Jonge, Jari Oksanen & Otso Ovaskainen"
+author: "Gleb Tikhonov, Ã˜ystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen, Melinda M. J. de Jonge, Jari Oksanen & Otso Ovaskainen"
 date: "17 December 2019"
 output: pdf_document
 bibliography: endnote.xml
@@ -22,7 +22,7 @@ Here, we test the performance of the MCMC estimation scheme in terms of (1) comp
 ### Set directories and load libraries
 ```{r Data generation I, message=F, results=F, cache=F, warning=F}
 localDir = "."
-source("load_libraries.r")
+source("load_libraries.R")
 ```
 
 ### The `makedata` function
