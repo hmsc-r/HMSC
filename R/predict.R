@@ -125,6 +125,14 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
    } else
       dfPiNew = matrix(NA,nyNew,0)
    rL = ranLevels[object$rLNames]
+   ## object can have pre-computed data parameters, but not
+   ## necessarily. These are needed only in updateEta(), but get it
+   ## here anyway...
+   rLPar <- if (is.null(object$rLPar)) {
+               computeDataParameters(object)$rLPar
+            } else {
+               object$rLPar
+            }
 
    predN = length(post)
    predPostEta = vector("list", object$nr)
@@ -182,7 +190,7 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
          Z = L
          Z = updateZ(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda, X=X,Pi=PiNew,dfPi=dfPiNew,distr=object$distr,rL=rL)
          for(sN in seq_len(mcmcStep)){
-            Eta = updateEta(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda,Alpha=sam$Alpha, rLPar=object$rLPar, X=X,Pi=PiNew,dfPi=dfPiNew,rL=rL)
+            Eta = updateEta(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda,Alpha=sam$Alpha, rLPar=rLPar, X=X,Pi=PiNew,dfPi=dfPiNew,rL=rL)
             Z = updateZ(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda, X=X,Pi=PiNew,dfPi=dfPiNew,distr=object$distr,rL=rL)
          }
          for(r in seq_len(object$nr)){
