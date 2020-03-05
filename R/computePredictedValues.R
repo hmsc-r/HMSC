@@ -69,7 +69,9 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
          cat(sprintf("Cross-validation, fold %d out of %d\n", k, nfolds))
          train = (partition!=k)
          val = (partition==k)
-         dfPi = as.data.frame(matrix(NA,sum(train),hM$nr))
+         ## stringsAsFactors probably not needed below
+         dfPi = as.data.frame(matrix(NA,sum(train),hM$nr),
+                              stringsAsFactors = TRUE)
          colnames(dfPi) = hM$rLNames
          for(r in seq_len(hM$nr)){
             dfPi[,r] = factor(hM$dfPi[train,r])
@@ -122,7 +124,8 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
                           initPar=initPar, nChains=nChains, nParallel=nParallel, updater = updater,
                           verbose = verbose, alignPost=alignPost)
          postList = poolMcmcChains(hM1$postList, start=start)
-         dfPi = as.data.frame(matrix(NA,sum(val),hM$nr))
+         ## stringsAsFactors probably not needed below
+         dfPi = as.data.frame(matrix(NA,sum(val),hM$nr), stringsAsFactors = TRUE)
          colnames(dfPi) = hM$rLNames
          for (r in seq_len(hM$nr)){
             dfPi[,r] = factor(hM$dfPi[val,r])

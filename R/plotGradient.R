@@ -177,7 +177,7 @@ plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = NUL
    }
 
    if (is.factor(xx)) {
-      toPlot = data.frame(xx, me, lo, hi)
+      toPlot = data.frame(xx, me, lo, hi, stringsAsFactors = TRUE)
 #      plot.new()
       pl = ggplot(toPlot, aes_string(x = xx, y = me)) + geom_bar(position = position_dodge(),
                                                                               stat = "identity") + xlab(xlabel) + ylab(ylabel) +
@@ -188,7 +188,7 @@ plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = NUL
             pX = as.numeric(pX)
             pX = pX + runif(n =length(pY),min = -jigger, max = jigger)
          }
-         dataToPlot = data.frame(pX = pX, pY = pY)
+         dataToPlot = data.frame(pX = pX, pY = pY, stringsAsFactors = TRUE)
          pl = pl + geom_point(data = dataToPlot, aes_string(x = pX, y = pY), size = pointsize)
       }
       #plot(pl)
