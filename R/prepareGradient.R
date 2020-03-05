@@ -60,7 +60,7 @@ prepareGradient = function(hM, XDataNew, sDataNew){
       }
       rLNew[[r]] = rL1
    }
-   studyDesignNew = as.data.frame(dfPiNew)
+   studyDesignNew = as.data.frame(dfPiNew, stringsAsFactors = TRUE)
    Gradient = list(XDataNew=XDataNew, studyDesignNew=studyDesignNew, rLNew=rLNew)
    return(Gradient)
 }
