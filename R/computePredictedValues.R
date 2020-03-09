@@ -48,6 +48,7 @@
 #'
 #' @importFrom stats predict
 #' @importFrom abind abind
+#' @importFrom rlang duplicate
 #' @export
 
 computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1, thin=1,
@@ -127,23 +128,38 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
          ## stringsAsFactors probably not needed below
          dfPi = as.data.frame(matrix(NA,sum(val),hM$nr), stringsAsFactors = TRUE)
          colnames(dfPi) = hM$rLNames
-         for (r in seq_len(hM$nr)){
+         for(r in seq_len(hM$nr)){
             dfPi[,r] = factor(hM$dfPi[val,r])
          }
          if(is.null(partition.sp)){
             pred1 = predict(hM1, post=postList, X=XVal, XRRR=XRRRVal, studyDesign=dfPi, Yc=Yc[val,,drop=FALSE], mcmcStep=mcmcStep, expected=expected)
             pred1Array = abind(pred1,along=3)
          } else {
-            pred1Array =  array(dim=c(sum(val),hM$ns,postN))
+            hM2 = duplicate(hM)
+            if(is.null(hM2$rLPar)) {
+               hM2$rLPar = computeDataParameters(hM2)$rLPar
+            }
+            postList2 = duplicate(postList)
+            for(r in seq_len(hM$nr)){
+               postEta = lapply(postList, function(c) c$Eta[[r]])
+               postAlpha = lapply(postList, function(c) c$Alpha[[r]])
+               predPostEta = predictLatentFactor(unitsPred=levels(hM2$dfPi[,r]),units=levels(hM1$dfPi[,r]),
+                                                      postEta=postEta,postAlpha=postAlpha,rL=hM$rL[[r]])
+               for(i in seq_len(length(postList))){
+                  postList2[[i]]$Eta[[r]] = predPostEta[[i]]
+               }
+            }
+
+            pred1Array = array(dim=c(sum(val),hM$ns,postN))
             nfolds.sp = length(unique(partition.sp))
             for (i in 1:nfolds.sp){
                train.sp = (partition.sp!=i)
                val.sp = (partition.sp==i)
-               Yc = matrix(NA,nrow=sum(val), ncol=hM$ns)
-               Yc[,train.sp] = hM$Y[val,train.sp,drop=FALSE]
-               pred2 = predict(hM1, post=postList, X=XVal, XRRR=XRRRVal,studyDesign=dfPi, Yc=Yc, mcmcStep=mcmcStep, expected=expected)
+               YcFull = hM$Y
+               YcFull[val,val.sp] = NA
+               pred2 = predict(hM2, post=postList2, X=hM2$X, XRRR=hM2$XRRR,studyDesign=hM2$studyDesign, Yc=YcFull, mcmcStep=mcmcStep, expected=expected)
                pred2Array = abind(pred2,along=3)
-               pred1Array[,val.sp,] = pred2Array[,val.sp,]
+               pred1Array[,val.sp,] = pred2Array[val,val.sp,]
             }
          }
          predArray[val,,] = pred1Array
