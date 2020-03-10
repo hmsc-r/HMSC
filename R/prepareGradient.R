@@ -20,12 +20,6 @@
 #' @seealso
 #' \code{\link{constructGradient}}, \code{\link{predict}}
 #'
-#' @examples
-#' \dontrun{
-#' Gradient = prepareGradient(hM=m, XDataNew=XDataNew, sDataNew=sDataNew)
-#' predY = predict(m, Gradient=Gradient)
-#' }
-#'
 #' @export
 
 prepareGradient = function(hM, XDataNew, sDataNew){
