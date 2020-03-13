@@ -158,7 +158,7 @@ Loading required package: coda
 > ##D # Compute conditional predictions for a previously fitted HMSC model using 2 folds
 > ##D partition = createPartition(TD$m, nfolds = 2)
 > ##D predsCV2 = computePredictedValues(TD$m, partition = partition,
-> ##D partition.sp = 1:m$ns, mcmcStep = 100)
+> ##D partition.sp = 1:TD$m$ns, mcmcStep = 100)
 > ## End(Not run)
 > 
 > 
@@ -404,7 +404,6 @@ converged
 > predY = predict(TD$m, Gradient=Gradient)
 > plotGradient(TD$m, Gradient, pred=predY, measure="Y", index = 2, showData = TRUE, jigger = 0.05)
 [1] 0.98
-> 
 > # Plot modelled species richness over the gradient of environmental variable x1
 > Gradient = constructGradient(TD$m, focalVariable="x1")
 # weights:  3 (2 variable)
@@ -491,27 +490,27 @@ converged
 > ## samples=20 is ridiculously low, but runs fast: see the second
 > ## example for more proper usage
 > m = sampleMcmc(TD$m, samples=20)
-[1] "Setting updater$Gamma2=FALSE due to specified phylogeny matrix"
-[1] "Chain 1, iteration 1 of 20, (sampling)"
-[1] "Chain 1, iteration 2 of 20, (sampling)"
-[1] "Chain 1, iteration 3 of 20, (sampling)"
-[1] "Chain 1, iteration 4 of 20, (sampling)"
-[1] "Chain 1, iteration 5 of 20, (sampling)"
-[1] "Chain 1, iteration 6 of 20, (sampling)"
-[1] "Chain 1, iteration 7 of 20, (sampling)"
-[1] "Chain 1, iteration 8 of 20, (sampling)"
-[1] "Chain 1, iteration 9 of 20, (sampling)"
-[1] "Chain 1, iteration 10 of 20, (sampling)"
-[1] "Chain 1, iteration 11 of 20, (sampling)"
-[1] "Chain 1, iteration 12 of 20, (sampling)"
-[1] "Chain 1, iteration 13 of 20, (sampling)"
-[1] "Chain 1, iteration 14 of 20, (sampling)"
-[1] "Chain 1, iteration 15 of 20, (sampling)"
-[1] "Chain 1, iteration 16 of 20, (sampling)"
-[1] "Chain 1, iteration 17 of 20, (sampling)"
-[1] "Chain 1, iteration 18 of 20, (sampling)"
-[1] "Chain 1, iteration 19 of 20, (sampling)"
-[1] "Chain 1, iteration 20 of 20, (sampling)"
+Setting updater$Gamma2=FALSE due to specified phylogeny matrix
+Chain 1, iteration 1 of 20, (sampling)
+Chain 1, iteration 2 of 20, (sampling)
+Chain 1, iteration 3 of 20, (sampling)
+Chain 1, iteration 4 of 20, (sampling)
+Chain 1, iteration 5 of 20, (sampling)
+Chain 1, iteration 6 of 20, (sampling)
+Chain 1, iteration 7 of 20, (sampling)
+Chain 1, iteration 8 of 20, (sampling)
+Chain 1, iteration 9 of 20, (sampling)
+Chain 1, iteration 10 of 20, (sampling)
+Chain 1, iteration 11 of 20, (sampling)
+Chain 1, iteration 12 of 20, (sampling)
+Chain 1, iteration 13 of 20, (sampling)
+Chain 1, iteration 14 of 20, (sampling)
+Chain 1, iteration 15 of 20, (sampling)
+Chain 1, iteration 16 of 20, (sampling)
+Chain 1, iteration 17 of 20, (sampling)
+Chain 1, iteration 18 of 20, (sampling)
+Chain 1, iteration 19 of 20, (sampling)
+Chain 1, iteration 20 of 20, (sampling)
 > 
 > ## Not run: 
 > ##D ## Record 1000 posterior samples while skipping 1 MCMC step between samples
@@ -550,7 +549,7 @@ converged
 > cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  4.158 0.213 4.473 0.004 0.005 
+Time elapsed:  4.265 0.217 4.53 0.004 0.005 
 > grDevices::dev.off()
 null device 
           1 

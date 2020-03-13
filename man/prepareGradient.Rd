@@ -26,13 +26,6 @@ Note that the difference between \code{constructGradient} and \code{prepareGradi
 \code{prepareGradient} takes as input the new environmental and spatial data, \code{constructGradient}
 generates those data to represent a new environmental gradient.
 }
-\examples{
-\dontrun{
-Gradient = prepareGradient(hM=m, XDataNew=XDataNew, sDataNew=sDataNew)
-predY = predict(m, Gradient=Gradient)
-}
-
-}
 \seealso{
 \code{\link{constructGradient}}, \code{\link{predict}}
 }

@@ -129,7 +129,7 @@ constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid
          ma = max(v.focal)
          xx = seq(mi, ma, length.out = ngrid)
       }
-      XDataNew = data.frame(xx)
+      XDataNew = data.frame(xx, stringsAsFactors = TRUE)
       colnames(XDataNew) = vars[focal]
 
       for (i in seq_len(length(non.focals))){
@@ -144,7 +144,9 @@ constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid
             }
             if (type==2){
                mymnm = multinom(v.non.focal~v.focal)
-               yy=predict(mymnm, newdata=data.frame(v.focal=xx))
+               yy=predict(mymnm,
+                          newdata=data.frame(v.focal=xx,
+                                             stringsAsFactors = TRUE))
                XDataNew[,vars[non.focal]] = yy
             }
             if (type==3){
@@ -158,7 +160,9 @@ constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid
             }
             if (type==2){
                mylm = lm(v.non.focal~v.focal)
-               yy=predict(mylm, newdata=data.frame(v.focal=xx))
+               yy=predict(mylm,
+                          newdata=data.frame(v.focal=xx,
+                                             stringsAsFactors = TRUE))
                XDataNew[,vars[non.focal]] = yy
             }
             if (type==3){
@@ -170,12 +174,9 @@ constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid
    }
    if(inherits(hM$XData, "list")){XDataNew = XDataNewList}
 
-   dfPiNew = matrix(NA,ngrid,hM$nr)
+   dfPiNew = matrix("new_unit", ngrid, hM$nr)
    colnames(dfPiNew) = hM$rLNames
-   for (r in seq_len(hM$nr)){
-      dfPiNew[,r] = sprintf('new_unit',1:(ngrid))
-   }
-   dfPiNew = as.data.frame(dfPiNew)
+   dfPiNew = as.data.frame(dfPiNew, stringsAsFactors = TRUE)
 
    rLNew = vector("list", hM$nr)
    names(rLNew) = hM$rLNames

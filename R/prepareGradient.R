@@ -20,12 +20,6 @@
 #' @seealso
 #' \code{\link{constructGradient}}, \code{\link{predict}}
 #'
-#' @examples
-#' \dontrun{
-#' Gradient = prepareGradient(hM=m, XDataNew=XDataNew, sDataNew=sDataNew)
-#' predY = predict(m, Gradient=Gradient)
-#' }
-#'
 #' @export
 
 prepareGradient = function(hM, XDataNew, sDataNew){
@@ -60,7 +54,7 @@ prepareGradient = function(hM, XDataNew, sDataNew){
       }
       rLNew[[r]] = rL1
    }
-   studyDesignNew = as.data.frame(dfPiNew)
+   studyDesignNew = as.data.frame(dfPiNew, stringsAsFactors = TRUE)
    Gradient = list(XDataNew=XDataNew, studyDesignNew=studyDesignNew, rLNew=rLNew)
    return(Gradient)
 }

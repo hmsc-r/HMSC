@@ -119,7 +119,7 @@ predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predict
                          unitsAll = c(units,unitsPred[indNew])
                          s = rL$s[unitsAll,]
                          sOld = s[1:np,]
-                         sNew = s[np+(1:nn),]
+                         sNew = as.matrix(s[np+(1:nn),],ncol=ncol(sOld))
                          indNN = knnx.index(sOld,sNew,k=rL$nNeighbours)
                          indices = list()
                          dist12 = matrix(NA,nrow=rL$nNeighbours,ncol=nn)
@@ -149,7 +149,7 @@ predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predict
                                   K21iK11[,i] = K12[,i]%*%iK11
                                }
                                B = Matrix(0,nrow=nn, ncol=np,sparse=TRUE)
-                               B[ind2,ind1] = as.vector(K21iK11)
+                               B[cbind(ind2,ind1)] = as.vector(K21iK11)
                                Fmat = 1 - colSums(K21iK11*K12)
                                m = B%*%eta[,h]
                                etaPred[indNew,h] = as.numeric(m + sqrt(Fmat)*rnorm(nn))
