@@ -119,7 +119,7 @@ predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predict
                          unitsAll = c(units,unitsPred[indNew])
                          s = rL$s[unitsAll,]
                          sOld = s[1:np,]
-                         sNew = as.matrix(s[np+(1:nn),],ncol=ncol(sOld))
+                         sNew = matrix(s[np+(1:nn),],ncol=ncol(sOld))
                          indNN = knnx.index(sOld,sNew,k=rL$nNeighbours)
                          indices = list()
                          dist12 = matrix(NA,nrow=rL$nNeighbours,ncol=nn)
