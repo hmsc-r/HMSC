@@ -181,7 +181,6 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                          B1[i,,] = chol2inv(chol((B0[,,i])))
                          LB1[i,,] = t(chol(B1[i,,]))
                       }
-                      tmp1 = t(matrix((1:nf-1),nrow=nf,ncol=ny)) * ny
                       ind1 = rep(1:(nf*ny),nf)
                       tmp1 = t(matrix((1:nf-1),nrow=nf,ncol=(ny*nf))) * ny
                       ind2 = rep(1:ny,nf^2) + t(matrix(tmp1,nrow=1))
@@ -198,10 +197,45 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                       tmp1 = iAidD1W12 %*% iRH
                       mu2 = tmp1%*%(Matrix::t(tmp1)%*%fS)
 
-                      etaR = LiA%*%rnorm(np[r]*nf[r])+tmp1%*%rnorm(nK*nf)
+                      etaR = LiA%*%rnorm(np[r]*nf)+tmp1%*%rnorm(nK*nf)
                       eta = matrix(mu1+mu2+etaR,ncol=nf,nrow=np[r])
                    } else {
-                      stop("updateEta: predictive gaussian process not available when number of spatial locations is less than number of sampling units")
+                      idDg = rLPar[[r]]$idDg
+                      idDW12g = rLPar[[r]]$idDW12g
+                      Fg = rLPar[[r]]$Fg
+                      nK = nrow(Fg)
+                      idD = idDg[,alpha]
+                      Fmat = matrix(0,nrow=(nK*nf),ncol=(nK*nf))
+                      idD1W12 = matrix(0,nrow=(np[r]*nf),ncol=(nK*nf))
+                      for(h in 1:nf){
+                         Fmat[(h-1)*nK+(1:nK), (h-1)*nK+(1:nK)] = Fg[,,alpha[h]]
+                         idD1W12[(h-1)*np[r]+(1:np[r]), (h-1)*nK+(1:nK)] = idDW12g[,,alpha[h]]
+                      }
+
+                      tmp = diag(iSigma)%*%t(lambda)
+                      LamSigLamT = lambda%*%tmp
+
+                      P = sparseMatrix(i=1:ny,j=lPi)
+                      f = Matrix::crossprod(P,S)
+                      fS = f%*%tmp
+                      fS = matrix(fS,ncol=1)
+
+                      tmp1 = kronecker(LamSigLamT, Diagonal(x=Matrix::colSums(P)))
+                      tmp2 = tmp1 + Diagonal(x=idD[])
+                      iA = solve(tmp2)
+                      LiA = chol(iA)
+
+                      iAidD1W12 = iA %*% idD1W12
+                      H = Fmat - t(idD1W12)%*%iAidD1W12
+                      RH = chol(as.matrix(H))
+                      iRH = solve(RH)
+
+                      mu1 = iA%*%fS
+                      tmp1 = iAidD1W12 %*% iRH
+                      mu2 = tmp1%*%(Matrix::t(tmp1)%*%fS)
+
+                      etaR = LiA%*%rnorm(np[r]*nf)+tmp1%*%rnorm(nK*nf)
+                      eta = matrix(mu1+mu2+etaR,ncol=nf,nrow=np[r])
                    }
                 }
                 )
