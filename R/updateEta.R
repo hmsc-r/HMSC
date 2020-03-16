@@ -164,7 +164,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                          Fmat[(h-1)*nK+(1:nK), (h-1)*nK+(1:nK)] = Fg[,,alpha[h]]
                          idD1W12[(h-1)*np[r]+(1:np[r]), (h-1)*nK+(1:nK)] = idDW12g[,,alpha[h]]
                       }
-                      tmp = diag(iSigma)%*%t(lambda)
+                      tmp = diag(iSigma,length(iSigma))%*%t(lambda)
                       fS = S[order(lPi),,drop=FALSE]%*%tmp
                       fS = matrix(fS,ncol=1)
                       LamSigLamT = lambda%*%tmp
@@ -211,8 +211,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                          Fmat[(h-1)*nK+(1:nK), (h-1)*nK+(1:nK)] = Fg[,,alpha[h]]
                          idD1W12[(h-1)*np[r]+(1:np[r]), (h-1)*nK+(1:nK)] = idDW12g[,,alpha[h]]
                       }
-
-                      tmp = diag(iSigma)%*%t(lambda)
+                      tmp = diag(iSigma,length(iSigma))%*%t(lambda)
                       LamSigLamT = lambda%*%tmp
 
                       P = sparseMatrix(i=1:ny,j=lPi)
