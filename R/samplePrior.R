@@ -31,7 +31,7 @@ samplePrior = function(hM, dataParList=NULL){
    sigma = rep(NA, hM$ns)
    for(j in 1:hM$ns){
       if(hM$distr[j,2] == 1){
-         sigma[j] = rgamma(1, shape=hM$aSigma[j], rate=hM$bSigma[j])
+         sigma[j] = 1 / rgamma(1, shape=hM$aSigma[j], rate=hM$bSigma[j])
       } else{
          switch(hM$distr[j,1],
                 sigma[j] <- 1,
