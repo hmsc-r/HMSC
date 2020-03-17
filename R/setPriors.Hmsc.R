@@ -53,16 +53,25 @@ setPriors.Hmsc = function(hM, V0=NULL, f0=NULL, mGamma=NULL,
       hM$UGamma = diag(hM$nc * hM$nt)
    }
 
+   ## Default values for aSigma & bSigma: a vector of length 3 indexed
+   ## by distr[,1] corresponding to "normal", never used ("probit"
+   ## where sigma is not estimated), and "lognormal poisson"
+   ## ("poisson" has the same distr[,1] index, but sigma is not
+   ## estimated if distr[,2]==0)
+   if(setDefault) {
+      aSigmaDef <- c(1, 1, 0.5)
+      bSigmaDef <- c(0.01, 0.01, 0.0001)
+   }
    if(!is.null(aSigma)){
       hM$aSigma = aSigma
    } else if(setDefault){
-      hM$aSigma = rep(1, hM$ns)
+      hM$aSigma = aSigmaDef[hM$distr[,1]]
    }
 
    if(!is.null(bSigma)){
       hM$bSigma = bSigma
    } else if(setDefault){
-      hM$bSigma = rep(5, hM$ns)
+      hM$bSigma = bSigmaDef[hM$distr[,1]]
    }
 
    if(!is.null(rhopw)){
