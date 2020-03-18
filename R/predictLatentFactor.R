@@ -175,7 +175,7 @@ predictLatentFactor = function(unitsPred, units, postEta, postAlpha, rL, predict
                          dns = das[np+(1:nn),]
                          dnsOld = das[1:np,]
                          for(h in 1:nf){
-                            ag = alpha[nf]
+                            ag = alpha[h]
                             if(alphapw[ag,1]>0){
                                Wns = exp(-dns/alphapw[ag,1])
                                W12 = exp(-dnsOld/alphapw[ag,1])
