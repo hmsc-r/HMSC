@@ -31,8 +31,11 @@ Version 3.0-6
 
 ### Bug Fixes
 
-* Priors and initial parameter values for the residual variance
-  parameter `sigma` did not use inverse of Gamma distribution.
+* When calling `sampleMcmc` with `fromPrior = TRUE`, the residual
+  variance parameter `sigma` used Gamma rather than inverse of Gamma
+  distribution. The same error was present when sampling the initial
+  values for the MCMC algorithm. However, the actual MCMC algorithm
+  (and thus the posterior distribution) was correct.
 
 * Predictions with spatial NNGP models failed if there was only one
   unit. Github [issue #40](https://github.com/hmsc-r/HMSC/issues/40).
