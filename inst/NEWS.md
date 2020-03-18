@@ -1,3 +1,43 @@
+Version 3.0-6
+=============
+
+### Installation and R Versions
+
+* **R** release 4.0 will drop the convention to automatically change
+  character variables to factors, and this causes errors in internal
+  working of several **Hmsc** functions. This version of **Hmsc** is
+  released principally to accomodate these changes in **R**. **Hmsc**
+  will also work in previous versions of **R**.
+
+### Models
+
+* Shape and rate parameters (`aSigma`, `bSigma`) for the prior Gamma
+  distribution for the variance parameter (`sigma`) changed. The
+  change will influence models with `"normal"` and `"lognormal
+  poisson"` distributions. In particular, `"lognormal poisson"` will
+  more easily tend toward zero `sigma` if there is no overdispersion
+  to `"poisson"`.  However, in such cases it may be wiser to refit
+  models with pure `"poisson"` distribution. You can changes these
+  parameters with `setPriors` function.
+
+* Cross-validation works also when the test data set has some spatial
+  units that were unseen in the training data.
+
+### Bug Fixes
+
+* Priors and initial parameter values for the residual variance
+  parameter `sigma` did not use inverse of Gamma distribution.
+
+* Predictions with spatial NNGP models failed if there was only one
+  unit. Github [issue #40](https://github.com/hmsc-r/HMSC/issues/40).
+
+* Reduced-Rank Regression also works for single-species models, and
+  more robust scaling is used for species-specific covariate matrices.
+
+### Documentation
+
+* New vignette (#5) on **Hmsc** performance.
+
 Version 3.0-4
 =============
 
