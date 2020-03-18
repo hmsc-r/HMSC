@@ -84,9 +84,9 @@ The exact number of samples to be recorded in order to get a proper estimate of 
   results.
 }
 \examples{
-## samples=20 is ridiculously low, but runs fast: see the second
-## example for more proper usage
-m = sampleMcmc(TD$m, samples=20)
+## you need 1000 or more samples, but that will take too long
+## in an example
+m = sampleMcmc(TD$m, samples=10)
 
 \dontrun{
 ## Record 1000 posterior samples while skipping 1 MCMC step between samples
