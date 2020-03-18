@@ -1,13 +1,19 @@
 Version 3.0-6
 =============
 
-### Installation and R Versions
+### Installation and Versions
 
 * **R** release 4.0 will drop the convention to automatically change
   character variables to factors, and this causes errors in internal
   working of several **Hmsc** functions. This version of **Hmsc** is
   released principally to accomodate these changes in **R**. **Hmsc**
   will also work in previous versions of **R**.
+
+* **Hmsc** 3.0-5 was never released to CRAN. It is a snapshot that
+  corresponds to the on-line publication of Tikhonov *et al.* (2020)
+  Joint species distribution modelling with the R-package
+  Hmsc. *Methods in Ecology and Evolution* **11,**
+  442--447. (https://doi.org/10.1111/2041-210X.13345).
 
 ### Models
 
