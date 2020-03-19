@@ -42,6 +42,12 @@ Version 3.0-6
 
 * Reduced-Rank Regression also works for single-species models, and
   more robust scaling is used for species-specific covariate matrices.
+  
+* Spatial models with Gaussian Predictive Process now also works when
+  the number of spatial locations is less than the number of sampling 
+  units.
+
+* Predictions with spatial NNGP and GPP models gave bad estimates. 
 
 ### Documentation
 
