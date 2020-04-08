@@ -560,8 +560,12 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       }
    }
 
+   ## allow abbreviation of 'distr' and check that it is one of the
+   ## following known ones
+   knownDistributions <- c("normal", "probit", "poisson", "lognormal poisson")
+
    if(length(distr)==1){
-      switch (distr,
+      switch (match.arg(distr, knownDistributions),
               "normal" = {
                  distr = matrix(0,hM$ns,4)
                  distr[,1] = 1
@@ -584,10 +588,12 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
               }
       )
    }
-   if(length(distr) > 0 && !is.matrix(distr)){
+   if(length(distr) > 1 && !is.matrix(distr)){
+      if (length(distr) != hM$ns)
+         stop("length of distr should be 1 or equal to the number of species")
       distr2 = matrix(0,hM$ns,4)
       for (i in 1:hM$ns){
-         switch (distr[i],
+         switch (match.arg(distr[i], knownDistributions),
                  "normal" = {
                     distr2[i,1] = 1
                     distr2[i,2] = 1
