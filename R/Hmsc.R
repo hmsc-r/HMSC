@@ -166,11 +166,12 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       # posterior
       postList=NULL), class="Hmsc")
 
-
-   if(!is.matrix(Y)){
-      stop("Hmsc.setData: Y argument must be a matrix of sampling units times species")
+   ## take care that Y is a matrix (for data.frame, tibble, numeric vector)
+   Y <- as.matrix(Y)
+   if(!(is.numeric(Y) || is.logical(Y))) {  # allow binary data as TRUE/FALSE
+      stop("Hmsc.setData: Y must be a numeric matrix of sampling units times species")
    }
-   hM$Y = as.matrix(Y)
+   hM$Y = Y
    hM$ny = nrow(Y)
    hM$ns = ncol(Y)
    if(is.null(colnames(hM$Y))){
