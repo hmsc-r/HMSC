@@ -560,6 +560,14 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       }
    }
 
+   ## distr can be given as a matrix: check its dims
+   if (is.matrix(distr)) {
+      if (NROW(distr) != hM$ns)
+         stop("No. of rows in distr matrix must be equal to the no. of species")
+      if (NCOL(distr) != 4)
+         stop("distr matrix should have 4 columns")
+   }
+
    ## allow abbreviation of 'distr' and check that it is one of the
    ## following known ones
    knownDistributions <- c("normal", "probit", "poisson", "lognormal poisson")
