@@ -33,9 +33,11 @@ Hmsc(
 \arguments{
 \item{Y}{a matrix of species occurences or abundances}
 
-\item{XFormula}{a formula-class object for fixed effects (linear regression)}
+\item{XFormula}{a \code{\link{formula}}-class object for fixed effects
+(linear regression)}
 
-\item{XData}{a dataframe of measured covariates for fixed effects with formula-based specification}
+\item{XData}{a data frame of measured covariates for fixed effects with
+\code{\link{formula}}-based specification}
 
 \item{X}{a matrix of measured covariates for fixed effects with direct specification}
 
@@ -43,9 +45,9 @@ Hmsc(
 
 \item{XSelect}{a list describing how variable selection is to be applied}
 
-\item{XRRRData}{a dataframe of covariates for reduced-rank regression}
+\item{XRRRData}{a data frame of covariates for reduced-rank regression}
 
-\item{XRRRFormula}{formula for reduced-rank regression}
+\item{XRRRFormula}{\code{\link{formula}} for reduced-rank regression}
 
 \item{XRRR}{a matrix of covariates for reduced-rank regression}
 
@@ -55,7 +57,7 @@ Hmsc(
 
 \item{YScale}{a boolean flag whether to scale responses for which normal distribution is assumed}
 
-\item{studyDesign}{a dataframe of correspondence between sampling units and units on different levels of latent
+\item{studyDesign}{a data frame of correspondence between sampling units and units on different levels of latent
 factors}
 
 \item{ranLevels}{a named list of \code{HmscRandomLevel}-class objects, specifying the structure and data for random
@@ -63,35 +65,37 @@ levels}
 
 \item{ranLevelsUsed}{a vector with names of levels of latent factors that are used in the analysis}
 
-\item{TrFormula}{a formula-class object for regression dependence of \eqn{\beta_{kj}} coefficients on species traits}
+\item{TrFormula}{a \code{\link{formula}}-class object for regression
+dependence of \eqn{\beta_{kj}} coefficients on species traits}
 
-\item{TrData}{a dataframe of measured species traits for formula-based specification}
+\item{TrData}{a data frame of measured species traits for
+\code{\link{formula}}-based specification}
 
 \item{Tr}{a matrix of measured traits for direct specification}
 
 \item{TrScale}{a boolean flag whether to scale values of species traits}
 
-\item{phyloTree}{a phylogenetic tree (object of class \code{phylo} or \code{corPhyl}) for species in \code{hM$Y}}
+\item{phyloTree}{a phylogenetic tree (object of class \code{phylo} or \code{corPhyl}) for species in \code{Y}}
 
-\item{C}{a phylogenic correlation matrix for species in \code{hM$Y}}
+\item{C}{a phylogenic correlation matrix for species in \code{Y}}
 
-\item{distr}{a string shortcut or \eqn{n_s \times 4} matrix specifying the observation models}
+\item{distr}{a string shortcut or \eqn{n_s \times 2} matrix specifying the observation models}
 
 \item{truncateNumberOfFactors}{logical, reduces the maximal number of latent factor to be at most the number of species}
 }
 \value{
-an object of Hmsc class without any posterior samples
+An object of \code{Hmsc} class without any posterior samples.
 }
 \description{
-Creates a \code{Hmsc}-class object
+Creates an \code{Hmsc}-class object
 }
 \details{
 Matrix \eqn{Y} may contain missing values, but it is not recommended to add a
   species/sampling unit with fully missing data, since those do not bring any new additional information.
 
   Only one of \code{XFormula}-\code{XData} and \code{X} arguments can be specified. Similar requirement applies to
-  \code{TrFormula}-\code{TrData} and \code{Tr}. It is recommended to use the specification with formula-class
-  objects, since that information enables additional features for postprocessing of the fitted model.
+  \code{TrFormula}-\code{TrData} and \code{Tr}. It is recommended to use the specification with \code{\link{formula}},
+  since that information enables additional features for postprocessing of the fitted model.
 
   As default, scaling is applied for \code{X} and \code{Tr} matrices, but not for \code{Y} matrix. If the \code{X} and/or \code{Tr} matrices are
   scaled, the estimated parameters are back-transformed so that the estimated parameters correspond to the original
@@ -122,7 +126,7 @@ Matrix \eqn{Y} may contain missing values, but it is not recommended to add a
   postprocessing the results of statistical model fit.
 
   The \code{distr} argument may be either a matrix, a string literal, or a vector of string literals. In the case of
-  a matrix, the dimension must be \eqn{n_s x 4}, where the first column defines the family of the observation
+  a matrix, the dimension must be \eqn{n_s \times 2}, where the first column defines the family of the observation
   model and the second argument defines the dispersion property. The elements of the first column must take values
   1-normal, 2-probit and 3-Poisson with log link function. The second argument stands for the dispersion parameter
   being fixed (0) or estimated (1). The default fixed values of the dispersion parameters are 1 for normal and probit,
@@ -130,7 +134,8 @@ Matrix \eqn{Y} may contain missing values, but it is not recommended to add a
   literal shortcut can be given as a value to the \code{distr} argument, simultaniously specifying similar class of
   observation models for all species. The available shortcuts are \code{"normal"}, \code{"probit"}, \code{"poisson"},
   \code{"lognormal poisson"}. If \code{distr} is a vector of string literals, each element corresponds to one species,
-  should be either \code{"normal"}, \code{"probit"}, \code{"poisson"}, \code{"lognormal poisson"}.
+  should be either \code{"normal"}, \code{"probit"}, \code{"poisson"}, \code{"lognormal poisson"},
+and these can be abbreviated as long as they are unique strings.
   The matrix argument and the vector of string literals allows specifying different observation
   models for different species.
 
