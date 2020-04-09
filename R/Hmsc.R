@@ -564,8 +564,8 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    if (is.matrix(distr)) {
       if (NROW(distr) != hM$ns)
          stop("No. of rows in distr matrix must be equal to the no. of species")
-      if (NCOL(distr) != 4)
-         stop("distr matrix should have 4 columns")
+      if (!(NCOL(distr) %in% c(2,4))) # allow 4 for backward compatibility
+         stop("distr matrix should have 2 columns")
    }
 
    ## allow abbreviation of 'distr' and check that it is one of the
@@ -575,22 +575,22 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    if(length(distr)==1){
       switch (match.arg(distr, knownDistributions),
               "normal" = {
-                 distr = matrix(0,hM$ns,4)
+                 distr = matrix(0,hM$ns,2)
                  distr[,1] = 1
                  distr[,2] = 1
               },
               "probit" = {
-                 distr = matrix(0,hM$ns,4)
+                 distr = matrix(0,hM$ns,2)
                  distr[,1] = 2
                  distr[,2] = 0
               },
               "poisson" = {
-                 distr = matrix(0,hM$ns,4)
+                 distr = matrix(0,hM$ns,2)
                  distr[,1] = 3
                  distr[,2] = 0
               },
               "lognormal poisson" = {
-                 distr = matrix(0,hM$ns,4)
+                 distr = matrix(0,hM$ns,2)
                  distr[,1] = 3
                  distr[,2] = 1
               }
@@ -599,7 +599,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    if(length(distr) > 1 && !is.matrix(distr)){
       if (length(distr) != hM$ns)
          stop("length of distr should be 1 or equal to the number of species")
-      distr2 = matrix(0,hM$ns,4)
+      distr2 = matrix(0,hM$ns,2)
       for (i in 1:hM$ns){
          switch (match.arg(distr[i], knownDistributions),
                  "normal" = {
@@ -622,7 +622,12 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       }
       distr=distr2
    }
-   colnames(distr) = c("family","variance","link","something")
+   ## we had 4-column distr matrix in ancient versions
+   if (NCOL(distr) > 2) {
+      warning("Keeping only two first columns of 'distr' matrix")
+      distr <- distr[, 1:2, drop=FALSE]
+   }
+   colnames(distr) = c("family","variance")
    if(any(distr[,1]==0)){
       stop("Hmsc.setData: some of the distributions ill defined")
    }
