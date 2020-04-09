@@ -188,14 +188,18 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    if(!is.null(XData) && !is.null(X)){
       stop("Hmsc.setData: only single of XData and X arguments must be specified")
    }
-   if(!is.null(XData)){
-      switch(class(XData)[1L],
-             list={
+    if(!is.null(XData)){
+       if (inherits(XData, "list")) {
                 if(length(XData) != hM$ns){
                    stop("Hmsc.setData: the length of XData list argument must be equal to the number of species")
                 }
                 if(any(!unlist(lapply(XData, is.data.frame)))){
                    stop("Hmsc.setData: each element of X list must be a data.frame")
+                }
+                ## check agasint derived classes of data.frame (such as tibble)
+                if (any(sapply(XData, function(a) class(a)[1L] != "data.frame"))) {
+                    for(i in seq_len(length(XData)))
+                        XData[[i]] <- as.data.frame(XData, stringsAsFactors = TRUE)
                 }
                 if(any(unlist(lapply(XData, function(a) nrow(a) != hM$ny)))){
                    stop("Hmsc.setData: for each element of XData list the number of rows must be equal to the number of sampling units")
@@ -207,23 +211,24 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
                 hM$XFormula = XFormula
                 hM$X = lapply(XData, function(a) model.matrix(XFormula, a))
                 hM$nc = ncol(hM$X[[1]])
-             },
-             data.frame={
+       }
+       else if (is.data.frame(XData)) {
                 if(nrow(XData) != hM$ny){
                    stop("Hmsc.setData: the number of rows in XData must be equal to the number of sampling units")
                 }
                 if(any(is.na(XData))){
                    stop("Hmsc.setData: XData must contain no NA values")
                 }
+                ## check against derived classes of data.frame (such as tibble)
+                if (class(XData)[1L] != "data.frame")
+                   XData <- as.data.frame(XData, stringsAsFactors = TRUE)
                 hM$XData = XData
                 hM$XFormula = XFormula
                 hM$X = model.matrix(XFormula, XData)
                 hM$nc = ncol(hM$X)
-             },
-             {
+       } else {
                 stop("Hmsc.setData: XData must either a data.frame or a list of data.frame objects")
-             }
-      )
+       }
    }
    if(!is.null(X)){
       switch(class(X)[1L],
