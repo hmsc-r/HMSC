@@ -1,9 +1,4 @@
 ## ---------------------------------------------------------------------------------------
-context("setting species data")
-test_that("Hmsc returns error when Y is not a matrix", {
-   expect_error(Hmsc(Y=data.frame(s1=1:10),XData=data.frame(x1=1:10)),"Hmsc.setData: Y argument must be a matrix of sampling units times species")
-})
-## ---------------------------------------------------------------------------------------
 context("setting environmental data")
 test_that("Hmsc returns error both XData and X are given", {
    expect_error(Hmsc(Y=matrix(1:10),XData=data.frame(x1 = 1:10),X=matrix(1:10)),"Hmsc.setData: only single of XData and X arguments must be specified")
@@ -157,7 +152,7 @@ test_that("Variance set correctly",{
 })
 test_that("Hmsc returns error when unsuitable data model is given",{
    expect_error(Hmsc(Y=matrix(1:10,nrow=5,ncol=2),X=matrix(1:5),distr=c('probit','logit')),
-                "Hmsc.setData: some of the distributions ill defined")
+                "'arg' should be one of \"normal\", \"probit\", \"poisson\", \"lognormal poisson\"")
 })
 ## ---------------------------------------------------------------------------------------
 context("setting variable selection")
