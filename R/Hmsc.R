@@ -574,7 +574,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    if (is.matrix(distr)) {
       if (NROW(distr) != hM$ns)
          stop("No. of rows in distr matrix must be equal to the no. of species")
-      if (!(NCOL(distr) %in% c(2,4))) # allow 4 for backward compatibility
+      if (NCOL(distr) < 2) # we later warn on unused extra columns
          stop("distr matrix should have 2 columns")
    }
 
