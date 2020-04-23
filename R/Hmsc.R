@@ -1,41 +1,45 @@
 #' @title Hmsc
 #'
-#' @description Creates a \code{Hmsc}-class object
+#' @description Creates an \code{Hmsc}-class object
 #'
 #' @param Y a matrix of species occurences or abundances
-#' @param XFormula a formula-class object for fixed effects (linear regression)
-#' @param XData a dataframe of measured covariates for fixed effects with formula-based specification
+#' @param XFormula a \code{\link{formula}}-class object for fixed effects
+#'    (linear regression)
+#' @param XData a data frame of measured covariates for fixed effects with
+#'    \code{\link{formula}}-based specification
 #' @param X a matrix of measured covariates for fixed effects with direct specification
 #' @param XScale a boolean flag indicating whether to scale covariates for the fixed effects
 #' @param XSelect a list describing how variable selection is to be applied
-#' @param XRRRData a dataframe of covariates for reduced-rank regression
-#' @param XRRRFormula formula for reduced-rank regression
+#' @param XRRRData a data frame of covariates for reduced-rank regression
+#' @param XRRRFormula \code{\link{formula}} for reduced-rank regression
 #' @param XRRR a matrix of covariates for reduced-rank regression
 #' @param ncRRR number of covariates (linear combinations) for reduced-rank regression
 #' @param XRRRScale a boolean flag indicating whether to scale covariates for reduced-rank regression
 #' @param YScale a boolean flag whether to scale responses for which normal distribution is assumed
-#' @param studyDesign a dataframe of correspondence between sampling units and units on different levels of latent
+#' @param studyDesign a data frame of correspondence between sampling units and units on different levels of latent
 #'   factors
 #' @param ranLevels a named list of \code{HmscRandomLevel}-class objects, specifying the structure and data for random
 #'   levels
 #' @param ranLevelsUsed a vector with names of levels of latent factors that are used in the analysis
-#' @param TrFormula a formula-class object for regression dependence of \eqn{\beta_{kj}} coefficients on species traits
-#' @param TrData a dataframe of measured species traits for formula-based specification
+#' @param TrFormula a \code{\link{formula}}-class object for regression
+#'    dependence of \eqn{\beta_{kj}} coefficients on species traits
+#' @param TrData a data frame of measured species traits for
+#'    \code{\link{formula}}-based specification
 #' @param Tr a matrix of measured traits for direct specification
 #' @param TrScale a boolean flag whether to scale values of species traits
-#' @param phyloTree a phylogenetic tree (object of class \code{phylo} or \code{corPhyl}) for species in \code{hM$Y}
-#' @param C a phylogenic correlation matrix for species in \code{hM$Y}
-#' @param distr a string shortcut or \eqn{n_s \times 4} matrix specifying the observation models
+#' @param phyloTree a phylogenetic tree (object of class \code{phylo} or \code{corPhyl}) for species in \code{Y}
+#' @param C a phylogenic correlation matrix for species in \code{Y}
+#' @param distr a string shortcut or \eqn{n_s \times 2} matrix specifying the observation models
 #' @param truncateNumberOfFactors logical, reduces the maximal number of latent factor to be at most the number of species
 #'
-#' @return an object of Hmsc class without any posterior samples
+#' @return An object of \code{Hmsc} class without any posterior samples.
 #'
 #' @details Matrix \eqn{Y} may contain missing values, but it is not recommended to add a
 #'   species/sampling unit with fully missing data, since those do not bring any new additional information.
 #'
 #'   Only one of \code{XFormula}-\code{XData} and \code{X} arguments can be specified. Similar requirement applies to
-#'   \code{TrFormula}-\code{TrData} and \code{Tr}. It is recommended to use the specification with formula-class
-#'   objects, since that information enables additional features for postprocessing of the fitted model.
+#'   \code{TrFormula}-\code{TrData} and \code{Tr}. It is recommended to use the specification with \code{\link{formula}},
+#'   since that information enables additional features for postprocessing of the fitted model.
 #'
 #'   As default, scaling is applied for \code{X} and \code{Tr} matrices, but not for \code{Y} matrix. If the \code{X} and/or \code{Tr} matrices are
 #'   scaled, the estimated parameters are back-transformed so that the estimated parameters correspond to the original
@@ -66,7 +70,7 @@
 #'   postprocessing the results of statistical model fit.
 #'
 #'   The \code{distr} argument may be either a matrix, a string literal, or a vector of string literals. In the case of
-#'   a matrix, the dimension must be \eqn{n_s x 4}, where the first column defines the family of the observation
+#'   a matrix, the dimension must be \eqn{n_s \times 2}, where the first column defines the family of the observation
 #'   model and the second argument defines the dispersion property. The elements of the first column must take values
 #'   1-normal, 2-probit and 3-Poisson with log link function. The second argument stands for the dispersion parameter
 #'   being fixed (0) or estimated (1). The default fixed values of the dispersion parameters are 1 for normal and probit,
@@ -74,7 +78,8 @@
 #'   literal shortcut can be given as a value to the \code{distr} argument, simultaniously specifying similar class of
 #'   observation models for all species. The available shortcuts are \code{"normal"}, \code{"probit"}, \code{"poisson"},
 #'   \code{"lognormal poisson"}. If \code{distr} is a vector of string literals, each element corresponds to one species,
-#'   should be either \code{"normal"}, \code{"probit"}, \code{"poisson"}, \code{"lognormal poisson"}.
+#'   should be either \code{"normal"}, \code{"probit"}, \code{"poisson"}, \code{"lognormal poisson"},
+#' and these can be abbreviated as long as they are unique strings.
 #'   The matrix argument and the vector of string literals allows specifying different observation
 #'   models for different species.
 #'
@@ -166,11 +171,12 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       # posterior
       postList=NULL), class="Hmsc")
 
-
-   if(!is.matrix(Y)){
-      stop("Hmsc.setData: Y argument must be a matrix of sampling units times species")
+   ## take care that Y is a matrix (for data.frame, tibble, numeric vector)
+   Y <- as.matrix(Y)
+   if(!(is.numeric(Y) || is.logical(Y))) {  # allow binary data as TRUE/FALSE
+      stop("Hmsc.setData: Y must be a numeric matrix of sampling units times species")
    }
-   hM$Y = as.matrix(Y)
+   hM$Y = Y
    hM$ny = nrow(Y)
    hM$ns = ncol(Y)
    if(is.null(colnames(hM$Y))){
@@ -182,43 +188,48 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    if(!is.null(XData) && !is.null(X)){
       stop("Hmsc.setData: only single of XData and X arguments must be specified")
    }
-   if(!is.null(XData)){
-      switch(class(XData)[1L],
-             list={
-                if(length(XData) != hM$ns){
-                   stop("Hmsc.setData: the length of XData list argument must be equal to the number of species")
-                }
-                if(any(!unlist(lapply(XData, is.data.frame)))){
-                   stop("Hmsc.setData: each element of X list must be a data.frame")
-                }
-                if(any(unlist(lapply(XData, function(a) nrow(a) != hM$ny)))){
-                   stop("Hmsc.setData: for each element of XData list the number of rows must be equal to the number of sampling units")
-                }
-                if(any(unlist(lapply(XData, function(a) any(is.na(a)))))){
-                   stop("Hmsc.setData: all elements of XData list must contain no NA values")
-                }
-                hM$XData = XData
-                hM$XFormula = XFormula
-                hM$X = lapply(XData, function(a) model.matrix(XFormula, a))
-                hM$nc = ncol(hM$X[[1]])
-             },
-             data.frame={
-                if(nrow(XData) != hM$ny){
-                   stop("Hmsc.setData: the number of rows in XData must be equal to the number of sampling units")
-                }
-                if(any(is.na(XData))){
-                   stop("Hmsc.setData: XData must contain no NA values")
-                }
-                hM$XData = XData
-                hM$XFormula = XFormula
-                hM$X = model.matrix(XFormula, XData)
-                hM$nc = ncol(hM$X)
-             },
-             {
-                stop("Hmsc.setData: XData must either a data.frame or a list of data.frame objects")
-             }
-      )
-   }
+    if(!is.null(XData)) {
+        if (inherits(XData, "list")) {
+            if(length(XData) != hM$ns){
+                stop("Hmsc.setData: the length of XData list argument must be equal to the number of species")
+            }
+            if(any(!unlist(lapply(XData, is.data.frame)))){
+                stop("Hmsc.setData: each element of X list must be a data.frame")
+            }
+            ## check agasint derived classes of data.frame (such as tibble)
+            if (any(sapply(XData, function(a) class(a)[1L] != "data.frame"))) {
+                for(i in seq_len(length(XData)))
+                    XData[[i]] <- as.data.frame(XData, stringsAsFactors = TRUE)
+            }
+            if(any(unlist(lapply(XData, function(a) nrow(a) != hM$ny)))){
+                stop("Hmsc.setData: for each element of XData list the number of rows must be equal to the number of sampling units")
+            }
+            if(any(unlist(lapply(XData, function(a) any(is.na(a)))))){
+                stop("Hmsc.setData: all elements of XData list must contain no NA values")
+            }
+            hM$XData = XData
+            hM$XFormula = XFormula
+            hM$X = lapply(XData, function(a) model.matrix(XFormula, a))
+            hM$nc = ncol(hM$X[[1]])
+        }
+        else if (is.data.frame(XData)) {
+            if(nrow(XData) != hM$ny){
+                stop("Hmsc.setData: the number of rows in XData must be equal to the number of sampling units")
+            }
+            if(any(is.na(XData))){
+                stop("Hmsc.setData: XData must contain no NA values")
+            }
+            ## check against derived classes of data.frame (such as tibble)
+            if (class(XData)[1L] != "data.frame")
+                XData <- as.data.frame(XData, stringsAsFactors = TRUE)
+            hM$XData = XData
+            hM$XFormula = XFormula
+            hM$X = model.matrix(XFormula, XData)
+            hM$nc = ncol(hM$X)
+        } else {
+            stop("Hmsc.setData: XData must either a data.frame or a list of data.frame objects")
+        }
+    }
    if(!is.null(X)){
       switch(class(X)[1L],
              list={
@@ -559,34 +570,48 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       }
    }
 
+   ## distr can be given as a matrix: check its dims
+   if (is.matrix(distr)) {
+      if (NROW(distr) != hM$ns)
+         stop("No. of rows in distr matrix must be equal to the no. of species")
+      if (NCOL(distr) < 2) # we later warn on unused extra columns
+         stop("distr matrix should have 2 columns")
+   }
+
+   ## allow abbreviation of 'distr' and check that it is one of the
+   ## following known ones
+   knownDistributions <- c("normal", "probit", "poisson", "lognormal poisson")
+
    if(length(distr)==1){
-      switch (distr,
+      switch (match.arg(distr, knownDistributions),
               "normal" = {
-                 distr = matrix(0,hM$ns,4)
+                 distr = matrix(0,hM$ns,2)
                  distr[,1] = 1
                  distr[,2] = 1
               },
               "probit" = {
-                 distr = matrix(0,hM$ns,4)
+                 distr = matrix(0,hM$ns,2)
                  distr[,1] = 2
                  distr[,2] = 0
               },
               "poisson" = {
-                 distr = matrix(0,hM$ns,4)
+                 distr = matrix(0,hM$ns,2)
                  distr[,1] = 3
                  distr[,2] = 0
               },
               "lognormal poisson" = {
-                 distr = matrix(0,hM$ns,4)
+                 distr = matrix(0,hM$ns,2)
                  distr[,1] = 3
                  distr[,2] = 1
               }
       )
    }
-   if(length(distr) > 0 && !is.matrix(distr)){
-      distr2 = matrix(0,hM$ns,4)
+   if(length(distr) > 1 && !is.matrix(distr)){
+      if (length(distr) != hM$ns)
+         stop("length of distr should be 1 or equal to the number of species")
+      distr2 = matrix(0,hM$ns,2)
       for (i in 1:hM$ns){
-         switch (distr[i],
+         switch (match.arg(distr[i], knownDistributions),
                  "normal" = {
                     distr2[i,1] = 1
                     distr2[i,2] = 1
@@ -607,7 +632,12 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       }
       distr=distr2
    }
-   colnames(distr) = c("family","variance","link","something")
+   ## we had 4-column distr matrix in ancient versions
+   if (NCOL(distr) > 2) {
+      warning("Keeping only two first columns of 'distr' matrix")
+      distr <- distr[, 1:2, drop=FALSE]
+   }
+   colnames(distr) = c("family","variance")
    if(any(distr[,1]==0)){
       stop("Hmsc.setData: some of the distributions ill defined")
    }
