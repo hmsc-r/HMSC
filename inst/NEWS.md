@@ -1,3 +1,18 @@
+Version 3.0-7
+=============
+
+### New Features
+
+* Species data `Y` is normally a numeric matrix, but now it is allowed
+  to use numeric data frames, or in univariate models, numeric vector.
+
+* A `tibble` can be used for measured covariates for fixed effects
+  `XData` in addition to a data frame (a wish of Github
+  [issue #37](https://github.com/hmsc-r/HMSC/issues/37)).
+
+* The names of `distr`ibutions can be abbreviated in `Hmsc` definition
+  as long as the names are unique.
+
 Version 3.0-6
 =============
 
