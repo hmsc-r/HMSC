@@ -126,6 +126,6 @@ computeWAIC = function(hM, ghN=11){
    for (i in 1:hM$ny){
       V[i] = var(val[,i])
    }
-   WAIC = mean(Bl + V)
+   WAIC = mean(Bl + V,na.rm = TRUE)
    return(WAIC)
 }
