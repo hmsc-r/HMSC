@@ -4,7 +4,8 @@
 #'
 #' @param hM a fitted \code{Hmsc} model object
 #' @param ghN order of Gauss-Hermite quadrature for approximate numerical integration
-#'
+#' @param byColumn describes whether WAIC is computed for the entire model \code{byColumn=FALSE} or for each column (i.e. species) \code{byColumn=TRUE}
+
 #' @details The result is exact for normal and probit observational models. For Poisson-type
 #' observational model the result is obtained through numerical integration using Gauss-Hermite quadrature.
 #'
@@ -22,7 +23,7 @@
 #'
 #' @export
 
-computeWAIC = function(hM, ghN=11){
+computeWAIC = function(hM, ghN=11, byColumn=FALSE){
    post=poolMcmcChains(hM$postList)
    bind0 = function(...){
       abind(...,along=0)
@@ -79,16 +80,24 @@ computeWAIC = function(hM, ghN=11){
       indNA = is.na(Y)
       std = matrix(sigma^-0.5,ny,ns,byrow=TRUE)
 
-      L = rep(0,ny)
+      if(byColumn){
+         L = matrix(0,nrow = ny,ncol = ns)
+      } else{
+         L = rep(0,ny)
+      }
 
       cN = sum(indColNormal)
       if(cN > 0){
          tmp = dnorm(x=Y[,indColNormal], mean=E[,indColNormal], sd=std[indColNormal], log=TRUE)
          tmp[is.na(Y[,indColNormal])] = 0
-         if(cN > 1){
-            L = L + rowSums(tmp)
-         } else{
-            L = L + tmp
+         if(byColumn){
+            L[,indColNormal] = L[,indColNormal] + tmp
+         } else {
+            if(cN > 1){
+               L = L + rowSums(tmp)
+            } else{
+               L = L + tmp
+            }
          }
       }
 
@@ -98,10 +107,14 @@ computeWAIC = function(hM, ghN=11){
          pz1 = pnorm(E[,indColProbit], log.p=TRUE)
          tmp = pz1*Y[,indColProbit] + pz0*(1-Y[,indColProbit]) # this formula stands for unit std only, better to replace it with std-dependent one
          tmp[is.na(Y[,indColProbit])] = 0
-         if(cN > 1){
-            L = L + rowSums(tmp)
-         } else{
-            L = L + tmp
+         if(byColumn){
+            L[,indColProbit] = L[,indColProbit] + tmp
+         } else {
+            if(cN > 1){
+               L = L + rowSums(tmp)
+            } else{
+               L = L + tmp
+            }
          }
       }
 
@@ -111,10 +124,14 @@ computeWAIC = function(hM, ghN=11){
          likeArray = dpois(Y, exp(gX))
          likeIntegral = log(sqrt(pi)^-1 * rowSums(likeArray*array(rep(gw,each=ny*cN),c(ny,cN,ghN)), dims=2))
          likeIntegral[is.na(Y[,indColPoisson])] = 0
-         if(cN > 1){
-            L = L + rowSums(likeIntegral)
-         } else{
-            L = L + likeIntegral
+         if(byColumn){
+            L[,indColPoisson] = L[,indColPoisson] + likeIntegral
+         } else {
+            if(cN > 1){
+               L = L + rowSums(likeIntegral)
+            } else{
+               L = L + likeIntegral
+            }
          }
       }
       valList[[sN]] = L
@@ -122,10 +139,21 @@ computeWAIC = function(hM, ghN=11){
 
    val = do.call(bind0, valList)
    Bl = -log(colMeans(exp(val)))
-   V = rep(0,hM$ny)
-   for (i in 1:hM$ny){
-      V[i] = var(val[,i])
+   if(byColumn){
+      WAIC = rep(0,ns)
+      for(j in 1:ns){
+         V = rep(0,hM$ny)
+         for (i in 1:hM$ny){
+            V[i] = var(val[,i,j])
+         }
+         WAIC[j] = mean(Bl[,j] + V,na.rm = TRUE)
+      }
+   } else {
+      V = rep(0,hM$ny)
+      for (i in 1:hM$ny){
+         V[i] = var(val[,i])
+      }
+      WAIC = mean(Bl + V,na.rm = TRUE)
    }
-   WAIC = mean(Bl + V,na.rm = TRUE)
    return(WAIC)
 }
