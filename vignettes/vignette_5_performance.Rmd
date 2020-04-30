@@ -28,8 +28,8 @@ source("load_libraries.R")
 ### The `makedata` function
 The `makedata` function included in the vignette folder produces datasets based on the Hmsc model. Options include 
 
-* ns = Number of sites 
-* ny = Number of species 
+* ny = Number of sites 
+* ns = Number of species 
 * hierarchical = T/F, where T yields data with two nested random levels, and F yields a single random level. 
 * spatial = T/F, where T yields spatially explicit data with sample unit locations sampled from the unit square. 
 
