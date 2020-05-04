@@ -2,7 +2,7 @@
 title:  |   
   | \LARGE{Hmsc 3.0: Testing the performance of Hmsc with simulated data} \vspace{0.5cm}
 author: "Gleb Tikhonov, Øystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen, Melinda M. J. de Jonge, Jari Oksanen & Otso Ovaskainen"
-date: "17 December 2019"
+date: "4 May 2020"
 output: pdf_document
 bibliography: endnote.xml
 fig_caption: yes
