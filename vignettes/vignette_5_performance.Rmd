@@ -288,10 +288,10 @@ for (case in cases){
   load(file=file.path(localDir, "data", paste("Case",toString(case),".R", sep="")))
   load(file=file.path(localDir, "models", paste("Case",toString(case),".R", sep="")))
   computational.time = computational.time[3]
-  
+ 
   predY = computePredictedValues(m, expected=FALSE)
   MF = evaluateModelFit(m, predY)
-  
+
   # ASSESS MIXING
   mpost = convertToCodaObject(m)
   
@@ -306,7 +306,7 @@ for (case in cases){
   
   es.V = effectiveSize(mpost$V)
   ge.V = gelman.diag(mpost$V,multivariate=FALSE)$psrf
-  
+ 
   mpost$temp = mpost$Omega[[1]]
   for(i in 1:length(mpost$temp)){
     mpost$temp[[i]] = mpost$temp[[i]][,1:50^2]
@@ -314,7 +314,6 @@ for (case in cases){
   
   es.omega = effectiveSize(mpost$temp)
   ge.omega = gelman.diag(mpost$temp,multivariate=FALSE)$psrf
-  
   es.alpha = NA
   ge.alpha = NA
   
@@ -322,12 +321,13 @@ for (case in cases){
     es.alpha = effectiveSize(mpost$Alpha[[1]])
     ge.alpha = gelman.diag(mpost$Alpha[[1]])
   }
-  
+
   mixing = list(es.beta=es.beta, ge.beta=ge.beta,
                 es.gamma=es.gamma, ge.gamma=ge.gamma,
                 es.rho=es.rho, ge.rho=ge.rho,
                 es.V=es.V, ge.V=ge.V,
                 es.omega=es.omega, ge.omega=ge.omega)
+  print(str(mixing, max=1))
 
 # COMPUTE NRMSE AND COR
   estimates = list()
@@ -337,19 +337,18 @@ for (case in cases){
   
   for (para in 1:5){
     parameter = c("beta","gamma","rho","V","omega")[para]
-    
     if (parameter=="beta"){
       getpar = function(a)
         return(a$Beta)
       true = all.parameters$beta
       prior = list()
       for(i in 1:npost){
-        gamma = matrix(mvrnorm(n=1, mu=m$mGamma, Sigma = m$UGamma), ncol=m$nt, nrow=m$nc)
+        gamma = matrix(MASS::mvrnorm(n=1, mu=m$mGamma, Sigma = m$UGamma), ncol=m$nt, nrow=m$nc)
         mu = tcrossprod(gamma,m$Tr)
         rho = sample(size=1,x=m$rhopw[,1],prob=m$rhopw[,2])
-        V = solve(rwish(m$f0, solve(m$V0)))
+        V = solve(MCMCpack::rwish(m$f0, solve(m$V0)))
         Si = kronecker(V,rho*all.data$C + (1-rho)*diag(m$ns))
-        prior[[i]] = matrix(mvrnorm(n=1, mu=as.vector(mu), Sigma=Si), ncol=m$ns, nrow=m$nc)
+        prior[[i]] = matrix(MASS::mvrnorm(n=1, mu=as.vector(mu), Sigma=Si), ncol=m$ns, nrow=m$nc)
       }
     }
     
@@ -369,7 +368,7 @@ for (case in cases){
       true = all.parameters$gamma
       prior = list()
       for(i in 1:npri){
-        prior[[i]] = matrix(mvrnorm(n=1, mu=m$mGamma, Sigma = m$UGamma), ncol=m$nt, nrow=m$nc)
+        prior[[i]] = matrix(MASS::mvrnorm(n=1, mu=m$mGamma, Sigma = m$UGamma), ncol=m$nt, nrow=m$nc)
       }
     }
     
@@ -379,7 +378,7 @@ for (case in cases){
       true = all.parameters$V
       prior = list()
       for(i in 1:npost){
-        prior[[i]] = solve(rwish(m$f0, solve(m$V0)))
+        prior[[i]] = solve(MCMCpack::rwish(m$f0, solve(m$V0)))
       }
     }
     
