@@ -181,7 +181,7 @@ for (case in c(1,4,5)){
              "sampling.unit" = HmscRandomLevel(units = all.data$study.design[,1])))
   ptm = proc.time()
   m = sampleMcmc(m, samples=samples, thin=thin, transient = ceiling(0.5*samples*thin), 
-                 nChains = nChains, nParallel = 1, verbose=verbose)
+                 nChains = nChains, nParallel = nChains, verbose=verbose)
   computational.time =  proc.time() - ptm
   save(file=file.path(localDir, "models", paste("Case",toString(case),".R", sep="")), 
        m, computational.time)
@@ -201,7 +201,7 @@ m = Hmsc(Y=all.data$Y,
            "sampling.unit"=HmscRandomLevel(units = all.data$study.design[,1])))
 ptm = proc.time()
 m = sampleMcmc(m, samples=samples, thin=thin, transient = ceiling(0.5*samples*thin), 
-                 nChains = nChains, nParallel = 1, verbose=verbose)
+                 nChains = nChains, nParallel = nChains, verbose=verbose)
 computational.time =  proc.time() - ptm
 save(file=file.path(localDir, "models","Case2.R"), m, computational.time)
 ```
@@ -219,7 +219,7 @@ m = Hmsc(Y=all.data$Y,
            "sampling.unit"=HmscRandomLevel(units = all.data$study.design[,1])))
 ptm = proc.time()
 m = sampleMcmc(m, samples=samples, thin=thin, transient = ceiling(0.5*samples*thin), 
-                 nChains = nChains, nParallel = 1, verbose=verbose)
+                 nChains = nChains, nParallel = nChains, verbose=verbose)
 computational.time =  proc.time() - ptm
 save(file=file.path(localDir, "models","Case3.R"), m, computational.time)
 ```
@@ -243,7 +243,7 @@ m = Hmsc(Y=all.data$Y,
          ranLevels=list("sampling.unit"=rL))
 ptm = proc.time()
 m = sampleMcmc(m, samples=samples, thin=thin, transient = ceiling(0.5*samples*thin), 
-                 nChains = nChains, nParallel = 1, verbose=verbose)
+                 nChains = nChains, nParallel = nChains, verbose=verbose)
 computational.time =  proc.time() - ptm
 save(file=file.path(localDir, "models","Case6.R"), m, computational.time)
 ```
@@ -263,7 +263,7 @@ m = Hmsc(Y=all.data$Y,
          )
 ptm = proc.time()
 m = sampleMcmc(m, samples=samples, thin=thin, transient = ceiling(0.5*samples*thin), 
-                 nChains = nChains, nParallel = 1, verbose=verbose)
+                 nChains = nChains, nParallel = nChains, verbose=verbose)
 computational.time =  proc.time() - ptm
 save(file=file.path(localDir, "models","Case7.R"), m, computational.time)
 ```
