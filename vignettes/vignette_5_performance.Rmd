@@ -155,7 +155,7 @@ We fitted each model with sampling parameters set to thin=10 and samples=1000, a
 The code below takes a long time to run. The .Rmd file can be run much more quickly by setting `test.run=TRUE`, but the results will not be reliable.
 
 For case 1, 4 and 5, we set up the model with gaussian errors, using `distr = "normal"`
-```{r Model fitting II, message=F, eval=F, cache=T}
+```{r Model fitting II, message=F, eval=T, cache=T}
 nChains = 2
 test.run = FALSE
 if (test.run){
@@ -189,7 +189,7 @@ for (case in c(1,4,5)){
 ```
 
 For case 2, we set up the model with probit errors, using `distr = "probit"`
-```{r Model fitting III, message=F, eval=F, cache=T}
+```{r Model fitting III, message=F, eval=T, cache=T}
 set.seed(1)
 load(file=file.path(localDir, "data","Case2.R"))
 m = Hmsc(Y=all.data$Y,
@@ -207,7 +207,7 @@ save(file=file.path(localDir, "models","Case2.R"), m, computational.time)
 ```
 
 For case 3, we set up the model with lognormal Poisson errors, using `distr = "lognormal poisson"`
-```{r Model fitting IV, message=F, eval=F, cache=T}
+```{r Model fitting IV, message=F, eval=T, cache=T}
 set.seed(1)
 load(file=file.path(localDir, "data","Case3.R"))
 m = Hmsc(Y=all.data$Y,
@@ -227,7 +227,7 @@ save(file=file.path(localDir, "models","Case3.R"), m, computational.time)
 For case 6, we set up the model with a spatially structured random level, using 
 `HmscRandomLevel(data=sRL, priors="default")`. Note that `sData` is used instead of `units`.
 
-```{r Model fitting V, message=F, eval=F, cache=T}
+```{r Model fitting V, message=F, eval=T, cache=T}
 set.seed(1)
 load(file=file.path(localDir, "data","Case6.R"))
 sRL = all.data$xy
@@ -249,7 +249,7 @@ save(file=file.path(localDir, "models","Case6.R"), m, computational.time)
 ```
 
 For case 7, we set up two hierarchical random levels, using `HmscRandomLevel(units=...)`.
-```{r Model fitting VI, message=F, eval=F, cache=T}
+```{r Model fitting VI, message=F, eval=T, cache=T}
 set.seed(1)
 load(file=file.path(localDir, "data","Case7.R"))
 m = Hmsc(Y=all.data$Y,
@@ -277,7 +277,7 @@ We used the `coda` package to compute the effective number of MCMC samples (samp
 * `evaluateModelFit` returns several measures of model fit, including RMSE (root mean square error), R^2^ (coefficient of determination), Tjur R^2^ (coefficient of discrimination), and AUC (area under the receiver operating characteristic curve).
 * `convertToCodaObject` converts the posterior distributions produced by `Hmsc` into `coda`-format.  
 
-```{r Data evaluation I, message=F, eval=F, cache=T, echo=T}
+```{r Data evaluation I, message=F, eval=T, cache=T, echo=T}
 ptm = proc.time()
 
 cases = c(1,2,3,4,5,6,7)
