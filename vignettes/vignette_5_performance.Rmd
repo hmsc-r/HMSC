@@ -1,8 +1,15 @@
 ---
 title:  |   
   | \LARGE{Hmsc 3.0: Testing the performance of Hmsc with simulated data} \vspace{0.5cm}
-author: "Gleb Tikhonov, Øystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen, Melinda M. J. de Jonge, Jari Oksanen & Otso Ovaskainen"
-date: "4 May 2020"
+author:
+  - Gleb Tikhonov
+  - Øystein H. Opedal
+  - Nerea Abrego
+  - Aleksi Lehikoinen
+  - Melinda M. J. de Jonge
+  - Jari Oksanen
+  - Otso Ovaskainen
+date: "`r format(Sys.time(), '%e %B %Y')`"
 output: pdf_document
 fig_caption: yes
 references:
