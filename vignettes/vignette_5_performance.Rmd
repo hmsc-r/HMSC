@@ -353,7 +353,6 @@ for (case in cases){
                 es.rho=es.rho, ge.rho=ge.rho,
                 es.V=es.V, ge.V=ge.V,
                 es.omega=es.omega, ge.omega=ge.omega)
-  print(str(mixing, max=1))
 
 # COMPUTE NRMSE AND COR
   estimates = list()
