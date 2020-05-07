@@ -4,8 +4,34 @@ title:  |
 author: "Gleb Tikhonov, Øystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen, Melinda M. J. de Jonge, Jari Oksanen & Otso Ovaskainen"
 date: "4 May 2020"
 output: pdf_document
-bibliography: endnote.xml
 fig_caption: yes
+references:
+- id: Ovaskainen2017b
+  title: Computationally efficient joint species distribution modeling of big spatial data
+  author:
+  - family: Ovaskainen
+    given: O.
+  - family: Tikhonov
+    given: A.
+  - family: Norberg
+    given: A.
+  - family: Blanchet
+    given: F.G.
+  - family: Duan
+    given: L.
+  - family: Dunson
+    given: D.
+  - family: Roslin
+    given: T.
+  - family: Abrego
+    given: N.
+  container-title: Ecology Letters
+  DOI: 10.1111/ele.12757
+  volume: 20
+  page: 561-576
+  type: article-journal
+  issued:
+  year: 2017
 ---
 
 ```{r setup, include=FALSE}
