@@ -38,7 +38,7 @@ references:
   page: 561-576
   type: article-journal
   issued:
-  year: 2017
+    year: 2017
 ---
 
 ```{r setup, include=FALSE}
@@ -46,7 +46,7 @@ knitr::opts_chunk$set(echo = TRUE, warning=-1)
 ```
 
 ## Introduction
-The Hierarchical Modelling of Species Communities (Hmsc) framework is a statistical framework for analysis of multivariate data, typically from species communities. It uses Bayesian inference to fit latent-variable joint species distribution models. The conceptual basis of the method is outlined in [@Ovaskainen2017b]. 
+The Hierarchical Modelling of Species Communities (Hmsc) framework is a statistical framework for analysis of multivariate data, typically from species communities. It uses Bayesian inference to fit latent-variable joint species distribution models. The conceptual basis of the method is outlined in @Ovaskainen2017b. 
 
 Here, we test the performance of the MCMC estimation scheme in terms of (1) computational time, (2) mixing properties, and (3) ability to recover true parameter values, by performing a set of experiments in which we use the Hmsc model to generate simulated data and then fit the model to the simulated data.
 
@@ -56,6 +56,13 @@ Here, we test the performance of the MCMC estimation scheme in terms of (1) comp
 ```{r Data generation I, message=F, results=F, cache=F, warning=F}
 localDir = "."
 source("load_libraries.R")
+## we need to write results to subdirectories (folders)
+if (!dir.exists(file.path(localDir, "data")))
+  dir.create(file.path(localDir, "data"))
+if (!dir.exists(file.path(localDir, "models")))
+  dir.create(file.path(localDir, "models"))
+if (!dir.exists(file.path(localDir, "performance")))
+  dir.create(file.path(localDir, "performance"))
 ```
 
 ### The `makedata` function
@@ -130,8 +137,6 @@ all.data$Y[1:5,1:5]
 save(file=file.path(localDir, "data","Case3.R"), all.data, all.parameters)
 ```
 
-\pagebreak
-
 #### Case 4: Large number of sites 
 We assumed otherwise the same model as for Case 1 but set the number of sampling units to *n~y~*=2000.
 
@@ -181,14 +186,11 @@ save(file=file.path(localDir, "data","Case7.R"), all.data, all.parameters)
 ```
 
 ## Model setup and fitting
-We fitted `Hmsc` models with structure matching the data generation model, i.e. we did not examine here the influence of model misspecification or e.g. issues related to variable selection. However, we did not fix the number of latent variables to that used for generating the data, but assumed the default prior for them, as well as for all other model parameters.
 
-We fitted each model with sampling parameters set to thin=10 and samples=1000, and thus we performed 15,000 MCMC iterations per chain. We adapted the number of latent factors during the first 4,000 iterations, and ignored from each chain the first 5,000 iterations as a transient. Thus, we ran in total 60,000 MCMC iterations, out of which the thinned posterior sample consisted of 4000 samples.
-
-The code below takes a long time to run. The .Rmd file can be run much more quickly by setting `test.run=TRUE`, but the results will not be reliable.
-
-For case 1, 4 and 5, we set up the model with gaussian errors, using `distr = "normal"`
-```{r Model fitting II, message=F, eval=T, cache=T}
+We first set the parameters that we used in posterior samplings. There
+is an alternative for `test.run` that runs fast, but gives no real
+results, but you can use to quickly see the idea.
+```{r Model sampling setup, message=F, eval=T, cache=F}
 nChains = 2
 test.run = FALSE
 if (test.run){
@@ -201,7 +203,24 @@ if (test.run){
    samples = 1000
 }
 verbose = 0
+```
 
+We fitted `Hmsc` models with structure matching the data generation model, i.e. we did not examine here the influence of model misspecification or e.g. issues related to variable selection. However, we did not fix the number of latent variables to that used for generating the data, but assumed the default prior for them, as well as for all other model parameters.
+
+We fitted each model with sampling parameters set to thin=`r thin` and
+samples=`r samples`, and thus we performed `r round(1.5*thin*samples)`
+MCMC iterations per chain. We adapted the number of latent factors
+during the first `r round(0.4*thin*samples)` iterations, and
+ignored from each chain the first `r round(0.5*thin*samples)`
+iterations as transient. We used `r nChains` chains, so we ran in
+total `r round(nChains*1.5*thin*samples)` MCMC iterations, out of
+which the thinned posterior sample consisted of `r nChains*samples`
+samples.
+
+The code below takes a long time to run. The .Rmd file can be run much more quickly by setting `test.run=TRUE`, but the results will not be reliable.
+
+For case 1, 4 and 5, we set up the model with gaussian errors, using `distr = "normal"`
+```{r Model fitting II, message=F, eval=T, cache=T}
 for (case in c(1,4,5)){
   set.seed(1)
   load(file = file.path(localDir, "data", paste("Case",toString(case),".R", sep="")))
@@ -310,7 +329,7 @@ We used the `coda` package to compute the effective number of MCMC samples (samp
 * `evaluateModelFit` returns several measures of model fit, including RMSE (root mean square error), R^2^ (coefficient of determination), Tjur R^2^ (coefficient of discrimination), and AUC (area under the receiver operating characteristic curve).
 * `convertToCodaObject` converts the posterior distributions produced by `Hmsc` into `coda`-format.  
 
-```{r Data evaluation I, message=F, eval=T, cache=T, echo=T}
+```{r Data evaluation I, message=F, eval=T, cache=T, echo=T, results='hide', warning=F}
 ptm = proc.time()
 
 cases = c(1,2,3,4,5,6,7)
@@ -482,7 +501,14 @@ for (case in cases){
 ```
 
 ### Computational time
-We ran the 4 chains in parallel using the option `nParallel = nChains`, and recorded the computational time for MCMC sampling using a multi-core computer.
+
+We ran the `r nChains` chains in parallel using the option `nParallel
+= nChains`, and recorded the computational time for MCMC sampling
+using a multi-core computer (in this case with
+`r parallel::detectCores()` cores).
+The timings and relative timings are very strongly dependent on the
+system and its load, including external resources such as LAPACK
+libraries for numerical matrix algebra.
 
 ```{r Data evaluation II, message=F, eval=T, cache=F, echo=F}
 cases = c(1,2,3,4,5,6,7)
@@ -536,7 +562,14 @@ for (para in 1:4){
 }
 ```
 
-The effective sample size (Figure 1) was close to 4000 for the $\beta$, $\gamma$, and *V* parameters, except for Case 3 (the lognormal Poisson model) and to some extent Case 5 (large number of species), for which cases a longer MCMC chain would be needed for obtaining robust results. Mixing was more challenging to obtain for the $\Omega$ and $\rho$ parameters, for which the effective sample size varied much among the elements of the matrix also for the normally distributed models.
+The effective sample size (Figure 1) was close to `r nChains*samples`
+for the $\beta$, $\gamma$, and *V* parameters, except for Case 3 (the
+lognormal Poisson model) and to some extent Case 5 (large number of
+species), for which cases a longer MCMC chain would be needed for
+obtaining robust results. Mixing was more challenging to obtain for
+the $\Omega$ and $\rho$ parameters, for which the effective sample
+size varied much among the elements of the matrix also for the
+normally distributed models.
 
 ### Ability to recover true parameter values
 For the same parameters that we considered for MCMC mixing, we asked how much closer the posterior distributions were to the true values than were the prior distributions. We quantified this by the normalized root mean squared errors (NRMSE), where the normalization was done with respect to the root mean squared error under the prior distribution. Further, for the matrix-valued parameters $\beta$, $\gamma$, $\rho$, *V*, $\Omega$ we computed the posterior distribution of the Mantel correlation between the estimated and true values. For the univariate parameter $\rho$ we compared the true value to the boxplot of the posterior distribution.
