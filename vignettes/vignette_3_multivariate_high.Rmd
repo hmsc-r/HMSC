@@ -1,8 +1,15 @@
 ---
 title:  |
   | Hmsc 3.0: Getting started with Hmsc: high-dimensional multivariate models
-author: "Gleb Tikhonov, Oystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen, Melinda M. J. de Jonge, Jari Oksanen & Otso Ovaskainen"
-date: "21 October 2019"
+author:
+  - Gleb Tikhonov
+  - Øystein H. Opedal
+  - Nerea Abrego
+  - Aleksi Lehikoinen
+  - Melinda M. J. de Jonge
+  - Jari Oksanen
+  - Otso Ovaskainen
+date: "`r format(Sys.time(), '%e %B %Y')`"
 output:
   pdf_document: default
   word_document: default
@@ -15,7 +22,7 @@ The Hierarchical Modelling of Species Communities (HMSC) framework is a statisti
 
 The main difference between the low- and high-dimensional cases is that only the latter truly benefits from the hierarchical structure of `Hmsc`. By the hierarchical structure we refer to the species responses to environmental covariates being modelled jointly, and as a function of species traits and phylogenetic relationships. In this context, each species can be considered as one data point. Thus, if there are only a handful of species, there is insufficient data to accurately model the influence of traits and phylogenies. In contrast, if there are many (say, several tens) of species, accounting for traits and phylogenies becomes meaningful.
 
-To get `Hmsc` in use, you need to first install it [https://github.com/hmsc-r/HMSC] and then load it.
+To get `Hmsc` in use, you need to load it.
 
 ```{r echo=FALSE, message = F}
 library(knitr)
@@ -138,7 +145,7 @@ We then choose the MCMC sampling parameters and fit the model. If the aim of the
 
 ```{r IX}
 nChains = 2
-test.run = TRUE
+test.run = FALSE
 if (test.run){
    #with this option, the vignette evaluates in ca. 10 minutes in a laptop
    thin = 1
