@@ -1,8 +1,16 @@
 ---
 title: |
   | Hmsc 3.0: Getting started with Hmsc: univariate models
-author: "Gleb Tikhonov, Oystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen, Melinda M. J. de Jonge, Jari Oksanen & Otso Ovaskainen"
-date: "17 September 2019"
+author:
+  - Gleb Tikhonov
+  - Øystein H. Opedal
+  - Nerea Abrego
+  - Aleksi Lehikoinen
+  - Melinda M. J. de Jonge
+  - Jari Oksanen
+  - Otso Ovaskainen
+date: "`r format(Sys.time(), '%e %B %Y')`"
+
 output:
   pdf_document: default
   word_document: default
@@ -13,7 +21,6 @@ fig_caption: yes
 # Introduction
 The Hierarchical Modelling of Species Communities (HMSC) framework is a statistical framework for analysis of multivariate data, typically from species communities. Here, we demonstrate how to get started with Hmsc-R. While HMSC is primarily meant for multivariate data, this vignette illustrates the basics with univariate models.
 
-To get Hmsc-R in use, you need to first install it [https://github.com/hmsc-r/HMSC] and then load it.
 
 ```{r I, message = F}
 library(Hmsc)
@@ -67,7 +74,7 @@ While the `lm` function constructs the model and fits it at the same time, the `
 
 ```{r}
 nChains = 2
-test.run = TRUE
+test.run = FALSE
 if (test.run){
    #with this option, the vignette runs fast but results are not reliable 
    thin = 1
@@ -358,7 +365,7 @@ We next consider spatial data by assuming that each sampling unit is associated 
    xycoords = matrix(runif(2*n), ncol=2)
    rownames(xycoords) = sample.id
    colnames(xycoords) = c("x-coordinate","y-coordinate")
-   a = mvrnorm(mu=rep(0,n),
+   a = MASS::mvrnorm(mu=rep(0,n),
                Sigma = sigma.spatial^2*exp(-as.matrix(dist(xycoords))/alpha.spatial))
    y =  L + a + rnorm(n, sd = sigma)
    Y=as.matrix(y) 
@@ -371,7 +378,7 @@ We next consider spatial data by assuming that each sampling unit is associated 
       if (i==2) value = y
       value = value-min(value)
       value = 1+(ncols-1)*value/max(value)
-      plot(xycoords[,1],xycoords[,2],col=cols[value],pch=16,main=c("x","y")[i])
+      plot(xycoords[,1],xycoords[,2],col=cols[value],pch=16,main=c("x","y")[i], asp=1)
    }
 ```
 
