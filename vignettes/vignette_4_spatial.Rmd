@@ -1,8 +1,15 @@
 ---
 title: |
   | HMSC-R 3.0: Getting started with Hmsc-R: spatial models
-author: "Gleb Tikhonov, Oystein H. Opedal, Nerea Abrego, Aleksi Lehikoinen, Melinda M.J. de Jonge, Jari Oksanen & Otso Ovaskainen"
-date: "17 September 2019"
+author:
+  - Gleb Tikhonov
+  - Øystein H. Opedal
+  - Nerea Abrego
+  - Aleksi Lehikoinen
+  - Melinda M. J. de Jonge
+  - Jari Oksanen
+  - Otso Ovaskainen
+date: "`r format(Sys.time(), '%e %B %Y')`"
 output:
   pdf_document: default
   word_document: default
@@ -26,19 +33,19 @@ references:
     given: D.
   - family: Ovaskainen
     given: O.
-  container-title: Ecology (in Press)
-  DOI: 
-  volume: 
-  page: 
+  container-title: Ecology
+  DOI: 10.1002/ecy.2929
+  volume: 101
+  page: e02929
   type: article-journal
   issued: 
-   year: 2019
+   year: 2020
 ---
   
 # Introduction
 The Hierarchical Modelling of Species Communities (HMSC) framework is a statistical framework for analysis of multivariate data, typically from species communities. We assume that the reader has already gone through the vignette "Hmsc-R 3.0: Getting started with Hmsc-R: univariate models" and "Hmsc-R 3.0: Getting started with Hmsc-R: low-dimensional multivariate models". In the first vignette we shortly discussed how to fit spatially explicit models to the univariate case. Here, we continue to demonstrate how to use HMSC to make spatially explicit models for the multivariate case and for large datasets.   
 
-To get Hmsc-R in use, you need to first install it [https://github.com/hmsc-r/HMSC] and then load it.
+To get Hmsc-R in use, you need to load it and other needed packages.
 
 ```{r, message = F}
 library(Hmsc)
@@ -82,10 +89,10 @@ We can now visualize the species response matrix y as function of the x and y co
 rbPal = colorRampPalette(c('cyan','red'))
 par(mfrow=c(2,3))
 Col = rbPal(10)[as.numeric(cut(x[,2],breaks = 10))]
-plot(xycoords[,2],xycoords[,1],pch = 20,col = Col,main=paste('x'))
+plot(xycoords[,2],xycoords[,1],pch = 20,col = Col,main=paste('x'), asp=1)
 for(s in 1:ns){
   Col = rbPal(10)[as.numeric(cut(y[,s],breaks = 10))]
-  plot(xycoords[,2],xycoords[,1],pch = 20,col = Col,main=paste('Species',s))
+  plot(xycoords[,2],xycoords[,1],pch = 20,col = Col,main=paste('Species',s), asp=1)
 }
 ```
 
@@ -213,7 +220,7 @@ Knots = constructKnots(xycoords, knotDist = 0.2, minKnotDist = 0.4)
 
 
 ```{r, fig.height=8, fig.width=7, fig.cap="\\label{fig: IV} Locations of the created knots in red together with the locations of the plots in black."}
-plot(xycoords[,1],xycoords[,2],pch=18)
+plot(xycoords[,1],xycoords[,2],pch=18, asp=1)
 points(Knots[,1],Knots[,2],col='red',pch=18)
 ```
 
@@ -234,7 +241,7 @@ cvMF.gpp = evaluateModelFit(hM=m.gpp, predY=cvpreds.gpp)
 cvMF.gpp
 ```
 
-```{r, fig.height=4, fig.width=7, fig.cap="\\label{fig: III} Posterior trace plot of the spatial scale parameter of the nngp spatial model."}
+```{r, fig.height=4, fig.width=7, fig.cap="\\label{fig: IIIb} Posterior trace plot of the spatial scale parameter of the ggp spatial model."}
 mpost.gpp = convertToCodaObject(m.gpp)
 plot(mpost.gpp$Alpha[[1]])
 summary(mpost.gpp$Alpha[[1]])
