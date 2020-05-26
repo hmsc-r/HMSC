@@ -26,10 +26,10 @@ test_that("UpdateGammaEta is correct",{
    expect_equal(length(eta),2)
    expect_equal(length(eta[[1]]),100)
    expect_equal(length(eta[[2]]),20)
-   expect_equal(round(sum(eta[[1]])),-29)
-   expect_equal(round(sum(eta[[2]])),2)
+   expect_equal(round(sum(eta[[1]])),-9)
+   expect_equal(round(sum(eta[[2]])),-3)
    expect_equal(length(gamma),9)
-   expect_equal(round(sum(gamma)),0)
+   expect_equal(round(sum(gamma)),-3)
 })
 
 test_that("updateBetaLambda is correct",{
@@ -44,10 +44,10 @@ test_that("updateBetaLambda is correct",{
    expect_equal(length(Lambda),2)
    expect_equal(length(Lambda[[1]]),8)
    expect_equal(length(Lambda[[2]]),8)
-   expect_equal(round(sum(Lambda[[1]]),digits=1),0.3)
+   expect_equal(round(sum(Lambda[[1]]),digits=1),0.0)
    expect_equal(round(sum(Lambda[[2]]),digits=1),0.3)
    expect_equal(length(Beta),12)
-   expect_equal(round(sum(Beta)),0)
+   expect_equal(round(sum(Beta)),-3)
 })
 
 test_that("updateGammaV is correct",{
@@ -61,10 +61,10 @@ test_that("updateGammaV is correct",{
    iV = GammaVList$iV
    expect_equal(nrow(iV),3)
    expect_equal(ncol(iV),3)
-   expect_equal(round(sum(iV)),18)
+   expect_equal(round(sum(iV)),10)
    expect_equal(nrow(Gamma),3)
    expect_equal(ncol(Gamma),3)
-   expect_equal(round(sum(Gamma)),1)
+   expect_equal(round(sum(Gamma)),0)
 })
 
 test_that("updateRho is correct",{
@@ -85,11 +85,11 @@ test_that("updateLambdaPriors is correct",{
    expect_equal(length(Delta),2)
    expect_equal(length(Delta[[1]]),2)
    expect_equal(length(Delta[[2]]),2)
-   expect_equivalent(round(Delta[[1]]),c(47,50))
-   expect_equivalent(round(Delta[[2]]),c(59,43))
+   expect_equivalent(round(Delta[[1]]),c(56,62))
+   expect_equivalent(round(Delta[[2]]),c(47,55))
    expect_equal(length(Psi),2)
-   expect_equal(round(sum(Psi[[1]])),11)
-   expect_equal(round(sum(Psi[[2]])),12)
+   expect_equal(round(sum(Psi[[1]])),12)
+   expect_equal(round(sum(Psi[[2]])),10)
 })
 
 
@@ -103,8 +103,8 @@ test_that("updateEta is correct", {
    expect_equal(length(eta),2)
    expect_equal(length(eta[[1]]),100)
    expect_equal(length(eta[[2]]),20)
-   expect_equal(round(sum(eta[[1]])),-10)
-   expect_equal(round(sum(eta[[2]])),-10)
+   expect_equal(round(sum(eta[[1]])),-11)
+   expect_equal(round(sum(eta[[2]])),-15)
 })
 
 test_that("updateAlpha is correct",{
@@ -152,11 +152,11 @@ test_that("updateNf is correct",{
    Alpha = listPar$alpha
    Psi = listPar$psi
    Delta = listPar$delta
-   expect_equal(nrow(Lambda),3)
-   expect_equal(ncol(Eta),3)
-   expect_equal(length(Alpha),3)
-   expect_equal(nrow(Psi),3)
-   expect_equal(length(Delta),3)
+   expect_equal(nrow(Lambda),2)
+   expect_equal(ncol(Eta),2)
+   expect_equal(length(Alpha),2)
+   expect_equal(nrow(Psi),2)
+   expect_equal(length(Delta),2)
 })
 ## -----------------------------------------------------------------------------
 context('Test sampleMCMC')
