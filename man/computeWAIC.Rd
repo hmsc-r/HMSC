@@ -4,12 +4,14 @@
 \alias{computeWAIC}
 \title{computeWAIC}
 \usage{
-computeWAIC(hM, ghN = 11)
+computeWAIC(hM, ghN = 11, byColumn = FALSE)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}
 
 \item{ghN}{order of Gauss-Hermite quadrature for approximate numerical integration}
+
+\item{byColumn}{describes whether WAIC is computed for the entire model \code{byColumn=FALSE} or for each column (i.e. species) \code{byColumn=TRUE}}
 }
 \value{
 the scalar WAIC
