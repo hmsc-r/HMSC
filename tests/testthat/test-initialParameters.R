@@ -9,14 +9,14 @@ test_that("Standard initial beta is correct",{
    set.seed(200)
    parList = computeInitialParameters(TD$m,initPar=NULL)
    expect_equal(length(parList$Beta),12)
-   expect_equal(round(parList$Beta),t(matrix(c(-1,-1,-1,0,0,-0,0,-1,1,1,1,1),nrow=4,ncol=3)))
+   expect_equal(round(parList$Beta),t(matrix(c(1,0,1,0,0,-2,1,-1,-2,-1,0,-2),nrow=4,ncol=3)))
 })
 
 test_that("Standard initial gamma is correct",{
    set.seed(200)
    parList = computeInitialParameters(TD$m,initPar=NULL)
    expect_equal(length(parList$Gamma),9)
-   expect_equal(round(parList$Gamma),t(matrix(c(0,1,-1,0,0,0,0,0,0),nrow=3,ncol=3)))
+   expect_equal(round(parList$Gamma),t(matrix(c(0,0,0,0,0,0,-1,1,0),nrow=3,ncol=3)))
 })
 
 test_that("Standard initial V is correct",{
@@ -91,7 +91,7 @@ test_that("Standard initial Z is correct",{
    parList = computeInitialParameters(TD$m,initPar=NULL)
    expect_equal(nrow(parList$Z),TD$units)
    expect_equal(ncol(parList$Z),TD$ns)
-   expect_equal(round(colMeans(parList$Z)),c(-1,0,0,0))
+   expect_equal(round(colMeans(parList$Z)),c(-1,0,0,-1))
 })
 
 

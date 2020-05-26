@@ -8,7 +8,6 @@
 #' @return A named list containing the Hmsc model parameters
 #'
 #' @importFrom stats rgamma rnorm
-#' @importFrom mvtnorm rmvnorm
 #' @importFrom MASS mvrnorm
 #' @importFrom MCMCpack riwish
 
@@ -24,7 +23,7 @@ samplePrior = function(hM, dataParList=NULL){
 
 
    #PRIMARY PARAMETERS NOT RELATED TO RANDOM EFFECTS
-   Gamma = matrix(rmvnorm(1, hM$mGamma, hM$UGamma), hM$nc, hM$nt)
+   Gamma = matrix(mvrnorm(1, hM$mGamma, hM$UGamma), hM$nc, hM$nt)
 
    V = riwish(hM$f0, hM$V0)
 
@@ -106,7 +105,7 @@ samplePrior = function(hM, dataParList=NULL){
    if(is.null(hM$C)){
       Beta = matrix(NA, hM$nc, hM$ns)
       for(j in 1:hM$ns)
-         Beta[,j] = rmvnorm(1, Mu[,j], V)
+         Beta[,j] = mvrnorm(1, Mu[,j], V)
    }
    else {
       Beta = t(matrix(mvrnorm(mu=as.vector(t(Mu)),Sigma = kronecker(V,Qg[,,rho])), hM$ns, hM$nc))

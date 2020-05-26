@@ -10,7 +10,7 @@
 #' @importFrom stats glm.fit lm.fit coef rgamma rnorm binomial poisson
 #'    cov runif
 #' @importFrom abind abind
-#' @importFrom mvtnorm rmvnorm
+#' @importFrom MASS mvrnorm
 #' @importFrom MCMCpack riwish
 
 
@@ -82,7 +82,7 @@ computeInitialParameters = function(hM, initPar){
       if(!is.null(initPar$Gamma)){
          Gamma = initPar$Gamma
       } else{
-         Gamma = matrix(rmvnorm(1, hM$mGamma, hM$UGamma), hM$nc, hM$nt)
+         Gamma = matrix(mvrnorm(1, hM$mGamma, hM$UGamma), hM$nc, hM$nt)
       }
 
       if(!is.null(initPar$V)){
@@ -97,7 +97,7 @@ computeInitialParameters = function(hM, initPar){
          Beta = matrix(NA, hM$nc, hM$ns)
          Mu = tcrossprod(Gamma,hM$Tr)
          for(j in 1:hM$ns){
-            Beta[,j] = rmvnorm(1, Mu[,j], V)
+            Beta[,j] = mvrnorm(1, Mu[,j], V)
          }
       }
    }
