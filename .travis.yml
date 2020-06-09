@@ -4,11 +4,6 @@ cache: packages
 r:
   - release
 
-branches:
-  only:
-    - master
-    - travis-build
-
 sudo: false
 
 r_packages:
