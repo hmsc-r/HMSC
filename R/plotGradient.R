@@ -163,6 +163,8 @@ plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = NUL
          }
          pY = tmp[,index]
       }
+      if (!is.numeric(pY))
+         pY <- as.numeric(pY)
 
       switch(class(hM$X)[1L],
              matrix = {
