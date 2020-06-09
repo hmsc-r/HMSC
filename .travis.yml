@@ -13,8 +13,6 @@ sudo: false
 
 r_packages:
   - BayesLogit
-
-r_binary_packages:
   - coda
   - testthat
   - R.rsp
