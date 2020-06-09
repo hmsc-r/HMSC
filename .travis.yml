@@ -7,7 +7,7 @@ r:
 branches:
   only:
     - master
-    - travis
+    - travis-build
 
 sudo: false
 
