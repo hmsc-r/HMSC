@@ -4,17 +4,10 @@ cache: packages
 r:
   - release
 
-branches:
-  only:
-    - master
-    - travis
-
 sudo: false
 
 r_packages:
   - BayesLogit
-
-r_binary_packages:
   - coda
   - testthat
   - R.rsp
@@ -26,7 +19,6 @@ r_binary_packages:
   - MASS
   - Matrix
   - MCMCpack
-  - mvtnorm
   - nnet
   - pdist
   - pROC
