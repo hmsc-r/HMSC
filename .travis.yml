@@ -26,7 +26,6 @@ r_binary_packages:
   - MASS
   - Matrix
   - MCMCpack
-  - mvtnorm
   - nnet
   - pdist
   - pROC
