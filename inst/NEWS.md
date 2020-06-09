@@ -1,6 +1,13 @@
 Version 3.0-7
 =============
 
+### Installation
+
+* **Hmsc** is no longer dependent on the **mvtnorm** package.
+
+* Vignettes can be re-built from their sources out of the box.
+  Previously they needed editing by hand to reproduce the results.
+
 ### New Features
 
 * Species data `Y` is normally a numeric matrix, but now it is allowed
@@ -12,6 +19,11 @@ Version 3.0-7
 
 * The names of `distr`ibutions can be abbreviated in `Hmsc` definition
   as long as the names are unique.
+
+* `computeWAIC` is more robust against results of poorly fitting
+  models, and it is now possible to evaluate WAIC separately for each
+  species. See GitHub
+  [issue #44](https://github.com/hmsc-r/HMSC/issues/44).
 
 Version 3.0-6
 =============
