@@ -342,7 +342,6 @@ sampleMcmc =
          "Qg", "iQg", "RQg", "detQg", "rLPar"), envir=environment())
 
       clusterEvalQ(cl, {
-         library(mvtnorm);
          library(BayesLogit);
          library(MCMCpack);
          library(truncnorm);
