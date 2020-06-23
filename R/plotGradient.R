@@ -175,7 +175,8 @@ plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = NUL
              }
       )
 
-      hi1 = max(hi1,max(pY,na.rm = TRUE))
+      hi1 <- max(hi1, max(pY, na.rm = TRUE))
+      lo1 <- min(lo1, min(pY, na.rm = TRUE))
    }
 
    if (is.factor(xx)) {
