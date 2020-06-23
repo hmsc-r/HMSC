@@ -11,7 +11,7 @@ Version 3.0-7
 ### New Features
 
 * Species data `Y` is normally a numeric matrix, but now it is allowed
-  to use numeric data frames, or in univariate models, numeric vector.
+  to use numeric data frames, or in univariate models, a numeric vector.
 
 * A `tibble` can be used for measured covariates for fixed effects
   `XData` in addition to a data frame (a wish of Github
@@ -24,6 +24,12 @@ Version 3.0-7
   models, and it is now possible to evaluate WAIC separately for each
   species. See GitHub
   [issue #44](https://github.com/hmsc-r/HMSC/issues/44).
+
+### Bug Fixes
+
+* `plotGradient(..., showData = TRUE)` ignored data values in setting
+  plot minimum. See GitHub
+  [issue #48](https://github.com/hmsc-r/HMSC/issues/48).
 
 Version 3.0-6
 =============
