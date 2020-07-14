@@ -4,8 +4,8 @@
 #' of random effects
 #'
 #' @param hM a fitted \code{Hmsc} model object
-#' @param group vector of numeric values corresponding to group identifiers in groupnames
-#' @param groupnames vector of names for each group of fixed effect
+#' @param group vector of numeric values corresponding to group identifiers in groupnames. If missing, model terms are used.
+#' @param groupnames vector of names for each group of fixed effect. Should match \code{group}. If missing, labels of model terms.
 #' @param start index of first MCMC sample included
 #' @param na.ignore logical. If TRUE, covariates are ignored for sites where the focal species
 #' is NA when computing variance-covariance matrices for each species
@@ -21,6 +21,8 @@
 #' variance among species explained by traits, measured for species' responses to covariates (\code{VP$R2T$Beta}) and species occurrences
 #' (\code{VP$R2T$Y})
 #'
+#' @seealso
+#' Use \code{\link{plotVariancePartitioning}} to display the result object.
 #'
 #' @examples
 #' # Partition the explained variance for a previously fitted model
@@ -45,9 +47,12 @@ computeVariancePartitioning =
    nr = hM$nr
 
    if(is.null(group)){
+      ## default: use terms
       if(nc>1){
-         group = c(1,seq_len(nc-1))
-         groupnames = hM$covNames[2:nc]
+         group = attr(hM$X, "assign")
+         if (group[1] == 0) # assign (Intercept) to gro
+            group[1] <- 1
+         groupnames = attr(terms(hM$XFormula), "term.labels")
       } else {
          group = c(1)
          groupnames = hM$covNames[1]
