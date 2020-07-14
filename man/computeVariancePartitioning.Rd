@@ -15,9 +15,9 @@ computeVariancePartitioning(
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}
 
-\item{group}{vector of numeric values corresponding to group identifiers in groupnames}
+\item{group}{vector of numeric values corresponding to group identifiers in groupnames. If missing, model terms are used.}
 
-\item{groupnames}{vector of names for each group of fixed effect}
+\item{groupnames}{vector of names for each group of fixed effect. Should match \code{group}. If missing, labels of model terms.}
 
 \item{start}{index of first MCMC sample included}
 
@@ -47,4 +47,7 @@ VP = computeVariancePartitioning(TD$m)
 # while grouping the two environmental variables together
 VP = computeVariancePartitioning(TD$m, group=c(1,1), groupnames = c("Habitat"))
 
+}
+\seealso{
+Use \code{\link{plotVariancePartitioning}} to display the result object.
 }
