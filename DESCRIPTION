@@ -43,5 +43,6 @@ Imports:
    parallel,
    pdist,
    pROC,
+   sp,
    statmod,
    truncnorm
