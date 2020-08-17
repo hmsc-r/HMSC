@@ -1,30 +1,45 @@
 #' @title predictLatentFactor
 #'
-#' @description Draws samples from the conditional predictive distribution of latent factors
+#' @description Draws samples from the conditional predictive
+#'     distribution of latent factors
 #'
-#' @param unitsPred a factor vector with random level units for which predictions are to be made
-#' @param units a factor vector with random level units that are conditioned on
-#' @param postEta a list containing samples of random factors at conditioned units
-#' @param postAlpha a list containing samples of range (lengthscale) parameters for latent factors
-#' @param rL a \code{HmscRandomLevel}-class object that describes the random level structure
-#' @param predictMean a boolean flag indicating whether to return the mean of the predictive Gaussian process
-#'   distribution
-#' @param predictMeanField a boolean flag indicating whether to return the samples from the mean-field distribution of
-#'   the predictive Gaussian process distribution
+#' @param unitsPred a factor vector with random level units for which
+#'     predictions are to be made
+#' @param units a factor vector with random level units that are
+#'     conditioned on
+#' @param postEta a list containing samples of random factors at
+#'     conditioned units
+#' @param postAlpha a list containing samples of range (lengthscale)
+#'     parameters for latent factors
+#' @param rL a \code{HmscRandomLevel}-class object that describes the
+#'     random level structure
+#' @param predictMean a boolean flag indicating whether to return the
+#'     mean of the predictive Gaussian process distribution
+#' @param predictMeanField a boolean flag indicating whether to return
+#'     the samples from the mean-field distribution of the predictive
+#'     Gaussian process distribution
 #'
-#' @return a list of length \code{length(postEta)} containing samples of random factors at \code{unitsPred} from their
-#'   predictive distribution conditional on the values at \code{units}
+#' @return a list of length \code{length(postEta)} containing samples
+#'     of random factors at \code{unitsPred} from their predictive
+#'     distribution conditional on the values at \code{units}
 #'
-#' @details Length of \code{units} vector and number of rows in \code{postEta} matrix shall be equal. The method assumes
-#'   that the i-th row of \code{postEta} correspond to i-th element of \code{units}.
+#' @details Length of \code{units} vector and number of rows in
+#'     \code{postEta} matrix shall be equal. The method assumes that
+#'     the i-th row of \code{postEta} correspond to i-th element of
+#'     \code{units}.
 #'
-#'   This method uses only the coordinates \code{rL$s} field of the \code{rL$s} argument. This field shall be a matrix
-#'   with rownames covering the union of \code{unitsPred} and \code{units} factors.
+#'   This method uses only the coordinates \code{rL$s} field of the
+#'   \code{rL$s} argument. This field shall be a matrix with rownames
+#'   covering the union of \code{unitsPred} and \code{units} factors.
 #'
-#'   In case of spatial random level, the computational complexity of the generic method scales cubically as the number
-#'   of unobserved units to be predicted. Both \code{predictMean=TRUE} and \code{predictMeanField=TRUE} options decrease
-#'   the asymptotic complexity to linear. The \code{predictMeanField=TRUE} option also preserves the uncertainty in
-#'   marginal distribution of predicted latent factors, but neglects the inter-dependece between them.
+#'   In case of spatial random level, the computational complexity of
+#'   the generic method scales cubically as the number of unobserved
+#'   units to be predicted. Both \code{predictMean=TRUE} and
+#'   \code{predictMeanField=TRUE} options decrease the asymptotic
+#'   complexity to linear. The \code{predictMeanField=TRUE} option
+#'   also preserves the uncertainty in marginal distribution of
+#'   predicted latent factors, but neglects the inter-dependece
+#'   between them.
 #'
 #' @importFrom stats rnorm dist
 #' @importFrom pdist pdist
