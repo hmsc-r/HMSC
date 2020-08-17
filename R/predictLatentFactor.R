@@ -29,6 +29,7 @@
 #' @importFrom stats rnorm dist
 #' @importFrom pdist pdist
 #' @importFrom FNN knnx.index
+#' @importFrom sp spDists
 #'
 #' @export
 
@@ -36,8 +37,15 @@ predictLatentFactor =
    function(unitsPred, units, postEta, postAlpha, rL, predictMean=FALSE,
             predictMeanField=FALSE)
 {
-   if(predictMean==TRUE && predictMeanField==TRUE)
+   if(predictMean && predictMeanField)
       stop("Hmsc.predictLatentFactor: predictMean and predictMeanField arguments cannot be simultaneously TRUE")
+   ## SpatialPoints only implemented for simple Full model
+   if (inherits(rL$s, "SpatialPoints")) {
+      if (rL$spatialModel != "Full")
+         stop("SpatialPoints can be used only with 'Full' spatial model")
+      if (predictMean || predictMeanField)
+         stop("SpatiaPoints cannot be used with predictMean or predictMeanField")
+   }
    predN = length(postEta)
    indOld = (unitsPred %in% units)
    indNew = !(indOld)
@@ -99,7 +107,10 @@ predictLatentFactor =
                   unitsAll = c(units,unitsPred[indNew])
                   if(!is.null(rL$s)){
                      s = rL$s[unitsAll,]
-                     D = as.matrix(dist(s))
+                     if (inherits(s, "SpatialPoints"))
+                        D <- spDists(s)
+                     else
+                        D = as.matrix(dist(s))
                   } else {
                      D = rL$distMat[unitsAll,unitsAll]
                   }
