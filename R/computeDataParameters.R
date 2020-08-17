@@ -7,6 +7,7 @@
 #' @return a list including pre-computed matrix inverses and determinants (for phylogenetic and spatial random effects) needed in MCMC sampling
 #'
 #' @importFrom stats dist
+#' @importFrom sp spDists
 #' @importFrom FNN get.knn
 #' @importFrom Matrix .sparseDiagonal t solve
 #'
@@ -54,7 +55,10 @@ computeDataParameters = function(hM){
                 "Full" = {
                    if(is.null(hM$rL[[r]]$distMat)){
                       s = hM$rL[[r]]$s[levels(hM$dfPi[,r]),]
-                      distance = as.matrix(dist(s))
+                      if (inherits(s, "SpatialPoints"))
+                         distance <- spDists(s)
+                      else
+                         distance = as.matrix(dist(s))
                    } else{
                       distance = hM$rL[[r]]$distMat[levels(hM$dfPi[,r]),levels(hM$dfPi[,r])]
                    }
@@ -86,6 +90,9 @@ computeDataParameters = function(hM){
                    if(!is.null(hM$rL[[r]]$distMat)){
                       stop("computeDataParameters: Nearest neighbours not available for distance matrices")
                    }
+                   ## is.projected TRUE could work for coordinates
+                   if(inherits(hM$rL[[r]]$s, "SpatialPoints"))
+                      stop("Nearest neighbours not available for SpatialPoints")
                    iWg = list()
                    RiWg = list()
                    detWg = rep(NA,alphaN)
@@ -139,6 +146,8 @@ computeDataParameters = function(hM){
                    if(!is.null(hM$rL[[r]]$distMat)){
                       stop("computeDataParameters: predictive gaussian process not available for distance matrices")
                    }
+                   if (inherits(hM$rL[[r]]$s, "SpatialPoints"))
+                      stop("predictive Gaussian process not available for SpatialPoints")
                    s = hM$rL[[r]]$s[levels(hM$dfPi[,r]),]
                    sKnot = hM$rL[[r]]$sKnot
                    dim = ncol(s)
