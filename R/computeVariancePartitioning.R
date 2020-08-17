@@ -33,7 +33,7 @@
 #' # while grouping the two environmental variables together
 #' VP = computeVariancePartitioning(TD$m, group=c(1,1), groupnames = c("Habitat"))
 #'
-#' @importFrom stats cov cor
+#' @importFrom stats cov cor terms
 #' @export
 
 computeVariancePartitioning =
