@@ -69,6 +69,7 @@ predictLatentFactor =
                   D11 = as.matrix(dist(s1))
                   D12 = as.matrix(pdist(s1,s2))
                } else {
+                  ## s1, s2 are UNDEFINED: this will FAIL
                   D11 = rL$distMat[s1,s1]
                   D12 = rL$distMat[s1,s2]
                }
