@@ -15,38 +15,53 @@ predictLatentFactor(
 )
 }
 \arguments{
-\item{unitsPred}{a factor vector with random level units for which predictions are to be made}
+\item{unitsPred}{a factor vector with random level units for which
+predictions are to be made}
 
-\item{units}{a factor vector with random level units that are conditioned on}
+\item{units}{a factor vector with random level units that are
+conditioned on}
 
-\item{postEta}{a list containing samples of random factors at conditioned units}
+\item{postEta}{a list containing samples of random factors at
+conditioned units}
 
-\item{postAlpha}{a list containing samples of range (lengthscale) parameters for latent factors}
+\item{postAlpha}{a list containing samples of range (lengthscale)
+parameters for latent factors}
 
-\item{rL}{a \code{HmscRandomLevel}-class object that describes the random level structure}
+\item{rL}{a \code{HmscRandomLevel}-class object that describes the
+random level structure}
 
-\item{predictMean}{a boolean flag indicating whether to return the mean of the predictive Gaussian process
-distribution}
+\item{predictMean}{a boolean flag indicating whether to return the
+mean of the predictive Gaussian process distribution}
 
-\item{predictMeanField}{a boolean flag indicating whether to return the samples from the mean-field distribution of
-the predictive Gaussian process distribution}
+\item{predictMeanField}{a boolean flag indicating whether to return
+the samples from the mean-field distribution of the predictive
+Gaussian process distribution}
 }
 \value{
-a list of length \code{length(postEta)} containing samples of random factors at \code{unitsPred} from their
-  predictive distribution conditional on the values at \code{units}
+a list of length \code{length(postEta)} containing samples
+    of random factors at \code{unitsPred} from their predictive
+    distribution conditional on the values at \code{units}
 }
 \description{
-Draws samples from the conditional predictive distribution of latent factors
+Draws samples from the conditional predictive
+    distribution of latent factors
 }
 \details{
-Length of \code{units} vector and number of rows in \code{postEta} matrix shall be equal. The method assumes
-  that the i-th row of \code{postEta} correspond to i-th element of \code{units}.
+Length of \code{units} vector and number of rows in
+    \code{postEta} matrix shall be equal. The method assumes that
+    the i-th row of \code{postEta} correspond to i-th element of
+    \code{units}.
 
-  This method uses only the coordinates \code{rL$s} field of the \code{rL$s} argument. This field shall be a matrix
-  with rownames covering the union of \code{unitsPred} and \code{units} factors.
+  This method uses only the coordinates \code{rL$s} field of the
+  \code{rL$s} argument. This field shall be a matrix with rownames
+  covering the union of \code{unitsPred} and \code{units} factors.
 
-  In case of spatial random level, the computational complexity of the generic method scales cubically as the number
-  of unobserved units to be predicted. Both \code{predictMean=TRUE} and \code{predictMeanField=TRUE} options decrease
-  the asymptotic complexity to linear. The \code{predictMeanField=TRUE} option also preserves the uncertainty in
-  marginal distribution of predicted latent factors, but neglects the inter-dependece between them.
+  In case of spatial random level, the computational complexity of
+  the generic method scales cubically as the number of unobserved
+  units to be predicted. Both \code{predictMean=TRUE} and
+  \code{predictMeanField=TRUE} options decrease the asymptotic
+  complexity to linear. The \code{predictMeanField=TRUE} option
+  also preserves the uncertainty in marginal distribution of
+  predicted latent factors, but neglects the inter-dependece
+  between them.
 }
