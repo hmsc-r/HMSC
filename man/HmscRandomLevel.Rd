@@ -16,7 +16,12 @@ HmscRandomLevel(
 )
 }
 \arguments{
-\item{sData}{a dataframe containing spatial or temporal coordinates of units of the random level}
+\item{sData}{a dataframe containing spatial or temporal coordinates
+of units of the random level. If this is a \code{SpatialPoints}
+structure of the \CRANpkg{sp}, great circle distances will be
+calculated, including cases where the coordinates are given as
+longitude and latitude. \code{SpatialPoints} can be only used
+when the spatial method \code{sMethod} is \code{Full}.}
 
 \item{sMethod}{a string specifying which spatial method to be used. Possible values are \code{Full}, \code{GPP} and \code{NNGP}}
 
