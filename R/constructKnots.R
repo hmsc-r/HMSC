@@ -1,8 +1,15 @@
 #' @title constructKnots
 #'
-#' @description construct a regular spaced grid with knot locations to be used in spatial
-#' Hmsc models with the spatial method set to GPP. Knot locations with a distance greater than minKnotDist to
-#' the nearest data point are dropped from the grid.
+#' @description Construct a Regular Grid of Knot Locations for Spatial GPP Model
+#'
+#' @details This is a helper function for spatial Hmsc models with the
+#'     spatial method set to GPP where user must provide knot
+#'     locations. Knot locations with a distance greater than
+#'     \code{minKnotDist} to the nearest data point are dropped from
+#'     the grid. If the input locations are
+#'     \code{\link[sp]{SpatialPoints}} data, these are treated like
+#'     Euclidean coordinates, and if the points are not projected, a
+#'     warning is issued.
 #'
 #' @param sData a dataframe containing spatial or temporal coordinates of units of the random level
 #' @param nKnots the number of knots wanted on the spatial dimension with the shortest range
