@@ -19,11 +19,18 @@ constructKnots(sData, nKnots = NULL, knotDist = NULL, minKnotDist = NULL)
 a data frame with knot locations
 }
 \description{
-construct a regular spaced grid with knot locations to be used in spatial
-Hmsc models with the spatial method set to GPP. Knot locations with a distance greater than minKnotDist to
-the nearest data point are dropped from the grid.
+Construct a Regular Grid of Knot Locations for Spatial GPP Model
 }
 \details{
+This is a helper function for spatial Hmsc models with the
+    spatial method set to GPP where user must provide knot
+    locations. Knot locations with a distance greater than
+    \code{minKnotDist} to the nearest data point are dropped from
+    the grid. If the input locations are
+    \code{\link[sp]{SpatialPoints}} data, these are treated like
+    Euclidean coordinates, and if the points are not projected, a
+    warning is issued.
+
 Only one of \code{nKnots} and \code{minKnotDist} arguments can be provided.
 }
 \examples{
