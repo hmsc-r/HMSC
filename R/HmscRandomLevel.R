@@ -9,7 +9,7 @@
 #'     longitude and latitude. \code{SpatialPoints} can be only used
 #'     when the spatial method \code{sMethod} is \code{Full}.
 #' @param sMethod a string specifying which spatial method to be used. Possible values are \code{Full}, \code{GPP} and \code{NNGP}
-#' @param distMat a distance matrix containing the distances between units of the random level
+#' @param distMat a distance matrix containing the distances between units of the random level, with unit names as rownames, or a \code{\link{dist}} structure.
 #' @param xData a dataframe containing the covariates measured at the units of the random level for covariate-dependent
 #'   associations
 #' @param units a vector, specifying the names of the units of a non-structured level
@@ -57,10 +57,14 @@ HmscRandomLevel = function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NUL
       rL$sKnot = sKnot
    } else
       rL$sDim = 0
-   if(!is.null(distMat)){
+   if(!is.null(distMat)) {
+      if (inherits(distMat, "dist"))
+         distMat <- as.matrix(distMat)
       rL$distMat = distMat
       rL$N = nrow(distMat)
       rL$pi = sort(rownames(distMat))
+      if (is.null(rL$pi))
+         stop("'distMat' should have rownames for random levels")
       rL$spatialMethod = sMethod
       rL$sDim = Inf
    }
