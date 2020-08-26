@@ -66,6 +66,7 @@ HmscRandomLevel = function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NUL
       if (is.null(rL$pi))
          stop("'distMat' should have rownames for random levels")
       rL$spatialMethod = sMethod
+      rL$nNeighbours = nNeighbours
       rL$sDim = Inf
    }
    if(!is.null(xData)){
