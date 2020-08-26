@@ -88,7 +88,8 @@ computeDataParameters = function(hM){
                       hM$rL[[r]]$nNeighbours = 10
                    }
                    if(!is.null(hM$rL[[r]]$distMat)){
-                      stop("computeDataParameters: Nearest neighbours not available for distance matrices")
+                      dnam <- levels(hM$dfPi[,r])
+                      distMat <- hM$rL[[r]]$distMat[dnam, dnam]
                    }
                    ## is.projected TRUE could work for coordinates
                    if(inherits(hM$rL[[r]]$s, "SpatialPoints"))
@@ -96,8 +97,20 @@ computeDataParameters = function(hM){
                    iWg = list()
                    RiWg = list()
                    detWg = rep(NA,alphaN)
-                   s = hM$rL[[r]]$s[levels(hM$dfPi[,r]),]
-                   indNN = get.knn(s,k=hM$rL[[r]]$nNeighbours)[[1]] #This uses FNN package, may be updated later to incorporate distance matrices
+                   ## get nNeighbours nearest neighbours. If we
+                   ## already have distances, we use them, but
+                   ## otherwise use a fast method finding nearest
+                   ## (Euclidean) neighbours and find their distances
+                   if (exists("distMat", inherits = FALSE)) {
+                      k <- seq_len(hM$rL[[r]]$nNeighbours)
+                      diag(distMat) <- Inf
+                      indNN <- t(apply(distMat, 2, function(x)
+                         sort(x, index.return = TRUE)$ix[k]))
+                      diag(distMat) <- 0
+                   } else { # fast with coordinate data and FNN package
+                       s = hM$rL[[r]]$s[levels(hM$dfPi[,r]),]
+                       indNN = get.knn(s,k=hM$rL[[r]]$nNeighbours)[[1]]
+                   }
                    indNN = t(apply(indNN,1,sort,decreasing=FALSE))
                    indices = list()
                    distList = list()
@@ -106,7 +119,10 @@ computeDataParameters = function(hM){
                       ind = ind[ind<i]
                       if(!is.na(ind[1])){
                          indices[[i]] = rbind(i*rep(1,length(ind)),ind)
-                         distList[[i]] = as.matrix(dist(s[c(ind,i),]))
+                         if (exists("distMat", inherits = FALSE))
+                            distList[[i]] <- distMat[c(ind,i), c(ind,i)]
+                         else
+                            distList[[i]] = as.matrix(dist(s[c(ind,i),]))
                       }
                    }
                    for (ag in 1:alphaN){
