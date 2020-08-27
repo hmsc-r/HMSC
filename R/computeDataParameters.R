@@ -91,9 +91,12 @@ computeDataParameters = function(hM){
                       dnam <- levels(hM$dfPi[,r])
                       distMat <- hM$rL[[r]]$distMat[dnam, dnam]
                    }
-                   ## is.projected TRUE could work for coordinates
+                   ## SpatialPoints are non-Euclidean (although
+                   ## projected points on small extent may be nearly
+                   ## Euclidean), and we need distances to get the
+                   ## nearest neighbours
                    if(inherits(hM$rL[[r]]$s, "SpatialPoints"))
-                      stop("Nearest neighbours not available for SpatialPoints")
+                      distMat <- spDists(hM$rL[[r]]$s[levels(hM$dfPi[,r]),])
                    iWg = list()
                    RiWg = list()
                    detWg = rep(NA,alphaN)
