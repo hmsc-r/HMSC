@@ -49,9 +49,16 @@ HmscRandomLevel = function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NUL
    }
    if(!is.null(sData)){
       rL$s = sData
-      rL$N = nrow(sData)
-      rL$pi = sort(rownames(sData))
-      rL$sDim = ncol(sData)
+      ## several standard functions do not work with SpatialPoints
+      if (inherits(sData, "SpatialPoints")) {
+         rL$N <- nrow(coordinates(sData))
+         rL$pi <- sort(row.names(sData))
+         rL$sDim <- ncol(coordinates(sData))
+      } else {
+         rL$N = nrow(sData)
+         rL$pi = sort(rownames(sData))
+         rL$sDim = ncol(sData)
+      }
       rL$spatialMethod = sMethod
       rL$nNeighbours = nNeighbours
       rL$sKnot = sKnot

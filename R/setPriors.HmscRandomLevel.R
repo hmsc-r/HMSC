@@ -12,6 +12,7 @@
 #'
 #' @return Modified HmscRandomLevel object
 #'
+#' @importFrom sp spDists
 #'
 #' @export
 
@@ -88,7 +89,10 @@ setPriors.HmscRandomLevel = function(rL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=
    } else if(setDefault && rL$sDim>0){
       alphaN = 100
       if(is.null(rL$distMat)){
-         enclosingRectDiag = sqrt(sum(apply(rL$s, 2, function(c) diff(range(c)))^2))
+         if (inherits(rL$s, "SpatialPoints")) # needs spatial distances
+            enclosingRectDiag <- max(spDists(rL$s))
+         else
+            enclosingRectDiag = sqrt(sum(apply(rL$s, 2, function(c) diff(range(c)))^2))
       } else {
          enclosingRectDiag = max(rL$distMat)
       }
