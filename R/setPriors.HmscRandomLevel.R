@@ -12,6 +12,8 @@
 #'
 #' @return Modified HmscRandomLevel object
 #'
+#' @importFrom sp bbox coordinates `coordinates<-` proj4string
+#'     `proj4string<-` spDists
 #'
 #' @export
 
@@ -88,7 +90,17 @@ setPriors.HmscRandomLevel = function(rL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=
    } else if(setDefault && rL$sDim>0){
       alphaN = 100
       if(is.null(rL$distMat)){
-         enclosingRectDiag = sqrt(sum(apply(rL$s, 2, function(c) diff(range(c)))^2))
+         if (inherits(rL$s, "SpatialPoints")) {
+            ## find diagonal from the bounding box instead of
+            ## evaluating all spatial distances (that can be a huge
+            ## task) similarly as with non-spatial points
+            enclosingRect <- as.data.frame(t(bbox(rL$s)))
+            coordinates(enclosingRect) <- colnames(enclosingRect)
+            proj4string(enclosingRect) <- proj4string(rL$s)
+            enclosingRectDiag <- max(spDists(rL$s))
+         } else {
+            enclosingRectDiag = sqrt(sum(apply(rL$s, 2, function(c) diff(range(c)))^2))
+         }
       } else {
          enclosingRectDiag = max(rL$distMat)
       }

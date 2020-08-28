@@ -25,7 +25,7 @@ when the spatial method \code{sMethod} is \code{Full}.}
 
 \item{sMethod}{a string specifying which spatial method to be used. Possible values are \code{Full}, \code{GPP} and \code{NNGP}}
 
-\item{distMat}{a distance matrix containing the distances between units of the random level}
+\item{distMat}{a distance matrix containing the distances between units of the random level, with unit names as rownames, or a \code{\link{dist}} structure.}
 
 \item{xData}{a dataframe containing the covariates measured at the units of the random level for covariate-dependent
 associations}
