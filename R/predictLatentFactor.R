@@ -160,13 +160,11 @@ predictLatentFactor =
                   for(i in 1:nn){
                      ind = indNN[i,]
                      indices[[i]] = rbind(i*rep(1,length(ind)),ind)
-                     das = matrix(0,nrow=rL$nNeighbours,ncol=1)
-                     for(dim in 1:rL$sDim){
-                        xx = sOld[ind,dim] - rep(sNew[i,dim],rL$nNeighbours)
-                        das = das+xx^2
-                     }
-                     dist12[,i] = sqrt(das)
-                     dist11[,,i] = as.matrix(dist(sOld[ind,]))
+                     ## spDists(x) == as.matrix(dist(x)) for
+                     ## non-spatial data, but only works for 2D data
+                     dist12[,i] <- spDistsN1(sOld[ind,, drop=FALSE],
+                                             sNew[i,, drop=FALSE])
+                     dist11[,,i] = spDists(sOld[ind,, drop=FALSE])
                   }
                   BgA = list()
                   FgA = list()
