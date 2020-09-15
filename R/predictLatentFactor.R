@@ -193,16 +193,20 @@ predictLatentFactor =
                   sKnot = rL$sKnot
                   unitsAll = c(units,unitsPred[indNew])
                   s = rL$s[unitsAll,]
-                  dss = as.matrix(dist(sKnot))
-                  das = matrix(0,nrow=nrow(s),ncol=nrow(sKnot))
-
-                  for(j in 1:rL$sDim){
-                     xx2 =  matrix(rep(sKnot[,j],nrow(s)),ncol=nrow(s))
-                     xx1 =  matrix(rep(s[,j],nrow(sKnot)),ncol=nrow(sKnot))
-                     dx = xx1 - t(xx2)
-                     das = das + dx^2
+                  if (inherits(s, "SpatialPoints")) {
+                     das <- apply(sKnot, 1, spDistsN1, pts=s)
+                     dss <- spDists(sKnot)
+                  } else {
+                     dss = as.matrix(dist(sKnot))
+                     das = matrix(0,nrow=nrow(s),ncol=nrow(sKnot))
+                     for(j in 1:rL$sDim) {
+                        xx2 =  matrix(rep(sKnot[,j],nrow(s)),ncol=nrow(s))
+                        xx1 =  matrix(rep(s[,j],nrow(sKnot)),ncol=nrow(sKnot))
+                        dx = xx1 - t(xx2)
+                        das = das + dx^2
+                     }
+                     das = sqrt(das)
                   }
-                  das = sqrt(das)
                   dns = das[np+(1:nn),]
                   dnsOld = das[1:np,]
                   for(h in 1:nf){

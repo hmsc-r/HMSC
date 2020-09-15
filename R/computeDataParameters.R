@@ -7,7 +7,7 @@
 #' @return a list including pre-computed matrix inverses and determinants (for phylogenetic and spatial random effects) needed in MCMC sampling
 #'
 #' @importFrom stats dist
-#' @importFrom sp spDists
+#' @importFrom sp spDists spDistsN1
 #' @importFrom FNN get.knn
 #' @importFrom Matrix .sparseDiagonal t solve
 #'
@@ -163,25 +163,29 @@ computeDataParameters = function(hM){
                 },
                 "GPP" = {
                    if(!is.null(hM$rL[[r]]$distMat)){
-                      stop("computeDataParameters: predictive gaussian process not available for distance matrices")
+                      stop("predictive gaussian process not available for distance matrices")
                    }
-                   if (inherits(hM$rL[[r]]$s, "SpatialPoints"))
-                      stop("predictive Gaussian process not available for SpatialPoints")
                    s = hM$rL[[r]]$s[levels(hM$dfPi[,r]),]
                    sKnot = hM$rL[[r]]$sKnot
                    dim = ncol(s)
                    nKnots = nrow(sKnot)
-                   di = matrix(0,nrow=np,ncol=nKnots)
-                   for(i in 1:dim){
-                      xx1 = matrix(rep(s[,i],nKnots),ncol=nKnots)
-                      xx2 = matrix(rep(sKnot[,i],np),ncol=np)
-                      dx = xx1 - t(xx2)
-                      di = di+dx^2
+                   ## sp::spDists() works both for spatial data and
+                   ## generic 2-column matrices (where it calculates
+                   ## Euclidean distances).
+                   if (dim == 2) {
+                      di12 <- apply(sKnot, 1, spDistsN1, pts=s)
+                      di22 <- spDists(sKnot)
+                   } else {
+                      di = matrix(0,nrow=np,ncol=nKnots)
+                      for(i in 1:dim){
+                         xx1 = matrix(rep(s[,i],nKnots),ncol=nKnots)
+                         xx2 = matrix(rep(sKnot[,i],np),ncol=np)
+                         dx = xx1 - t(xx2)
+                         di = di+dx^2
+                      }
+                      di12 = sqrt(di)
+                      di22 = as.matrix(dist(sKnot))
                    }
-                   di12 = sqrt(di)
-
-                   di22 = as.matrix(dist(sKnot))
-
                    idDg = matrix(NA,nrow=np,ncol=alphaN)
                    idDW12g = array(NA, c(np,nKnots,alphaN))
                    Fg = array(NA, c(nKnots,nKnots,alphaN))
