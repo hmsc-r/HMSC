@@ -106,5 +106,6 @@ HmscRandomLevel = function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NUL
    }
 
    rL = setPriors(rL, setDefault=TRUE)
-   return(rL)
+   rL$call <- match.call()
+   rL
 }
