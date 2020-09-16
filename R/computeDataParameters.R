@@ -176,14 +176,10 @@ computeDataParameters = function(hM){
                       di12 <- apply(sKnot, 1, spDistsN1, pts=s)
                       di22 <- spDists(sKnot)
                    } else {
-                      di = matrix(0,nrow=np,ncol=nKnots)
-                      for(i in 1:dim){
-                         xx1 = matrix(rep(s[,i],nKnots),ncol=nKnots)
-                         xx2 = matrix(rep(sKnot[,i],np),ncol=np)
-                         dx = xx1 - t(xx2)
-                         di = di+dx^2
-                      }
-                      di12 = sqrt(di)
+                      di12 <- sqrt(Reduce("+",
+                                          Map(function(i)
+                                              outer(s[,i], sKnot[,i], "-")^2,
+                                              seq_len(dim))))
                       di22 = as.matrix(dist(sKnot))
                    }
                    idDg = matrix(NA,nrow=np,ncol=alphaN)

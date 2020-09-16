@@ -42,7 +42,6 @@
 #'   between them.
 #'
 #' @importFrom stats rnorm dist
-#' @importFrom pdist pdist
 #' @importFrom FNN knnx.index
 #' @importFrom sp spDists spDistsN1
 #'
@@ -93,7 +92,10 @@ predictLatentFactor =
                      D12 <- apply(s2, 1, spDistsN1, pts = s1)
                   } else {
                      D11 = as.matrix(dist(s1))
-                     D12 = as.matrix(pdist(s1,s2))
+                     D12 = sqrt(Reduce("+",
+                                       Map(function(i)
+                                           outer(s[,i], sKnot[,i], "-")^2,
+                                           seq_len(dim))))
                   }
                } else {
                   ## s1, s2 are UNDEFINED: this will FAIL
@@ -160,11 +162,17 @@ predictLatentFactor =
                   for(i in 1:nn){
                      ind = indNN[i,]
                      indices[[i]] = rbind(i*rep(1,length(ind)),ind)
-                     ## spDists(x) == as.matrix(dist(x)) for
-                     ## non-spatial data, but only works for 2D data
-                     dist12[,i] <- spDistsN1(sOld[ind,, drop=FALSE],
-                                             sNew[i,, drop=FALSE])
-                     dist11[,,i] = spDists(sOld[ind,, drop=FALSE])
+                     if (inherits(sOld, "SpatialPoints")) {
+                        dist12[,i] <- spDistsN1(sOld[ind,, drop=FALSE],
+                                                sNew[i,, drop=FALSE])
+                        dist11[,,i] = spDists(sOld[ind,, drop=FALSE])
+                     } else {
+                        das <- 0
+                        for (dim in seq_len(rL$sDim))
+                           das <- das + (sOld[ind, dim] - sNew[i, dim])^2
+                        dist12[,i] <- sqrt(das)
+                        dist11[,,i] <- as.matrix(dist(sOld[ind,]))
+                     }
                   }
                   BgA = list()
                   FgA = list()
@@ -198,14 +206,10 @@ predictLatentFactor =
                      dss <- spDists(sKnot)
                   } else {
                      dss = as.matrix(dist(sKnot))
-                     das = matrix(0,nrow=nrow(s),ncol=nrow(sKnot))
-                     for(j in 1:rL$sDim) {
-                        xx2 =  matrix(rep(sKnot[,j],nrow(s)),ncol=nrow(s))
-                        xx1 =  matrix(rep(s[,j],nrow(sKnot)),ncol=nrow(sKnot))
-                        dx = xx1 - t(xx2)
-                        das = das + dx^2
-                     }
-                     das = sqrt(das)
+                     das = sqrt(Reduce("+",
+                                          Map(function(i)
+                                              outer(s[,i], sKnot[,i], "-")^2,
+                                              seq_len(dim))))
                   }
                   dns = das[np+(1:nn),]
                   dnsOld = das[1:np,]
