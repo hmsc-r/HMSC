@@ -37,6 +37,9 @@
 #' # Setting a covariate-dependent random level.
 #' rL = HmscRandomLevel(xData=data.frame(x1=rep(1,length(TD$X$x1)),x2=TD$X$x2))
 #'
+#' @importFrom methods is
+#' @importFrom sp coordinates
+#'
 #' @export
 
 HmscRandomLevel = function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NULL, units=NULL, N=NULL, nNeighbours=NULL, sKnot=NULL){
@@ -49,8 +52,8 @@ HmscRandomLevel = function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NUL
    }
    if(!is.null(sData)){
       rL$s = sData
-      ## several standard functions do not work with SpatialPoints
-      if (inherits(sData, "SpatialPoints")) {
+      ## several standard functions do not work with Spatial (sp) data
+      if (is(sData, "Spatial")) {
          rL$N <- nrow(coordinates(sData))
          rL$pi <- sort(row.names(sData))
          rL$sDim <- ncol(coordinates(sData))

@@ -42,6 +42,7 @@
 #'   between them.
 #'
 #' @importFrom stats rnorm dist
+#' @importFrom methods is
 #' @importFrom FNN knnx.index
 #' @importFrom sp spDists spDistsN1
 #'
@@ -53,12 +54,6 @@ predictLatentFactor =
 {
    if(predictMean && predictMeanField)
       stop("Hmsc.predictLatentFactor: predictMean and predictMeanField arguments cannot be simultaneously TRUE")
-   ## SpatialPoints only implemented for simple Full model or
-   ## predictMean || predictMeanField
-   if (inherits(rL$s, "SpatialPoints")) {
-      if (!(predictMean || predictMeanField) && rL$spatialModel != "Full")
-         stop("SpatialPoints works only with 'Full' spatial model or PredictMean[Field]")
-   }
    predN = length(postEta)
    indOld = (unitsPred %in% units)
    indNew = !(indOld)
@@ -87,7 +82,7 @@ predictLatentFactor =
                if(!is.null(rL$s)){
                   s1 = rL$s[units,]
                   s2 = rL$s[unitsPred[indNew],]
-                  if (inherits(s1, "SpatialPoints")) {
+                  if (is(s1, "Spatial")) {
                      D11 <- spDists(s1)
                      D12 <- apply(s2, 1, spDistsN1, pts = s1)
                   } else {
@@ -128,7 +123,7 @@ predictLatentFactor =
                   unitsAll = c(units,unitsPred[indNew])
                   if(!is.null(rL$s)){
                      s = rL$s[unitsAll,]
-                     if (inherits(s, "SpatialPoints"))
+                     if (is(s, "Spatial"))
                         D <- spDists(s)
                      else
                         D = as.matrix(dist(s))
@@ -162,7 +157,7 @@ predictLatentFactor =
                   for(i in 1:nn){
                      ind = indNN[i,]
                      indices[[i]] = rbind(i*rep(1,length(ind)),ind)
-                     if (inherits(sOld, "SpatialPoints")) {
+                     if (is(sOld, "Spatial")) {
                         dist12[,i] <- spDistsN1(sOld[ind,, drop=FALSE],
                                                 sNew[i,, drop=FALSE])
                         dist11[,,i] = spDists(sOld[ind,, drop=FALSE])
@@ -201,7 +196,7 @@ predictLatentFactor =
                   sKnot = rL$sKnot
                   unitsAll = c(units,unitsPred[indNew])
                   s = rL$s[unitsAll,]
-                  if (inherits(s, "SpatialPoints")) {
+                  if (is(s, "Spatial")) {
                      das <- apply(sKnot, 1, spDistsN1, pts=s)
                      dss <- spDists(sKnot)
                   } else {

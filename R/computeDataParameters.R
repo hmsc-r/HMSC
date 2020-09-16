@@ -7,6 +7,7 @@
 #' @return a list including pre-computed matrix inverses and determinants (for phylogenetic and spatial random effects) needed in MCMC sampling
 #'
 #' @importFrom stats dist
+#' @importFrom methods is
 #' @importFrom sp spDists spDistsN1
 #' @importFrom FNN get.knn
 #' @importFrom Matrix .sparseDiagonal t solve
@@ -55,7 +56,7 @@ computeDataParameters = function(hM){
                 "Full" = {
                    if(is.null(hM$rL[[r]]$distMat)){
                       s = hM$rL[[r]]$s[levels(hM$dfPi[,r]),]
-                      if (inherits(s, "SpatialPoints"))
+                      if (is(s, "Spatial"))
                          distance <- spDists(s)
                       else
                          distance = as.matrix(dist(s))
@@ -91,11 +92,9 @@ computeDataParameters = function(hM){
                       dnam <- levels(hM$dfPi[,r])
                       distMat <- hM$rL[[r]]$distMat[dnam, dnam]
                    }
-                   ## SpatialPoints are non-Euclidean (although
-                   ## projected points on small extent may be nearly
-                   ## Euclidean), and we need distances to get the
-                   ## nearest neighbours
-                   if(inherits(hM$rL[[r]]$s, "SpatialPoints"))
+                   ## SpatialPoints are non-Euclidean, and we need
+                   ## distances to get the nearest neighbours
+                   if(is(hM$rL[[r]]$s, "Spatial"))
                       distMat <- spDists(hM$rL[[r]]$s[levels(hM$dfPi[,r]),])
                    iWg = list()
                    RiWg = list()
@@ -169,10 +168,7 @@ computeDataParameters = function(hM){
                    sKnot = hM$rL[[r]]$sKnot
                    dim = ncol(s)
                    nKnots = nrow(sKnot)
-                   ## sp::spDists() works both for spatial data and
-                   ## generic 2-column matrices (where it calculates
-                   ## Euclidean distances).
-                   if (dim == 2) {
+                   if (is(s, "Spatial")) {
                       di12 <- apply(sKnot, 1, spDistsN1, pts=s)
                       di22 <- spDists(sKnot)
                    } else {
