@@ -38,7 +38,7 @@
 #' rL = HmscRandomLevel(xData=data.frame(x1=rep(1,length(TD$X$x1)),x2=TD$X$x2))
 #'
 #' @importFrom methods is
-#' @importFrom sp coordinates
+#' @importFrom sp coordinates is.projected
 #'
 #' @export
 
@@ -51,6 +51,11 @@ HmscRandomLevel = function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NUL
       stop("HmscRandomLevel: sData and distMat cannot both be specified")
    }
    if(!is.null(sData)){
+      ## Retain Spatial data if they are non-projected (longlat),
+      ## otherwise extract only coordinates
+      if (is(sData, "Spatial") && is.projected(sData)) {
+         sData <- coordinates(sData) # no longer "Spatial"
+      }
       rL$s = sData
       ## several standard functions do not work with Spatial (sp) data
       if (is(sData, "Spatial")) {
