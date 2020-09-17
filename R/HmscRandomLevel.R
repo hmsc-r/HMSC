@@ -16,6 +16,11 @@
 #' @param N number of unique units on this level
 #' @param nNeighbours a scalar specifying the number of neighbours to be used in case the spatial method is set to \code{NNGP}. Only positive values smaller than the total number of plots are allowed.
 #' @param sKnot a dataframe containing the knot locations to be used for the gaussian predictive process if sMethod is set to \code{GPP}
+#'
+#' @param longlat Interpret coordinate data \code{sData} as longitude
+#'     and latitude in decimal degrees. If this is \code{TRUE}, great
+#'     circle distances will be used instead of Euclidean distances.
+#'
 #' @return a \code{HmscRandomLevel}-class object that can be used for \code{Hmsc}-class object construction
 #'
 #' @details Only one of \code{sData}, \code{distMat}, \code{xData}, \code{units} and \code{N} arguments can be
@@ -38,11 +43,14 @@
 #' rL = HmscRandomLevel(xData=data.frame(x1=rep(1,length(TD$X$x1)),x2=TD$X$x2))
 #'
 #' @importFrom methods is
-#' @importFrom sp coordinates is.projected
+#' @importFrom sp coordinates `coordinates<-` CRS is.projected
 #'
 #' @export
 
-HmscRandomLevel = function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NULL, units=NULL, N=NULL, nNeighbours=NULL, sKnot=NULL){
+HmscRandomLevel =
+    function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NULL, units=NULL,
+             N=NULL, nNeighbours=NULL, sKnot=NULL, longlat = FALSE)
+{
    rL = structure(list(pi=NULL, s=NULL, sDim=NULL, spatialMethod=NULL, x=NULL, xDim=NULL, N=NULL, distMat=NULL, #
       nfMax=NULL, nfMin=NULL, nNeighbours=NULL, nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, alphapw=NULL), class="HmscRandomLevel")
    if(nargs()==0)
@@ -51,6 +59,12 @@ HmscRandomLevel = function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NUL
       stop("HmscRandomLevel: sData and distMat cannot both be specified")
    }
    if(!is.null(sData)){
+      ## longitude & latitude data?
+      if (longlat) {
+         sData <- as.data.frame(sData)
+         coordinates(sData) <- colnames(sData)
+         proj4string(sData) <- CRS("+proj=longlat")
+      }
       ## Retain Spatial data if they are non-projected (longlat),
       ## otherwise extract only coordinates
       if (is(sData, "Spatial") && is.projected(sData)) {
