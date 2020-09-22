@@ -8,7 +8,7 @@
 #'
 #' @importFrom stats dist
 #' @importFrom methods is
-#' @importFrom sp spDists spDistsN1
+#' @importFrom sp spDists
 #' @importFrom FNN get.knn
 #' @importFrom Matrix .sparseDiagonal t solve
 #'
@@ -169,7 +169,7 @@ computeDataParameters = function(hM){
                    dim = ncol(s)
                    nKnots = nrow(sKnot)
                    if (is(s, "Spatial")) {
-                      di12 <- apply(sKnot, 1, spDistsN1, pts=s)
+                      di12 <- spDists(s, sKnot)
                       di22 <- spDists(sKnot)
                    } else {
                       di12 <- sqrt(Reduce("+",

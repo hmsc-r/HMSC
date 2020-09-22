@@ -44,7 +44,7 @@
 #' @importFrom stats rnorm dist
 #' @importFrom methods is
 #' @importFrom FNN knnx.index
-#' @importFrom sp spDists spDistsN1
+#' @importFrom sp spDists
 #'
 #' @export
 
@@ -84,7 +84,7 @@ predictLatentFactor =
                   s2 = rL$s[unitsPred[indNew],]
                   if (is(s1, "Spatial")) {
                      D11 <- spDists(s1)
-                     D12 <- apply(s2, 1, spDistsN1, pts = s1)
+                     D12 <- spDists(s1, s2)
                   } else {
                      D11 = as.matrix(dist(s1))
                      D12 = sqrt(Reduce("+",
@@ -158,8 +158,7 @@ predictLatentFactor =
                      ind = indNN[i,]
                      indices[[i]] = rbind(i*rep(1,length(ind)),ind)
                      if (is(sOld, "Spatial")) {
-                        dist12[,i] <- spDistsN1(sOld[ind,, drop=FALSE],
-                                                sNew[i,, drop=FALSE])
+                        dist12[,i] <- spDists(sOld[ind,,drop=FALSE], sNew[i,])
                         dist11[,,i] = spDists(sOld[ind,, drop=FALSE])
                      } else {
                         das <- 0
@@ -197,7 +196,7 @@ predictLatentFactor =
                   unitsAll = c(units,unitsPred[indNew])
                   s = rL$s[unitsAll,]
                   if (is(s, "Spatial")) {
-                     das <- apply(sKnot, 1, spDistsN1, pts=s)
+                     das <- spDists(s, sKnot)
                      dss <- spDists(sKnot)
                   } else {
                      dss = as.matrix(dist(sKnot))
