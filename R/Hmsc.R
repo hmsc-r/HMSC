@@ -166,7 +166,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       # sampling parameters
       samples=NULL, transient=NULL, thin=NULL, verbose=NULL, adaptNf=NULL,
       initPar=NULL, repN=NULL,
-      randSeed=NULL, # FIXME: randSeed never updated (always NULL) nor used
+      randSeed=NULL,
 
       # posterior
       postList=NULL), class="Hmsc")
