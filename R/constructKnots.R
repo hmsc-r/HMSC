@@ -27,8 +27,10 @@
 #' xycoords = matrix(runif(2*n),ncol=2)
 #' xyKnots = constructKnots(xycoords,knotDist = 0.2, minKnotDist = 0.5)
 #'
+#' @importFrom methods is
 #' @importFrom FNN knnx.dist
-#' @importFrom sp coordinates is.projected
+#' @importFrom sp coordinates `coordinates<-` is.projected
+#'     proj4string `proj4string<-`
 #' @export
 
 constructKnots =
@@ -38,9 +40,11 @@ constructKnots =
       stop("nKnots and knotDist cannot both be specified")
    }
    ## get coordinates of spatial points, but warn if these are not projected
-   if (inherits(sData, "SpatialPoints")) {
-      if (!is.projected(sData))
+   if (is(sData, "Spatial")) {
+      if (!is.projected(sData)) {
          warning("producing regular grid, but spatial points are not projected")
+         proj4 <- proj4string(sData)
+      }
       sData <- coordinates(sData)
    }
    mins = apply(sData,2,min)
@@ -61,7 +65,10 @@ constructKnots =
       minKnotDist = 2*knotDist
    }
    sKnot = sKnot[Dist < minKnotDist,]
+   ## set original proj4string for non-projected Spatial data
+   if (exists("proj4", inherits = FALSE)) {
+      coordinates(sKnot) <- colnames(sKnot)
+      proj4string(sKnot) <- proj4
+   }
    sKnot
 }
-
-

@@ -126,6 +126,10 @@ sampleMcmc =
 
    hM$postList = vector("list", nChains)
    hM$repList = vector("list", nChains)
+   ## save random seed that is used to generate initSeed[s]
+   if (!exists(".Random.seed")) # may not exist, so generate
+      runif(1)
+   hM$randSeed <- .Random.seed
    initSeed = sample.int(.Machine$integer.max, nChains)
 
    ######## switching of the augmented updaters if the required conditions are not met

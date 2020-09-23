@@ -12,7 +12,8 @@ HmscRandomLevel(
   units = NULL,
   N = NULL,
   nNeighbours = NULL,
-  sKnot = NULL
+  sKnot = NULL,
+  longlat = FALSE
 )
 }
 \arguments{
@@ -37,6 +38,10 @@ associations}
 \item{nNeighbours}{a scalar specifying the number of neighbours to be used in case the spatial method is set to \code{NNGP}. Only positive values smaller than the total number of plots are allowed.}
 
 \item{sKnot}{a dataframe containing the knot locations to be used for the gaussian predictive process if sMethod is set to \code{GPP}}
+
+\item{longlat}{Interpret coordinate data \code{sData} as longitude
+and latitude in decimal degrees. If this is \code{TRUE}, great
+circle distances will be used instead of Euclidean distances.}
 }
 \value{
 a \code{HmscRandomLevel}-class object that can be used for \code{Hmsc}-class object construction
