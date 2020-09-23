@@ -166,12 +166,14 @@ computeDataParameters = function(hM){
                    }
                    s = hM$rL[[r]]$s[levels(hM$dfPi[,r]),]
                    sKnot = hM$rL[[r]]$sKnot
-                   dim = ncol(s)
-                   nKnots = nrow(sKnot)
                    if (is(s, "Spatial")) {
+                      dim <- ncol(coordinates(s))
+                      nKnots <- nrow(coordinates(sKnot))
                       di12 <- spDists(s, sKnot)
                       di22 <- spDists(sKnot)
                    } else {
+                      dim <- ncol(s)
+                      nKnots <- nrow(sKnot)
                       di12 <- sqrt(Reduce("+",
                                           Map(function(i)
                                               outer(s[,i], sKnot[,i], "-")^2,
