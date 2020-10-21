@@ -24,7 +24,7 @@
 
 prepareGradient = function(hM, XDataNew, sDataNew){
    #xDataNew needs to be added and the function needs to be more extensively tested
-   nyNew = dim(XDataNew)[1]
+   nyNew = NROW(XDataNew)
    dfPiNew = matrix(NA,nyNew,hM$nr)
    colnames(dfPiNew) = hM$rLNames
    rLNew = vector("list", hM$nr)
@@ -35,22 +35,19 @@ prepareGradient = function(hM, XDataNew, sDataNew){
          dfPiNew[,r] = sprintf('new_unit',1:(nyNew))
          unitsAll = c(rL1$pi,dfPiNew[,r])
          rL1$pi = unitsAll
-         rL1$N = rL1$N+1
+         rL1$N = rL1$N+1 # '+1' - shouldn't this be length(unitsAll)?
       } else {
          index = which(names(sDataNew)==hM$rLNames)
          xyNew = sDataNew[[index]]
-         nxyNew = dim(xyNew)[1]
+         nxyNew = NROW(xyNew)
+         if (nxyNew != nyNew) # or fails mystically later
+            stop("new XData and sData must have same numbers of rows")
          dfPiNew[,r] = sprintf('new_spatial_unit%.6d',1:nxyNew)
          unitsAll = c(rL1$pi,dfPiNew[,r])
          rL1$pi = unitsAll
+         row.names(xyNew) = dfPiNew[,r]
          xyOld = rL1$s
-         nxyOld = dim(xyOld)[1]
-         xyAll = matrix(NA,nrow = nxyOld + nxyNew, ncol = rL1$sDim)
-         xyAll[1:nxyOld,] = xyOld
-         xyAll[nxyOld+(1:nyNew),] = xyNew
-         rownames(xyAll) = unitsAll
-         colnames(xyAll) = colnames(xyOld)
-         rL1$s = xyAll
+         rL1$s = rbind(xyOld, xyNew)
       }
       rLNew[[r]] = rL1
    }
