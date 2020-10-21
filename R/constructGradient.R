@@ -187,6 +187,7 @@ constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid
       rL1$s = xydata
       distMat = rL1$distMat
       if (!is.null(distMat)){
+         units1 = c(rownames(distMat), "new_unit")
          rm=rowMeans(distMat)
          focals = order(rm)[1:2]
          newdist = colMeans(distMat[focals,])
