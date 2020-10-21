@@ -182,20 +182,9 @@ constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid
    names(rLNew) = hM$rLNames
    for (r in seq_len(hM$nr)){
       rL1 = hM$rL[[r]]
-      units = rL1$pi
-      units1 = c(units,"new_unit")
       xydata = rL1$s
-      if (!is.null(xydata)){
-         nxy = dim(xydata)[1]
-         xydata1 = matrix(NA,nrow = nxy+1, ncol = rL1$sDim)
-         for (j in 1:rL1$sDim){
-            xydata1[1:nxy,j] = xydata[,j]
-         }
-         xydata1[nxy+1,] = colMeans(xydata)
-         rownames(xydata1) = units1
-         colnames(xydata1) = colnames(xydata)
-         rL1$s = xydata1
-      }
+      xydata = rbind(xydata, "new_unit" = colMeans(xydata))
+      rL1$s = xydata
       distMat = rL1$distMat
       if (!is.null(distMat)){
          rm=rowMeans(distMat)
