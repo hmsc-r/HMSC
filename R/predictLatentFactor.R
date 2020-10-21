@@ -210,11 +210,10 @@ predictLatentFactor =
                   for(h in 1:nf){
                      ag = alpha[h]
                      if(alphapw[ag,1]>0){
-                        Wns = exp(-dns/alphapw[ag,1]) # duplicate below
+                        Wns = exp(-dns/alphapw[ag,1])
                         W12 = exp(-dnsOld/alphapw[ag,1])
                         Wss = exp(-dss/alphapw[ag,1])
                         iWss= solve(Wss)
-                        Wns = exp(-dns/alphapw[ag,1]) # duplicate row
                         WnsiWss = Wns%*%iWss
                         dDn = 1 - rowSums(WnsiWss*Wns)
                         ## dDn can be numerically 0, but negative, say -2.2e-16
