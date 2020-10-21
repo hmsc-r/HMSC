@@ -32,6 +32,8 @@
 #' Gradient = constructGradient(TD$m, focalVariable="x1",non.focalVariables=list(x2=list(1)))
 #'
 #' @importFrom stats lm predict
+#' @importFrom methods is
+#' @importFrom sp coordinates `coordinates<-` proj4string `proj4string<-`
 #' @importFrom nnet multinom
 #'
 #' @export
@@ -183,7 +185,17 @@ constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid
    for (r in seq_len(hM$nr)){
       rL1 = hM$rL[[r]]
       xydata = rL1$s
-      xydata = rbind(xydata, "new_unit" = colMeans(xydata))
+      if (!is.null(xydata)) {
+         if (is(xydata, "Spatial")) {
+            centre <- as.data.frame(t(colMeans(coordinates(xydata))))
+            rownames(centre) <- "new_unit"
+            coordinates(centre) <- colnames(centre)
+            proj4string(centre) <- proj4string(xydata)
+            xydata <- rbind(xydata, centre)
+         } else {
+            xydata = rbind(xydata, "new_unit" = colMeans(xydata))
+         }
+      } # end !is.null(xydata)
       rL1$s = xydata
       distMat = rL1$distMat
       if (!is.null(distMat)){
@@ -197,7 +209,7 @@ constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid
          colnames(distMat1) = units1
          rL1$distMat = distMat1
       }
-      rL1$pi = units1
+      rL1$pi = c(rL1$pi, "new_unit")
       rL1$N = rL1$N+1
       rLNew[[r]] = rL1
    }
