@@ -15,6 +15,7 @@ plotGamma(
   trNamesNumbers = c(TRUE, TRUE),
   covNamesNumbers = c(TRUE, TRUE),
   supportLevel = 0.9,
+  main = NULL,
   cex = c(0.8, 0.8, 0.8),
   colors = colorRampPalette(c("blue", "white", "red")),
   colorLevels = NULL,
@@ -53,6 +54,8 @@ are added to axes, and second entry controls whether traits numbers are added}
 are added to axes, and second entry controls whether covariate numbers are added}
 
 \item{supportLevel}{controls threshold posterior support for plotting}
+
+\item{main}{main title for the plot}
 
 \item{cex}{controls character expansion (font size). Three values, controlling covariate names,
 trait names, and color legend axis labels}

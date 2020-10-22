@@ -6,6 +6,7 @@
 #' @param hM a fitted \code{Hmsc} model object
 #' @param VP a Hmsc variance partitioning object produced by \code{\link{computeVariancePartitioning}}
 #' @param cols colors of the barplot
+#' @param main main title for the plot
 #' @param ... additional parameters passed to the barplot function
 #'
 #' @examples
@@ -18,7 +19,8 @@
 #'
 #' @export
 
-plotVariancePartitioning=function (hM, VP, cols=NULL, ...)
+plotVariancePartitioning =
+    function (hM, VP, cols=NULL, main = "Variance Partitioning", ...)
 {
    ng = dim(VP$vals)[1]
    if(is.null(cols)){
@@ -34,8 +36,7 @@ plotVariancePartitioning=function (hM, VP, cols=NULL, ...)
                      ")", sep = "")
    }
 
-   mainTitle = "Variance partitioning"
-   barplot(VP$vals, main = mainTitle, xlab= "Species", ylab = "Variance proportion", las = 1,
+   barplot(VP$vals, main = main, xlab= "Species", ylab = "Variance proportion", las = 1,
            legend = leg, col = cols,...)
 #   mtext("Species", 1,line = 1)
 }
