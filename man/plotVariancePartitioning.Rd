@@ -4,7 +4,13 @@
 \alias{plotVariancePartitioning}
 \title{plotVariancePartitioning}
 \usage{
-plotVariancePartitioning(hM, VP, cols = NULL, ...)
+plotVariancePartitioning(
+  hM,
+  VP,
+  cols = NULL,
+  main = "Variance Partitioning",
+  ...
+)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}
@@ -12,6 +18,8 @@ plotVariancePartitioning(hM, VP, cols = NULL, ...)
 \item{VP}{a Hmsc variance partitioning object produced by \code{\link{computeVariancePartitioning}}}
 
 \item{cols}{colors of the barplot}
+
+\item{main}{main title for the plot}
 
 \item{...}{additional parameters passed to the barplot function}
 }

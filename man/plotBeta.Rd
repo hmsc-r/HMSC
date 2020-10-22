@@ -23,6 +23,7 @@ plotBeta(
   mar = NULL,
   marTree = c(6, 0, 2, 0),
   mgp = c(3, 2, 0),
+  main = NULL,
   smallplot = NULL,
   bigplot = NULL,
   newplot = TRUE
@@ -77,6 +78,8 @@ and color legend axis labels}
 \item{marTree}{plotting margins for phylogenetic tree}
 
 \item{mgp}{can be used to set the location of the scale bar}
+
+\item{main}{main title for the plot.}
 
 \item{smallplot}{passed to \code{\link{image.plot}}}
 

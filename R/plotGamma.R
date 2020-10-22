@@ -23,6 +23,7 @@
 #' @param covNamesNumbers logical of length 2, where first entry controls whether covariate names
 #' are added to axes, and second entry controls whether covariate numbers are added
 #' @param supportLevel controls threshold posterior support for plotting
+#' @param main main title for the plot
 #' @param cex controls character expansion (font size). Three values, controlling covariate names,
 #' trait names, and color legend axis labels
 #' @param colors controls the colors of the heatmap, default value \code{colorRampPalette(c("blue","white","red"))}
@@ -41,7 +42,7 @@
 #' gammaPost=getPostEstimate(TD$m, "Gamma")
 #' plotGamma(TD$m, post=gammaPost, param="Mean")
 #'
-#' @importFrom graphics par plot.new axis text
+#' @importFrom graphics par plot.new axis text title
 #' @importFrom grDevices colorRampPalette
 #' @importFrom fields image.plot
 #'
@@ -49,7 +50,7 @@
 
 plotGamma=function(hM, post, param = "Support", trOrder="Original",
   trVector= NULL, covOrder="Original", covVector=NULL, trNamesNumbers=c(TRUE,TRUE),
-  covNamesNumbers=c(TRUE,TRUE), supportLevel=.9, cex=c(.8,.8,.8),
+  covNamesNumbers=c(TRUE,TRUE), supportLevel=.9, main = NULL, cex=c(.8,.8,.8),
   colors=colorRampPalette(c("blue","white","red")), colorLevels = NULL,
   mar=c(6,9,2,0),
   smallplot=NULL, bigplot=NULL, newplot=TRUE){
@@ -172,6 +173,9 @@ plotGamma=function(hM, post, param = "Support", trOrder="Original",
       graphics.reset = TRUE, horizontal = FALSE, bigplot = bigplot, smallplot = smallplot,
       legend.only = FALSE, col = colors,
       lab.breaks = NULL, zlim = zlim)
+
+   if (!is.null(main))
+      title(main = main)
 
    if(newplot){
       par(old.par)

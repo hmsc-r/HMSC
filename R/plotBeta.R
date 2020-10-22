@@ -33,6 +33,7 @@
 #' @param mar plotting margins
 #' @param marTree plotting margins for phylogenetic tree
 #' @param mgp can be used to set the location of the scale bar
+#' @param main main title for the plot.
 #' @param smallplot passed to \code{\link{image.plot}}
 #' @param bigplot passed to \code{\link{image.plot}}
 #' @param newplot set to  false if the plot will be part of multi-panel plot initialized with par(mfrow)
@@ -48,7 +49,7 @@
 #' betaPost=getPostEstimate(TD$m, "Beta")
 #' plotBeta(TD$m, post=betaPost, param="Mean", plotTree=TRUE)
 #'
-#' @importFrom graphics par plot plot.new axis text
+#' @importFrom graphics par plot plot.new axis text title
 #' @importFrom grDevices colorRampPalette
 #' @importFrom ape keep.tip read.tree write.tree
 #' @importFrom fields image.plot
@@ -63,6 +64,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = FALSE,
                     supportLevel = 0.9, split = 0.3, cex = c(0.7,0.7,0.8),
                     colors = colorRampPalette(c("blue","white","red")), colorLevels = NULL,
                     mar=NULL, marTree=c(6,0,2,0),mgp=c(3,2,0),
+                    main = NULL,
                     smallplot=NULL, bigplot=NULL,newplot=TRUE)
 {
     ## Check that text arguments are acceptable, and expand to full
@@ -247,6 +249,8 @@ plotBeta = function(hM, post, param = "Support", plotTree = FALSE,
               },
               graphics.reset = TRUE, horizontal = FALSE, bigplot = bigplot, smallplot = smallplot,
               legend.only = FALSE, col = colors,zlim = zlim)
+   if (!is.null(main))
+      title(main = main)
 
    if(newplot){
       par(old.par)
