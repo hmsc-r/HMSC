@@ -214,13 +214,15 @@ predictLatentFactor =
                         W12 = exp(-dnsOld/alphapw[ag,1])
                         Wss = exp(-dss/alphapw[ag,1])
                         iWss= solve(Wss)
-                        Wns = exp(-dns/alphapw[ag,1])
                         WnsiWss = Wns%*%iWss
                         dDn = 1 - rowSums(WnsiWss*Wns)
+                        ## dDn can be numerically 0, but negative, say -2.2e-16
+                        if (any(dDn < 0))
+                           dDn[dDn < 0] <- 0
                         D =  W12%*%iWss%*%t(W12)
                         dD = 1-diag(D)
                         idD = 1/dD
-                        tmp0 = matrix(rep(idD,nrow(sKnot)),ncol=nrow(sKnot))
+                        tmp0 = matrix(rep(idD,NROW(sKnot)),ncol=NROW(sKnot))
                         idDW12 = tmp0*W12
                         FMat = Wss + t(W12)%*%idDW12
                         iF= solve(FMat)
