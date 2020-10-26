@@ -3,10 +3,28 @@ Version 3.0-7
 
 ### Installation
 
-* **Hmsc** is no longer dependent on the **mvtnorm** package.
+* **Hmsc** is no longer dependent on packages **mvtnorm** and
+  **pdist**.
+
+* **Hmsc** is now dependent on the **sp** package.
 
 * Vignettes can be re-built from their sources out of the box.
   Previously they needed editing by hand to reproduce the results.
+
+### Spatial Data
+
+* It is now possible to use Spatial data in random models as specified
+  in the **sp** package. Handling of Spatial data is based on the
+  **sp** package. The locations of sampling units can be given as
+  decimal longitude-latitude data, and the **Hmsc** functions will use
+  great circle distances in spatial models. Projected spatial
+  coordinates will be handled as such and Euclidean distances will be
+  used internally. This follows the conventions in the **sp** package.
+
+* User-specified spatial distances can be more widely used in spatial
+  random models. However, some models are more flexible with spatial
+  coordinates. Most importantly, Gaussian Predictive Process (GPP)
+  needs spatial coordinate data.
 
 ### New Features
 
@@ -24,6 +42,22 @@ Version 3.0-7
   models, and it is now possible to evaluate WAIC separately for each
   species. See GitHub
   [issue #44](https://github.com/hmsc-r/HMSC/issues/44).
+
+* `plotVariancePartition` defaults to plot the original terms instead
+  of single contrast. Most importantly, only one component is shown
+  for multilevel factors instead of showing each level
+  separately. User can still specify how the components are displayed.
+
+* plot functions `plotBeta`, `plotGamma` and
+  `plotVariancePartitioning` allow setting or modifying the plot main
+  title. `plotGradient` already allowed this.
+
+* Random seed is now saved in `sampleMcmc` models. This allows
+  replication of same random number sequences.
+
+* `HmscRandomLevel` saves the function call. The call can be inspected
+  with `getCall()` and the model can be modified with `update()`.
+
 
 ### Bug Fixes
 
