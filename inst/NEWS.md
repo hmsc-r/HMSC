@@ -53,7 +53,9 @@ Version 3.0-7
   title. `plotGradient` already allowed this.
 
 * Random seed is now saved in `sampleMcmc` models. This allows
-  replication of same random number sequences.
+  replication of same random number sequences. However, there is no
+  guarantee of replication across **Hmsc** release versions because
+  the function internals may change.
 
 * `HmscRandomLevel` saves the function call. The call can be inspected
   with `getCall()` and the model can be modified with `update()`.
