@@ -130,7 +130,7 @@ To define a HMSC model that best corresponds to how the data were simulated, we 
 XData = data.frame(climate = climate, habitat = habitat)
 XFormula = ~habitat + poly(climate,degree = 2,raw = TRUE)
 TrFormula = ~habitat.use + thermal.optimum
-studyDesign = data.frame(sample = sprintf('sample_%.3d',1:n))
+studyDesign = data.frame(sample = sprintf('sample_%.3d',1:n), stringsAsFactors=TRUE)
 rL = HmscRandomLevel(units = studyDesign$sample)
 rL$nfMax = 15
 m = Hmsc(Y = Y, XData = XData, XFormula = XFormula,
