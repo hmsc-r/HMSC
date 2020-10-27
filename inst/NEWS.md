@@ -63,6 +63,9 @@ Version 3.0-7
 
 ### Bug Fixes
 
+* `constructGradient` could sometimes shuffle spatial locations
+  leading into wrong predictions with spatial models.
+
 * `plotGradient(..., showData = TRUE)` ignored data values in setting
   plot minimum. See GitHub
   [issue #48](https://github.com/hmsc-r/HMSC/issues/48).
