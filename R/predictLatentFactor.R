@@ -86,6 +86,7 @@ predictLatentFactor =
                      D11 <- spDists(s1)
                      D12 <- spDists(s1, s2)
                   } else {
+                     dim = NCOL(s)
                      D11 = as.matrix(dist(s1))
                      D12 = sqrt(Reduce("+",
                                        Map(function(i)
@@ -199,6 +200,7 @@ predictLatentFactor =
                      das <- spDists(s, sKnot)
                      dss <- spDists(sKnot)
                   } else {
+                     dim = NCOL(s)
                      dss = as.matrix(dist(sKnot))
                      das = sqrt(Reduce("+",
                                           Map(function(i)
