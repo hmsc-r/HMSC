@@ -1,4 +1,4 @@
-Version 3.0-7
+Version 3.0-8
 =============
 
 ### Installation
@@ -9,17 +9,17 @@ Version 3.0-7
 * **Hmsc** is now dependent on the **sp** package.
 
 * Vignettes can be re-built from their sources out of the box.
-  Previously they needed editing by hand to reproduce the results.
+  Previously they needed editing by hand to reproduce the pdf version.
 
 ### Spatial Data
 
-* It is now possible to use Spatial data in random models as specified
-  in the **sp** package. Handling of Spatial data is based on the
-  **sp** package. The locations of sampling units can be given as
-  decimal longitude-latitude data, and the **Hmsc** functions will use
-  great circle distances in spatial models. Projected spatial
+* It is now possible to use Spatial data in random models. Handling of
+  Spatial data is based on the **sp** package and follows its
+  conventions. The locations of sampling units can be given as a
+  decimal longitude-latitude matrix, and the **Hmsc** functions will
+  use great circle distances in spatial models. Projected spatial
   coordinates will be handled as such and Euclidean distances will be
-  used internally. This follows the conventions in the **sp** package.
+  used internally.
 
 * User-specified spatial distances can be more widely used in spatial
   random models. However, some models are more flexible with spatial
@@ -32,7 +32,7 @@ Version 3.0-7
   to use numeric data frames, or in univariate models, a numeric vector.
 
 * A `tibble` can be used for measured covariates for fixed effects
-  `XData` in addition to a data frame (a wish of Github
+  `XData` in addition to a data frame (the wish of Github
   [issue #37](https://github.com/hmsc-r/HMSC/issues/37)).
 
 * The names of `distr`ibutions can be abbreviated in `Hmsc` definition
@@ -44,9 +44,9 @@ Version 3.0-7
   [issue #44](https://github.com/hmsc-r/HMSC/issues/44).
 
 * `plotVariancePartition` defaults to plot the original terms instead
-  of single contrast. Most importantly, only one component is shown
-  for multilevel factors instead of showing each level
-  separately. User can still specify how the components are displayed.
+  of single contrast. For instance, only one component is shown for
+  multilevel factors instead of showing each level separately. User
+  can still specify how the components are displayed.
 
 * plot functions `plotBeta`, `plotGamma` and
   `plotVariancePartitioning` allow setting or modifying the plot main
@@ -54,8 +54,8 @@ Version 3.0-7
 
 * Random seed is now saved in `sampleMcmc` models. This allows
   replication of same random number sequences. However, there is no
-  guarantee of replication across **Hmsc** release versions because
-  the function internals may change.
+  guarantee of replication across **Hmsc** release versions or
+  computing platforms.
 
 * `HmscRandomLevel` saves the function call. The call can be inspected
   with `getCall()` and the model can be modified with `update()`.
