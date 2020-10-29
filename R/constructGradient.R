@@ -10,15 +10,18 @@
 #' @return a named list with slots \code{XDataNew}, \code{studyDesignNew} and \code{rLNew}
 #'
 #' @details
-#' \code{non.focalVariables} is a list, of which each element is on the form variable=list(type,value),
-#' where variable is one of the non-focal variables, and the value is needed only if type = 3
-#' type = 1 sets the values of the non-focal variable
-#' to the most likely value (defined as expected value for covariates, mode for factors)
-#' type = 2 sets the values of the non-focal variable to most likely value, given the value of focal variable,
-#' based on a linear relationship
-#' type = 3 fixes to the value given.
-#' if a non.focalVariable is not listed, type=2 is used as default
-#' note that if the focal variable is continuous, selecting type 2 for a non-focal categorical variable can cause abrupt changes in response
+#' In basic form, \code{non.focalVariables} is a list, where each element is on the form variable=list(type,value),
+#' where \code{variable} is one of the non-focal variables, and the \code{value} is needed only if \code{type = 3}. Alternatives
+#' \code{type = 1} sets the values of the non-focal variable
+#' to the most likely value (defined as expected value for covariates, mode for factors),
+#' \code{type = 2} sets the values of the non-focal variable to most likely value, given the value of focal variable,
+#' based on a linear relationship, and
+#' \code{type = 3} fixes to the value given.
+#' If all non-focal variables are of the identical \code{type} \code{1} or \code{2},
+#' a single number (\code{1} or \code{2}) can be given as an argument to
+#' \code{non.focalVariables}.
+#' If a \code{non.focalVariable} is not listed, \code{type=2} is used as default.
+#' Note that if the focal variable is continuous, selecting type 2 for a non-focal categorical variable can cause abrupt changes in response.
 #'
 #' @seealso
 #' \code{\link{plotGradient}}, \code{\link{predict}}
@@ -44,6 +47,10 @@ constructGradient =
    ## default type 2 unless a single number is given as a non-focal variable
    if (is.numeric(non.focalVariables) && length(non.focalVariables) == 1) {
       defType <- non.focalVariables
+      if (!(defType %in% 1:2)) {
+         warning("only type 1 and 2 are allowed as a single number: setting to 2")
+         defType <- 2
+      }
       non.focalVariables <- NULL
    } else {
       defType <- 2
