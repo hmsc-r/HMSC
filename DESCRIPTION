@@ -13,9 +13,10 @@ Authors@R: c(person(given = "Gleb", family="Tikhonov", role="aut"),
 Description: Hierarchical Modelling of Species Communities (HMSC) is
    a model-based approach for analyzing community ecological data. 
    This package implements it in the Bayesian framework with Gibbs
-   Markov chain Monte Carlo (MCMC) sampling.
+   Markov chain Monte Carlo (MCMC) sampling (Tikhonov et al. (2020)
+   <doi:10.1111/2041-210X.13345>).
 License: GPL-3 | file LICENSE
-URL: https://www.helsinki.fi/en/researchgroups/statistical-ecology/hmsc/
+URL: https://www.helsinki.fi/en/researchgroups/statistical-ecology/hmsc
 BugReports: https://github.com/hmsc-r/HMSC/issues/
 Encoding: UTF-8
 LazyData: true
