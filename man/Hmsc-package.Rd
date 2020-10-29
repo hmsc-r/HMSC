@@ -85,13 +85,16 @@ Hierarchical Modelling of Species Communities (Hmsc) is a
 }
 
 \section{Citing the Package}{
- Tikhonov, G., Opedal, O., Abrego, N., Lehikoinen, A., Ovaskainen, O., 2019. Joint species distribution modelling with HMSC-R. \emph{bioRxiv}
+  Tikhonov, G., Opedal, O.H., Abrego, N., Lehikoinen, A., de Jonge,
+  M.M.J, Oksanen, J. and Ovaskainen, O. (2020) Joint species
+  distribution modelling with the R-package Hmsc. \emph{Methods in
+  Ecology and Evolution} \bold{11,} 442--447. \doi{10.1111/2041-210X.13345}
 }
 
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://www.helsinki.fi/en/researchgroups/statistical-ecology/hmsc/}
+  \item \url{https://www.helsinki.fi/en/researchgroups/statistical-ecology/hmsc}
   \item Report bugs at \url{https://github.com/hmsc-r/HMSC/issues/}
 }
 
