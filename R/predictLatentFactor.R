@@ -86,11 +86,11 @@ predictLatentFactor =
                      D11 <- spDists(s1)
                      D12 <- spDists(s1, s2)
                   } else {
-                     dim = NCOL(s)
+                     dim = NCOL(s1)
                      D11 = as.matrix(dist(s1))
                      D12 = sqrt(Reduce("+",
                                        Map(function(i)
-                                           outer(s[,i], sKnot[,i], "-")^2,
+                                           outer(s1[,i], s2[,i], "-")^2,
                                            seq_len(dim))))
                   }
                } else {
