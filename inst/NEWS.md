@@ -1,4 +1,4 @@
-Version 3.0-8
+Version 3.0-9
 =============
 
 ### Installation
@@ -43,6 +43,18 @@ Version 3.0-8
   species. See GitHub
   [issue #44](https://github.com/hmsc-r/HMSC/issues/44).
 
+* `constructGradient` argument `nonFocalVariables` accepts now a
+  single number `1` or `2` as a shortcut of default type for all
+  non-focal variables instead of requesting a list of types of all
+  variables.
+
+* `plotGradient` gained new argument `yshow` which is a single number
+  or vector of numeric values that must be included on the
+  *y*-axis. In general, the *y*-axis is scaled to show the plotted
+  values, but `yshow = 0` will always show zero, even when this is not
+  among plotted values, and `yshow = c(0,1)` will show both zero and
+  one.
+
 * `plotVariancePartition` defaults to plot the original terms instead
   of single contrast. For instance, only one component is shown for
   multilevel factors instead of showing each level separately. User
@@ -68,7 +80,9 @@ Version 3.0-8
 
 * `plotGradient(..., showData = TRUE)` ignored data values in setting
   plot minimum. See GitHub
-  [issue #48](https://github.com/hmsc-r/HMSC/issues/48).
+  [issue #48](https://github.com/hmsc-r/HMSC/issues/48). The data
+  values were not always shown with `measure = "S"` in quantitative
+  linear models.
 
 Version 3.0-6
 =============
