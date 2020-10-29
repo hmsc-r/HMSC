@@ -17,6 +17,11 @@
 #' @param showData whether raw data are plotted as well
 #' @param jigger the amount by which the raw data are to be jiggered in x-direction (for factors) or
 #' y-direction (for continuous covariates)
+#'
+#' @param yshow scale y-axis so that these values are also
+#'     visible. This can used to scale y-axis so that it includes 0
+#'     and the expected maximum values.
+#'
 #' @param ... additional arguments for plot
 #'
 #' @return For the case of a continuous covariate, returns the posterior probability that the plotted
@@ -59,7 +64,12 @@
 #'
 #' @export
 
-plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = NULL, index = 1, q = c(0.025, 0.5, 0.975), cicol = rgb(0,0,1,alpha=.5), pointcol = "lightgrey",  pointsize = 1, showData = FALSE, jigger = 0, ...){
+plotGradient =
+    function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = NULL,
+              index = 1, q = c(0.025, 0.5, 0.975), cicol = rgb(0,0,1,alpha=.5),
+              pointcol = "lightgrey", pointsize = 1, showData = FALSE,
+              jigger = 0, yshow = NA,  ...)
+{
 
    Pr = NA
 
@@ -136,8 +146,8 @@ plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = NUL
    hi = qpred[3, ]
    me = qpred[2, ]
 
-   lo1 = min(lo)
-   hi1 = max(hi)
+   lo1 = min(lo, yshow, na.rm = TRUE)
+   hi1 = max(hi, yshow, na.rm = TRUE)
 
    if(showData){
       switch(class(hM$X)[1L],
@@ -149,7 +159,7 @@ plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = NUL
              }
       )
       if (measure == "S") {
-         pY = rowSums(hM$Y)
+         pY = rowSums(hM$Y, na.rm = TRUE)
       }
       if (measure == "Y") {
          pY = hM$Y[,index]
@@ -215,5 +225,5 @@ plotGradient=function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = NUL
       lines(xx, qpred[2, ], lwd = 2)
 
    }
-   return(if(is.factor(xx)){pl} else {Pr})
+   return(if(is.factor(xx)) pl else Pr)
 }
