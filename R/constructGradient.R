@@ -4,7 +4,7 @@
 #'
 #' @param hM a fitted \code{Hmsc} model object
 #' @param focalVariable focal variable over which the gradient is constructed
-#' @param non.focalVariables list giving assumptions on how non-focal variables co-vary with the focal variable
+#' @param non.focalVariables list giving assumptions on how non-focal variables co-vary with the focal variable or a single number given the default type for all non-focal variables
 #' @param ngrid number of points along the gradient (for continuous focal variables)
 #'
 #' @return a named list with slots \code{XDataNew}, \code{studyDesignNew} and \code{rLNew}
@@ -38,9 +38,19 @@
 #'
 #' @export
 
-constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid=20){
+constructGradient =
+   function(hM, focalVariable, non.focalVariables=list(), ngrid=20)
+{
+   ## default type 2 unless a single number is given as a non-focal variable
+   if (is.numeric(non.focalVariables) && length(non.focalVariables) == 1) {
+      defType <- non.focalVariables
+      non.focalVariables <- NULL
+   } else {
+      defType <- 2
+   }
 
    non.focalNames = names(non.focalVariables)
+
    Mode <- function(x, na.rm=FALSE) {
       if(na.rm){
          x = x[!is.na(x)]
@@ -75,7 +85,7 @@ constructGradient = function(hM, focalVariable, non.focalVariables=list(), ngrid
             }
          }
          if (!found) {
-            types = c(types,2)
+            types = c(types, defType)
             vals[[length(vals)+1]] = NA
          }
       }
