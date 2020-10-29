@@ -18,6 +18,7 @@ plotGradient(
   pointsize = 1,
   showData = FALSE,
   jigger = 0,
+  yshow = NA,
   ...
 )
 }
@@ -49,6 +50,10 @@ mean trait values ("T")}
 
 \item{jigger}{the amount by which the raw data are to be jiggered in x-direction (for factors) or
 y-direction (for continuous covariates)}
+
+\item{yshow}{scale y-axis so that these values are also
+visible. This can used to scale y-axis so that it includes 0
+and the expected maximum values.}
 
 \item{...}{additional arguments for plot}
 }
