@@ -17,14 +17,13 @@
 #' \code{type = 2} sets the values of the non-focal variable to most likely value, given the value of focal variable,
 #' based on a linear relationship, and
 #' \code{type = 3} fixes to the value given.
-#' If all non-focal variables are of the identical \code{type} \code{1} or \code{2},
-#' a single number (\code{1} or \code{2}) can be given as an argument to
-#' \code{non.focalVariables}.
+#' As a shortcut, a single number \code{1} or \code{2} can be given as a type
+#' used for all non-focal variables.
 #' If a \code{non.focalVariable} is not listed, \code{type=2} is used as default.
 #' Note that if the focal variable is continuous, selecting type 2 for a non-focal categorical variable can cause abrupt changes in response.
 #'
 #' @seealso
-#' \code{\link{plotGradient}}, \code{\link{predict}}
+#' \code{\link{plotGradient}}, \code{\link{predict}}.
 #'
 #' @examples
 #' # Construct gradient for environmental covariate called 'x1'.
