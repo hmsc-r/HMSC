@@ -1,3 +1,10 @@
+Version 3.0-10
+==============
+
+### Bug Fixes
+
+* Prediction failed in spatial models with `predictEtaMean = TRUE`.
+
 Version 3.0-9
 =============
 
