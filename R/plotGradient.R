@@ -225,5 +225,9 @@ plotGradient =
       lines(xx, qpred[2, ], lwd = 2)
 
    }
-   return(if(is.factor(xx)) pl else Pr)
+   ## add mtext on goodness of fit
+    if (!is.factor(xx))
+       mtext(gettextf("Pr[pred(%s=min) > pred(%s=max)] = %.3f",
+                      xlabel, xlabel, Pr))
+   if(is.factor(xx)) pl else Pr
 }
