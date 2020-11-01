@@ -226,8 +226,10 @@ plotGradient =
 
    }
    ## add mtext on goodness of fit
-    if (!is.factor(xx))
-       mtext(gettextf("Pr[pred(%s=min) > pred(%s=max)] = %.3f",
-                      xlabel, xlabel, Pr))
+   if (!is.factor(xx)) {
+      mtext(gettextf("Pr[pred(%s=min) %s pred(%s=max)] = %.2f",
+                     xlabel, ifelse(Pr < 0.5, ">", "<"), xlabel,
+                     ifelse(Pr < 0.5, 1-Pr, Pr)))
+   }
    if(is.factor(xx)) pl else Pr
 }
