@@ -21,6 +21,9 @@
 #' @param yshow scale y-axis so that these values are also
 #'     visible. This can used to scale y-axis so that it includes 0
 #'     and the expected maximum values.
+#' @param showPosteriorSupport add margin text on the posterior
+#'     support of predicted change from gradient minimum to maximum
+#'     for continuous gradients.
 #'
 #' @param ... additional arguments for plot
 #'
@@ -56,7 +59,7 @@
 #' plotGradient(TD$m, Gradient, pred=predY, measure="S")
 #'
 #' @importFrom stats quantile runif
-#' @importFrom graphics plot axis points polygon lines
+#' @importFrom graphics plot axis points polygon lines mtext
 #' @importFrom grDevices rgb
 #' @importFrom ggplot2 ggplot aes_string geom_bar position_dodge xlab ylab geom_errorbar
 #'   aes geom_point
@@ -68,7 +71,7 @@ plotGradient =
     function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = NULL,
               index = 1, q = c(0.025, 0.5, 0.975), cicol = rgb(0,0,1,alpha=.5),
               pointcol = "lightgrey", pointsize = 1, showData = FALSE,
-              jigger = 0, yshow = NA,  ...)
+              jigger = 0, yshow = NA, showPosteriorSupport = TRUE,  ...)
 {
 
    Pr = NA
@@ -226,7 +229,7 @@ plotGradient =
 
    }
    ## add mtext on goodness of fit
-   if (!is.factor(xx)) {
+   if (showPosteriorSupport && !is.factor(xx)) {
       mtext(gettextf("Pr[pred(%s=min) %s pred(%s=max)] = %.2f",
                      xlabel, ifelse(Pr < 0.5, ">", "<"), xlabel,
                      ifelse(Pr < 0.5, 1-Pr, Pr)))
