@@ -20,6 +20,7 @@ plotGradient(
   jigger = 0,
   yshow = NA,
   showPosteriorSupport = TRUE,
+  main,
   ...
 )
 }
@@ -59,6 +60,8 @@ and the expected maximum values.}
 \item{showPosteriorSupport}{add margin text on the posterior
 support of predicted change from gradient minimum to maximum
 for continuous gradients.}
+
+\item{main}{main title for the plot.}
 
 \item{...}{additional arguments for plot}
 }
