@@ -24,6 +24,7 @@
 #' @param showPosteriorSupport add margin text on the posterior
 #'     support of predicted change from gradient minimum to maximum
 #'     for continuous gradients.
+#' @param main main title for the plot.
 #'
 #' @param ... additional arguments for plot
 #'
@@ -59,10 +60,10 @@
 #' plotGradient(TD$m, Gradient, pred=predY, measure="S")
 #'
 #' @importFrom stats quantile runif
-#' @importFrom graphics plot axis points polygon lines mtext
+#' @importFrom graphics plot axis points polygon lines mtext title
 #' @importFrom grDevices rgb
-#' @importFrom ggplot2 ggplot aes_string geom_bar position_dodge xlab ylab geom_errorbar
-#'   aes geom_point
+#' @importFrom ggplot2 ggplot aes_string geom_bar position_dodge xlab ylab
+#'   geom_errorbar aes geom_point labs
 #' @importFrom abind abind
 #'
 #' @export
@@ -71,7 +72,7 @@ plotGradient =
     function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = NULL,
               index = 1, q = c(0.025, 0.5, 0.975), cicol = rgb(0,0,1,alpha=.5),
               pointcol = "lightgrey", pointsize = 1, showData = FALSE,
-              jigger = 0, yshow = NA, showPosteriorSupport = TRUE,  ...)
+              jigger = 0, yshow = NA, showPosteriorSupport = TRUE, main, ...)
 {
 
    Pr = NA
@@ -207,6 +208,8 @@ plotGradient =
          dataToPlot = data.frame(pX = pX, pY = pY, stringsAsFactors = TRUE)
          pl = pl + geom_point(data = dataToPlot, aes_string(x = pX, y = pY), size = pointsize)
       }
+      if (!missing(main))
+         pl = pl + labs(title=main)
       #plot(pl)
    } else {
       if (inherits(hM$X,"list") && !measure=="Y") {
@@ -226,7 +229,8 @@ plotGradient =
       polygon(c(xx, rev(xx)), c(qpred[1, ], rev(qpred[3, ])),
               col =  cicol, border = FALSE)
       lines(xx, qpred[2, ], lwd = 2)
-
+      if (!missing(main))
+         title(main = main)
    }
    ## add mtext on goodness of fit
    if (showPosteriorSupport && !is.factor(xx)) {
