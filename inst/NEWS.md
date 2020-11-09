@@ -1,9 +1,19 @@
 Version 3.0-10
 ==============
 
+### New Features
+
+* `plotGradient` gained argument to show the support of trend for
+  continuous variables. Main title can be shown for factor variables
+  (earlier it was shown only for continuous variables).
+
 ### Bug Fixes
 
 * Prediction failed in spatial models with `predictEtaMean = TRUE`.
+
+* `constructGradient` (and hence `plotGradient`) ignored specified
+  order of factor levels. See github
+  [issue #63](https://github.com/hmsc-r/HMSC/issues/63).
 
 Version 3.0-9
 =============
