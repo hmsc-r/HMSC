@@ -140,7 +140,7 @@ constructGradient =
       f.focal = factors[focal]
       v.focal = XData[,vars[focal]]
       if (f.focal){
-         xx = levels(v.focal)
+         xx = factor(levels(v.focal), levels = levels(v.focal))
          ngrid = length(xx)
       } else {
          mi = min(v.focal)
