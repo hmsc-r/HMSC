@@ -16,7 +16,7 @@ The following lines should sucessfully install **Hmsc** to your **R** in most ca
 ```R
 install.packages("devtools") # if not yet installed
 library(devtools)
-install_github("hmsc-r/HMSC", build_opts = c("--no-resave-data", "--no-manual"))
+install_github("hmsc-r/HMSC")
 ```
 
 To install a specific tagged version of **Hmsc**, you must add a `ref` argument. For instance, to install the 
