@@ -37,7 +37,7 @@ prepareGradient = function(hM, XDataNew, sDataNew){
          rL1$pi = unitsAll
          rL1$N = rL1$N+1 # '+1' - shouldn't this be length(unitsAll)?
       } else {
-         index = which(names(sDataNew)==hM$rLNames)
+         index = which(names(sDataNew)==hM$rLNames[[r]])
          xyNew = sDataNew[[index]]
          nxyNew = NROW(xyNew)
          if (nxyNew != nyNew) # or fails mystically later
