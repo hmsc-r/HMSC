@@ -4,7 +4,8 @@
 \name{TD}
 \alias{TD}
 \title{Simulated data and a fitted Hmsc model for a small species community.}
-\format{A list of 12 objects
+\format{
+A list of 12 objects
 \describe{
   \item{ns}{Number of species in the dataset}
   \item{units}{Number of sampling units}
@@ -17,7 +18,8 @@
   \item{studyDesign}{Sampling unit and plot IDs}
   \item{Y}{Simulated species occurences}
   \item{m}{A fitted Hmsc object with 100 posterior samples}
-}}
+}
+}
 \usage{
 TD
 }

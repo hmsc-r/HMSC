@@ -61,7 +61,7 @@ alignPosterior=function(hM){
                cpL[[j]]$Psi[[r]] = abind(cpL[[j]]$Psi[[r]], array(0,LambdaAddDim), along=1)
                DeltaAddDim = dim(cpL[[j]]$Delta[[r]])
                DeltaAddDim[1] = nfMax-nf
-               cpL[[j]]$Delta[[r]] = abind(cpL[[j]]$Delta[[r]], array(1,DeltaAddDim), along=1)
+               cpL[[j]]$Delta[[r]] = abind(cpL[[j]]$Delta[[r]], array((hM$rL[[r]]$a2-1)/hM$rL[[r]]$b2,DeltaAddDim), along=1)
                cpL[[j]]$Eta[[r]] = abind(cpL[[j]]$Eta[[r]], matrix(0,nrow(cpL[[j]]$Eta[[r]]),nfMax-nf), along=2)
                if(hM$rL[[r]]$sDim > 0)
                   cpL[[j]]$Alpha[[r]] = abind(cpL[[j]]$Alpha[[r]], rep(1,nfMax-nf), along=1)
