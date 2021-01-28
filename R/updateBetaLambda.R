@@ -59,7 +59,7 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,d
       priorLambda = matrix(numeric(0),0,ns)
    }
 
-   Mu = rbind(tcrossprod(Gamma,Tr), matrix(0,nfSum,ns))
+   Mu = rbind(tcrossprod(Gamma,Tr), matrix(0,nfSum,ns)) # the always-zero part of Mu can be ommited in further computations
    switch(class(X)[1L],
       matrix = {
          XEtaTXEta = crossprod(XEta)

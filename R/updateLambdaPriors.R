@@ -1,5 +1,5 @@
 #' @importFrom stats rgamma
-#' 
+#'
 updateLambdaPriors = function(Lambda,Delta, rL){
    nr = length(rL)
 
@@ -22,13 +22,14 @@ updateLambdaPriors = function(Lambda,Delta, rL){
          bPsi = nu/2 + 0.5*lambda2 * matrix(tau,nf,ns)
          psi = matrix(rgamma(nf*ns, aPsi, bPsi), nf, ns)
          M = psi * lambda2
+         rowSumM = rowSums(M)
          ad = a1 + 0.5*ns*nf
-         bd = b1 + 0.5 * sum(tau * rowSums(M)) / delta[1]
+         bd = b1 + 0.5 * sum(tau * rowSumM) / delta[1]
          delta[1] = rgamma(1,ad,bd)
          for(h in 1+seq_len(nf-1)){
             tau = apply(delta,2,cumprod)
             ad = a2 + 0.5*ns*(nf-h+1)
-            bd = b2 + 0.5 * sum(tau[-c(1:(h-1)),,drop=FALSE] * apply(M[-c(1:(h-1)),,drop=FALSE],1,sum)) / delta[h]
+            bd = b2 + 0.5 * sum(tau[-c(1:(h-1)),,drop=FALSE] * rowSumM[-c(1:(h-1))]) / delta[h]
             delta[h] = rgamma(1,ad,bd)
          }
       } else{
