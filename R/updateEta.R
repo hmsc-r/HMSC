@@ -135,21 +135,24 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                    }
                 },
                 "NNGP" = {
-                   iWs = bdiag(lapply(seq_len(nf), function(x) iWg[[alpha[x]]]))
+                   iWs = sparseMatrix(c(),c(),dims=c(np[r]*nf,np[r]*nf))
+                   for(h in seq_len(nf))
+                      iWs = iWs + kronecker(iWList[[h]], Diagonal(x=c(rep(0,h-1),1,rep(0,nf-h))))
                    LamInvSigLam = tcrossprod(lambda*matrix(sqrt(iSigma),nf,ns,byrow=TRUE))
+                   # TODO it is possible here to eliminate dependence on missing data at minor cost by using row-specific iSigma
                    if(np[r] == ny){
-                      tmp1 = kronecker(LamInvSigLam, Diagonal(ny))
-                      fS = tcrossprod(S[order(lPi),,drop=FALSE],lambda*matrix(iSigma,nf,ns,byrow=TRUE))
+                      tmp1 = kronecker(Diagonal(ny), LamInvSigLam)
+                      fS = tcrossprod(S[order(lPi),,drop=FALSE], lambda*matrix(iSigma,nf,ns,byrow=TRUE))
                    }else{
                       P = sparseMatrix(i=1:ny,j=lPi)
-                      tmp1 = kronecker(LamInvSigLam, Diagonal(x=Matrix::colSums(P)))
+                      tmp1 = kronecker(Diagonal(x=Matrix::colSums(P)), LamInvSigLam)
                       fS = Matrix::tcrossprod(Matrix::crossprod(P,S), lambda*matrix(iSigma,nf,ns,byrow=TRUE))
                    }
                    iUEta = iWs + tmp1
                    R = chol(iUEta)
-                   tmp2 = backsolve(R, as.vector(fS), transpose=TRUE) + rnorm(np[r]*nf)
+                   tmp2 = backsolve(R, as.vector(t(fS)), transpose=TRUE) + rnorm(nf*np[r])
                    feta = backsolve(R, tmp2)
-                   eta = matrix(feta,np[r],nf)
+                   eta = matrix(feta,np[r],nf,byrow=TRUE)
                 },
                 "GPP" = {
                    if(np[r] == ny){
