@@ -242,7 +242,8 @@ sampleMcmc =
 
          if(!identical(updater$GammaEta, FALSE)){
             GammaEtaList = updateGammaEta(Z=Z,Gamma=Gamma,V=chol2inv(chol(iV)),iV=iV,id=iSigma,
-               Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,rL=hM$rL, rLPar=rLPar,Q=Qg[,,rho],iQ=iQg[,,rho],RQ=RQg[,,rho],U=hM$UGamma,iU=iUGamma)
+               Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,rL=hM$rL, rLPar=rLPar,Q=Qg[,,rho],iQ=iQg[,,rho],RQ=RQg[,,rho],
+               mGamma=mGamma,U=hM$UGamma,iU=iUGamma)
             Gamma = GammaEtaList$Gamma
             Eta = GammaEtaList$Eta
          }
