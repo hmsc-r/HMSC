@@ -137,7 +137,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                 "NNGP" = {
                    iWs = sparseMatrix(c(),c(),dims=c(np[r]*nf,np[r]*nf))
                    for(h in seq_len(nf))
-                      iWs = iWs + kronecker(iWList[[h]], Diagonal(x=c(rep(0,h-1),1,rep(0,nf-h))))
+                      iWs = iWs + kronecker(iWg[[alpha[h]]], Diagonal(x=c(rep(0,h-1),1,rep(0,nf-h))))
                    LamInvSigLam = tcrossprod(lambda*matrix(sqrt(iSigma),nf,ns,byrow=TRUE))
                    # TODO it is possible here to eliminate dependence on missing data at minor cost by using row-specific iSigma
                    if(np[r] == ny){

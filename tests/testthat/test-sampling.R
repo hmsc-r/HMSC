@@ -20,7 +20,7 @@ test_that("UpdateGammaEta is correct",{
                                  Eta=parList$Eta,Lambda=parList$Lambda,Alpha=parList$Alpha, X=TD$m$X,Pi=TD$m$Pi,
                                  dfPi=TD$m$dfPi,Tr=TD$m$Tr,rL=TD$m$rL, rLPar=dataParList$rLPar,Q=dataParList$Qg[,,parList$rho],
                                  iQ=dataParList$iQg[,,parList$rho],RQ=dataParList$RQg[,,parList$rho],
-                                 U=TD$m$UGamma,iU=chol2inv(chol(TD$m$UGamma)))
+                                 mGamma=TD$m$mGamma,U=TD$m$UGamma,iU=chol2inv(chol(TD$m$UGamma)))
    gamma = GammaEtaList$Gamma
    eta = GammaEtaList$Eta
    expect_equal(length(eta),2)

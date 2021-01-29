@@ -62,7 +62,7 @@ updateGamma2 = function(Z,Gamma=Gamma,iV,iSigma,Eta,Lambda, X,Pi,dfPi,Tr,C,rL, i
          XtST = crossprod(X,S%*%Tr)
          iBXtST = backsolve(RB,backsolve(RB,XtST,transpose=TRUE))
          XtXiBXtST = XtX%*%iBXtST
-         mg0 = iUGamma%*%as.vector(mGamma) + as.vector(XtST - XtXiBXtST)
+         mg0 = iUGamma%*%mGamma + as.vector(XtST - XtXiBXtST)
       } else{
          iDT = matrix(iSigma,ns,nt)*Tr
          iD05T = matrix(sqrt(iSigma),ns,nt)*Tr
@@ -84,7 +84,7 @@ updateGamma2 = function(Z,Gamma=Gamma,iV,iSigma,Eta,Lambda, X,Pi,dfPi,Tr,C,rL, i
          }
          iSg = iUGamma + kronecker(TtiDT,XtX) - tmp1
          tmp2 = XtX %*% ((matrix(iSigma,nc,ns,byrow=TRUE)*iBXtSiD) %*% Tr)
-         mg0 = iUGamma%*%as.vector(mGamma) + as.vector(XtSiD%*%Tr - tmp2)
+         mg0 = iUGamma%*%mGamma + as.vector(XtSiD%*%Tr - tmp2)
       }
       RiSg = chol(iSg)
       mg1 = backsolve(RiSg, mg0, transpose=TRUE)

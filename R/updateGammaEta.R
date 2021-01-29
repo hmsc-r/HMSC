@@ -121,7 +121,7 @@ updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,dfPi,rL, rLP
                         tmp4[,j] = iBst[j,,] %*% tmp3[,j]
                      }
                   }
-                  mg0 = iU%*%as.vector(mGamma) + as.vector(crossprod(X,S%*%A)) - as.vector(crossprod(XtX,(iBSHat-tmp4)%*%A))
+                  mg0 = iU%*%mGamma + as.vector(crossprod(X,S%*%A)) - as.vector(crossprod(XtX,(iBSHat-tmp4)%*%A))
                   mg1 = backsolve(RiSg, mg0, transpose=TRUE)
                   GammaNew = matrix(backsolve(RiSg,mg1+rnorm(nc*nt)),nc,nt)
                   # sampling Beta | S,Gamma
