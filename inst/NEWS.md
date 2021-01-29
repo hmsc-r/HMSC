@@ -11,6 +11,8 @@ Version 3.0-10
 
 * Prediction failed in spatial models with `predictEtaMean = TRUE`.
 
+* Prediction failed in spatial NNGP models.
+
 * `constructGradient` (and hence `plotGradient`) ignored specified
   order of factor levels. See github
   [issue #63](https://github.com/hmsc-r/HMSC/issues/63).
