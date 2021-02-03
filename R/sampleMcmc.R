@@ -68,7 +68,8 @@ sampleMcmc =
     function(hM, samples, transient=0, thin=1, initPar=NULL,
              verbose, adaptNf=rep(transient,hM$nr),
              nChains=1, nParallel=1, dataParList=NULL, updater=list(),
-             fromPrior = FALSE, alignPost = TRUE)
+             fromPrior = FALSE, alignPost = TRUE,
+             TensorFlowAccelerationZFlag=FALSE,TensorFlowAccelerationGammaEtaFlag=FALSE)
 {
    if (missing(verbose)) {
        if (samples*thin <= 50) # report every sampling
@@ -243,7 +244,8 @@ sampleMcmc =
          if(!identical(updater$GammaEta, FALSE)){
             GammaEtaList = updateGammaEta(Z=Z,Gamma=Gamma,V=chol2inv(chol(iV)),iV=iV,id=iSigma,
                Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,rL=hM$rL, rLPar=rLPar,Q=Qg[,,rho],iQ=iQg[,,rho],RQ=RQg[,,rho],
-               mGamma=mGamma,U=hM$UGamma,iU=iUGamma)
+               mGamma=mGamma,U=hM$UGamma,iU=iUGamma,
+               TensorFlowAccelerationFlag=TensorFlowAccelerationGammaEtaFlag)
             Gamma = GammaEtaList$Gamma
             Eta = GammaEtaList$Eta
          }
@@ -308,7 +310,8 @@ sampleMcmc =
                Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi,dfPi=dfPi,rL=hM$rL, aSigma=aSigma,bSigma=bSigma)
 
          if(!identical(updater$Z, FALSE)){
-            Z = updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,distr=distr,rL=hM$rL)
+            Z = updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,distr=distr,rL=hM$rL,
+                        TensorFlowAccelerationFlag=TensorFlowAccelerationZFlag)
          }
 
          for(r in seq_len(nr)){

@@ -1,7 +1,8 @@
 #' @importFrom stats dnorm pnorm rnorm
 #' @importFrom truncnorm rtruncnorm
 #' @importFrom BayesLogit rpg
-updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind){
+#' @importFrom tensorflow tf_probability
+updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind,TensorFlowAccelerationFlag=FALSE){
    ZPrev = Z
    ny = nrow(Y)
    ns = ncol(Y)
@@ -56,10 +57,25 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind){
          uB = rep(Inf, length(YProbit))
          lB[YProbit] = 0
          uB[!YProbit] = 0
+         if(TensorFlowAccelerationFlag==FALSE){
          z = rtruncnorm(length(YProbit), a=lB, b=uB, mean=e, sd=s) # this is often the bottleneck for performance
+         } else{
+            if(!exists("updateZ_probit_tf")){
+               f = function(e,s, lB,uB){
+                  tfp = tf_probability()
+                  ZNew = tfp$distributions$TruncatedNormal(e,s, lB,uB, name='TruncatedNormal')$sample()
+                  return(ZNew)
+               }
+               assign("updateZ_probit_tf", tf_function(f), envir = .GlobalEnv) # TODO this is a bad design - fix later
+            }
+            # tfp = tf_probability()
+            # ZNew = tfp$distributions$TruncatedNormal(e,s, lB,uB, name='TruncatedNormal')$sample()
+            ZNew = updateZ_probit_tf(tf$constant(e),tf$constant(s), tf$constant(lB),tf$constant(uB))
+            z = ZNew$numpy()
+         }
          ZProbit[indCellProbit] = z
-         Z[,indColProbit] = ZProbit
       }
+      Z[,indColProbit] = ZProbit
    }
 
    indColPoisson = (distr[,1]==3)

@@ -47,4 +47,5 @@ Imports:
    pROC,
    sp,
    statmod,
+   tensorflow,
    truncnorm

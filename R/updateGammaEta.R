@@ -4,7 +4,7 @@
 #' @importFrom stats rnorm
 #' @importFrom Matrix Diagonal sparseMatrix bdiag
 #'
-updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,dfPi,rL, rLPar,Q,iQ,RQ,mGamma,U,iU){
+updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,dfPi,rL, rLPar,Q,iQ,RQ,mGamma,U,iU,TensorFlowAccelerationFlag=FALSE){
    ny = nrow(Z)
    ns = ncol(Z)
    nr = ncol(Pi)
@@ -31,10 +31,18 @@ updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,dfPi,rL, rLP
    iDT_XtX = kronecker(iDT,XtX)
    for(r in seq_len(nr)){
       if(rL[[r]]$xDim == 0){
-         if(rL[[r]]$sDim == 0 && np[r] == ny && identical(Q,diag(ns)))
-            next()
-         Sb = as.matrix(Matrix::tcrossprod(Matrix::tcrossprod(kronecker(Tr,Diagonal(nc)),chol(U)))) + kronecker(Q,V)
-         iSb = chol2inv(chol(Sb))
+         # if(rL[[r]]$sDim == 0 && np[r] == ny && identical(Q,diag(ns)))
+         #    next()
+         if(TensorFlowAccelerationFlag==FALSE){
+            Sb = as.matrix(Matrix::tcrossprod(Matrix::tcrossprod(kronecker(Tr,Diagonal(nc)),chol(U)))) + kronecker(Q,V)
+            iSb = chol2inv(chol(Sb))
+         } else{
+            Sb.tf = tf$reshape(tf$einsum("jt,tagb,lg->jalb",Tr,tf$reshape(U,c(nt,nc,nt,nc)),Tr) + tf$einsum("jl,ab->jalb",Q,V), c(nc*ns,nc*ns))
+            LSb.tf = tf$linalg$cholesky(Sb.tf)
+            iSb.tf = tf$linalg$cholesky_solve(LSb.tf, tf$eye(as.integer(ns*nc),dtype=tf$float64))
+            # Sb = Sb.tf$numpy()
+            # iSb = iSb.tf$numpy()
+         }
          break()
       }
    }
@@ -63,115 +71,133 @@ updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,dfPi,rL, rLP
                H = diag(nf) + LamiDLam
                RH = chol(H)
                iH = chol2inv(RH)
-               if(identical(Q,diag(ns))){
-                  # sampling Gamma | S
-                  iLHLamiDT = backsolve(RH,Lam%*%iDT,transpose=TRUE)
-                  A = iDT - matrix(id,ns,nt)*crossprod(Lam, backsolve(RH,iLHLamiDT))
-                  XtS = crossprod(X,S)
-                  XtSiD = matrix(id,nc,ns,byrow=TRUE)*XtS
-                  SHat = XtSiD - crossprod(iH%*%tcrossprod(LamiD,XtS), LamiD)
-                  W1 = kronecker(H, chol2inv(chol(XtX))) # TODO this requires XtX to be full rank
-                  if(unitDFlag){
-                     B = iV + XtX
-                     RB = chol(B)
-                     iB = chol2inv(RB)
-                     W = W1 - kronecker(tcrossprod(LamiD), iB)
-                     iBXtX = iB%*%XtX
-                     C = kronecker(LamiD%*%A, iBXtX)
-                     iLBXtX = backsolve(RB,XtX,transpose=TRUE)
-                     E = kronecker(crossprod(A), crossprod(iLBXtX))
-                     iBSHat = iB%*%SHat
-                  } else{
-                     Bst = array(rep(iV,each=ns),c(ns,nc,nc)) + array(id,c(ns,nc,nc))*array(rep(XtX,each=ns),c(ns,nc,nc))
-                     RBst = array(NA, c(ns,nc,nc))
-                     iBst = array(NA, c(ns,nc,nc))
-                     LamiDiBiDLamt = matrix(0,nf*nc,nf*nc)
-                     iLBstXtX = array(NA, c(ns,nc,nc))
-                     iBstXtX = array(NA, c(ns,nc,nc))
-                     XtXiBstXtX = array(NA, c(ns,nc,nc))
-                     C = matrix(0,nf*nc,nt*nc)
-                     E = matrix(0,nt*nc,nt*nc)
-                     iBSHat = matrix(NA,nc,ns)
-                     for(j in 1:ns){ # TODO this cycle shall be redone as batched operations
-                        RBst[j,,] = chol(Bst[j,,])
-                        iBst[j,,] = chol2inv(RBst[j,,])
-                        LamiDiBiDLamt = LamiDiBiDLamt + kronecker(tcrossprod(LamiD[,j,drop=FALSE]), iBst[j,,])
-                        iLBstXtX[j,,] = backsolve(RBst[j,,],XtX,transpose=TRUE)
-                        iBstXtX[j,,] = backsolve(RBst[j,,],iLBstXtX[j,,])
-                        XtXiBstXtX[j,,] = crossprod(iLBstXtX[j,,])
-                        C = C + kronecker(LamiD[,j,drop=FALSE]%*%A[j,,drop=FALSE], iBstXtX[j,,])
-                        E = E + kronecker(crossprod(A[j,,drop=FALSE]), XtXiBstXtX[j,,])
-                        iBSHat[,j] = iBst[j,,] %*% SHat[,j]
-                     }
-                     W = W1 - LamiDiBiDLamt
-                  }
-                  RW = chol(W)
-                  iLWC = backsolve(RW,C,transpose=TRUE)
-                  iSg = iU + kronecker(crossprod(iD05T)-crossprod(iLHLamiDT),XtX) - E + crossprod(iLWC)
-                  RiSg = chol(iSg)
-                  Sg = chol2inv(RiSg)
-                  tmp1 = tcrossprod(iBSHat, LamiD)
-                  tmp2 = backsolve(RW,backsolve(RW,as.vector(tmp1),transpose=TRUE))
-                  tmp3 = matrix(tmp2,nc,nf) %*% LamiD
-                  if(unitDFlag){
-                     tmp4 = iB%*%tmp3
-                  } else{
-                     tmp4 = matrix(NA,nc,ns)
-                     for(j in 1:ns){
-                        tmp4[,j] = iBst[j,,] %*% tmp3[,j]
-                     }
-                  }
-                  mg0 = iU%*%mGamma + as.vector(crossprod(X,S%*%A)) - as.vector(crossprod(XtX,(iBSHat-tmp4)%*%A))
-                  mg1 = backsolve(RiSg, mg0, transpose=TRUE)
-                  GammaNew = matrix(backsolve(RiSg,mg1+rnorm(nc*nt)),nc,nt)
-                  # sampling Beta | S,Gamma
-                  Mub = tcrossprod(GammaNew, Tr)
-                  Mb0 = iV%*%Mub + SHat
-                  if(unitDFlag){
-                     iBMb0 = iB%*%Mb0
-                  } else{
-                     iBMb0 = matrix(NA,nc,ns)
-                     for(j in 1:ns){
-                        iBMb0[,j] = iBst[j,,] %*% Mb0[,j]
-                     }
-                  }
-                  tmp1 = tcrossprod(iBMb0, LamiD)
-                  tmp2 = backsolve(RW,backsolve(RW,as.vector(tmp1),transpose=TRUE))
-                  tmp3 = matrix(tmp2,nc,nf) %*% LamiD
-                  if(unitDFlag){
-                     tmp4 = iB%*%tmp3
-                  } else{
-                     tmp4 = matrix(NA,nc,ns)
-                     for(j in 1:ns){
-                        tmp4[,j] = iBst[j,,] %*% tmp3[,j]
-                     }
-                  }
-                  Mb = iBMb0 + tmp4
-                  tmp1 = matrix(backsolve(RW,rnorm(nc*nf)),nc,nf)
-                  tmp2 = tmp1 %*% LamiD
-                  if(unitDFlag){
-                     tmp3 = iB%*%tmp2
-                     tmp4 = backsolve(RB,matrix(rnorm(nc*ns),nc,ns))
-                  } else{
-                     tmp3 = matrix(NA,nc,ns)
-                     tmp4 = matrix(NA,nc,ns)
-                     for(j in 1:ns){
-                        tmp3[,j] = iBst[j,,] %*% tmp2[,j]
-                        tmp4[,j] = backsolve(RBst[j,,],matrix(rnorm(nc),nc,1))
-                     }
-                  }
-                  BetaNew = Mb + tmp4 + tmp3
-               } else{ # phylogeny-compatible version that requires (nc*ns)^3 linear algebra operations
+               # if(identical(Q,diag(ns))){
+               #    # sampling Gamma | S
+               #    iLHLamiDT = backsolve(RH,Lam%*%iDT,transpose=TRUE)
+               #    A = iDT - matrix(id,ns,nt)*crossprod(Lam, backsolve(RH,iLHLamiDT))
+               #    XtS = crossprod(X,S)
+               #    XtSiD = matrix(id,nc,ns,byrow=TRUE)*XtS
+               #    SHat = XtSiD - crossprod(iH%*%tcrossprod(LamiD,XtS), LamiD)
+               #    W1 = kronecker(H, chol2inv(chol(XtX))) # TODO this requires XtX to be full rank
+               #    if(unitDFlag){
+               #       B = iV + XtX
+               #       RB = chol(B)
+               #       iB = chol2inv(RB)
+               #       W = W1 - kronecker(tcrossprod(LamiD), iB)
+               #       iBXtX = iB%*%XtX
+               #       C = kronecker(LamiD%*%A, iBXtX)
+               #       iLBXtX = backsolve(RB,XtX,transpose=TRUE)
+               #       E = kronecker(crossprod(A), crossprod(iLBXtX))
+               #       iBSHat = iB%*%SHat
+               #    } else{
+               #       Bst = array(rep(iV,each=ns),c(ns,nc,nc)) + array(id,c(ns,nc,nc))*array(rep(XtX,each=ns),c(ns,nc,nc))
+               #       RBst = array(NA, c(ns,nc,nc))
+               #       iBst = array(NA, c(ns,nc,nc))
+               #       LamiDiBiDLamt = matrix(0,nf*nc,nf*nc)
+               #       iLBstXtX = array(NA, c(ns,nc,nc))
+               #       iBstXtX = array(NA, c(ns,nc,nc))
+               #       XtXiBstXtX = array(NA, c(ns,nc,nc))
+               #       C = matrix(0,nf*nc,nt*nc)
+               #       E = matrix(0,nt*nc,nt*nc)
+               #       iBSHat = matrix(NA,nc,ns)
+               #       for(j in 1:ns){ # TODO this cycle shall be redone as batched operations
+               #          RBst[j,,] = chol(Bst[j,,])
+               #          iBst[j,,] = chol2inv(RBst[j,,])
+               #          LamiDiBiDLamt = LamiDiBiDLamt + kronecker(tcrossprod(LamiD[,j,drop=FALSE]), iBst[j,,])
+               #          iLBstXtX[j,,] = backsolve(RBst[j,,],XtX,transpose=TRUE)
+               #          iBstXtX[j,,] = backsolve(RBst[j,,],iLBstXtX[j,,])
+               #          XtXiBstXtX[j,,] = crossprod(iLBstXtX[j,,])
+               #          C = C + kronecker(LamiD[,j,drop=FALSE]%*%A[j,,drop=FALSE], iBstXtX[j,,])
+               #          E = E + kronecker(crossprod(A[j,,drop=FALSE]), XtXiBstXtX[j,,])
+               #          iBSHat[,j] = iBst[j,,] %*% SHat[,j]
+               #       }
+               #       W = W1 - LamiDiBiDLamt
+               #    }
+               #    RW = chol(W)
+               #    iLWC = backsolve(RW,C,transpose=TRUE)
+               #    iSg = iU + kronecker(crossprod(iD05T)-crossprod(iLHLamiDT),XtX) - E + crossprod(iLWC)
+               #    RiSg = chol(iSg)
+               #    Sg = chol2inv(RiSg)
+               #    tmp1 = tcrossprod(iBSHat, LamiD)
+               #    tmp2 = backsolve(RW,backsolve(RW,as.vector(tmp1),transpose=TRUE))
+               #    tmp3 = matrix(tmp2,nc,nf) %*% LamiD
+               #    if(unitDFlag){
+               #       tmp4 = iB%*%tmp3
+               #    } else{
+               #       tmp4 = matrix(NA,nc,ns)
+               #       for(j in 1:ns){
+               #          tmp4[,j] = iBst[j,,] %*% tmp3[,j]
+               #       }
+               #    }
+               #    mg0 = iU%*%mGamma + as.vector(crossprod(X,S%*%A)) - as.vector(crossprod(XtX,(iBSHat-tmp4)%*%A))
+               #    mg1 = backsolve(RiSg, mg0, transpose=TRUE)
+               #    GammaNew = matrix(backsolve(RiSg,mg1+rnorm(nc*nt)),nc,nt)
+               #    # sampling Beta | S,Gamma
+               #    Mub = tcrossprod(GammaNew, Tr)
+               #    Mb0 = iV%*%Mub + SHat
+               #    if(unitDFlag){
+               #       iBMb0 = iB%*%Mb0
+               #    } else{
+               #       iBMb0 = matrix(NA,nc,ns)
+               #       for(j in 1:ns){
+               #          iBMb0[,j] = iBst[j,,] %*% Mb0[,j]
+               #       }
+               #    }
+               #    tmp1 = tcrossprod(iBMb0, LamiD)
+               #    tmp2 = backsolve(RW,backsolve(RW,as.vector(tmp1),transpose=TRUE))
+               #    tmp3 = matrix(tmp2,nc,nf) %*% LamiD
+               #    if(unitDFlag){
+               #       tmp4 = iB%*%tmp3
+               #    } else{
+               #       tmp4 = matrix(NA,nc,ns)
+               #       for(j in 1:ns){
+               #          tmp4[,j] = iBst[j,,] %*% tmp3[,j]
+               #       }
+               #    }
+               #    Mb = iBMb0 + tmp4
+               #    tmp1 = matrix(backsolve(RW,rnorm(nc*nf)),nc,nf)
+               #    tmp2 = tmp1 %*% LamiD
+               #    if(unitDFlag){
+               #       tmp3 = iB%*%tmp2
+               #       tmp4 = backsolve(RB,matrix(rnorm(nc*ns),nc,ns))
+               #    } else{
+               #       tmp3 = matrix(NA,nc,ns)
+               #       tmp4 = matrix(NA,nc,ns)
+               #       for(j in 1:ns){
+               #          tmp3[,j] = iBst[j,,] %*% tmp2[,j]
+               #          tmp4[,j] = backsolve(RBst[j,,],matrix(rnorm(nc),nc,1))
+               #       }
+               #    }
+               #    BetaNew = Mb + tmp4 + tmp3
+               # } else
+               if(TRUE){ # phylogeny-compatible version that requires (nc*ns)^3 linear algebra operations
                   iLHLamiD = backsolve(RH,LamiD,transpose=TRUE)
                   tmp1 = diag(id,ns) - crossprod(iLHLamiD)
-                  M = iSb + kronecker(tmp1, XtX)
-                  RM = chol(M)
+                  if(TensorFlowAccelerationFlag==FALSE){
+                     M = iSb + kronecker(tmp1, XtX)
+                     RM = chol(M)
+                  } else{
+                     M.tf = iSb.tf + kronecker(tmp1, XtX)
+                     LM.tf = tf$linalg$cholesky(M.tf)
+                     RM.tf = tf$transpose(LM.tf)
+                     # RM = RM.tf$numpy()
+                  }
                   mb10 = as.vector(XtS * matrix(id,nc,ns,byrow=TRUE))
                   mb20 = as.vector((tcrossprod(XtS, LamiD) %*% iH) %*% LamiD)
-                  mb31 = backsolve(RM, backsolve(RM, mb10-mb20, transpose=TRUE))
-                  mb30 = kronecker(tmp1, XtX) %*% mb31
-                  mb = Sb %*% (mb10-mb20-mb30)
-                  BetaNew = matrix(mb + backsolve(RM,rnorm(nc*ns)),nc,ns)
+                  if(TensorFlowAccelerationFlag==FALSE){
+                     mb31 = backsolve(RM, backsolve(RM, mb10-mb20, transpose=TRUE))
+                     Mb31 = matrix(mb31,nc,ns)
+                     mb30 = as.vector(XtX%*%Mb31%*%tmp1)
+                     mb = Sb %*% (mb10-mb20-mb30)
+                     BetaNew = matrix(mb + backsolve(RM,rnorm(nc*ns)),nc,ns)
+                  } else{
+                     mb31.tf = tf$linalg$cholesky_solve(LM.tf, matrix(mb10-mb20,nc*ns,1))
+                     mb30.tf = tf$reshape(tf$einsum("ac,jc,jl->la",XtX,tf$reshape(mb31.tf,c(ns,nc)),tmp1), as.integer(c(nc*ns)))
+                     mb.tf = tf$matmul(Sb.tf, tf$reshape(mb10-mb20-mb30.tf, as.integer(c(nc*ns,1))))
+                     BetaNew.tf = tf$transpose(tf$reshape(mb.tf + tf$linalg$triangular_solve(tf$transpose(LM.tf),tf$random$normal(shape=as.integer(c(nc*ns,1)),dtype=tf$float64),lower=FALSE), as.integer(c(ns,nc))))
+                     BetaNew = BetaNew.tf$numpy()
+                  }
+
                   # update Gamma conditional on Beta
                   R = chol(iU + kronecker(crossprod(backsolve(RQ,Tr,transpose=TRUE)), iV))
                   mg = chol2inv(R) %*% as.vector((iV%*%BetaNew)%*%(iQ%*%Tr))
