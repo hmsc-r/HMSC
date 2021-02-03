@@ -1,7 +1,7 @@
 #' @importFrom stats dnorm pnorm rnorm
 #' @importFrom truncnorm rtruncnorm
 #' @importFrom BayesLogit rpg
-#' @importFrom tensorflow tf_probability
+#' @importFrom tensorflow tf_probability tf_function
 updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind,TensorFlowAccelerationFlag=FALSE){
    ZPrev = Z
    ny = nrow(Y)
