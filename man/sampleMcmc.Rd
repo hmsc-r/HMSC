@@ -17,7 +17,9 @@ sampleMcmc(
   dataParList = NULL,
   updater = list(),
   fromPrior = FALSE,
-  alignPost = TRUE
+  alignPost = TRUE,
+  TensorFlowAccelerationZFlag = FALSE,
+  TensorFlowAccelerationGammaEtaFlag = FALSE
 )
 }
 \arguments{

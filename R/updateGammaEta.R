@@ -3,7 +3,7 @@
 #' @importFrom methods as
 #' @importFrom stats rnorm
 #' @importFrom Matrix Diagonal sparseMatrix bdiag
-#'
+#' @importFrom tensorflow tf
 updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,dfPi,rL, rLPar,Q,iQ,RQ,mGamma,U,iU,TensorFlowAccelerationFlag=FALSE){
    ny = nrow(Z)
    ns = ncol(Z)
