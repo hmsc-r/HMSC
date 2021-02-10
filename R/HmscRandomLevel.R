@@ -30,7 +30,7 @@
 #'   used for training the model.
 #'
 #'
-#' @seealso [setPriors.Hmsc()]
+#' @seealso setPriors.Hmsc
 #'
 #' @examples
 #' # Setting a random level with 50 units
@@ -54,9 +54,9 @@ HmscRandomLevel =
    rL = structure(list(pi=NULL, s=NULL, sDim=NULL, spatialMethod=NULL, x=NULL, xDim=NULL, N=NULL, distMat=NULL, #
       nfMax=NULL, nfMin=NULL, nNeighbours=NULL, nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, alphapw=NULL), class="HmscRandomLevel")
    if(nargs()==0)
-      stop("HmscRandomLevel: At least one argument must be specified")
+      stop("at least one argument must be specified")
    if(!is.null(distMat) && !is.null(sData)){
-      stop("HmscRandomLevel: sData and distMat cannot both be specified")
+      stop("sData and distMat cannot both be specified")
    }
    if(!is.null(sData)){
       ## longitude & latitude data?
@@ -74,11 +74,11 @@ HmscRandomLevel =
       ## several standard functions do not work with Spatial (sp) data
       if (is(sData, "Spatial")) {
          rL$N <- nrow(coordinates(sData))
-         rL$pi <- sort(row.names(sData))
+         rL$pi <- as.factor(sort(row.names(sData)))
          rL$sDim <- ncol(coordinates(sData))
       } else {
          rL$N = nrow(sData)
-         rL$pi = sort(rownames(sData))
+         rL$pi = as.factor(sort(rownames(sData)))
          rL$sDim = ncol(sData)
       }
       rL$spatialMethod = sMethod
@@ -91,7 +91,7 @@ HmscRandomLevel =
          distMat <- as.matrix(distMat)
       rL$distMat = distMat
       rL$N = nrow(distMat)
-      rL$pi = sort(rownames(distMat))
+      rL$pi = as.factor(sort(rownames(distMat)))
       if (is.null(rL$pi))
          stop("'distMat' should have rownames for random levels")
       rL$spatialMethod = sMethod
@@ -101,9 +101,9 @@ HmscRandomLevel =
    if(!is.null(xData)){
       if(!is.null(rL$pi)){
          if(any(!(rownames(xData)%in%rL$pi)))
-            stop("HmscRandomLevel: duplicated specification of unit names")
+            stop("duplicated specification of unit names")
       } else{
-         rL$pi = sort(rownames(xData))
+         rL$pi = sort(as.factor(rownames(xData)))
          rL$N = nrow(xData)
       }
       rL$xDim = ncol(xData)
@@ -113,7 +113,7 @@ HmscRandomLevel =
 
    if(!is.null(units)){
       if(!is.null(rL$pi))
-         stop("HmscRandomLevel: duplicated specification of unit names")
+         stop("duplicated specification of unit names")
       rL$pi = as.factor(units)
       rL$N = length(units)
       rL$sDim = 0
@@ -121,7 +121,7 @@ HmscRandomLevel =
 
    if(!is.null(N)){
       if(!is.null(rL$pi))
-         stop("HmscRandomLevel: duplicated specification of the number of units")
+         stop("duplicated specification of the number of units")
       rL$N = N
       rL$pi = as.factor(1:N)
       rL$sDim = 0
