@@ -549,6 +549,8 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       if(nrow(studyDesign) != hM$ny){
          stop("the number of rows in studyDesign must be equal to number of rows in Y")
       }
+      if (!all(sapply(studyDesign, is.factor)))
+          stop("studyDesign columns must be factors")
       if(!all(ranLevelsUsed %in% names(ranLevels))){
          stop("ranLevels must contain named elements corresponding to all levels listed in ranLevelsUsed")
       }
