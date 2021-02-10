@@ -81,7 +81,7 @@ sampleMcmc =
       nParallel = 1
    force(adaptNf)
    if(nParallel > nChains){
-      warning('Number of cores cannot be greater than the number of chains')
+      warning('number of cores cannot be greater than the number of chains')
       nParallel <- nChains
    }
    if(any(adaptNf>transient))
@@ -139,29 +139,40 @@ sampleMcmc =
    if(!identical(updater$Gamma2, FALSE) && any(abs(mGamma) > EPS)){
       updater$Gamma2 = FALSE
       if(updaterWarningFlag)
-         message("Setting updater$Gamma2=FALSE due to non-zero mGamma")
+         message("setting updater$Gamma2=FALSE due to non-zero mGamma")
    }
    if(!identical(updater$Gamma2, FALSE) && any(abs(iUGamma - kronecker(iUGamma[1:hM$nc,1:hM$nc], diag(hM$nt))) > EPS)){
       updater$Gamma2 = FALSE
       if(updaterWarningFlag)
-         message("Setting updater$Gamma2=FALSE due to non-kronecker structure of UGamma matrix")
+         message("setting updater$Gamma2=FALSE due to non-kronecker structure of UGamma matrix")
    }
    if(!identical(updater$Gamma2, FALSE) && (!is.null(C))){
       updater$Gamma2 = FALSE
       if(updaterWarningFlag)
-         message("Setting updater$Gamma2=FALSE due to specified phylogeny matrix")
+         message("setting updater$Gamma2=FALSE due to specified phylogeny matrix")
    }
    # updater$GammaEta
    if(!identical(updater$GammaEta, FALSE) && any(abs(mGamma) > EPS)){
       updater$GammaEta = FALSE
       if(updaterWarningFlag)
-         message("Setting updater$GammaEta=FALSE due to non-zero mGamma")
+         message("setting updater$GammaEta=FALSE due to non-zero mGamma")
    }
    if(!identical(updater$GammaEta, FALSE) && hM$nr==0){
       updater$GammaEta = FALSE
       if(updaterWarningFlag)
          message("Setting updater$GammaEta=FALSE due to absence of random effects included to the model")
    }
+   # NNGP & GPP models will give an error in updateGammaEta()
+   if (!identical(updater$GammaEta, FALSE) &&
+       any(sapply(hM$rL,
+                  function(s) !is.null(s$spatialMethod) &&
+                  s$spatialMethod %in% c("GPP", "NNGP")))) {
+       updater$GammaEta = FALSE
+       if (updaterWarningFlag)
+           message("setting updater$GammaEta=FALSE: not implemented for spatial methods 'GPP' and 'NNGP'")
+   }
+
+   # latentLoadingOrderSwap
    if(identical(updater$latentLoadingOrderSwap, NULL)){
       updater$latentLoadingOrderSwap = 0
       if(updaterWarningFlag)
