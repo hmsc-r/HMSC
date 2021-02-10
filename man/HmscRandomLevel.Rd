@@ -69,5 +69,6 @@ rL = HmscRandomLevel(xData=data.frame(x1=rep(1,length(TD$X$x1)),x2=TD$X$x2))
 
 }
 \seealso{
-[setPriors.Hmsc()]
+\code{\link{setPriors.Hmsc}} to change the default priors
+    of an existing \code{HmscRandomLevel} object.
 }

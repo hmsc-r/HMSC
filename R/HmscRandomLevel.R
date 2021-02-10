@@ -30,7 +30,8 @@
 #'   used for training the model.
 #'
 #'
-#' @seealso setPriors.Hmsc
+#' @seealso \code{\link{setPriors.Hmsc}} to change the default priors
+#'     of an existing \code{HmscRandomLevel} object.
 #'
 #' @examples
 #' # Setting a random level with 50 units

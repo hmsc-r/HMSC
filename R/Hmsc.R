@@ -100,8 +100,8 @@
 #'
 #' # Creating a Hmsc object with 2 nested random levels (50 sampling units in 20 plots)
 #' studyDesign = data.frame(sample = as.factor(1:50), plot = as.factor(sample(1:20,50,replace=TRUE)))
-#' rL1 = HmscRandomLevel(units=TD$studyDesign$plot)
-#' rL2 = HmscRandomLevel(units=TD$studyDesign$sample)
+#' rL1 = levels(HmscRandomLevel(units=TD$studyDesign$plot))
+#' rL2 = levels(HmscRandomLevel(units=TD$studyDesign$sample))
 #' m = Hmsc(Y=TD$Y, XData=TD$X, XFormula=~x1+x2,
 #' studyDesign=studyDesign,ranLevels=list("sample"=rL1,"plot"=rL2))
 #'
