@@ -165,7 +165,7 @@ sampleMcmc =
    if(identical(updater$latentLoadingOrderSwap, NULL)){
       updater$latentLoadingOrderSwap = 0
       if(updaterWarningFlag)
-         message("Setting updater$latentLoadingOrderSwap=0 disabling full-conditional swapping of consecuitive latent loadings")
+         message("setting updater$latentLoadingOrderSwap=0 disabling full-conditional swapping of consecutive latent loadings")
    }
 
 
