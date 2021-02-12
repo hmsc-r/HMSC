@@ -558,6 +558,11 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
          stop("studyDesign must contain named columns corresponding to all levels listed in ranLevelsUsed")
       }
       hM$studyDesign = studyDesign
+      ## check than ranLevels is a list of HmscRandomLevel objects
+      if (!is.list(ranLevels))
+          stop("'ranLevels' must be a list of 'HmscRandomLevel' objects")
+      if (!all(sapply(ranLevels, inherits, what = "HmscRandomLevel")))
+          stop("'ranLevels' must be 'HmscRandomLevel' objects")
       hM$ranLevels = ranLevels
       hM$ranLevelsUsed = ranLevelsUsed
 
