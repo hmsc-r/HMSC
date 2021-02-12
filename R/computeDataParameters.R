@@ -23,8 +23,11 @@ computeDataParameters = function(hM){
       iQg = array(NA, c(hM$ns,hM$ns,nrow(hM$rhopw)))
       RQg = array(NA, c(hM$ns,hM$ns,nrow(hM$rhopw)))
       detQg = rep(NA, nrow(hM$rhopw))
-      if(any(hM$rhopw[,1] < 0))
-         iC = chol2inv(chol(hM$C))
+      if(any(hM$rhopw[,1] < 0)) {
+          iC = try(chol2inv(chol(hM$C)), silent = TRUE)
+          if (inherits(iC, "try-error"))
+              stop("phylogenetic tree & correlations must be ultrametric")
+      }
       for(rg in 1:nrow(hM$rhopw)){
          rho = hM$rhopw[rg,1]
          if(rho >= 0){
@@ -34,7 +37,9 @@ computeDataParameters = function(hM){
          }
          Q = rhoC + (1-abs(rho))*diag(hM$ns)
          Qg[,,rg] = Q
-         RQ = chol(Q);
+         RQ = try(chol(Q), silent = TRUE)
+         if (inherits(RQ, "try-error"))
+            stop("phylogenetic tree & correlations must be ultrametric")
          iQg[,,rg] = chol2inv(RQ)
          RQg[,,rg] = RQ
          detQg[rg] = 2*sum(log(diag(RQ)))
