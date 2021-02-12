@@ -100,8 +100,8 @@
 #'
 #' # Creating a Hmsc object with 2 nested random levels (50 sampling units in 20 plots)
 #' studyDesign = data.frame(sample = as.factor(1:50), plot = as.factor(sample(1:20,50,replace=TRUE)))
-#' rL1 = HmscRandomLevel(units=TD$studyDesign$plot)
-#' rL2 = HmscRandomLevel(units=TD$studyDesign$sample)
+#' rL1 = levels(HmscRandomLevel(units=TD$studyDesign$plot))
+#' rL2 = levels(HmscRandomLevel(units=TD$studyDesign$sample))
 #' m = Hmsc(Y=TD$Y, XData=TD$X, XFormula=~x1+x2,
 #' studyDesign=studyDesign,ranLevels=list("sample"=rL1,"plot"=rL2))
 #'
@@ -173,8 +173,8 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
 
    ## take care that Y is a matrix (for data.frame, tibble, numeric vector)
    Y <- as.matrix(Y)
-   if(!(is.numeric(Y) || is.logical(Y))) {  # allow binary data as TRUE/FALSE
-      stop("Hmsc.setData: Y must be a numeric matrix of sampling units times species")
+   if(!(is.numeric(Y) || is.logical(Y)) && is.finite(sum(Y, na.rm = TRUE))) {  # allow binary data as TRUE/FALSE
+      stop("Y must be a numeric matrix of finite values of sampling units times species")
    }
    hM$Y = Y
    hM$ny = nrow(Y)
@@ -186,26 +186,26 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
 
    # linear regression covariates
    if(!is.null(XData) && !is.null(X)){
-      stop("Hmsc.setData: only single of XData and X arguments must be specified")
+      stop("only one of XData and X arguments must be specified")
    }
     if(!is.null(XData)) {
         if (inherits(XData, "list")) {
             if(length(XData) != hM$ns){
-                stop("Hmsc.setData: the length of XData list argument must be equal to the number of species")
+                stop("the length of XData list argument must be equal to the number of species")
             }
             if(any(!unlist(lapply(XData, is.data.frame)))){
-                stop("Hmsc.setData: each element of X list must be a data.frame")
+                stop("each element of X list must be a data.frame")
             }
-            ## check agasint derived classes of data.frame (such as tibble)
+            ## check against derived classes of data.frame (such as tibble)
             if (any(sapply(XData, function(a) class(a)[1L] != "data.frame"))) {
                 for(i in seq_len(length(XData)))
                     XData[[i]] <- as.data.frame(XData, stringsAsFactors = TRUE)
             }
             if(any(unlist(lapply(XData, function(a) nrow(a) != hM$ny)))){
-                stop("Hmsc.setData: for each element of XData list the number of rows must be equal to the number of sampling units")
+                stop("for each element of XData list the number of rows must be equal to the number of sampling units")
             }
             if(any(unlist(lapply(XData, function(a) any(is.na(a)))))){
-                stop("Hmsc.setData: all elements of XData list must contain no NA values")
+                stop("NA values are not allowed in XData")
             }
             hM$XData = XData
             hM$XFormula = XFormula
@@ -214,10 +214,10 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
         }
         else if (is.data.frame(XData)) {
             if(nrow(XData) != hM$ny){
-                stop("Hmsc.setData: the number of rows in XData must be equal to the number of sampling units")
+                stop("the number of rows in XData must be equal to the number of sampling units")
             }
             if(any(is.na(XData))){
-                stop("Hmsc.setData: XData must contain no NA values")
+                stop("NA values are not allowed in XData")
             }
             ## check against derived classes of data.frame (such as tibble)
             if (class(XData)[1L] != "data.frame")
@@ -227,23 +227,23 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
             hM$X = model.matrix(XFormula, XData)
             hM$nc = ncol(hM$X)
         } else {
-            stop("Hmsc.setData: XData must either a data.frame or a list of data.frame objects")
+            stop("XData must either a data.frame or a list of data.frame objects")
         }
     }
    if(!is.null(X)){
       switch(class(X)[1L],
              list={
                 if(length(X) != hM$ns){
-                   stop("Hmsc.setData: the length of X list argument must be equal to the number of species")
+                   stop("the length of X list argument must be equal to the number of species")
                 }
                 if(any(!unlist(lapply(X, is.matrix)))){
-                   stop("Hmsc.setData: each element of X list must be a matrix")
+                   stop("each element of X list must be a matrix")
                 }
                 if(any(unlist(lapply(X, function(a) nrow(a) != hM$ny)))){
-                   stop("Hmsc.setData: for each element of X list the number of rows must be equal to the number of sampling units")
+                   stop("for each element of X list the number of rows must be equal to the number of sampling units")
                 }
                 if(any(unlist(lapply(X, function(a) any(is.na(a)))))){
-                   stop("Hmsc.setData: all elements of X list must contain no NA values")
+                   stop("NA values are not allowed in X")
                 }
                 hM$XData = NULL
                 hM$XFormula = NULL
@@ -252,10 +252,10 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
              },
              matrix={
                 if(nrow(X) != hM$ny){
-                   stop("Hmsc.setData: the number of rows in X must be equal to the number of sampling units")
+                   stop("the number of rows in X must be equal to the number of sampling units")
                 }
                 if(any(is.na(X))){
-                   stop("Hmsc.setData: X must contain no NA values")
+                   stop("NA values are not allowed in X")
                 }
                 hM$XData = NULL
                 hM$XFormula = NULL
@@ -263,7 +263,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
                 hM$nc = ncol(hM$X)
              },
              {
-                stop("Hmsc.setData: X must either a matrix or a list of matrix objects")
+                stop("X must be a matrix or a list of matrix objects")
              }
       )
    }
@@ -291,7 +291,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
            "list" = {hM$covNames = colnames(hM$X[[1]])}
    )
 
-   if(identical(XScale,FALSE)){
+   if(!XScale){
       hM$XScalePar = rbind(rep(0,hM$nc), rep(1,hM$nc))
       hM$XScaled = hM$X
       hM$XInterceptInd = NULL
@@ -306,10 +306,10 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       )
       XInterceptInd = which(colnames(XStack) %in% c("Intercept","(Intercept)"))
       if(length(XInterceptInd)>1){
-         stop("Hmsc.setData: only one column of X matrix could be named Intercept or (Intercept)")
+         stop("only one column of X matrix can be named Intercept or (Intercept)")
       }
       if(!all(XStack[,XInterceptInd] == 1)){
-         stop("Hmsc.setData: intercept column in X matrix must be a column of ones")
+         stop("intercept column in X matrix must be a column of ones")
       }
       if(length(XInterceptInd)==1){
          hM$XInterceptInd = XInterceptInd
@@ -317,9 +317,9 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
          hM$XInterceptInd = NULL
       XScalePar = rbind(rep(0,hM$nc), rep(1,hM$nc))
       XScaled = XStack
-      if(identical(XScale,TRUE)){
+      if(XScale){
          scaleInd = apply(XStack, 2, function(a) !all(a %in% c(0,1)))
-      } else{
+      } else {
          scaleInd = XScale
       }
       scaleInd[XInterceptInd] = FALSE
@@ -348,7 +348,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    for (i in seq_len(hM$ncsel)){
       XSel = hM$XSelect[[i]]
       if(max(XSel$covGroup)>hM$nc){
-         stop("Hmsc.setData: covGroup for XSelect cannot have values greater than number of columns in X")
+         stop("covGroup for XSelect cannot have values greater than number of columns in X")
       }
    }
 
@@ -358,13 +358,13 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    if(!is.null(XRRRData)){
       if(!is.data.frame(XRRRData))
       {
-         stop("Hmsc.setData: XRRRData must be a data.frame")
+         stop("XRRRData must be a data.frame")
       }
       if(nrow(XRRRData) != hM$ny){
-         stop("Hmsc.setData: the number of rows in XRRRData must be equal to the number of sampling units")
+         stop("the number of rows in XRRRData must be equal to the number of sampling units")
       }
       if(any(is.na(XRRRData))){
-         stop("Hmsc.setData: XRRRData must contain no NA values")
+         stop("XRRRData must contain no NA values")
       }
       hM$XRRRData = XRRRData
       hM$XRRRFormula = XRRRFormula
@@ -375,13 +375,13 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    if(!is.null(XRRR)){
       if(!is.matrix(XRRR))
       {
-         stop("Hmsc.setData: XRRR must be a matrix")
+         stop("XRRR must be a matrix")
       }
       if(nrow(XRRR) != hM$ny){
-         stop("Hmsc.setData: the number of rows in XRRR must be equal to the number of sampling units")
+         stop("the number of rows in XRRR must be equal to the number of sampling units")
       }
       if(any(is.na(XRRR))){
-         stop("Hmsc.setData: XRRR must contain no NA values")
+         stop("XRRR must contain no NA values")
       }
       hM$XRRRData = NULL
       hM$XRRRFormula = NULL
@@ -404,15 +404,15 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       }
       hM$nc = hM$ncNRRR + hM$ncRRR
 
-      if(identical(XRRRScale,FALSE)){
+      if(!XRRRScale){
          hM$XRRRScalePar = rbind(rep(0,hM$ncORRR), rep(1,hM$ncORRR))
          hM$XRRRScaled = hM$XRRR
       } else {
-         if(identical(XScale,FALSE)){
-            stop("Hmsc.setData: XRRR can't be scaled if X is not scaled")
+         if(!XScale){
+            stop("XRRR cannot be scaled if X is not scaled")
          }
          XRRRStack = hM$XRRR
-         if(identical(XRRRScale,TRUE)){
+         if(XRRRScale){
             XRRRscaleInd = apply(XRRRStack, 2, function(a) !all(a %in% c(0,1)))
          } else{
             XRRRscaleInd = XRRRScale
@@ -432,21 +432,24 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       }
    }
 
-   # traits
+   ### traits ###
    if(!is.null(TrData)){
       if(!is.null(Tr)){
-         stop("Hmsc.setData: at maximum one of TrData and Tr arguments can be specified")
+         stop("only one of TrData and Tr arguments can be specified")
       }
       if(is.null(TrFormula)){
-         stop("Hmsc.setData: TrFormula argument must be specified if TrData is provided")
+         stop("TrFormula argument must be specified if TrData is provided")
       }
    }
    if(!is.null(TrData)){
       if(nrow(TrData) != hM$ns){
-         stop("Hmsc.setData: the number of rows in TrData should be equal to number of columns in Y")
+          stop("the number of rows in TrData should be equal to number of columns in Y")
+      }
+      if (!all(rownames(TrData) == colnames(Y))) {
+          stop("rownames of TrData must match species names in Y")
       }
       if(any(is.na(TrData))){
-         stop("Hmsc.setData: TrData parameter must not contain any NA values")
+         stop("TrData parameter must not contain any NA values")
       }
       hM$TrData = TrData
       hM$TrFormula = TrFormula
@@ -454,13 +457,16 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    }
    if(!is.null(Tr)){
       if(!is.matrix(Tr)){
-         stop("Hmsc.setData: Tr must be a matrix")
+         stop("Tr must be a matrix")
       }
       if(nrow(Tr) != hM$ns){
-         stop("Hmsc.setData: the number of rows in Tr should be equal to number of columns in Y")
+         stop("the number of rows in Tr should be equal to number of columns in Y")
+      }
+      if (!all(rownames(Tr) == colnames(Y))) {
+          stop("rownames of Tr must match species names in Y")
       }
       if(any(is.na(Tr))){
-         stop("Hmsc.setData: Tr parameter must not contain any NA values")
+         stop("Tr parameter must not contain any NA values")
       }
       hM$TrData = NULL
       hM$Tr = Tr
@@ -474,17 +480,17 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    }
    hM$trNames = colnames(hM$Tr)
 
-   if(identical(TrScale,FALSE)){
+   if(!TrScale){
       hM$TrScalePar = rbind(rep(0,hM$nt), rep(1,hM$nt))
       hM$TrScaled = hM$Tr
       hM$TrInterceptInd = NULL
    } else{
       TrInterceptInd = which(colnames(hM$Tr) %in% c("Intercept","(Intercept)"))
       if(length(TrInterceptInd)>1){
-         stop("Hmsc.setData: only one column of Tr matrix could be named Intercept or (Intercept)")
+         stop("only one column of Tr matrix can be named Intercept or (Intercept)")
       }
       if(!all(hM$Tr[,TrInterceptInd]==1)){
-         stop("Hmsc.setData: intercept column in Tr matrix must be a column of ones")
+         stop("intercept column in Tr matrix must be a column of ones")
       }
       if(length(TrInterceptInd)==1){
          hM$TrInterceptInd = TrInterceptInd
@@ -492,7 +498,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
          hM$TrInterceptInd = NULL
       TrScalePar = rbind(rep(0,hM$nt), rep(1,hM$nt))
       TrScaled = hM$Tr
-      if(identical(TrScale,TRUE)){
+      if(TrScale){
          scaleInd = apply(hM$Tr, 2, function(a) !all(a %in% c(0,1)))
       } else{
          scaleInd = TrScale
@@ -510,9 +516,9 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       hM$TrScaled = TrScaled
    }
 
-   # phylogeny
+   ### phylogeny ###
    if(!is.null(C) && !is.null(phyloTree)){
-      stop("Hmsc.setData: at maximum one of phyloTree and C arguments can be specified")
+      stop("only one of phyloTree and C arguments can be specified")
    }
    if(!is.null(phyloTree)){
       corM = vcv.phylo(phyloTree, model="Brownian", corr=TRUE)
@@ -520,14 +526,14 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       hM$phyloTree = phyloTree
       hM$C = corM
    }
-   if(!is.null(C)){
+   if(!is.null(C)) {
       if(any(dim(C) != hM$ns)){
-         stop("Hmsc.setData: the size of square matrix C must be equal to number of species")
+         stop("the size of square matrix C must be equal to number of species")
       }
       hM$C = C
    }
 
-   # latent factors
+   ### latent factors ###
    if(is.null(studyDesign)){
       hM$dfPi = NULL
       hM$Pi = matrix(NA,hM$ny,0)
@@ -536,18 +542,20 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       hM$rLNames = character(0)
       if(!is.null(ranLevels)){
          if(length(ranLevels) > 0){
-            stop("Hmsc.setData: studyDesign is empty, but ranLevels is not")
+            stop("studyDesign is empty, but ranLevels is not")
          }
       }
    } else {
       if(nrow(studyDesign) != hM$ny){
-         stop("Hmsc.setData: the number of rows in studyDesign must be equal to number of rows in Y")
+         stop("the number of rows in studyDesign must be equal to number of rows in Y")
       }
+      if (!all(sapply(studyDesign, is.factor)))
+          stop("studyDesign columns must be factors")
       if(!all(ranLevelsUsed %in% names(ranLevels))){
-         stop("Hmsc.setData: ranLevels must contain named elements corresponding to all levels listed in ranLevelsUsed")
+         stop("ranLevels must contain named elements corresponding to all levels listed in ranLevelsUsed")
       }
       if(!all(ranLevelsUsed %in% colnames(studyDesign))){
-         stop("Hmsc.setData: studyDesign must contain named columns corresponding to all levels listed in ranLevelsUsed")
+         stop("studyDesign must contain named columns corresponding to all levels listed in ranLevelsUsed")
       }
       hM$studyDesign = studyDesign
       hM$ranLevels = ranLevels
@@ -570,10 +578,10 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       }
    }
 
-   ## distr can be given as a matrix: check its dims
+   ### distr can be given as a matrix: check its dims ###
    if (is.matrix(distr)) {
       if (NROW(distr) != hM$ns)
-         stop("No. of rows in distr matrix must be equal to the no. of species")
+         stop("no. of rows in distr matrix must be equal to the no. of species")
       if (NCOL(distr) < 2) # we later warn on unused extra columns
          stop("distr matrix should have 2 columns")
    }
@@ -634,17 +642,17 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    }
    ## we had 4-column distr matrix in ancient versions
    if (NCOL(distr) > 2) {
-      warning("Keeping only two first columns of 'distr' matrix")
+      warning("keeping only two first columns of 'distr' matrix")
       distr <- distr[, 1:2, drop=FALSE]
    }
    colnames(distr) = c("family","variance")
    if(any(distr[,1]==0)){
-      stop("Hmsc.setData: some of the distributions ill defined")
+      stop("some of the distributions ill defined")
    }
    hM$distr = distr
 
    #scaling of response
-   if(identical(YScale,FALSE)){
+   if(!YScale){
       hM$YScalePar = rbind(rep(0,hM$ns), rep(1,hM$ns))
       hM$YScaled = hM$Y
    } else{
