@@ -7,11 +7,12 @@
 prepareGradient(hM, XDataNew, sDataNew)
 }
 \arguments{
-\item{hM}{a fitted \code{Hmsc} model object}
+\item{hM}{a fitted \code{Hmsc} model object.}
 
-\item{XDataNew}{a dataframe of the new XData}
+\item{XDataNew}{a dataframe of the new \code{XData}.}
 
-\item{sDataNew}{a list of the new sData}
+\item{sDataNew}{a named list of the new \code{sData}, where the name gives
+the spatial random level.}
 }
 \value{
 a named list with members \code{XDataNew}, \code{studyDesignNew} and \code{rLNew}

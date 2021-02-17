@@ -1,21 +1,34 @@
 #' @title Create an \code{Hmsc} random level
 #'
-#' @description Specifies the structure of a random factor, including whether the random factor is assumed to
-#'   be spatially explicit or not, the spatial coordinates and the potential structure of covariate-dependent random factors.
-#' @param sData a dataframe containing spatial or temporal coordinates
-#'     of units of the random level. If this is a \code{SpatialPoints}
-#'     structure of the \CRANpkg{sp}, great circle distances will be
-#'     calculated, including cases where the coordinates are given as
-#'     longitude and latitude. \code{SpatialPoints} can be only used
-#'     when the spatial method \code{sMethod} is \code{Full}.
-#' @param sMethod a string specifying which spatial method to be used. Possible values are \code{Full}, \code{GPP} and \code{NNGP}
-#' @param distMat a distance matrix containing the distances between units of the random level, with unit names as rownames, or a \code{\link{dist}} structure.
-#' @param xData a dataframe containing the covariates measured at the units of the random level for covariate-dependent
-#'   associations
-#' @param units a vector, specifying the names of the units of a non-structured level
+#' @description Specifies the structure of a random factor, including
+#'     whether the random factor is assumed to be spatially explicit
+#'     or not, the spatial coordinates and the potential structure of
+#'     covariate-dependent random factors.
+#' @param sData a matrix or a dataframe containing spatial or temporal
+#'     coordinates of units of the random level. If this is a
+#'     \code{SpatialPoints} structure of the \CRANpkg{sp}, great
+#'     circle distances will be calculated, including cases where the
+#'     coordinates are given as longitude and
+#'     latitude. \code{SpatialPoints} can be only used when the
+#'     spatial method \code{sMethod} is \code{Full}.
+#' @param sMethod a string specifying which spatial method to be
+#'     used. Possible values are \code{Full}, \code{GPP} and
+#'     \code{NNGP}
+#' @param distMat a distance matrix containing the distances between
+#'     units of the random level, with unit names as rownames, or a
+#'     \code{\link{dist}} structure.
+#' @param xData a dataframe containing the covariates measured at the
+#'     units of the random level for covariate-dependent associations
+#' @param units a vector, specifying the names of the units of a
+#'     non-structured level
 #' @param N number of unique units on this level
-#' @param nNeighbours a scalar specifying the number of neighbours to be used in case the spatial method is set to \code{NNGP}. Only positive values smaller than the total number of plots are allowed.
-#' @param sKnot a dataframe containing the knot locations to be used for the gaussian predictive process if sMethod is set to \code{GPP}
+#' @param nNeighbours a scalar specifying the number of neighbours to
+#'     be used in case the spatial method is set to \code{NNGP}. Only
+#'     positive values smaller than the total number of plots are
+#'     allowed.
+#' @param sKnot a dataframe containing the knot locations to be used
+#'     for the gaussian predictive process if sMethod is set to
+#'     \code{GPP}
 #'
 #' @param longlat Interpret coordinate data \code{sData} as longitude
 #'     and latitude in decimal degrees. If this is \code{TRUE}, great
