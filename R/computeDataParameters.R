@@ -79,7 +79,9 @@ computeDataParameters = function(hM){
                       } else{
                          W = exp(-distance/alpha)
                       }
-                      RW = chol(W)
+                      RW = try(chol(W), silent = TRUE)
+                      if (inherits(RW, "try-error"))
+                         stop("spatial distance matrix is non-metric or has duplicated points")
                       iW = chol2inv(RW)
 
                       Wg[,,ag] = W
