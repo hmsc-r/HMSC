@@ -51,10 +51,11 @@ prepareGradient = function(hM, XDataNew, sDataNew){
          xyOld = rL1$s
          ## spatial data xyOld can be a data frame, and in that case
          ## the column names of xyNew must match to xyOld or rbind
-         ## barfs (github issue #80).
-         if (is.data.frame(xyOld) || is.data.frame(xyNew) &&
-             colnames(xyOld) != colnames(xyNew))
-             stop("column names must match in 'sDataNew' and old 'sData'")
+         ## barfs (github issue #80). Instead of stopping with error,
+         ## we make the colnames equal.
+         xyNew = as.matrix(xyNew) # should be safe as xyNew must be numeric
+         if (is.data.frame(xyOld))
+             colnames(xyNew) = colnames(xyOld)
          rL1$s = rbind(xyOld, xyNew)
       }
       rLNew[[r]] = rL1
