@@ -23,7 +23,10 @@ coordinates of units of the random level. If this is a
 circle distances will be calculated, including cases where the
 coordinates are given as longitude and
 latitude. \code{SpatialPoints} can be only used when the
-spatial method \code{sMethod} is \code{Full}.}
+spatial method \code{sMethod} is \code{Full}. All spatial
+locations should be unique. If you have several observations in
+the same point, they should be identified by the random
+levels.}
 
 \item{sMethod}{a string specifying which spatial method to be
 used. Possible values are \code{Full}, \code{GPP} and
