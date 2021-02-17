@@ -10,7 +10,10 @@
 #'     circle distances will be calculated, including cases where the
 #'     coordinates are given as longitude and
 #'     latitude. \code{SpatialPoints} can be only used when the
-#'     spatial method \code{sMethod} is \code{Full}.
+#'     spatial method \code{sMethod} is \code{Full}. All spatial
+#'     locations should be unique. If you have several observations in
+#'     the same point, they should be identified by the random
+#'     levels.
 #' @param sMethod a string specifying which spatial method to be
 #'     used. Possible values are \code{Full}, \code{GPP} and
 #'     \code{NNGP}
@@ -87,10 +90,14 @@ HmscRandomLevel =
       rL$s = sData
       ## several standard functions do not work with Spatial (sp) data
       if (is(sData, "Spatial")) {
+         if (any(duplicated(coordinates(sData))))
+            stop("sData locations must be unique")
          rL$N <- nrow(coordinates(sData))
          rL$pi <- as.factor(sort(row.names(sData)))
          rL$sDim <- ncol(coordinates(sData))
       } else {
+         if (any(duplicated(sData)))
+            stop("sData locations must be unique")
          rL$N = nrow(sData)
          rL$pi = as.factor(sort(rownames(sData)))
          rL$sDim = ncol(sData)
@@ -99,7 +106,10 @@ HmscRandomLevel =
       rL$nNeighbours = nNeighbours
       rL$sKnot = sKnot
    } else
-      rL$sDim = 0
+       rL$sDim = 0
+   ## we test against duplicated location in sData, but not here: zero
+   ## distances between locations give a rank-deficit distance
+   ## matrix with error in computeDataParameters
    if(!is.null(distMat)) {
       if (inherits(distMat, "dist"))
          distMat <- as.matrix(distMat)
