@@ -1,7 +1,7 @@
 
-R Under development (unstable) (2020-03-18 r77998) -- "Unsuffered Consequences"
-Copyright (C) 2020 The R Foundation for Statistical Computing
-Platform: x86_64-apple-darwin18.7.0 (64-bit)
+R version 4.0.4 (2021-02-15) -- "Lost Library Book"
+Copyright (C) 2021 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin17.0 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -46,8 +46,8 @@ Loading required package: coda
 > 
 > # Creating a Hmsc object with 2 nested random levels (50 sampling units in 20 plots)
 > studyDesign = data.frame(sample = as.factor(1:50), plot = as.factor(sample(1:20,50,replace=TRUE)))
-> rL1 = HmscRandomLevel(units=TD$studyDesign$plot)
-> rL2 = HmscRandomLevel(units=TD$studyDesign$sample)
+> rL1 = HmscRandomLevel(units=levels(TD$studyDesign$plot))
+> rL2 = HmscRandomLevel(units=levels(TD$studyDesign$sample))
 > m = Hmsc(Y=TD$Y, XData=TD$X, XFormula=~x1+x2,
 + studyDesign=studyDesign,ranLevels=list("sample"=rL1,"plot"=rL2))
 > 
@@ -470,17 +470,18 @@ converged
 > ## you need 1000 or more samples, but that will take too long
 > ## in an example
 > m = sampleMcmc(TD$m, samples=10)
-Setting updater$Gamma2=FALSE due to specified phylogeny matrix
-Chain 1, iteration 1 of 10, (sampling)
-Chain 1, iteration 2 of 10, (sampling)
-Chain 1, iteration 3 of 10, (sampling)
-Chain 1, iteration 4 of 10, (sampling)
-Chain 1, iteration 5 of 10, (sampling)
-Chain 1, iteration 6 of 10, (sampling)
-Chain 1, iteration 7 of 10, (sampling)
-Chain 1, iteration 8 of 10, (sampling)
-Chain 1, iteration 9 of 10, (sampling)
-Chain 1, iteration 10 of 10, (sampling)
+setting updater$Gamma2=FALSE due to specified phylogeny matrix
+setting updater$latentLoadingOrderSwap=0 disabling full-conditional swapping of consecutive latent loadings
+Chain 1, iteration 1 of 10 (sampling)
+Chain 1, iteration 2 of 10 (sampling)
+Chain 1, iteration 3 of 10 (sampling)
+Chain 1, iteration 4 of 10 (sampling)
+Chain 1, iteration 5 of 10 (sampling)
+Chain 1, iteration 6 of 10 (sampling)
+Chain 1, iteration 7 of 10 (sampling)
+Chain 1, iteration 8 of 10 (sampling)
+Chain 1, iteration 9 of 10 (sampling)
+Chain 1, iteration 10 of 10 (sampling)
 > 
 > ## Not run: 
 > ##D ## Record 1000 posterior samples while skipping 1 MCMC step between samples
@@ -519,7 +520,7 @@ Chain 1, iteration 10 of 10, (sampling)
 > cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  3.956 0.202 4.84 0.004 0.005 
+Time elapsed:  2.523 0.124 2.682 0.006 0.005 
 > grDevices::dev.off()
 null device 
           1 
