@@ -362,7 +362,7 @@ sampleMcmc =
             } else{
                samplingStatusString = "transient"
             }
-            cat(sprintf("Chain %d, iteration %d of %d, (%s)\n", chain, iter, transient+samples*thin, samplingStatusString) )
+            cat(sprintf("Chain %d, iteration %d of %d (%s)\n", chain, iter, transient+samples*thin, samplingStatusString) )
          }
       }
       return(postList)
