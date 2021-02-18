@@ -193,7 +193,8 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
         ## (sometimes they are character strings which is OK for most
         ## analyses but can fail in predict.Hmsc): DF is a data.frame
         OKvars <- function(DF) {
-            all(sapply(DF, function(a) is.numeric(a) || is.factor(a)))
+            all(sapply(DF, function(a)
+                           !is.matrix(a) && (is.numeric(a) || is.factor(a))))
         }
         if (inherits(XData, "list")) {
             if(length(XData) != hM$ns){
