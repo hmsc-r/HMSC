@@ -571,14 +571,18 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
          stop("studyDesign must contain named columns corresponding to all levels listed in ranLevelsUsed")
       }
       hM$studyDesign = studyDesign
-      ## check than ranLevels is a list of HmscRandomLevel objects
-      if (!is.list(ranLevels))
+      ## check than ranLevels is a list of HmscRandomLevel
+      ## objects. NB, !is.null(ranLevels) may fail for NULL ranLevels:
+      ## see comment in computePredictedValues
+      if (length(ranLevels) && !is.list(ranLevels))
           stop("'ranLevels' must be a list of 'HmscRandomLevel' objects")
+      ## curiously, the following is FALSE if ranLevels is NULL
       if (!all(sapply(ranLevels, inherits, what = "HmscRandomLevel")))
           stop("'ranLevels' must be 'HmscRandomLevel' objects")
+      ## if ranLevels is NULL, it will be removed from hM (and
+      ## hM$rLNames will be character(0)). - CLEAN UP!
       hM$ranLevels = ranLevels
       hM$ranLevelsUsed = ranLevelsUsed
-
       hM$dfPi = studyDesign[,ranLevelsUsed,drop=FALSE]
       hM$rL = ranLevels[ranLevelsUsed]
       hM$rLNames = colnames(hM$dfPi)
