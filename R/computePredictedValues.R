@@ -94,6 +94,12 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
             XRRRTrain=NULL
             XRRRVal=NULL
          }
+         ## NB, if ranLevels was NULL, rL (and ranLevels) do not exist
+         ## in hM (Hmsc() removed them), and partial matching gives
+         ## the value (character(0)) of hM$rLNames to ranLevels
+         ## below. If this disturbs, it should probably be fixed in
+         ## Hmsc(), but currently ranLevels=character(0) seems to
+         ## work.
          hM1 = Hmsc(Y=hM$Y[train,,drop=FALSE], X=XTrain,
                     XRRR=XRRRTrain, ncRRR = hM$ncRRR, XSelect = hM$XSelect,
                     distr=hM$distr, studyDesign=dfPi, Tr=hM$Tr, C=hM$C, ranLevels=hM$rL)
