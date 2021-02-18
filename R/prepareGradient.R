@@ -2,9 +2,10 @@
 #'
 #' @description prepares a user-made environmental and/or spatial gradient to be used for prediction
 #'
-#' @param hM a fitted \code{Hmsc} model object
-#' @param XDataNew a dataframe of the new XData
-#' @param sDataNew a list of the new sData
+#' @param hM a fitted \code{Hmsc} model object.
+#' @param XDataNew a dataframe of the new \code{XData}.
+#' @param sDataNew a named list of the new \code{sData}, where the name gives
+#'    the spatial random level.
 #'
 #'
 #' @return a named list with members \code{XDataNew}, \code{studyDesignNew} and \code{rLNew}
@@ -23,7 +24,8 @@
 #' @export
 
 prepareGradient = function(hM, XDataNew, sDataNew){
-   #xDataNew needs to be added and the function needs to be more extensively tested
+   ## XDataNew needs to be added and the function needs to be more
+   ## extensively tested
    nyNew = NROW(XDataNew)
    dfPiNew = matrix(NA,nyNew,hM$nr)
    colnames(dfPiNew) = hM$rLNames
@@ -47,6 +49,13 @@ prepareGradient = function(hM, XDataNew, sDataNew){
          rL1$pi = unitsAll
          row.names(xyNew) = dfPiNew[,r]
          xyOld = rL1$s
+         ## spatial data xyOld can be a data frame, and in that case
+         ## the column names of xyNew must match to xyOld or rbind
+         ## barfs (github issue #80). Instead of stopping with error,
+         ## we make the colnames equal.
+         xyNew = as.matrix(xyNew) # should be safe as xyNew must be numeric
+         if (is.data.frame(xyOld))
+             colnames(xyNew) = colnames(xyOld)
          rL1$s = rbind(xyOld, xyNew)
       }
       rLNew[[r]] = rL1

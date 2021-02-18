@@ -100,8 +100,8 @@
 #'
 #' # Creating a Hmsc object with 2 nested random levels (50 sampling units in 20 plots)
 #' studyDesign = data.frame(sample = as.factor(1:50), plot = as.factor(sample(1:20,50,replace=TRUE)))
-#' rL1 = levels(HmscRandomLevel(units=TD$studyDesign$plot))
-#' rL2 = levels(HmscRandomLevel(units=TD$studyDesign$sample))
+#' rL1 = HmscRandomLevel(units=levels(TD$studyDesign$plot))
+#' rL2 = HmscRandomLevel(units=levels(TD$studyDesign$sample))
 #' m = Hmsc(Y=TD$Y, XData=TD$X, XFormula=~x1+x2,
 #' studyDesign=studyDesign,ranLevels=list("sample"=rL1,"plot"=rL2))
 #'
@@ -189,6 +189,13 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       stop("only one of XData and X arguments must be specified")
    }
     if(!is.null(XData)) {
+        ## function to check that all variables are numeric or factors
+        ## (sometimes they are character strings which is OK for most
+        ## analyses but can fail in predict.Hmsc): DF is a data.frame
+        OKvars <- function(DF) {
+            all(sapply(DF, function(a)
+                           !is.matrix(a) && (is.numeric(a) || is.factor(a))))
+        }
         if (inherits(XData, "list")) {
             if(length(XData) != hM$ns){
                 stop("the length of XData list argument must be equal to the number of species")
@@ -204,6 +211,8 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
             if(any(unlist(lapply(XData, function(a) nrow(a) != hM$ny)))){
                 stop("for each element of XData list the number of rows must be equal to the number of sampling units")
             }
+            if(!all(sapply(XData, function(a) OKvars(a))))
+                stop("all variables in XData list must be numeric or factors")
             if(any(unlist(lapply(XData, function(a) any(is.na(a)))))){
                 stop("NA values are not allowed in XData")
             }
@@ -219,6 +228,10 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
             if(any(is.na(XData))){
                 stop("NA values are not allowed in XData")
             }
+            ## check that all vars are numeric or factors (not, e.g.,
+            ## characters)
+            if (!all(OKvars(XData)))
+                stop("all XData variables must be numeric or factors")
             ## check against derived classes of data.frame (such as tibble)
             if (class(XData)[1L] != "data.frame")
                 XData <- as.data.frame(XData, stringsAsFactors = TRUE)
@@ -558,6 +571,11 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
          stop("studyDesign must contain named columns corresponding to all levels listed in ranLevelsUsed")
       }
       hM$studyDesign = studyDesign
+      ## check than ranLevels is a list of HmscRandomLevel objects
+      if (!is.list(ranLevels))
+          stop("'ranLevels' must be a list of 'HmscRandomLevel' objects")
+      if (!all(sapply(ranLevels, inherits, what = "HmscRandomLevel")))
+          stop("'ranLevels' must be 'HmscRandomLevel' objects")
       hM$ranLevels = ranLevels
       hM$ranLevelsUsed = ranLevelsUsed
 
