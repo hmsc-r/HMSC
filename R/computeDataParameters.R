@@ -169,7 +169,7 @@ computeDataParameters = function(hM){
                 },
                 "GPP" = {
                    if(!is.null(hM$rL[[r]]$distMat)){
-                      stop("predictive gaussian process not available for distance matrices")
+                      stop("predictive Gaussian process not available for distance matrices")
                    }
                    s = hM$rL[[r]]$s[levels(hM$dfPi[,r]),]
                    sKnot = hM$rL[[r]]$sKnot
