@@ -53,7 +53,7 @@ predictLatentFactor =
             predictMeanField=FALSE)
 {
    if(predictMean && predictMeanField)
-      stop("Hmsc.predictLatentFactor: predictMean and predictMeanField arguments cannot be simultaneously TRUE")
+      stop("predictMean and predictMeanField arguments cannot be simultaneously TRUE")
    predN = length(postEta)
    indOld = (unitsPred %in% units)
    indNew = !(indOld)

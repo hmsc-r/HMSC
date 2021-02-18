@@ -23,7 +23,7 @@ setPriors.Hmsc = function(hM, V0=NULL, f0=NULL, mGamma=NULL,
 
    if(!is.null(V0)){
       if(!isSymmetric(V0) || nrow(V0) != hM$nc || ncol(V0) != hM$nc)
-         stop("HMSC.setPriors: V0 must be a positive definite matrix of size equal to number of covariates nc")
+         stop("V0 must be a positive definite matrix of size equal to number of covariates nc")
       hM$V0 = V0
    } else if(setDefault){
       hM$V0 = diag(hM$nc)
@@ -31,7 +31,7 @@ setPriors.Hmsc = function(hM, V0=NULL, f0=NULL, mGamma=NULL,
 
    if(!is.null(f0)){
       if(f0 < hM$nc)
-         stop("HMSC.setPriors: f0 must be greater than number of covariates in the model nc")
+         stop("f0 must be greater than number of covariates in the model nc")
       hM$f0 = f0
    } else if(setDefault){
       hM$f0 = hM$nc+1
@@ -39,7 +39,7 @@ setPriors.Hmsc = function(hM, V0=NULL, f0=NULL, mGamma=NULL,
 
    if(!is.null(mGamma)){
       if(length(mGamma) != hM$nc*hM$nt)
-         stop("HMSC.setPriors: mGamma must be a vector of length equal to number of covariates times traits: nc x nt")
+         stop("mGamma must be a vector of length equal to number of covariates times traits: nc x nt")
       hM$mGamma = mGamma
    } else if(setDefault){
       hM$mGamma = rep(0, hM$nc*hM$nt)
@@ -47,7 +47,7 @@ setPriors.Hmsc = function(hM, V0=NULL, f0=NULL, mGamma=NULL,
 
    if(!is.null(UGamma)){
       if(!isSymmetric(UGamma) || nrow(UGamma) != (hM$nc*hM$nt) || ncol(UGamma) != (hM$nc*hM$nt))
-         stop("HMSC.setPriors: UGamma must be a positive definite matrix of size equal to nc x nt")
+         stop("UGamma must be a positive definite matrix of size equal to nc x nt")
       hM$UGamma = UGamma
    } else if(setDefault){
       hM$UGamma = diag(hM$nc * hM$nt)
@@ -76,9 +76,9 @@ setPriors.Hmsc = function(hM, V0=NULL, f0=NULL, mGamma=NULL,
 
    if(!is.null(rhopw)){
       if(is.null(hM$C))
-         stop("HMSC.setPriors: prior for phylogeny given, but no phylogenic relationship matrix was specified")
+         stop("prior for phylogeny given, but no phylogenic relationship matrix was specified")
       if(ncol(rhopw)!=2)
-         stop("HMSC.setPriors: rhopw must be a matrix with two columns")
+         stop("rhopw must be a matrix with two columns")
       hM$rhopw = rhopw
    } else if(setDefault){
       rhoN = 100

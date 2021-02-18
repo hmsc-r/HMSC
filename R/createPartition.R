@@ -17,7 +17,7 @@ createPartition = function(hM, nfolds=10, column=NULL){
    if(ncol(hM$studyDesign)>0 && !is.null(column)){
       np = length(unique(hM$studyDesign[,column]))
       if(np < nfolds){
-         stop("HMSC.createPartition: nfolds cannot exceed the number of units in the specified random level")
+         stop("nfolds cannot exceed the number of units in the specified random level")
       }
       level = hM$studyDesign[,column]
       levels = unique(hM$studyDesign[,column])

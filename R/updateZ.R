@@ -82,7 +82,7 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind){
          muZ = sigmaZ*((y-r)/(2) + prec*(e-log(r))) + 1*log(r)
          z = rnorm(length(y), muZ, sqrt(sigmaZ))
          if(any(is.na(z) | is.nan(z))){
-            warning("Fail in Poisson Z update")
+            warning("failure in Poisson Z update")
          }
          ZPoisson[indCellPoisson] = z
          Z[,indColPoisson] = ZPoisson
