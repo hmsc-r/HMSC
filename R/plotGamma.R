@@ -153,7 +153,7 @@ plotGamma=function(hM, post, param = "Support", trOrder="Original",
       labels = trNames[trorder], xpd = TRUE)
 
    if(all(is.na(X)) || sum(abs(X))==0){
-      warning("Nothing to plot at this level of posterior support")
+      warning("nothing to plot at this level of posterior support")
       zlim = c(-1,1)
    } else{
       zlim = c(-max(abs(range(X))),max(abs(range(X))))

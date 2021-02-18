@@ -160,7 +160,7 @@ sampleMcmc =
    if(!identical(updater$GammaEta, FALSE) && hM$nr==0){
       updater$GammaEta = FALSE
       if(updaterWarningFlag)
-         message("Setting updater$GammaEta=FALSE due to absence of random effects included to the model")
+         message("setting updater$GammaEta=FALSE due to absence of random effects included to the model")
    }
    # NNGP & GPP models will give an error in updateGammaEta()
    if (!identical(updater$GammaEta, FALSE) &&
@@ -235,12 +235,12 @@ sampleMcmc =
       if(!identical(updater$Gamma2, FALSE) && (!is.matrix(X))){
          updater$Gamma2 = FALSE
          if(updaterWarningFlag)
-            message("Setting updater$Gamma2=FALSE due to X is not a matrix")
+            message("setting updater$Gamma2=FALSE due to X is not a matrix")
       }
       if(!identical(updater$GammaEta, FALSE) && (!is.matrix(X))){
          updater$GammaEta = FALSE
          if(updaterWarningFlag)
-            message("Setting updater$GammaEta=FALSE due to X is not a matrix")
+            message("setting updater$GammaEta=FALSE due to X is not a matrix")
       }
 
       postList = vector("list", samples)

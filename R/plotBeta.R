@@ -231,7 +231,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = FALSE,
 
    #Plot
    if(all(is.na(X)) || sum(abs(X))==0){
-      warning("Nothing to plot at this level of posterior support")
+      warning("nothing to plot at this level of posterior support")
       zlim = c(-1,1)
    } else{
       zlim = c(-max(abs(range(X))),max(abs(range(X))))

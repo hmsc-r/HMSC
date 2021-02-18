@@ -66,13 +66,13 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
    }
 
    if(!is.null(XData) && !is.null(X)){
-      stop("Hmsc.predict: only one of XData and X arguments can be specified")
+      stop("only one of XData and X arguments can be specified")
    }
    if(!is.null(XRRRData) && !is.null(XRRR)){
-      stop("Hmsc.predict: only one of XRRRData and XRRR arguments can be specified")
+      stop("only one of XRRRData and XRRR arguments can be specified")
    }
    if(predictEtaMean==TRUE && predictEtaMeanField==TRUE)
-      stop("Hmsc.predict: predictEtaMean and predictEtaMeanField arguments cannot be TRUE simultanuisly")
+      stop("predictEtaMean and predictEtaMeanField arguments cannot be TRUE simultanuisly")
    if(!is.null(XData)){
       switch(class(XData)[1L],
              list={
@@ -107,17 +107,17 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
 
    if(!is.null(Yc)){
       if(ncol(Yc) != object$ns){
-         stop("hMsc.predict: number of columns in Yc must be equal to ns")
+         stop("number of columns in Yc must be equal to ns")
       }
       if(nrow(Yc) != nyNew){
-         stop("hMsc.predict: number of rows in Yc and X must be equal")
+         stop("number of rows in Yc and X must be equal")
       }
    }
    if(!all(object$rLNames %in% colnames(studyDesign))){
-      stop("hMsc.predict: dfPiNew does not contain all the necessary named columns")
+      stop("dfPiNew does not contain all the necessary named columns")
    }
    if(!all(object$rLNames %in% names(ranLevels))){
-      stop("hMsc.predict: rL does not contain all the necessary named levels")
+      stop("rL does not contain all the necessary named levels")
    }
 
    if(!is.null(studyDesign)){

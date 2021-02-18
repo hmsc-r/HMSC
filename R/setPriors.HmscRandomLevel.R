@@ -29,7 +29,7 @@ setPriors.HmscRandomLevel = function(rL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=
          if(length(nu) == xDim){
             rL$nu = nu
          } else
-            stop("HmscRandomLevel.setPriors: length of nu argument must be either 1 or rL$xDim")
+            stop("length of nu argument must be either 1 or rL$xDim")
       }
    } else if(setDefault){
       rL$nu = rep(3, xDim)
@@ -41,7 +41,7 @@ setPriors.HmscRandomLevel = function(rL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=
          if(length(a1) == xDim){
             rL$a1 = a1
          } else
-            stop("HmscRandomLevel.setPriors: length of a1 argument must be either 1 or rL$xDim")
+            stop("length of a1 argument must be either 1 or rL$xDim")
       }
    } else if(setDefault){
       rL$a1 = rep(50, xDim)
@@ -53,7 +53,7 @@ setPriors.HmscRandomLevel = function(rL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=
          if(length(b1) == xDim){
             rL$b1 = b1
          } else
-            stop("HmscRandomLevel.setPriors: length of b1 argument must be either 1 or rL$xDim")
+            stop("length of b1 argument must be either 1 or rL$xDim")
       }
    } else if(setDefault){
       rL$b1 = rep(1, xDim)
@@ -65,7 +65,7 @@ setPriors.HmscRandomLevel = function(rL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=
          if(length(a2) == xDim){
             rL$a2 = a2
          } else
-            stop("HmscRandomLevel.setPriors: length of a2 argument must be either 1 or rL$xDim")
+            stop("length of a2 argument must be either 1 or rL$xDim")
       }
    } else if(setDefault){
       rL$a2 = rep(50, xDim)
@@ -77,16 +77,16 @@ setPriors.HmscRandomLevel = function(rL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=
          if(length(b2) == xDim){
             rL$b2 = b2
          } else
-            stop("HmscRandomLevel.setPriors: length of b2 argument must be either 1 or rL$xDim")
+            stop("length of b2 argument must be either 1 or rL$xDim")
       }
    } else if(setDefault){
       rL$b2 = rep(1, xDim)
    }
    if(!is.null(alphapw)){
       if(rL$sDim == 0)
-         stop("HmscRandomLevel.setPriors: prior for spatial scale was given, but not spatial coordinates were specified")
+         stop("prior for spatial scale was given, but not spatial coordinates were specified")
       if(ncol(alphapw)!=2)
-         stop("HmscRandomLevel.setPriors: alphapw must be a matrix with two columns")
+         stop("alphapw must be a matrix with two columns")
       rL$alphapw = alphapw
    } else if(setDefault && rL$sDim>0){
       alphaN = 100
@@ -114,7 +114,7 @@ setPriors.HmscRandomLevel = function(rL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=
    }
    if(!is.null(nfMin)){
       if(nfMin > nfMax)
-         stop("HmscRandomLevel.setPriors: nfMin must be not greater than nfMax")
+         stop("nfMin must be not greater than nfMax")
       rL$nfMin = nfMin
    } else if(setDefault){
       rL$nfMin = 2

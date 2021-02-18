@@ -240,7 +240,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
             hM$X = model.matrix(XFormula, XData)
             hM$nc = ncol(hM$X)
         } else {
-            stop("XData must either a data.frame or a list of data.frame objects")
+            stop("XData must be either a data.frame or a list of data.frame objects")
         }
     }
    if(!is.null(X)){

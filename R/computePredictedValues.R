@@ -61,7 +61,7 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
       predArray = abind(pred, along=3)
    } else{
       if(length(partition) != hM$ny){
-         stop("HMSC.computePredictedValues: partition parameter must be a vector of length ny")
+         stop("partition parameter must be a vector of length ny")
       }
       nfolds = length(unique(partition))
       postN = Reduce(sum, lapply(hM$postList, length))
