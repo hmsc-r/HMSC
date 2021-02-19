@@ -521,7 +521,7 @@ for BLAS it is called libRblas. Changing the reference libraries to
 implementation optimized for the hardware can speed up calculations by
 a factor of ten. OpenBLAS and associated LAPACK is a very popular
 choice, but there are many other alternatives (see R manual on
-Administration and Installation and R FAQs). Optimized BLAS and LAPACK
+Installation and Administration and R FAQs). Optimized BLAS and LAPACK
 libraries may use parallel processing and they can use several cores
 for each parallel chain. The number of available cores depends also on
 the system configuration, and especially in multi-user systems, on
