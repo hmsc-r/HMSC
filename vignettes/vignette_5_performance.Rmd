@@ -192,7 +192,7 @@ is an alternative for `test.run` that runs fast, but gives no real
 results, but you can use to quickly see the idea.
 ```{r Model sampling setup, message=F, eval=T, cache=F}
 nChains = 4
-test.run = TRUE
+test.run = FALSE
 if (test.run){
    #with this option, the vignette evaluates in ca. ? minutes in a laptop
    thin = 1
