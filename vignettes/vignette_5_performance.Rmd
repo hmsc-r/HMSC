@@ -500,15 +500,34 @@ for (case in cases){
 }
 ```
 
+```{r BLAS, message=F, eval=T, cache=F, echo=F}
+myBLAS <- sessionInfo()$BLAS
+myBLAS <- unlist(strsplit(myBLAS, .Platform$file.sep))
+myBLAS <- myBLAS[length(myBLAS)]
+myBLAS <- unlist(strsplit(myBLAS, "\\."))[1]
+```
+
 ### Computational time
 
-We ran the `r nChains` chains in parallel using the option `nParallel
-= nChains`, and recorded the computational time for MCMC sampling
-using a multi-core computer (in this case with
-`r parallel::detectCores()` cores).
-The timings and relative timings are very strongly dependent on the
-system and its load, including external resources such as LAPACK
-libraries for numerical matrix algebra.
+The timings and relative timings vary a lot. They are strongly
+dependent on the hardware and its load, and our example cannot be
+generalized to other environments. Parallel processing can speed up
+calculations, but we can only run each chain in parallel, and the
+slowest chain will determine the running time. Most of time is spent
+in linear algebra in external libraries BLAS and LAPACK. BLAS provides
+the basic matrix operations and LAPACK the higher level matrix
+algorithms. R ships with so-called reference libraries for both, and
+for BLAS it is called libRblas. Changing the reference libraries to
+implementation optimized for the hardware can speed up calculations by
+a factor of ten. OpenBLAS and associated LAPACK is a very popular
+choice, but there are many other alternatives (see R manual on
+Administration and Installation and R FAQs). Optimized BLAS and LAPACK
+libraries may use parallel processing and they can use several cores
+for each parallel chain. The number of available cores depends also on
+the system configuration, and especially in multi-user systems, on
+other CPU load and system policies. We used `r myBLAS` and ran
+`r nChains` chains in parallel in a system with
+`r parallel::detectCores()` cores.
 
 ```{r Data evaluation II, message=F, eval=T, cache=F, echo=F}
 cases = c(1,2,3,4,5,6,7)
