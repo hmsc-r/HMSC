@@ -500,15 +500,34 @@ for (case in cases){
 }
 ```
 
+```{r BLAS, message=F, eval=T, cache=F, echo=F}
+myBLAS <- sessionInfo()$BLAS
+myBLAS <- unlist(strsplit(myBLAS, .Platform$file.sep))
+myBLAS <- myBLAS[length(myBLAS)]
+myBLAS <- unlist(strsplit(myBLAS, "\\."))[1]
+```
+
 ### Computational time
 
-We ran the `r nChains` chains in parallel using the option `nParallel
-= nChains`, and recorded the computational time for MCMC sampling
-using a multi-core computer (in this case with
-`r parallel::detectCores()` cores).
-The timings and relative timings are very strongly dependent on the
-system and its load, including external resources such as LAPACK
-libraries for numerical matrix algebra.
+The timings and relative timings vary a lot. They are strongly
+dependent on the hardware and its load, and our example cannot be
+generalized to other environments. Parallel processing can speed up
+calculations, but we can only run each chain in parallel, and the
+slowest chain will determine the running time. Most of time is spent
+in linear algebra in external libraries BLAS and LAPACK. BLAS provides
+the basic matrix operations and LAPACK the higher level matrix
+algorithms. R ships with so-called reference libraries for both, and
+for BLAS it is called libRblas. Changing the reference libraries to
+implementation optimized for the hardware can speed up calculations by
+a factor of ten. OpenBLAS and associated LAPACK is a very popular
+choice, but there are many other alternatives (see R manual on
+Installation and Administration and R FAQs). Optimized BLAS and LAPACK
+libraries may use parallel processing and they can use several cores
+for each parallel chain. The number of available cores depends also on
+the system configuration, and especially in multi-user systems, on
+other CPU load and system policies. We used `r myBLAS` and ran
+`r nChains` chains in parallel in a system with
+`r parallel::detectCores()` cores.
 
 ```{r Data evaluation II, message=F, eval=T, cache=F, echo=F}
 cases = c(1,2,3,4,5,6,7)
@@ -532,7 +551,7 @@ rownames(times)=c("Time (min)", "Time (relative)")
 kable(round(times,2),caption="Computational times to perform the MCMC sampling in minutes and relative to the time of the baseline case ")
 ```
 
-```{r Data evaluation III, message=F, eval=T, cache=F, echo=F, fig.height=7, fig.width=8, fig.cap="\\label{fig:Data evaluation II}Distributions of effective sample sizes of multivariate parameters."}
+```{r Data_evaluation_III, message=F, eval=T, cache=F, echo=F, fig.height=7, fig.width=8, fig.cap="\\label{fig:Data evaluation II}Distributions of effective sample sizes of multivariate parameters."}
 par(mfrow=c(2,2),oma=c(0,0,0,0),mar=c(4,4,3,1))
 for (para in 1:4){
   parameter = c("beta","gamma","V","omega")[para]
@@ -547,7 +566,7 @@ for (para in 1:4){
 }
 ```
 
-```{r Data evaluation IV, message=F, eval=T, cache=F, echo=F, fig.height=7, fig.width=8, fig.cap="\\label{fig:Data evaluation III}Distributions of upper C.I. for potential scale reduction factors for multivariate parameters."}
+```{r Data_evaluation_IV, message=F, eval=T, cache=F, echo=F, fig.height=7, fig.width=8, fig.cap="\\label{fig:Data evaluation III}Distributions of upper C.I. for potential scale reduction factors for multivariate parameters."}
 par(mfrow=c(2,2),oma=c(0,0,0,0),mar=c(4,4,3,1))
 for (para in 1:4){
   parameter = c("beta","gamma","V","omega")[para]
@@ -576,7 +595,7 @@ For the same parameters that we considered for MCMC mixing, we asked how much cl
 
 The species-specific parameters $\beta$ were better estimated for normal models than for probit and lognormal Poisson models (Figure 3). As expected, they were most accurately estimated for Case 4 with many sampling units. For the community-level parameters $\gamma$ the difference among the cases was smaller, the probit model performing slightly worse than the others. The $\Omega$ parameters were estimated best for normal models where the latent variables were independent among the sampling units. The *V* parameters were roughly equally well estimated in all cases. In all cases the estimation of the phylogenetic signal parameter $\rho$ was difficult, in particular for the probit model were the posterior distribution was essentially identical to the prior (Figure 5).
 
-```{r Data evaluation V, message=F, eval=T, cache=F, echo=F, fig.height=7, fig.width=8, fig.cap="\\label{fig:Data evaluation IV}Distributions of normalized root mean squared errors (NRMSE) for multivariate parameters. Values smaller than one indicate that the posterior distribution is closer to the true value than the prior distribution."}
+```{r Data_evaluation_V, message=F, eval=T, cache=F, echo=F, fig.height=7, fig.width=8, fig.cap="\\label{fig:Data evaluation IV}Distributions of normalized root mean squared errors (NRMSE) for multivariate parameters. Values smaller than one indicate that the posterior distribution is closer to the true value than the prior distribution."}
 par(mfrow=c(2,2),oma=c(0,0,0,0),mar=c(4,4,3,1))
 for (para in 1:4){
   parameter = c("beta","gamma","V","omega")[para]
@@ -591,7 +610,7 @@ for (para in 1:4){
 }
 ```
 
-```{r Data evaluation VI, message=F, eval=T, cache=F, echo=F, fig.height=7, fig.width=8, fig.cap="\\label{fig:Data evaluation V}Posterior distributions of correlation between true and estimated values for multivariate parameters."}
+```{r Data_evaluation_VI, message=F, eval=T, cache=F, echo=F, fig.height=7, fig.width=8, fig.cap="\\label{fig:Data evaluation V}Posterior distributions of correlation between true and estimated values for multivariate parameters."}
 par(mfrow=c(2,2),oma=c(0,0,0,0),mar=c(4,4,3,1))
 for (para in 1:4){
   parameter = c("beta","gamma","V","omega")[para]
@@ -606,7 +625,7 @@ for (para in 1:4){
 }
 ```
 
-```{r Data evaluation VII, message=F, eval=T, cache=F, echo=F, fig.height=4, fig.width=4, fig.cap="\\label{fig:Data evaluation VI}Posterior distributions of the phylogenetic signal parameter."}
+```{r Data_evaluation_VII, message=F, eval=T, cache=F, echo=F, fig.height=4, fig.width=4, fig.cap="\\label{fig:Data evaluation VI}Posterior distributions of the phylogenetic signal parameter."}
 par(mfrow=c(1,1),oma=c(0,0,0,0),mar=c(4,4,3,1))
 toplot = list()
 for (case in 1:ncases){

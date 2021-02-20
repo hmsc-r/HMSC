@@ -36,6 +36,7 @@
 constructKnots =
     function(sData, nKnots = NULL, knotDist = NULL, minKnotDist = NULL)
 {
+   EPS = sqrt(.Machine$double.eps)
    if(!is.null(nKnots) && !is.null(knotDist)){
       stop("nKnots and knotDist cannot both be specified")
    }
@@ -53,11 +54,14 @@ constructKnots =
       if(is.null(nKnots)){
          nKnots = 10
       }
-      knotDist = min(maxs-mins)/nKnots
+      knotDist = min(maxs-mins)/(nKnots - 1) # 1 more knots than dists
    }
    knotindices = list()
    for(d in 1:ncol(sData)){
-      knotindices[[d]] = seq(mins[d],maxs[d],by=knotDist)
+       knotindices[[d]] = seq(mins[d],maxs[d] + EPS,by=knotDist)
+       ## move indices if they do not reach max
+       if ((up <- maxs[d] - max(knotindices[[d]])) > 100*EPS)
+           knotindices[[d]] <- knotindices[[d]] + up/2
    }
    sKnot = expand.grid(knotindices)  #Full grid
    Dist = knnx.dist(sData,sKnot,k=1)
