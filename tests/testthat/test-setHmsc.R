@@ -4,7 +4,7 @@ test_that("Hmsc returns error both XData and X are given", {
    expect_error(Hmsc(Y=matrix(1:10),XData=data.frame(x1 = 1:10),X=matrix(1:10)),"only one of XData and X arguments must be specified")
 })
 test_that("Hmsc returns error when XData is not a data frame or list of data frames", {
-   expect_error(Hmsc(Y=matrix(1:10),XData=matrix(1:10)),"XData must either a data.frame or a list of data.frame objects")
+   expect_error(Hmsc(Y=matrix(1:10),XData=matrix(1:10)), NULL)
    expect_error(Hmsc(Y=matrix(1:20,nrow=10,ncol=2),XData=list(s1 = 1:10, s2 = 1:10)),"each element of X list must be a data.frame")
 })
 test_that("Hmsc returns error when X is not a matrix", {

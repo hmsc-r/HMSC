@@ -26,10 +26,10 @@ test_that("UpdateGammaEta is correct",{
    expect_equal(length(eta),2)
    expect_equal(length(eta[[1]]),100)
    expect_equal(length(eta[[2]]),20)
-   expect_equal(round(sum(eta[[1]])),-9)
-   expect_equal(round(sum(eta[[2]])),-3)
+   expect_equal(round(sum(eta[[1]])),-18)
+   expect_equal(round(sum(eta[[2]])),-1)
    expect_equal(length(gamma),9)
-   expect_equal(round(sum(gamma)),-3)
+   expect_equal(round(sum(gamma)),-2)
 })
 
 test_that("updateBetaLambda is correct",{

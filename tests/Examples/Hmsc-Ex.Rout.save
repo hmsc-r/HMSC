@@ -471,7 +471,6 @@ converged
 > ## in an example
 > m = sampleMcmc(TD$m, samples=10)
 setting updater$Gamma2=FALSE due to specified phylogeny matrix
-setting updater$latentLoadingOrderSwap=0 disabling full-conditional swapping of consecutive latent loadings
 Chain 1, iteration 1 of 10 (sampling)
 Chain 1, iteration 2 of 10 (sampling)
 Chain 1, iteration 3 of 10 (sampling)
@@ -520,7 +519,7 @@ Chain 1, iteration 10 of 10 (sampling)
 > cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  2.523 0.124 2.682 0.006 0.005 
+Time elapsed:  2.501 0.121 2.658 0.006 0.004 
 > grDevices::dev.off()
 null device 
           1 
