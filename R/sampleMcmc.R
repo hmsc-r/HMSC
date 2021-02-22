@@ -172,10 +172,12 @@ sampleMcmc =
            message("setting updater$GammaEta=FALSE: not implemented for spatial methods 'GPP' and 'NNGP'")
    }
 
-   # latentLoadingOrderSwap
+   ## latentLoadingOrderSwap: as of version 3.0.10 this is still an
+   ## experimental feature and we do not advertise it by broadcasting
+   ## messages that it is disabled
    if(identical(updater$latentLoadingOrderSwap, NULL)){
       updater$latentLoadingOrderSwap = 0
-      if(updaterWarningFlag)
+      if(FALSE && updaterWarningFlag) # do not advertise yet
          message("setting updater$latentLoadingOrderSwap=0 disabling full-conditional swapping of consecutive latent loadings")
    }
 

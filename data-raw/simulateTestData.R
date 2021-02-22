@@ -63,7 +63,8 @@ TD$Tr = cbind(TD$Tr, as.factor(c('A','B','B','A')))
 colnames(TD$Tr) = c('Intercept','T1','T2')
 TD$X = data.frame(TD$X)
 TD$X = cbind(TD$X, as.factor(c(rep('o',TD$units/2),rep('c',TD$units/2))))
-colnames(TD$X) = c('Intercept','x1','x2')
+TD$X = TD$X[, -1, drop=FALSE] # data frame does not need Intercept
+colnames(TD$X) = c('x1','x2')
 
 TD$m = Hmsc(Y=TD$Y,
          XData=TD$X,
@@ -77,8 +78,8 @@ TD$m = Hmsc(Y=TD$Y,
 
 TD$m = sampleMcmc(TD$m,thin=1,samples=100,transient=50,nChains=2)
 ## The next works only within RStudio
-usethis::use_data(TD, overwrite=TRUE)
+## usethis::use_data(TD, overwrite=TRUE)
 ## If you are not in RStudio use instead the following in the data-raw
 ## directory
 
-## save(TD, file = file.path("..", "data", "TD.rda"), version = 2)
+save(TD, file = file.path("..", "data", "TD.rda"), version = 2)

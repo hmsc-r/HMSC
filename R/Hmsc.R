@@ -107,6 +107,7 @@
 #'
 #' @importFrom stats model.matrix
 #' @importFrom ape vcv.phylo
+#' @importFrom utils packageVersion
 #'
 #' @export
 
@@ -692,6 +693,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
 
    hM = setPriors(hM, setDefault=TRUE)
    hM$call <- match.call()
+   hM$HmscVersion <- packageVersion("Hmsc")
    hM
 }
 

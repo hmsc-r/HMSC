@@ -9,7 +9,7 @@ test_that("Standard initial beta is correct",{
    set.seed(200)
    parList = computeInitialParameters(TD$m,initPar=NULL)
    expect_equal(length(parList$Beta),12)
-   expect_equal(round(parList$Beta),t(matrix(c(1,0,1,0,0,-2,1,-1,-2,-1,0,-2),nrow=4,ncol=3)))
+   expect_equal(round(parList$Beta),t(matrix(c(0,0,1,0,0,-1,1,-1,-2,-1,0,-1),nrow=4,ncol=3)))
 })
 
 test_that("Standard initial gamma is correct",{
@@ -91,7 +91,7 @@ test_that("Standard initial Z is correct",{
    parList = computeInitialParameters(TD$m,initPar=NULL)
    expect_equal(nrow(parList$Z),TD$units)
    expect_equal(ncol(parList$Z),TD$ns)
-   expect_equal(round(colMeans(parList$Z)),c(-1,0,0,-1))
+   expect_equal(round(colMeans(parList$Z)),c(0,-1,0,-1))
 })
 
 
@@ -128,7 +128,7 @@ test_that("Fixed effects initial gamma",{
 test_that("Fixed effects initial V",{
    set.seed(200)
    parList = computeInitialParameters(TD$m,initPar='fixed effects')
-   expect_equal(round(parList$Gamma),t(matrix(c(-4,2,4,1,0,0,0,-2,-1),nrow=3,ncol=3)))
+   expect_equal(round(parList$Gamma), matrix(c(-8,7,2,-17,14,5,1,-1,-12),nrow=3,ncol=3))
 })
 
 ## -----------------------------------------------------------------------------
@@ -145,13 +145,13 @@ test_that("phylogenetic parameters when phylogeny is provided",{
    set.seed(200)
    parList = computeDataParameters(TD$m)
    expect_equal(length(parList$detQg),nrow(TD$m$rhopw))
-   expect_equal(round(sum(parList$detQg)),-68)
+   expect_equal(round(sum(parList$detQg)),-74)
    expect_equal(dim(parList$Qg),c(TD$m$ns,TD$m$ns,nrow(TD$m$rhopw)))
    expect_equal(dim(parList$iQg),c(TD$m$ns,TD$m$ns,nrow(TD$m$rhopw)))
    expect_equal(dim(parList$RQg),c(TD$m$ns,TD$m$ns,nrow(TD$m$rhopw)))
-   expect_equal(round(sum(parList$Qg)),575)
-   expect_equal(round(sum(parList$iQg)),293)
-   expect_equal(round(sum(parList$RQg)),461)
+   expect_equal(round(sum(parList$Qg)),655)
+   expect_equal(round(sum(parList$iQg)),280)
+   expect_equal(round(sum(parList$RQg)),478)
 })
 
 test_that("phylogenetic parameters when phylogeny is not provided",{
@@ -176,11 +176,11 @@ test_that("spatial parameters when spatial data is provided",{
    set.seed(200)
    parList = computeDataParameters(TD$m)
    expect_equal(length(parList$detQg),nrow(TD$m$rhopw))
-   expect_equal(round(sum(parList$rLPar[[2]]$detWg)),-601)
+   expect_equal(round(sum(parList$rLPar[[2]]$detWg)),-659)
    expect_equivalent(dim(parList$rLPar[[2]]$Wg),c(TD$plots,TD$plots,nrow(TD$m$rL[[2]]$alphapw)))
    expect_equivalent(dim(parList$rLPar[[2]]$iWg),c(TD$plots,TD$plots,nrow(TD$m$rL[[2]]$alphapw)))
    expect_equivalent(dim(parList$rLPar[[2]]$RiWg),c(TD$plots,TD$plots,nrow(TD$m$rL[[2]]$alphapw)))
-   expect_equal(round(sum(parList$rLPar[[2]]$Wg)),4620)
-   expect_equal(round(sum(parList$rLPar[[2]]$iWg)),329)
-   expect_equal(round(sum(parList$rLPar[[2]]$RiWg)),476)
+   expect_equal(round(sum(parList$rLPar[[2]]$Wg)),4875)
+   expect_equal(round(sum(parList$rLPar[[2]]$iWg)),314)
+   expect_equal(round(sum(parList$rLPar[[2]]$RiWg)),444)
 })
