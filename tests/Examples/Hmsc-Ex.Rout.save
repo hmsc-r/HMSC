@@ -403,7 +403,7 @@ final  value 34.655390
 converged
 > predY = predict(TD$m, Gradient=Gradient)
 > plotGradient(TD$m, Gradient, pred=predY, measure="Y", index = 2, showData = TRUE, jigger = 0.05)
-[1] 0.98
+[1] 0.855
 > # Plot modelled species richness over the gradient of environmental variable x1
 > Gradient = constructGradient(TD$m, focalVariable="x1")
 # weights:  3 (2 variable)
@@ -412,7 +412,7 @@ final  value 34.655390
 converged
 > predY = predict(TD$m, Gradient=Gradient)
 > plotGradient(TD$m, Gradient, pred=predY, measure="S")
-[1] 0.995
+[1] 1
 > 
 > 
 > 
@@ -519,7 +519,7 @@ Chain 1, iteration 10 of 10 (sampling)
 > cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  2.501 0.121 2.658 0.006 0.004 
+Time elapsed:  2.508 0.125 2.669 0.006 0.004 
 > grDevices::dev.off()
 null device 
           1 
