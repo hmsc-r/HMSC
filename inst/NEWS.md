@@ -12,7 +12,8 @@ Version 3.0-11
   (earlier it was shown only for continuous variables).
 
 * Grids of knots for Gaussian Predictive Process (GPP) are centred for
-  the coordinates in `constructKnots`. 
+  the coordinates in `constructKnots`. More knots were produced than
+  requested.
 
 ### Bug Fixes
 
@@ -38,8 +39,11 @@ Version 3.0-11
   [#65](https://github.com/hmsc-r/HMSC/issues/65),
   [#66](https://github.com/hmsc-r/HMSC/issues/66),
   [#68](https://github.com/hmsc-r/HMSC/issues/68),
+  [#70](https://github.com/hmsc-r/HMSC/issues/70),
   [#71](https://github.com/hmsc-r/HMSC/issues/71),
+  [#78](https://github.com/hmsc-r/HMSC/issues/78),
   [#80](https://github.com/hmsc-r/HMSC/issues/80),
+  [#81](https://github.com/hmsc-r/HMSC/issues/81),
   [#82](https://github.com/hmsc-r/HMSC/issues/82).
 
 * Spatial and phylogenetic data are inspected more carefully to avoid
