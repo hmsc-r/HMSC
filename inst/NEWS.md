@@ -1,11 +1,19 @@
-Version 3.0-10
+Version 3.0-11
 ==============
+
+### Installation
+
+* New package dependencies: **matrixStats** and **pracma**.
 
 ### New Features
 
 * `plotGradient` gained argument to show the support of trend for
   continuous variables. Main title can be shown for factor variables
   (earlier it was shown only for continuous variables).
+
+* Grids of knots for Gaussian Predictive Process (GPP) are centred for
+  the coordinates in `constructKnots`. More knots were produced than
+  requested.
 
 ### Bug Fixes
 
@@ -17,6 +25,33 @@ Version 3.0-10
   order of factor levels. See github
   [issue #63](https://github.com/hmsc-r/HMSC/issues/63).
 
+* Performance inefficiency issues were fixed in NNGP models and some
+  updaters.
+
+### User Interface
+
+* User interface is more robust and can handle several inputs that
+  earlier caused errors (often with confusing and obscure error
+  messages). Input data is checked more carefully to avoid misleading
+  results because of wrongly interpreted data.
+
+* User interface changes fix several github issues:
+  [#65](https://github.com/hmsc-r/HMSC/issues/65),
+  [#66](https://github.com/hmsc-r/HMSC/issues/66),
+  [#68](https://github.com/hmsc-r/HMSC/issues/68),
+  [#70](https://github.com/hmsc-r/HMSC/issues/70),
+  [#71](https://github.com/hmsc-r/HMSC/issues/71),
+  [#78](https://github.com/hmsc-r/HMSC/issues/78),
+  [#80](https://github.com/hmsc-r/HMSC/issues/80),
+  [#81](https://github.com/hmsc-r/HMSC/issues/81),
+  [#82](https://github.com/hmsc-r/HMSC/issues/82).
+
+* Spatial and phylogenetic data are inspected more carefully to avoid
+  errors in sampling.
+
+* Updaters are automatically disabled when needed instead of producing
+  an error.
+ 
 Version 3.0-9
 =============
 
