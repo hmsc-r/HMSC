@@ -501,10 +501,14 @@ for (case in cases){
 ```
 
 ```{r BLAS, message=F, eval=T, cache=F, echo=F}
-myBLAS <- sessionInfo()$BLAS
-myBLAS <- unlist(strsplit(myBLAS, .Platform$file.sep))
-myBLAS <- myBLAS[length(myBLAS)]
-myBLAS <- unlist(strsplit(myBLAS, "\\."))[1]
+myBLAS <- extSoftVersion()["BLAS"]
+if (myBLAS == "") {
+   myBLAS <- "unknown BLAS"
+} else {
+     myBLAS <- unlist(strsplit(myBLAS, .Platform$file.sep))
+     myBLAS <- myBLAS[length(myBLAS)]
+     myBLAS <- unlist(strsplit(myBLAS, "\\."))[1]
+}
 ```
 
 ### Computational time
@@ -638,7 +642,6 @@ boxplot(toplot, main="rho", names = cases, las = 1)
 \pagebreak
 
 ```{r Data evaluation VIII, message=F, eval=T, cache=F, echo=F}
-library(knitr)
 rhores = matrix(ncol=ncases, nrow=3)
 for (case in 1:ncases){
   rhores[1,case] = mix[[case]]$es.rho
