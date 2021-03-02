@@ -371,7 +371,7 @@ sampleMcmc =
    }
 
    if(nParallel > 1){
-      cl = makeCluster(nParallel, type="SOCK")
+      cl = makeCluster(nParallel)
       clusterExport(cl, c("hM","nChains","transient","samples","thin","verbose","adaptNf","initSeed","initPar","updater",
          "X1", "Tr", "Y", "distr", "Pi", "C", "nr",
          "mGamma", "iUGamma", "V0", "f0", "aSigma", "bSigma", "rhopw",
