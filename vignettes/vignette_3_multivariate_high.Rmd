@@ -33,7 +33,6 @@ library(fields)
 
 ```{r I, message = F}
 library(Hmsc)
-library(parallel)
 library(corrplot)
 set.seed(1)
 ```
