@@ -64,7 +64,11 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
          stop("partition parameter must be a vector of length ny")
       }
       nfolds = length(unique(partition))
-      postN = Reduce(sum, lapply(hM$postList, length))
+      if (thin > 1 || start > 1)
+          postN = sum(sapply(hM$postList, function(z)
+              length(seq(from=start, to=length(z), by=thin))))
+      else
+          postN = Reduce(sum, lapply(hM$postList, length))
       predArray = array(NA,c(hM$ny,hM$ns,postN))
       for (k in 1:nfolds){
          cat(sprintf("Cross-validation, fold %d out of %d\n", k, nfolds))
