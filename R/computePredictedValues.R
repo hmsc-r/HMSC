@@ -130,7 +130,7 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
          hM1 = sampleMcmc(hM1, samples=hM$samples, thin=hM$thin, transient=hM$transient, adaptNf=hM$adaptNf,
                           initPar=initPar, nChains=nChains, nParallel=nParallel, updater = updater,
                           verbose = verbose, alignPost=alignPost)
-         postList = poolMcmcChains(hM1$postList, start=start)
+         postList = poolMcmcChains(hM1$postList, start=start, thin = thin)
          ## stringsAsFactors probably not needed below
          dfPi = as.data.frame(matrix(NA,sum(val),hM$nr), stringsAsFactors = TRUE)
          colnames(dfPi) = hM$rLNames
