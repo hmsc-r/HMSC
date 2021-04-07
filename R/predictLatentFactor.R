@@ -80,8 +80,8 @@ predictLatentFactor =
             alphapw = rL$alphapw
             if(predictMean || predictMeanField){
                if(!is.null(rL$s)){
-                  s1 = rL$s[units,]
-                  s2 = rL$s[unitsPred[indNew],]
+                  s1 = rL$s[units,, drop=FALSE]
+                  s2 = rL$s[unitsPred[indNew],,drop=FALSE]
                   if (is(s1, "Spatial")) {
                      D11 <- spDists(s1)
                      D12 <- spDists(s1, s2)
@@ -123,7 +123,7 @@ predictLatentFactor =
                       'Full' = {
                   unitsAll = c(units,unitsPred[indNew])
                   if(!is.null(rL$s)){
-                     s = rL$s[unitsAll,]
+                     s = rL$s[unitsAll,,drop=FALSE]
                      if (is(s, "Spatial"))
                         D <- spDists(s)
                      else
@@ -148,7 +148,7 @@ predictLatentFactor =
                },
                'NNGP' = {
                   unitsAll = c(units,unitsPred[indNew])
-                  s = rL$s[unitsAll,]
+                  s = rL$s[unitsAll,,drop=FALSE]
                   sOld = s[1:np,, drop=FALSE]
                   sNew = as.matrix(s[np+(1:nn),],, drop=FALSE)
                   indNN = knnx.index(sOld,sNew,k=rL$nNeighbours)
@@ -195,7 +195,7 @@ predictLatentFactor =
                "GPP" = {
                   sKnot = rL$sKnot
                   unitsAll = c(units,unitsPred[indNew])
-                  s = rL$s[unitsAll,]
+                  s = rL$s[unitsAll,,drop=FALSE]
                   if (is(s, "Spatial")) {
                      das <- spDists(s, sKnot)
                      dss <- spDists(sKnot)
