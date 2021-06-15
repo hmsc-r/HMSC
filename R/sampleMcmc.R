@@ -6,7 +6,12 @@
 #' @param samples the number of MCMC samples to be obtained in each chain
 #' @param transient the number of MCMC steps that are executed before starting recording posterior samples
 #' @param thin the number of MCMC steps between each recording of samples from the posterior
-#' @param initPar a named list of parameter values used for initiation of MCMC states
+#' @param initPar a named list of parameter values used for
+#'     initialization of MCMC states, or alternatively text
+#'     \code{"fixed effects"} to use linear Maximum Likelihood model
+#'     instead of randomizing from prior; the \code{"fixed effects"}
+#'     can shorten the transient phase of sampling, but will
+#'     initialize all chains to the same starting values
 #' @param verbose the interval between MCMC steps printed to the console (default is an interval that prints ca. 50 reports)
 #' @param adaptNf a vector of length \eqn{n_r} with number of MCMC steps at which the adaptation of the
 #' number of latent factors is conducted

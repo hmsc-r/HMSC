@@ -29,7 +29,12 @@ sampleMcmc(
 
 \item{thin}{the number of MCMC steps between each recording of samples from the posterior}
 
-\item{initPar}{a named list of parameter values used for initiation of MCMC states}
+\item{initPar}{a named list of parameter values used for
+initialization of MCMC states, or alternatively text
+\code{"fixed effects"} to use linear Maximum Likelihood model
+instead of randomizing from prior; the \code{"fixed effects"}
+can shorten the transient phase of sampling, but will
+initialize all chains to the same starting values}
 
 \item{verbose}{the interval between MCMC steps printed to the console (default is an interval that prints ca. 50 reports)}
 

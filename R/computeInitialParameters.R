@@ -3,7 +3,7 @@
 #' @description Computes initial parameter values before the sampling starts
 #'
 #' @param hM a fitted \code{Hmsc} model object
-#' @param initPar initial parameter values
+#' @param initPar a list of initial parameter values
 #'
 #' @return a list of Hmsc model parameters
 #'
