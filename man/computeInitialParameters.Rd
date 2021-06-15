@@ -9,7 +9,7 @@ computeInitialParameters(hM, initPar)
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}
 
-\item{initPar}{initial parameter values}
+\item{initPar}{a list of initial parameter values}
 }
 \value{
 a list of Hmsc model parameters
