@@ -60,13 +60,15 @@ computeInitialParameters = function(hM, initPar){
             list = {
                XEff = XScaled[[j]]
             }
-         )
+            )
+         ## Y can contain NA values
+         kk <- !is.na(Y[,j])
          if(hM$distr[j,1] == 1)
-            fm = lm.fit(XEff, hM$Y[,j])
+            fm = lm.fit(XEff[kk,, drop=FALSE], hM$Y[kk,j])
          if(hM$distr[j,1] == 2)
-            fm = glm.fit(XEff, hM$Y[,j], family=binomial(link="probit"))
+            fm = glm.fit(XEff[kk,, drop=FALSE], hM$Y[kk,j], family=binomial(link="probit"))
          if(hM$distr[j,1] == 3)
-            fm = glm.fit(XEff, hM$Y[,j], family=poisson())
+            fm = glm.fit(XEff[kk,, drop=FALSE], hM$Y[kk,j], family=poisson())
          Beta[,j] = coef(fm)
       }
       Gamma = matrix(NA,hM$nc,hM$nt)
