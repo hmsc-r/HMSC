@@ -26,6 +26,10 @@
 prepareGradient = function(hM, XDataNew, sDataNew){
    ## XDataNew needs to be added and the function needs to be more
    ## extensively tested
+   if (any(is.na(XDataNew)))
+       stop("missing values are not allowed in 'XDataNew'")
+   if (!missing(sDataNew) && any(is.na(sDataNew)))
+       stop("missing values are not allowed in 'sDataNew'")
    nyNew = NROW(XDataNew)
    dfPiNew = matrix(NA,nyNew,hM$nr)
    colnames(dfPiNew) = hM$rLNames
