@@ -62,7 +62,7 @@ computeInitialParameters = function(hM, initPar){
             }
             )
          ## Y can contain NA values
-         kk <- !is.na(Y[,j])
+         kk <- !is.na(hM$Y[,j])
          if(hM$distr[j,1] == 1)
             fm = lm.fit(XEff[kk,, drop=FALSE], hM$Y[kk,j])
          if(hM$distr[j,1] == 2)
