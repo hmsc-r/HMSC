@@ -64,18 +64,16 @@
 #' @importFrom parallel makeCluster clusterExport clusterEvalQ clusterApplyLB stopCluster
 #' @export
 
-sampleMcmc =
-    function(hM, samples, transient=0, thin=1, initPar=NULL,
-             verbose, adaptNf=rep(transient,hM$nr),
-             nChains=1, nParallel=1, dataParList=NULL, updater=list(),
-             fromPrior = FALSE, alignPost = TRUE,
-             TensorFlowAccelerationZFlag=FALSE,TensorFlowAccelerationGammaEtaFlag=FALSE)
-{
+sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
+                      verbose, adaptNf=rep(transient,hM$nr),
+                      nChains=1, nParallel=1, dataParList=NULL, updater=list(),
+                      fromPrior = FALSE, alignPost = TRUE,
+                      TensorFlowAccelerationZFlag=FALSE,TensorFlowAccelerationGammaEtaFlag=FALSE){
    if (missing(verbose)) {
-       if (samples*thin <= 50) # report every sampling
-           verbose <- 1
-       else                    # report ~50 steps of sampling
-           verbose <- samples*thin/50
+      if (samples*thin <= 50) # report every sampling
+         verbose <- 1
+      else                    # report ~50 steps of sampling
+         verbose <- samples*thin/50
    }
    verbose <- as.integer(verbose) # truncate to integer
    if(fromPrior)
@@ -169,7 +167,6 @@ sampleMcmc =
          message("Setting updater$latentLoadingOrderSwap=0 disabling full-conditional swapping of consecuitive latent loadings")
    }
 
-
    sampleChain = function(chain){
       if(nChains>1)
          cat(sprintf("Computing chain %d\n", chain))
@@ -238,51 +235,51 @@ sampleMcmc =
 
          if(!identical(updater$Gamma2, FALSE))
             Gamma = updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,
-               Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,C=C,rL=hM$rL, iQg=iQg,
-               mGamma=mGamma,iUGamma=iUGamma)
+                                 Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,C=C,rL=hM$rL, iQg=iQg,
+                                 mGamma=mGamma,iUGamma=iUGamma)
 
          if(!identical(updater$GammaEta, FALSE)){
             GammaEtaList = updateGammaEta(Z=Z,Gamma=Gamma,V=chol2inv(chol(iV)),iV=iV,id=iSigma,
-               Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,rL=hM$rL, rLPar=rLPar,Q=Qg[,,rho],iQ=iQg[,,rho],RQ=RQg[,,rho],
-               mGamma=mGamma,U=hM$UGamma,iU=iUGamma,
-               TensorFlowAccelerationFlag=TensorFlowAccelerationGammaEtaFlag)
+                                          Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,rL=hM$rL, rLPar=rLPar,Q=Qg[,,rho],iQ=iQg[,,rho],RQ=RQg[,,rho],
+                                          mGamma=mGamma,U=hM$UGamma,iU=iUGamma,
+                                          TensorFlowAccelerationFlag=TensorFlowAccelerationGammaEtaFlag)
             Gamma = GammaEtaList$Gamma
             Eta = GammaEtaList$Eta
          }
 
          if(!identical(updater$BetaLambda, FALSE)){
             BetaLambdaList = updateBetaLambda(Y=Y,Z=Z,Gamma=Gamma,iV=iV,
-               iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta, iQ=iQg[,,rho],
-               X=X,Tr=Tr,Pi=Pi,dfPi=dfPi,C=C,rL=hM$rL)
+                                              iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta, iQ=iQg[,,rho],
+                                              X=X,Tr=Tr,Pi=Pi,dfPi=dfPi,C=C,rL=hM$rL)
             Beta = BetaLambdaList$Beta
             Lambda = BetaLambdaList$Lambda
          }
 
          if(!identical(updater$wRRR, FALSE) &&  hM$ncRRR>0){
             wRRRXList = updatewRRR(Z=Z, Beta=Beta, iSigma=iSigma,
-                                 Eta=Eta, Lambda=Lambda, X1A=X1A, XRRR=hM$XRRRScaled,
-                                 Pi=Pi, dfPi=dfPi,rL = hM$rL, PsiRRR=PsiRRR, DeltaRRR=DeltaRRR)
+                                   Eta=Eta, Lambda=Lambda, X1A=X1A, XRRR=hM$XRRRScaled,
+                                   Pi=Pi, dfPi=dfPi,rL = hM$rL, PsiRRR=PsiRRR, DeltaRRR=DeltaRRR)
             wRRR = wRRRXList$wRRR
             X = wRRRXList$X
          }
 
          if(!identical(updater$BetaSel, FALSE) &&  hM$ncsel>0){
             BetaSelXList = updateBetaSel(Z=Z,XSelect = hM$XSelect, BetaSel=BetaSel,Beta=Beta, iSigma=iSigma,
-                                    Lambda=Lambda, Eta=Eta, X1=X1,Pi=Pi,dfPi=dfPi,rL=hM$rL)
+                                         Lambda=Lambda, Eta=Eta, X1=X1,Pi=Pi,dfPi=dfPi,rL=hM$rL)
             BetaSel = BetaSelXList$BetaSel
             X = BetaSelXList$X
          }
 
          if(!identical(updater$GammaV, FALSE)){
             GammaVList = updateGammaV(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho,
-               iQg=iQg,RQg=RQg, Tr=Tr,C=C, mGamma=mGamma,iUGamma=iUGamma,V0=V0,f0=f0)
+                                      iQg=iQg,RQg=RQg, Tr=Tr,C=C, mGamma=mGamma,iUGamma=iUGamma,V0=V0,f0=f0)
             Gamma = GammaVList$Gamma
             iV = GammaVList$iV
          }
 
          if(!is.null(hM$C) && !identical(updater$Rho, FALSE)){
             rho = updateRho(Beta=Beta,Gamma=Gamma,iV=iV, RQg=RQg,
-               detQg=detQg, Tr=Tr, rhopw=rhopw)
+                            detQg=detQg, Tr=Tr, rhopw=rhopw)
          }
 
          if(!identical(updater$LambdaPriors, FALSE)){
@@ -292,22 +289,22 @@ sampleMcmc =
          }
          if(!identical(updater$wRRRPriors, FALSE) &&  hM$ncRRR>0){
             PsiDeltaList = updatewRRRPriors(wRRR=wRRR,Delta=DeltaRRR,
-                                           nu=hM$nuRRR,a1=hM$a1RRR,
-                                           b1=hM$b1RRR,a2=hM$a2RRR,b2=hM$b2RRR)
+                                            nu=hM$nuRRR,a1=hM$a1RRR,
+                                            b1=hM$b1RRR,a2=hM$a2RRR,b2=hM$b2RRR)
             PsiRRR = PsiDeltaList$Psi
             DeltaRRR = PsiDeltaList$Delta
          }
 
          if(!identical(updater$Eta, FALSE))
             Eta = updateEta(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
-               Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, X=X,Pi=Pi,dfPi=dfPi,rL=hM$rL)
+                            Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, X=X,Pi=Pi,dfPi=dfPi,rL=hM$rL)
 
          if(!identical(updater$Alpha, FALSE))
             Alpha = updateAlpha(Eta=Eta, rLPar=rLPar, rL=hM$rL)
 
          if(!identical(updater$InvSigma, FALSE))
             iSigma = updateInvSigma(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,
-               Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi,dfPi=dfPi,rL=hM$rL, aSigma=aSigma,bSigma=bSigma)
+                                    Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi,dfPi=dfPi,rL=hM$rL, aSigma=aSigma,bSigma=bSigma)
 
          if(!identical(updater$Z, FALSE)){
             Z = updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,distr=distr,rL=hM$rL,
@@ -341,11 +338,11 @@ sampleMcmc =
 
          if((iter>transient) && ((iter-transient) %% thin == 0)){
             postList[[(iter-transient)/thin]] = combineParameters(Beta=Beta,BetaSel=BetaSel,wRRR = wRRR, Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,
-               Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,Delta=Delta,
-               PsiRRR=PsiRRR,DeltaRRR=DeltaRRR,
-               ncNRRR=hM$ncNRRR, ncRRR=hM$ncRRR, ncsel = hM$ncsel, XSelect = hM$XSelect,
-               XScalePar=hM$XScalePar, XInterceptInd=hM$XInterceptInd, XRRRScalePar=hM$XRRRScalePar,
-               nt=hM$nt, TrScalePar=hM$TrScalePar, TrInterceptInd=hM$TrInterceptInd, rhopw=rhopw)
+                                                                  Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,Delta=Delta,
+                                                                  PsiRRR=PsiRRR,DeltaRRR=DeltaRRR,
+                                                                  ncNRRR=hM$ncNRRR, ncRRR=hM$ncRRR, ncsel = hM$ncsel, XSelect = hM$XSelect,
+                                                                  XScalePar=hM$XScalePar, XInterceptInd=hM$XInterceptInd, XRRRScalePar=hM$XRRRScalePar,
+                                                                  nt=hM$nt, TrScalePar=hM$TrScalePar, TrInterceptInd=hM$TrInterceptInd, rhopw=rhopw)
          }
 
          if((verbose > 0) && (iter%%verbose == 0)){
@@ -363,9 +360,9 @@ sampleMcmc =
    if(nParallel > 1){
       cl = makeCluster(nParallel, type="SOCK")
       clusterExport(cl, c("hM","nChains","transient","samples","thin","verbose","adaptNf","initSeed","initPar","updater",
-         "X1", "Tr", "Y", "distr", "Pi", "C", "nr",
-         "mGamma", "iUGamma", "V0", "f0", "aSigma", "bSigma", "rhopw",
-         "Qg", "iQg", "RQg", "detQg", "rLPar"), envir=environment())
+                          "X1", "Tr", "Y", "distr", "Pi", "C", "nr",
+                          "mGamma", "iUGamma", "V0", "f0", "aSigma", "bSigma", "rhopw",
+                          "Qg", "iQg", "RQg", "detQg", "rLPar"), envir=environment())
 
       clusterEvalQ(cl, {
          library(BayesLogit);

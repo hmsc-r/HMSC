@@ -2,7 +2,7 @@
 #'
 #' @description Sets or resets priors to objects
 #'
-#' @param \dots Hmsc or HmscRandolLevel object and other arguments.
+#' @param \dots Hmsc, HmscRandomLevel, HmscSpatialRandomLevel or HmscKroneckerRandomLevel object and other arguments.
 #'
 #' @return Object of same type as first input
 #'

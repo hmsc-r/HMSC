@@ -19,15 +19,20 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,d
       nf = rep(NA,nr)
       ncr = rep(NA,nr)
       for(r in seq_len(nr)){
-         if(rL[[r]]$xDim == 0){
-            EtaFull[[r]] = Eta[[r]][Pi[,r],]
+         if(class(rL[[r]])[1]=="HmscRandomLevel"){
+            if(rL[[r]]$xDim == 0){
+               EtaFull[[r]] = Eta[[r]][Pi[,r],]
+            } else{
+               EtaFull[[r]] = vector("list", rL[[r]]$xDim)
+               for(k in 1:rL[[r]]$xDim)
+                  EtaFull[[r]][[k]] = Eta[[r]][Pi[,r],] * rL[[r]]$x[as.character(dfPi[,r]),k]
+            }
+            ncr[r] = max(rL[[r]]$xDim, 1)
          } else{
-            EtaFull[[r]] = vector("list", rL[[r]]$xDim)
-            for(k in 1:rL[[r]]$xDim)
-               EtaFull[[r]][[k]] = Eta[[r]][Pi[,r],] * rL[[r]]$x[as.character(dfPi[,r]),k]
+            EtaFull[[r]] = Eta[[r]][Pi[,r],]
+            ncr[r] = 1
          }
          nf[r] = ncol(Eta[[r]])
-         ncr[r] = max(rL[[r]]$xDim, 1)
       }
       nfSum = sum(nf*ncr)
       EtaSt = matrix(unlist(EtaFull),ny,nfSum)
@@ -41,10 +46,14 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,d
       )
       PsiT = vector("list",nr)
       for(r in 1:nr){
-         if(rL[[r]]$xDim == 0){
-            PsiT[[r]] = t(Psi[[r]])
+         if(class(rL[[r]])[1]=="HmscRandomLevel"){
+            if(rL[[r]]$xDim == 0){
+               PsiT[[r]] = t(Psi[[r]])
+            } else{
+               PsiT[[r]] = aperm(Psi[[r]], c(2,1,3))
+            }
          } else{
-            PsiT[[r]] = aperm(Psi[[r]], c(2,1,3))
+            PsiT[[r]] = t(Psi[[r]])
          }
       }
       psiSt = matrix(unlist(PsiT),nfSum,ns,byrow=TRUE)
@@ -148,10 +157,14 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,d
    Beta = BetaLambda[1:nc,,drop=FALSE]
    nfCumSum = c(0,cumsum(nf*ncr)) + nc
    for(r in seq_len(nr)){
-      if(rL[[r]]$xDim == 0){
+      if(class(rL[[r]])[1]=="HmscRandomLevel"){
+         if(rL[[r]]$xDim == 0){
+            Lambda[[r]] = BetaLambda[(nfCumSum[r]+1):(nfCumSum[r+1]),,drop=FALSE]
+         } else
+            Lambda[[r]] = aperm(array(BetaLambda[(nfCumSum[r]+1):(nfCumSum[r+1]),,drop=FALSE], c(nf[r],ncr[r],ns)),c(1,3,2))
+      } else{
          Lambda[[r]] = BetaLambda[(nfCumSum[r]+1):(nfCumSum[r+1]),,drop=FALSE]
-      } else
-         Lambda[[r]] = aperm(array(BetaLambda[(nfCumSum[r]+1):(nfCumSum[r+1]),,drop=FALSE], c(nf[r],ncr[r],ns)),c(1,3,2))
+      }
    }
    return(list(Beta=Beta, Lambda=Lambda))
 }

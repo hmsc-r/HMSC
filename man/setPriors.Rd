@@ -7,7 +7,7 @@
 setPriors(...)
 }
 \arguments{
-\item{\dots}{Hmsc or HmscRandolLevel object and other arguments.}
+\item{\dots}{Hmsc, HmscRandomLevel, HmscSpatialRandomLevel or HmscKroneckerRandomLevel object and other arguments.}
 }
 \value{
 Object of same type as first input

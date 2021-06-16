@@ -1,5 +1,6 @@
 #' @importFrom stats rnorm
 #' @importFrom Matrix bdiag Diagonal sparseMatrix t Matrix
+#' @importFrom plyr mdply
 #'
 updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
    ny = nrow(Z)
@@ -20,13 +21,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
    )
    LRan = vector("list", nr)
    for(r in seq_len(nr)){
-      if(rL[[r]]$xDim == 0){
-         LRan[[r]] = Eta[[r]][Pi[,r],]%*%Lambda[[r]]
-      } else{
-         LRan[[r]] = matrix(0,ny,ns)
-         for(k in 1:rL[[r]]$xDim)
-            LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),r]) %*% Lambda[[r]][,,r]
-      }
+      LRan[[r]] = computePredictor.HmscRandomLevel(rL[[r]], Eta[[r]], Lambda[[r]], Pi[,r], dfPi[,r])
    }
    for(r in seq_len(nr)){
       rnames=rownames(Eta[[r]])
@@ -39,7 +34,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
       nf = dim(lambda)[1]
       lPi = Pi[,r]
       ldfPi = dfPi[,r]
-      if(rL[[r]]$sDim == 0){
+      if(inherits(rL[[r]],"HmscRandomLevel",TRUE)==1){
          eta = matrix(NA,np[r],nf)
          if(rL[[r]]$xDim == 0){
             LamInvSigLam = tcrossprod(lambda*matrix(sqrt(iSigma),nf,ns,byrow=TRUE))
@@ -56,7 +51,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                   eta[lPi[indRowFull],] = mu + t(backsolve(RiV,matrix(rnorm(nyFull*nf),nf,nyFull)))
                }
 
-               for(i in which(indRowNA)){
+               for(i in which(indRowNA)){ #TODO write a batched version to avoid iterating in the loop
                   indSp = Yx[i,]
                   lam = lambda[,indSp,drop=FALSE]
                   iSig = iSigma[indSp]
@@ -107,13 +102,13 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                eta[unLPi[q],] = mu + t(backsolve(RiV,rnorm(ny)))
             }
          }
-      } else{
+      } else if(inherits(rL[[r]],"HmscSpatialRandomLevel",TRUE)==1){
          eta = matrix(0,np[r],nf)
          alpha = Alpha[[r]]
          iWg = rLPar[[r]]$iWg
          switch(rL[[r]]$spatialMethod,
                 "Full" = {
-                   iWs = bdiag(lapply(seq_len(nf), function(x) iWg[,,alpha[x]]))
+                   iWs = bdiag(lapply(seq_len(nf), function(x) iWg[[alpha[x]]]))
                    LamInvSigLam = tcrossprod(lambda*matrix(sqrt(iSigma),nf,ns,byrow=TRUE))
                    if(np[r] == ny){
                       tmp1 = kronecker(LamInvSigLam, Diagonal(ny))
@@ -240,17 +235,84 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                       eta = matrix(mu1+mu2+etaR,ncol=nf,nrow=np[r])
                    }
                 }
-                )
+         )
+      } else if(inherits(rL[[r]],"HmscKroneckerRandomLevel",TRUE)==1){
+         alpha = Alpha[[r]]
+         LamInvSigLam = tcrossprod(lambda*matrix(sqrt(iSigma),nf,ns,byrow=TRUE))
+         if(rL[[r]]$sDim == 0){
+            iWs = Diagonal(np[r]*nf)
+         } else{
+            dfPiElemLevelList = vector("list", length(rL[[r]]$rLList))
+            npElemVec = rep(NA, length(rL[[r]]$rLList))
+            for(l in seq_len(length(rL[[r]]$rLList))){
+               dfPiElem = as.factor(unlist(lapply(strsplit(as.character(m$dfPi[,r]), "="), function(a) a[l])))
+               dfPiElemLevelList[[l]] = unique(dfPiElem)
+               npElemVec[l] = length(dfPiElemLevelList[[l]])
+            }
+            dfTemp = expand.grid(rev(dfPiElemLevelList))[,rev(1:length(rL[[r]]$rLList))]
+            allUnits = as.factor(mdply(dfTemp, paste, sep=rL[[r]]$sepStr)[,length(dfPiElemLevelList)+1])
+            ind = as.numeric(factor(m$dfPi[,r], levels=levels(allUnits)))
+            # print(allUnits)
+            # print(m$dfPi[,r])
+            # print(ind)
+            iWsList = vector("list", nf)
+            for(h in seq_len(nf)){
+               if(length(allUnits) == np[r]){
+                  iWfList = vector("list", length(rL[[r]]$rLList))
+                  for(l in seq_len(length(rL[[r]]$rLList))){
+                     if(rL[[r]]$rLList[[l]]$sDim == 0){
+                        iWfList[[l]] = Diagonal(npElemVec[l])
+                     } else{
+                        iWfList[[l]] = rLPar[[r]][[l]]$iWg[[alpha[h,l]]]
+                     }
+                  }
+                  iWFull = Matrix::kronecker(iWfList[[1]], iWfList[[2]]) #TODO potential for >2 kronecker elements
+                  iWsList[[h]] = iWFull
+               }else{
+                  WfList = vector("list", length(rL[[r]]$rLList))
+                  for(l in seq_len(length(rL[[r]]$rLList))){
+                     if(rL[[r]]$rLList[[l]]$sDim == 0){
+                        WfList[[l]] = Diagonal(npElemVec[l])
+                     } else{
+                        WfList[[l]] = rLPar[[r]][[l]]$Wg[[alpha[h,l]]]
+                     }
+                  }
+                  WFull = Matrix::kronecker(WfList[[1]], WfList[[2]]) #TODO potential for >2 kronecker elements
+                  Wf = WFull[ind,ind]
+                  iWsList[[h]] = chol2inv(chol(Wf))
+               }
+            }
+         }
+         iWs = sparseMatrix(c(),c(),dims=c(np[r]*nf,np[r]*nf))
+         for(h in seq_len(nf))
+            iWs = iWs + Matrix::kronecker(iWsList[[h]], Diagonal(x=c(rep(0,h-1),1,rep(0,nf-h))))
+         if(np[r] == ny){
+            tmp1 = Matrix::kronecker(Diagonal(ny), LamInvSigLam)
+            fS = tcrossprod(S[order(lPi),,drop=FALSE], lambda*matrix(iSigma,nf,ns,byrow=TRUE))
+         }else{
+            P = sparseMatrix(i=1:ny,j=lPi)
+            tmp1 = Matrix::kronecker(Diagonal(x=Matrix::colSums(P)), LamInvSigLam)
+            fS = Matrix::tcrossprod(Matrix::crossprod(P,S), lambda*matrix(iSigma,nf,ns,byrow=TRUE))
+         }
+         iUEta = iWs + tmp1
+         R = chol(iUEta)
+         tmp2 = backsolve(R, as.vector(t(fS)), transpose=TRUE) + rnorm(nf*np[r])
+         feta = backsolve(R, tmp2)
+         eta = matrix(feta,np[r],nf,byrow=TRUE)
       }
       rownames(eta)=rnames
       Eta[[r]] = eta
       if(r < nr){
-         if(rL[[r]]$xDim == 0){
-            LRan[[r]] = Eta[[r]][Pi[,r],]%*%Lambda[[r]]
+         if(class(rL[[r]])[1]=="HmscRandomLevel"){
+            if(rL[[r]]$xDim == 0){
+               LRan[[r]] = Eta[[r]][Pi[,r],]%*%Lambda[[r]]
+            } else{
+               LRan[[r]] = matrix(0,ny,ns)
+               for(k in 1:rL[[r]]$xDim)
+                  LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),r]) %*% Lambda[[r]][,,r]
+            }
          } else{
-            LRan[[r]] = matrix(0,ny,ns)
-            for(k in 1:rL[[r]]$xDim)
-               LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),r]) %*% Lambda[[r]][,,r]
+            LRan[[r]] = Eta[[r]][Pi[,r],]%*%Lambda[[r]]
          }
       }
    }

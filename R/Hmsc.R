@@ -99,6 +99,7 @@
 #' TrData=TD$Tr, TrFormula=~T1+T2, phyloTree=TD$phylo)
 #'
 #' # Creating a Hmsc object with 2 nested random levels (50 sampling units in 20 plots)
+#' #TODO there is a bug with this example in how the units for rL1 are defined
 #' studyDesign = data.frame(sample = as.factor(1:50), plot = as.factor(sample(1:20,50,replace=TRUE)))
 #' rL1 = HmscRandomLevel(units=TD$studyDesign$plot)
 #' rL2 = HmscRandomLevel(units=TD$studyDesign$sample)
@@ -107,6 +108,7 @@
 #'
 #' @importFrom stats model.matrix
 #' @importFrom ape vcv.phylo
+#' @importFrom plyr mdply
 #'
 #' @export
 
@@ -546,14 +548,39 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       if(!all(ranLevelsUsed %in% names(ranLevels))){
          stop("Hmsc.setData: ranLevels must contain named elements corresponding to all levels listed in ranLevelsUsed")
       }
-      if(!all(ranLevelsUsed %in% colnames(studyDesign))){
-         stop("Hmsc.setData: studyDesign must contain named columns corresponding to all levels listed in ranLevelsUsed")
+      if(!all(ranLevelsUsed %in% colnames(studyDesign))){ #TODO changing once kronecker structures introduced
+         warning("Hmsc.setData: studyDesign shall contain named columns corresponding to all levels listed in ranLevelsUsed. If you are using kronecker levels, it may be safe to ignore this message.")
       }
       hM$studyDesign = studyDesign
       hM$ranLevels = ranLevels
       hM$ranLevelsUsed = ranLevelsUsed
 
-      hM$dfPi = studyDesign[,ranLevelsUsed,drop=FALSE]
+      PiList = list(studyDesign[,c(),drop=FALSE])
+      for(r in seq_len(length(ranLevelsUsed))){
+         rL = ranLevels[[ranLevelsUsed[r]]]
+         if(inherits(rL, "HmscKroneckerRandomLevel")){
+            if(!all(names(rL$rLList) %in% colnames(studyDesign))){
+               stop("Hmsc.setData: for HmscKroneckerRandomLevel objects, rLList field must be a named list, with names within studyDesign column names.")
+            }
+            unitsDf = studyDesign[,names(rL$rLList)]
+            dfTemp = studyDesign[,c(),drop=FALSE]
+            tmp = mdply(unitsDf, paste, sep=rL$sepStr)
+            dfTemp[,ranLevelsUsed[r]] = as.factor(tmp[,length(rL$rLList)+1])
+            PiList = append(PiList, dfTemp)
+         } else if(inherits(rL, "HmscRandomLevel")){
+            if(!ranLevelsUsed[r] %in% colnames(studyDesign)){
+               stop("Hmsc.setData: names of ranLevels list elements that are HmscRandomLevel must correspond to columns in studyDesign data frame.")
+            }
+            PiList = append(PiList, studyDesign[,ranLevelsUsed[[r]],drop=FALSE])
+         } else{
+            stop("Hmsc.setData: ranLevels must contain named elements that are either HmscRandomLevel objects or named lists of HmscRandomLevel")
+         }
+      }
+      # hM$dfPi = studyDesign[,ranLevelsUsed,drop=FALSE] #TODO changing once kronecker structures introduced
+      hM$dfPi = as.data.frame(Reduce(cbind,PiList))
+      # print(PiList)
+      # print(hM$dfPi)
+      colnames(hM$dfPi) = ranLevelsUsed
       hM$rL = ranLevels[ranLevelsUsed]
       hM$rLNames = colnames(hM$dfPi)
 
@@ -564,8 +591,21 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       hM$nr = ncol(hM$Pi)
       if (truncateNumberOfFactors){
          for (r in  seq_len(hM$nr)){
-            hM$rL[[r]]$nfMax = min(hM$rL[[r]]$nfMax,hM$ns)
-            hM$rL[[r]]$nfMin = min(hM$rL[[r]]$nfMin,hM$rL[[r]]$nfMax)
+            if(class(ranLevels[[ranLevelsUsed[r]]])[1]=="HmscRandomLevel"){
+               hM$rL[[r]]$nfMax = min(hM$rL[[r]]$nfMax,hM$ns)
+               hM$rL[[r]]$nfMin = min(hM$rL[[r]]$nfMin,hM$rL[[r]]$nfMax)
+            } else if(class(ranLevels[[ranLevelsUsed[r]]])[1]=="HmscKroneckerRandomLevel"){
+               nfMin = hM$ns
+               nfMax = hM$ns
+               for(l in length(ranLevels[[ranLevelsUsed[r]]])){
+                  nfMin = min(nfMin,hM$rL[[r]][[l]]$nfMin)
+                  nfMax = min(nfMax,hM$rL[[r]][[l]]$nfMax)
+               }
+               for(l in length(ranLevels[[ranLevelsUsed[r]]])){
+                  hM$rL[[r]][[l]]$nfMax = nfMax
+                  hM$rL[[r]][[l]]$nfMin = nfMin
+               }
+            }
          }
       }
    }
@@ -662,6 +702,6 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
 
    hM = setPriors(hM, setDefault=TRUE)
    hM$call <- match.call()
-   hM
+   return(hM)
 }
 

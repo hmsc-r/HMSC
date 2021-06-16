@@ -127,6 +127,9 @@ HmscRandomLevel =
       rL$sDim = 0
    }
 
+   if(rL$sDim > 0){
+      class(rL) = c("HmscSpatialRandomLevel", class(rL))
+   }
    rL = setPriors(rL, setDefault=TRUE)
    rL$call <- match.call()
    rL

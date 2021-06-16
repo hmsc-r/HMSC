@@ -8,23 +8,27 @@ updateInvSigma = function(Y,Z,Beta,iSigma,Eta,Lambda, distr,X,Pi,dfPi,rL, aSigma
       nr = ncol(Pi)
 
       switch(class(X)[1L],
-         matrix = {
-            LFix = X%*%Beta
-         },
-         list = {
-            LFix = matrix(NA,ny,ns)
-            for(j in 1:ns)
-               LFix[,j] = X[[j]]%*%Beta[,j]
-         }
+             matrix = {
+                LFix = X%*%Beta
+             },
+             list = {
+                LFix = matrix(NA,ny,ns)
+                for(j in 1:ns)
+                   LFix[,j] = X[[j]]%*%Beta[,j]
+             }
       )
       LRan = vector("list", nr)
       for(r in seq_len(nr)){
-         if(rL[[r]]$xDim == 0){
-            LRan[[r]] = Eta[[r]][Pi[,r],]%*%Lambda[[r]]
+         if(class(rL[[r]])[1]=="HmscRandomLevel"){
+            if(rL[[r]]$xDim == 0){
+               LRan[[r]] = Eta[[r]][Pi[,r],]%*%Lambda[[r]]
+            } else{
+               LRan[[r]] = matrix(0,ny,ns)
+               for(k in 1:rL[[r]]$xDim)
+                  LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),k]) %*% Lambda[[r]][,,k]
+            }
          } else{
-            LRan[[r]] = matrix(0,ny,ns)
-            for(k in 1:rL[[r]]$xDim)
-               LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),k]) %*% Lambda[[r]][,,k]
+            LRan[[r]] = Eta[[r]][Pi[,r],]%*%Lambda[[r]]
          }
       }
       if(nr > 0){

@@ -194,7 +194,7 @@ updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,dfPi,rL, rLP
                      mb31.tf = tf$linalg$cholesky_solve(LM.tf, matrix(mb10-mb20,nc*ns,1))
                      mb30.tf = tf$reshape(tf$einsum("ac,jc,jl->la",XtX,tf$reshape(mb31.tf,c(ns,nc)),tmp1), as.integer(c(nc*ns)))
                      mb.tf = tf$matmul(Sb.tf, tf$reshape(mb10-mb20-mb30.tf, as.integer(c(nc*ns,1))))
-                     BetaNew.tf = tf$transpose(tf$reshape(mb.tf + tf$linalg$triangular_solve(tf$transpose(LM.tf),tf$random$normal(shape=as.integer(c(nc*ns,1)),dtype=tf$float64),lower=FALSE), as.integer(c(ns,nc))))
+                     BetaNew.tf = tf$transpose(tf$reshape(mb.tf + tf$linalg$triangular_solve(RM.tf,tf$random$normal(shape=as.integer(c(nc*ns,1)),dtype=tf$float64),lower=FALSE), as.integer(c(ns,nc))))
                      BetaNew = BetaNew.tf$numpy()
                   }
 
@@ -282,8 +282,8 @@ updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,dfPi,rL, rLP
             LamiDT_PtX = kronecker(LamiD%*%Tr,PtX)
             switch(rL[[r]]$spatialMethod,
                    "Full" = {
-                      K = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$Wg[,,Alpha[[r]][x]]))
-                      iK = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$iWg[,,Alpha[[r]][x]]))
+                      K = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$Wg[[Alpha[[r]][x]]]))
+                      iK = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$iWg[[Alpha[[r]][x]]]))
                    },
                    "NNGP" = {
                       stop("updataGammaEta: no method implemented yet for nearest neighbour gaussian process with GammaEta updater")

@@ -3,7 +3,6 @@
 #' @description Sets or resets priors to the Hmsc object
 #' @param rL a fitted \code{HmscRandomLevel} model object
 #' @param nu,a1,b1,a2,b2 parameters of the multiplicative gamma process shrinking prior
-#' @param alphapw discrete grid prior for spatial scale parameter
 #' @param nfMax maximum number of latent factors to be sampled
 #' @param nfMin minimum number of latent factors to be sampled
 #' @param setDefault logical indicating whether default priors should be used
@@ -18,7 +17,7 @@
 #'
 #' @export
 
-setPriors.HmscRandomLevel = function(rL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=NULL, alphapw=NULL, nfMax=NULL, nfMin=NULL, setDefault=FALSE, ...)
+setPriors.HmscRandomLevel = function(rL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=NULL, nfMax=NULL, nfMin=NULL, setDefault=FALSE)
 {
    stopifnot(inherits(rL, "HmscRandomLevel"))
    xDim = max(rL$xDim, 1)
@@ -81,31 +80,6 @@ setPriors.HmscRandomLevel = function(rL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=
       }
    } else if(setDefault){
       rL$b2 = rep(1, xDim)
-   }
-   if(!is.null(alphapw)){
-      if(rL$sDim == 0)
-         stop("HmscRandomLevel.setPriors: prior for spatial scale was given, but not spatial coordinates were specified")
-      if(ncol(alphapw)!=2)
-         stop("HmscRandomLevel.setPriors: alphapw must be a matrix with two columns")
-      rL$alphapw = alphapw
-   } else if(setDefault && rL$sDim>0){
-      alphaN = 100
-      if(is.null(rL$distMat)){
-         if (is(rL$s, "Spatial")) {
-            ## find diagonal from the bounding box instead of
-            ## evaluating all spatial distances (that can be a huge
-            ## task) similarly as with non-spatial points
-            enclosingRect <- as.data.frame(t(bbox(rL$s)))
-            coordinates(enclosingRect) <- colnames(enclosingRect)
-            proj4string(enclosingRect) <- proj4string(rL$s)
-            enclosingRectDiag <- max(spDists(enclosingRect))
-         } else {
-            enclosingRectDiag = sqrt(sum(apply(rL$s, 2, function(c) diff(range(c)))^2))
-         }
-      } else {
-         enclosingRectDiag = max(rL$distMat)
-      }
-      rL$alphapw = cbind(enclosingRectDiag*c(0:alphaN)/alphaN, c(0.5,rep(0.5/alphaN,alphaN)))
    }
    if(!is.null(nfMax)){
       rL$nfMax = nfMax
