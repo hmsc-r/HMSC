@@ -76,10 +76,14 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
    if(!is.null(XData)){
       switch(class(XData)[1L],
              list={
+                if (any(unlist(lapply(XData, is.na))))
+                    stop("NA values are not allowed in 'XData'")
                 xlev = lapply(Reduce(rbind,object$XData), levels)[unlist(lapply(Reduce(rbind,object$XData), is.factor))]
                 X = lapply(XData, function(a) model.matrix(object$XFormula, a, xlev=xlev))
              },
              data.frame={
+                if (any(is.na(XData)))
+                    stop("NA values are not allowed in 'XData'")
                 xlev = lapply(object$XData, levels)[unlist(lapply(object$XData, is.factor))]
                 X = model.matrix(object$XFormula, XData, xlev=xlev)
              }
