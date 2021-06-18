@@ -16,7 +16,10 @@
 #' @param adaptNf a vector of length \eqn{n_r} with number of MCMC steps at which the adaptation of the
 #' number of latent factors is conducted
 #' @param nChains number of independent MCMC chains to be run
-#' @param nParallel number of parallel processes by which the chains are executed
+#'
+#' @param nParallel number of parallel processes by which the chains
+#'     are executed, or alternatively a pre-defined socket cluster
+#'
 #' @param dataParList a named list with pre-computed \code{Qg}, \code{iQg}, \code{RQg}, \code{detQg}, \code{rLPar}
 #'   parameters
 #' @param updater a named list, specifying which conditional updaters should be ommitted
@@ -85,7 +88,8 @@ sampleMcmc =
    if(fromPrior)
       nParallel = 1
    force(adaptNf)
-   if(nParallel > nChains){
+
+   if(!inherits(nParallel, "cluster") && nParallel > nChains){
       warning('number of cores cannot be greater than the number of chains')
       nParallel <- nChains
    }
@@ -375,8 +379,13 @@ sampleMcmc =
       return(postList)
    }
 
-   if(nParallel > 1){
-      cl = makeCluster(nParallel)
+   ## use user-supplied pre-defined socket cluster
+   hasCluster <- inherits(nParallel, "cluster")
+   if(hasCluster || nParallel > 1) {
+      if (!hasCluster)
+          cl = makeCluster(nParallel)
+      else
+          cl <- nParallel
       clusterExport(cl, c("hM","nChains","transient","samples","thin","verbose","adaptNf","initSeed","initPar","updater",
          "X1", "Tr", "Y", "distr", "Pi", "C", "nr",
          "mGamma", "iUGamma", "V0", "f0", "aSigma", "bSigma", "rhopw",
@@ -390,7 +399,9 @@ sampleMcmc =
          library(abind);
          library(Hmsc)})
       hM$postList = clusterApplyLB(cl, 1:nChains, fun=sampleChain)
-      stopCluster(cl)
+      ## do not stop user-supplied cluster
+      if (!hasCluster)
+          stopCluster(cl)
    } else {
       for(chain in 1:nChains){
          if (fromPrior){
