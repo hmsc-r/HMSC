@@ -14,6 +14,7 @@ sampleMcmc(
   adaptNf = rep(transient, hM$nr),
   nChains = 1,
   nParallel = 1,
+  clusterType = c("socket", "fork"),
   dataParList = NULL,
   updater = list(),
   fromPrior = FALSE,
@@ -45,6 +46,10 @@ number of latent factors is conducted}
 
 \item{nParallel}{number of parallel processes by which the chains
 are executed, or alternatively a pre-defined socket cluster}
+
+\item{clusterType}{cluster type in parallel processing; socket
+clusters are also used if supplied in \code{nParallel} and
+always in Windows}
 
 \item{dataParList}{a named list with pre-computed \code{Qg}, \code{iQg}, \code{RQg}, \code{detQg}, \code{rLPar}
 parameters}

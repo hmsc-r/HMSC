@@ -19,6 +19,9 @@
 #'
 #' @param nParallel number of parallel processes by which the chains
 #'     are executed, or alternatively a pre-defined socket cluster
+#' @param clusterType cluster type in parallel processing; socket
+#'     clusters are also used if supplied in \code{nParallel} and
+#'     always in Windows
 #'
 #' @param dataParList a named list with pre-computed \code{Qg}, \code{iQg}, \code{RQg}, \code{detQg}, \code{rLPar}
 #'   parameters
@@ -69,15 +72,22 @@
 #' m = sampleMcmc(TD$m, samples=1000, transient=500, thin=2, nChains=2, nParallel=1)
 #' }
 #'
-#' @importFrom parallel makeCluster clusterExport clusterEvalQ clusterApplyLB stopCluster
+#' @importFrom parallel makeCluster clusterExport clusterEvalQ clusterApplyLB
+#'     stopCluster mclapply
 #' @export
 
 sampleMcmc =
     function(hM, samples, transient=0, thin=1, initPar=NULL,
              verbose, adaptNf=rep(transient,hM$nr),
-             nChains=1, nParallel=1, dataParList=NULL, updater=list(),
+             nChains=1, nParallel=1, clusterType = c("socket", "fork"),
+             dataParList=NULL, updater=list(),
              fromPrior = FALSE, alignPost = TRUE)
 {
+   ## Select parallel processing strategy
+   clusterType <- match.arg(clusterType)
+   ## use socket cluster if requested, supplied or in Windows
+   useSocket <- clusterType == "socket" || inherits(nParallel, "cluster") ||
+       .Platform$OS.type == "windows"
    if (missing(verbose)) {
        if (samples*thin <= 50) # report every sampling
            verbose <- 1
@@ -379,29 +389,38 @@ sampleMcmc =
       return(postList)
    }
 
+
    ## use user-supplied pre-defined socket cluster
    hasCluster <- inherits(nParallel, "cluster")
    if(hasCluster || nParallel > 1) {
-      if (!hasCluster)
-          cl = makeCluster(nParallel)
-      else
-          cl <- nParallel
-      clusterExport(cl, c("hM","nChains","transient","samples","thin","verbose","adaptNf","initSeed","initPar","updater",
-         "X1", "Tr", "Y", "distr", "Pi", "C", "nr",
-         "mGamma", "iUGamma", "V0", "f0", "aSigma", "bSigma", "rhopw",
-         "Qg", "iQg", "RQg", "detQg", "rLPar"), envir=environment())
+      if (useSocket) {
+          if (!hasCluster)
+              cl = makeCluster(nParallel)
+          else
+              cl <- nParallel
+          clusterExport(cl, c("hM","nChains","transient","samples","thin","verbose",
+                              "adaptNf","initSeed","initPar","updater",
+                              "X1", "Tr", "Y", "distr", "Pi", "C", "nr",
+                              "mGamma", "iUGamma", "V0", "f0", "aSigma", "bSigma",
+                              "rhopw","Qg", "iQg", "RQg", "detQg", "rLPar"),
+                        envir=environment())
 
-      clusterEvalQ(cl, {
-         library(BayesLogit);
-         library(MCMCpack);
-         library(truncnorm);
-         library(Matrix);
-         library(abind);
-         library(Hmsc)})
-      hM$postList = clusterApplyLB(cl, 1:nChains, fun=sampleChain)
-      ## do not stop user-supplied cluster
-      if (!hasCluster)
-          stopCluster(cl)
+          clusterEvalQ(cl, {
+              library(BayesLogit);
+              library(MCMCpack);
+              library(truncnorm);
+              library(Matrix);
+              library(abind);
+              library(Hmsc)})
+          hM$postList = clusterApplyLB(cl, 1:nChains, fun=sampleChain)
+          ## do not stop user-supplied cluster
+          if (!hasCluster)
+              stopCluster(cl)
+      } else { # fork cluster
+          verbose <- 0
+          hM$postList <- mclapply(seq_len(nChains), function(i) sampleChain(i),
+                                  mc.cores = nParallel)
+      }
    } else {
       for(chain in 1:nChains){
          if (fromPrior){
