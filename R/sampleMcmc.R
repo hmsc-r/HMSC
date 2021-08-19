@@ -123,6 +123,8 @@ sampleMcmc =
 
    if(is.null(dataParList))
       dataParList = computeDataParameters(hM)
+   VC = dataParList$VC
+   eC = dataParList$eC
    Qg = dataParList$Qg
    iQg = dataParList$iQg
    RQg = dataParList$RQg
@@ -253,12 +255,19 @@ sampleMcmc =
       postList = vector("list", samples)
       for(iter in seq_len(transient+samples*thin)){
 
-         if(!identical(updater$Gamma2, FALSE))
+         if(!identical(updater$Gamma2, FALSE)){
+            if(length(rho)>1){
+               warning('Gamma2 is not yet implemented for vector rho. Set updater$Gamma2=FALSE.')
+            }
             Gamma = updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,
                Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,C=C,rL=hM$rL, iQg=iQg,
                mGamma=mGamma,iUGamma=iUGamma)
+         }
 
          if(!identical(updater$GammaEta, FALSE)){
+            if(length(rho)>1){
+               warning('updateGammaEta is not yet implemented for vector rho. Set updater$GammaEta=FALSE.')
+            }
             GammaEtaList = updateGammaEta(Z=Z,Gamma=Gamma,V=chol2inv(chol(iV)),iV=iV,id=iSigma,
                Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,rL=hM$rL, rLPar=rLPar,Q=Qg[,,rho],iQ=iQg[,,rho],RQ=RQg[,,rho],
                mGamma=mGamma,U=hM$UGamma,iU=iUGamma)
@@ -267,9 +276,12 @@ sampleMcmc =
          }
 
          if(!identical(updater$BetaLambda, FALSE)){
+            # if(length(rho)>1){
+            #    warning('updateBetaLambda is not yet implemented for vector rho. Set updater$BetaLambda=FALSE.')
+            # }
             BetaLambdaList = updateBetaLambda(Y=Y,Z=Z,Gamma=Gamma,iV=iV,
-               iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta, iQ=iQg[,,rho],
-               X=X,Tr=Tr,Pi=Pi,dfPi=dfPi,C=C,rL=hM$rL)
+               iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta,rho=rho, VC=VC,eC=eC,
+               X=X,Tr=Tr,Pi=Pi,dfPi=dfPi,C=C,rL=hM$rL, rhopw=rhopw)
             Beta = BetaLambdaList$Beta
             Lambda = BetaLambdaList$Lambda
          }
@@ -291,14 +303,14 @@ sampleMcmc =
 
          if(!identical(updater$GammaV, FALSE)){
             GammaVList = updateGammaV(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho,
-               iQg=iQg,RQg=RQg, Tr=Tr,C=C, mGamma=mGamma,iUGamma=iUGamma,V0=V0,f0=f0)
+               VC=VC,eC=eC,iQg=iQg,RQg=RQg, Tr=Tr,C=C, mGamma=mGamma,iUGamma=iUGamma,V0=V0,f0=f0,rhopw=rhopw)
             Gamma = GammaVList$Gamma
             iV = GammaVList$iV
          }
 
          if(!is.null(hM$C) && !identical(updater$Rho, FALSE)){
-            rho = updateRho(Beta=Beta,Gamma=Gamma,iV=iV, RQg=RQg,
-               detQg=detQg, Tr=Tr, rhopw=rhopw)
+            rho = updateRho(rho=rho,Beta=Beta,Gamma=Gamma,iV=iV, VC=VC,eC=eC,RQg=RQg,
+               detQg=detQg, Tr=Tr, rhopw=rhopw,rhoAlphaDP=hM$rhoAlphaDP)
          }
 
          if(!identical(updater$LambdaPriors, FALSE)){

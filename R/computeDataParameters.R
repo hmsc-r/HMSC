@@ -44,11 +44,16 @@ computeDataParameters = function(hM){
          RQg[,,rg] = RQ
          detQg[rg] = 2*sum(log(diag(RQ)))
       }
+      tmp = eigen(hM$C, TRUE)
+      VC = tmp$vectors
+      eC = tmp$values
    } else{
       Qg = array(diag(hM$ns), c(hM$ns,hM$ns,1))
       iQg = array(diag(hM$ns), c(hM$ns,hM$ns,1))
       detQg = 0
       RQg = array(diag(hM$ns), c(hM$ns,hM$ns,1))
+      VC = diag(hM$ns)
+      eC = rep(1,hM$ns)
    }
 
    rLPar = vector("list", hM$nr)
@@ -228,6 +233,8 @@ computeDataParameters = function(hM){
                 )
       }
    }
+   parList$VC = VC
+   parList$eC = eC
    parList$Qg = Qg
    parList$iQg = iQg
    parList$RQg = RQg

@@ -153,7 +153,13 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
       }
 
       if (Rho){
-         postRho[[chain]] = mcmc(unlist(lapply(postList, function(a) a$rho)), thin=thin, start=start1, end=end1)
+         if(hM$rhoAlphaDP==0){
+            postRho[[chain]] = mcmc(unlist(lapply(postList, function(a) a$rho)), thin=thin, start=start1, end=end1)
+         }else{
+            tmp = do.call(rbind, lapply(postList, function(a) a$rho ))
+            colnames(tmp) = sprintf("rho[%s]",covNames)
+            postRho[[chain]] = mcmc(tmp, thin=thin, start=start1, end=end1)
+         }
       }
 
       postEta1 = vector("list", nr)

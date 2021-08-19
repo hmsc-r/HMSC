@@ -10,6 +10,7 @@
 #' @param bSigma rate parameter for the prior gamma distribution for the variance parameter, only for normal & lognormal Poisson models
 #' @param nuRRR,a1RRR,b1RRR,a2RRR,b2RRR parameters of the multiplicative gamma process shrinking prior for reduced rank regression
 #' @param rhopw discrete grid prior for phylogenetic signal, should be a matrix of 2 columns
+#' @param rhoAlphaDP non-negative scalar parameter determining strength of Dirichlet Process prior shrinkage on elements of rho vector. Zero stands for all-identical restriction and infinity for prior independence.
 #' @param setDefault logical indicating whether default priors should be used
 #' @param \dots other parameters passed to the function.
 #'
@@ -19,7 +20,7 @@
 
 setPriors.Hmsc = function(hM, V0=NULL, f0=NULL, mGamma=NULL,
    UGamma=NULL, aSigma=NULL, bSigma=NULL, nuRRR=NULL, a1RRR=NULL,
-   b1RRR=NULL, a2RRR=NULL, b2RRR=NULL, rhopw=NULL, setDefault=FALSE, ...){
+   b1RRR=NULL, a2RRR=NULL, b2RRR=NULL, rhopw=NULL, rhoAlphaDP=NULL, setDefault=FALSE, ...){
 
    if(!is.null(V0)){
       if(!isSymmetric(V0) || nrow(V0) != hM$nc || ncol(V0) != hM$nc)
@@ -74,6 +75,15 @@ setPriors.Hmsc = function(hM, V0=NULL, f0=NULL, mGamma=NULL,
       hM$bSigma = bSigmaDef[hM$distr[,1]]
    }
 
+   if(!is.null(rhoAlphaDP)){
+      if(is.null(hM$C))
+         stop("hyperparameter rhoAlphaDP for Diriclet process for phylogeny parameters is given, but no phylogenic relationship matrix was specified")
+      if(length(rhoAlphaDP)>1 || rhoAlphaDP<0)
+         stop("rhoAlphaDP must be a non-negative scalar value")
+      hM$rhoAlphaDP = rhoAlphaDP
+   } else if(setDefault){
+      hM$rhoAlphaDP = 0 # all-equal limiting behavior
+   }
    if(!is.null(rhopw)){
       if(is.null(hM$C))
          stop("prior for phylogeny given, but no phylogenic relationship matrix was specified")
@@ -84,6 +94,7 @@ setPriors.Hmsc = function(hM, V0=NULL, f0=NULL, mGamma=NULL,
       rhoN = 100
       hM$rhopw = cbind(c(0:rhoN)/rhoN, c(0.5,rep(0.5/rhoN,rhoN)))
    }
+
    if(!is.null(nuRRR)){
       hM$nuRRR = nuRRR
    } else if(setDefault){

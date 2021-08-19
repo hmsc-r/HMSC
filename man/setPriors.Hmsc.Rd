@@ -18,6 +18,7 @@
   a2RRR = NULL,
   b2RRR = NULL,
   rhopw = NULL,
+  rhoAlphaDP = NULL,
   setDefault = FALSE,
   ...
 )

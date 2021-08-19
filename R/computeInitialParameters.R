@@ -225,7 +225,11 @@ computeInitialParameters = function(hM, initPar){
    if(!is.null(initPar$rho)){
       rho = which.min(abs(initPar$rho-hM$rhopw[,1]))
    } else{
-      rho = 1
+      if(hM$rhoAlphaDP==0){
+         rho = 1
+      } else{
+         rho = rep(1, hM$nc)
+      }
    }
 
    switch(class(XScaled)[1L],

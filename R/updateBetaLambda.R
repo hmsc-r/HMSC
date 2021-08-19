@@ -3,9 +3,9 @@
 # @description updates beta lambda
 #
 #' @importFrom stats rnorm
-#' @importFrom Matrix bdiag Diagonal sparseMatrix
+#' @importFrom Matrix bdiag Diagonal sparseMatrix tcrossprod
 #'
-updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,dfPi,C,rL){
+updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, VC,eC, X,Tr,Pi,dfPi,C,rL, rhopw){
    ny = nrow(Z)
    ns = ncol(Z)
    nc = nrow(Gamma)
@@ -123,7 +123,20 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,d
 
    } else{
       # available phylogeny information
-      P = bdiag(kronecker(iV,iQ), Diagonal(x=t(priorLambda)))
+      if(length(rho)==1){
+         eiQ05 = (rhopw[rho,1]*eC + (1-rhopw[rho,1]))^-0.5
+         iQ = tcrossprod(VC*matrix(eiQ05,ns,ns,byrow=TRUE))
+         iQBar = kronecker(iV,iQ)
+      } else{
+         eiQ05List = lapply(as.list(rho), function(r) (rhopw[r,1]*eC + (1-rhopw[r,1]))^-0.5)
+         VCeiQ05List = lapply(eiQ05List, function(eiQ05) VC*matrix(eiQ05,ns,ns,byrow=TRUE))
+         tmp1 = bdiag(VCeiQ05List)
+         LiV = t(chol(iV))
+         tmp2 = kronecker(LiV,Diagonal(ns))
+         tmp3 = tmp1 %*% tmp2
+         iQBar = as.matrix(Matrix::tcrossprod(tmp3))
+      }
+      P = bdiag(iQBar, Diagonal(x=t(priorLambda)))
       switch(class(X)[1L],
          matrix = {
             RiU = chol(kronecker(XEtaTXEta,diag(iSigma)) + P)
