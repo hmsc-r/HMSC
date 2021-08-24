@@ -15,7 +15,8 @@
 #' @param verbose the interval between MCMC steps printed to the console (default is an interval that prints ca. 50 reports)
 #' @param adaptNf a vector of length \eqn{n_r} with number of MCMC steps at which the adaptation of the
 #' number of latent factors is conducted
-#' @param nChains number of independent MCMC chains to be run
+#' @param nChains total number of independent MCMC chains to be run
+#' @param indChains vector with indexes of which chains shall be run
 #' @param nParallel number of parallel processes by which the chains are executed
 #' @param dataParList a named list with pre-computed \code{Qg}, \code{iQg}, \code{RQg}, \code{detQg}, \code{rLPar}
 #'   parameters
@@ -35,7 +36,7 @@
 #'
 #'   The value of 1 for \code{thin} argument means that at each MCMC step after the transient a sample is recorded.
 #'
-#'   Typically, the vlaue of \code{nParallel} equal to \code{nChains} leads to most efficient usage of available
+#'   Typically, the value of \code{nParallel} equal to \code{nChains} leads to most efficient usage of available
 #'   parallelization capacities. However, this may be not the case if R is configured with multi-tread linear
 #'   algebra libraries. For debug and test purposes, the \code{nParallel} should be set to 1, since only in this case a
 #'   details of the potentially encountered errors would be available.
@@ -72,7 +73,7 @@
 sampleMcmc =
     function(hM, samples, transient=0, thin=1, initPar=NULL,
              verbose, adaptNf=rep(transient,hM$nr),
-             nChains=1, nParallel=1, dataParList=NULL, updater=list(),
+             nChains=1, indChains=NULL, nParallel=1, dataParList=NULL, updater=list(),
              fromPrior = FALSE, alignPost = TRUE)
 {
    if (missing(verbose)) {
@@ -85,9 +86,12 @@ sampleMcmc =
    if(fromPrior)
       nParallel = 1
    force(adaptNf)
-   if(nParallel > nChains){
-      warning('number of cores cannot be greater than the number of chains')
-      nParallel <- nChains
+   if(is.null(indChains)){
+      indChains <- 1:nChains
+   }
+   if(nParallel > length(indChains)){
+      warning('number of cores cannot be greater than the effective number of chains in this run; reducing to match.')
+      nParallel <- length(indChains)
    }
    if(any(adaptNf>transient))
       stop('transient parameter should be no less than any element of adaptNf parameter')
@@ -389,7 +393,7 @@ sampleMcmc =
 
    if(nParallel > 1){
       cl = makeCluster(nParallel)
-      clusterExport(cl, c("hM","nChains","transient","samples","thin","verbose","adaptNf","initSeed","initPar","updater",
+      clusterExport(cl, c("hM","nChains","indChains","transient","samples","thin","verbose","adaptNf","initSeed","initPar","updater",
          "X1", "Tr", "Y", "distr", "Pi", "C", "nr",
          "mGamma", "iUGamma", "V0", "f0", "aSigma", "bSigma", "rhopw",
          "Qg", "iQg", "RQg", "detQg", "rLPar"), envir=environment())
@@ -401,10 +405,11 @@ sampleMcmc =
          library(Matrix);
          library(abind);
          library(Hmsc)})
-      hM$postList = clusterApplyLB(cl, 1:nChains, fun=sampleChain)
+      hM$postList = clusterApplyLB(cl, indChains, fun=sampleChain)
       stopCluster(cl)
    } else {
-      for(chain in 1:nChains){
+      hM$postList = vector("list", nChains)
+      for(chain in indChains){
          if (fromPrior){
             postList = vector("list", samples)
             for (iter in 1:samples){
@@ -422,11 +427,14 @@ sampleMcmc =
    hM$thin = thin
    hM$verbose = verbose
    hM$adaptNf = adaptNf
-   if (alignPost){
-      for (i in 1:5){
+   if(alignPost && !identical(1:nChains,indChains)){
+      warning('alignPost is set to FALSE as only part of chains is computed by this call', immediate.=TRUE)
+      alignPost = FALSE
+   }
+   if(alignPost){
+      for(i in 1:5){
          hM = alignPosterior(hM)
       }
    }
-
    return(hM)
 }

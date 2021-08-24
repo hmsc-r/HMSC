@@ -42,6 +42,8 @@
 
 \item{rhopw}{discrete grid prior for phylogenetic signal, should be a matrix of 2 columns}
 
+\item{rhoAlphaDP}{non-negative scalar parameter determining strength of Dirichlet Process prior shrinkage on elements of rho vector. Zero stands for all-identical restriction and infinity for prior independence.}
+
 \item{setDefault}{logical indicating whether default priors should be used}
 
 \item{\dots}{other parameters passed to the function.}

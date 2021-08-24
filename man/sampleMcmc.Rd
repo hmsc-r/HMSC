@@ -13,6 +13,7 @@ sampleMcmc(
   verbose,
   adaptNf = rep(transient, hM$nr),
   nChains = 1,
+  indChains = NULL,
   nParallel = 1,
   dataParList = NULL,
   updater = list(),
@@ -41,7 +42,9 @@ initialize all chains to the same starting values}
 \item{adaptNf}{a vector of length \eqn{n_r} with number of MCMC steps at which the adaptation of the
 number of latent factors is conducted}
 
-\item{nChains}{number of independent MCMC chains to be run}
+\item{nChains}{total number of independent MCMC chains to be run}
+
+\item{indChains}{vector with indexes of which chains shall be run}
 
 \item{nParallel}{number of parallel processes by which the chains are executed}
 
@@ -71,7 +74,7 @@ The exact number of samples to be recorded in order to get a proper estimate of 
 
   The value of 1 for \code{thin} argument means that at each MCMC step after the transient a sample is recorded.
 
-  Typically, the vlaue of \code{nParallel} equal to \code{nChains} leads to most efficient usage of available
+  Typically, the value of \code{nParallel} equal to \code{nChains} leads to most efficient usage of available
   parallelization capacities. However, this may be not the case if R is configured with multi-tread linear
   algebra libraries. For debug and test purposes, the \code{nParallel} should be set to 1, since only in this case a
   details of the potentially encountered errors would be available.
