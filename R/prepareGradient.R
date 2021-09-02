@@ -53,13 +53,22 @@ prepareGradient = function(hM, XDataNew, sDataNew){
          rL1$pi = unitsAll
          row.names(xyNew) = dfPiNew[,r]
          xyOld = rL1$s
+         ## Projected Spatial data need equal Spatial data for rbind()
+         if (is(xyOld, "Spatial")) {
+             xyNew <- as.data.frame(xyNew)
+             colnames(xyNew) <- colnames(xyNew)
+             coordinates(xyNew) <- colnames(xyNew)
+             proj4string(xyNew) <- proj4string(xyOld)
+         }
          ## spatial data xyOld can be a data frame, and in that case
          ## the column names of xyNew must match to xyOld or rbind
          ## barfs (github issue #80). Instead of stopping with error,
          ## we make the colnames equal.
-         xyNew = as.matrix(xyNew) # should be safe as xyNew must be numeric
-         if (is.data.frame(xyOld))
-             colnames(xyNew) = colnames(xyOld)
+         else {
+             xyNew = as.matrix(xyNew) # should be safe as xyNew must be numeric
+             if (is.data.frame(xyOld))
+                 colnames(xyNew) = colnames(xyOld)
+         }
          rL1$s = rbind(xyOld, xyNew)
       }
       rLNew[[r]] = rL1
