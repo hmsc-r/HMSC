@@ -17,6 +17,8 @@
 #' \code{prepareGradient} takes as input the new environmental and spatial data, \code{constructGradient}
 #' generates those data to represent a new environmental gradient.
 #'
+#' @importFrom methods is
+#' @importFrom sp coordinates `coordinates<-` proj4string `proj4string<-`
 #'
 #' @seealso
 #' \code{\link{constructGradient}}, \code{\link{predict}}
@@ -56,7 +58,7 @@ prepareGradient = function(hM, XDataNew, sDataNew){
          ## Projected Spatial data need equal Spatial data for rbind()
          if (is(xyOld, "Spatial")) {
              xyNew <- as.data.frame(xyNew)
-             colnames(xyNew) <- colnames(xyNew)
+             colnames(xyNew) <- colnames(coordinates(xyOld))
              coordinates(xyNew) <- colnames(xyNew)
              proj4string(xyNew) <- proj4string(xyOld)
          }
