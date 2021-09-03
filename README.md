@@ -25,6 +25,8 @@ first CRAN release version 3.0-2, modify the GitHub installation line to:
 install_github("hmsc-r/HMSC", ref = "v3.0-2")
 ```
 
+For changes in the current github version, see [NEWS](https://github.com/hmsc-r/HMSC/blob/master/inst/NEWS.md).
+
 ## Getting started
 To get started with the package, we recommend to start with reading the package documentation which can be found by typing ```help('Hmsc-package')```, following the vignettes and reading the help pages for the `Hmsc`, `HmscRandomLevel` and `sampleMcmc` functions. The vignettes are available in the 'vignette' folder, or can be accessed from within **R** by typing e.g. `vignette(topic = "vignette_1_univariate", package = "Hmsc")`. To see a list of vignettes, type `vignette(package = "Hmsc")`.   
 
