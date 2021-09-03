@@ -1,3 +1,40 @@
+Version 3.0-12
+==============
+
+### New Features
+
+* `sampleMcmc` allows the use of fork clusters instead of socket
+  clusters. Socket clusters are still the only alternative in Windows,
+  but other platforms can profit from the use of fork clusters which
+  may have lower memory use and are faster to set up, and also may be
+  marginally faster. The choice can be made with new argument
+  `clusterType`. It also possible to use a pre-constructed socket
+  cluster in all platforms. This will avoid overhead of setting new
+  clusters and allows for a wider range of cluster configurations.
+
+### Bug Fixes
+
+* `sampleMcmc` with `initPar = "fixed effects"` failed if **Y**
+  variates had missing values. The choice `"fixed effects"` was
+  undocumented in the package, but was used in several scripts at
+  large. See [issue #101](https://github.com/hmsc-r/HMSC/issues/101).
+
+* `predict` did not honour setting `start` and `thin` which could
+  result in huge output data that exhausted memory. See
+  [issue #86](https://github.com/hmsc-r/HMSC/issues/86).
+
+* `predict` failed in NNGP spatial models. See
+  [issue #96](https://github.com/hmsc-r/HMSC/issues/96).
+
+* `predict` failed with one-dimensional spatial data. See comments in
+  unrelated [issue #61](https://github.com/hmsc-r/HMSC/issues/61).
+
+* Missing values are handled better in `predict`, but they are still
+  not allowed in all cases.
+
+* `prepareGradient` failed with geo-referenced spatial random levels.
+
+
 Version 3.0-11
 ==============
 
