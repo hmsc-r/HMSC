@@ -13,7 +13,8 @@ HmscRandomLevel(
   N = NULL,
   nNeighbours = NULL,
   sKnot = NULL,
-  longlat = FALSE
+  longlat = FALSE,
+  progShrinkType = "MGP"
 )
 }
 \arguments{

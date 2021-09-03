@@ -81,20 +81,20 @@ computeInitialParameters = function(hM, initPar){
       initPar = NULL
    } else{
 
-      if(!is.null(initPar$Gamma)){
-         Gamma = initPar$Gamma
+      if(!is.null(initPar[["Gamma"]])){
+         Gamma = initPar[["Gamma"]]
       } else{
          Gamma = matrix(mvrnorm(1, hM$mGamma, hM$UGamma), hM$nc, hM$nt)
       }
 
-      if(!is.null(initPar$V)){
-         V = initPar$V
+      if(!is.null(initPar[["V"]])){
+         V = initPar[["V"]]
       } else{
          V = riwish(hM$f0, hM$V0)
       }
 
-      if(!is.null(initPar$Beta)){
-         Beta = initPar$Beta
+      if(!is.null(initPar[["Beta"]])){
+         Beta = initPar[["Beta"]]
       } else{
          Beta = matrix(NA, hM$nc, hM$ns)
          Mu = tcrossprod(Gamma,hM$Tr)
@@ -110,8 +110,8 @@ computeInitialParameters = function(hM, initPar){
       BetaSel[[i]] = runif(length(XSel$q))<XSel$q
    }
 
-   if(!is.null(initPar$sigma)){
-      sigma = initPar$sigma
+   if(!is.null(initPar[["sigma"]])){
+      sigma = initPar[["sigma"]]
    } else{
       sigma = rep(NA, hM$ns)
       for(j in 1:hM$ns){
@@ -129,95 +129,127 @@ computeInitialParameters = function(hM, initPar){
 
    nf = rep(NA, hM$nr)
    ncr = rep(NA, hM$nr)
-   Delta = vector("list", hM$nr)
-   Psi = vector("list", hM$nr)
-   Lambda = vector("list", hM$nr)
-   Eta = vector("list", hM$nr)
-   np = hM$np
-   if(!is.null(initPar$Delta)){
-      Delta = initPar$Delta
-   } else{
-      Delta = vector("list", hM$nr)
-   }
-   if(!is.null(initPar$Psi)){
-      Psi = initPar$Psi
-   } else{
-      Psi = vector("list", hM$nr)
-   }
-   if(!is.null(initPar$Lambda)){
-      Lambda = initPar$Lambda
-   } else{
-      Lambda = vector("list", hM$nr)
-   }
-   if(!is.null(initPar$Eta)){
-      Eta = initPar$Eta
-   } else{
-      Eta = vector("list", hM$nr)
+   parNames = c("Eta","Alpha", "LambdaTilde","Lambda","Delta","Psi","Varphi","Vartheta","W",
+                "BetaLatent","GammaLatent","rhoLatent")
+   for(parName in parNames){
+      if(!is.null(initPar[[parName]])){
+         assign(parName, initPar[[parName]])
+      } else{
+         assign(parName, vector("list", hM$nr))
+      }
    }
 
    for(r in seq_len(hM$nr)){
-      if(!is.null(initPar$Delta[[r]])){
+      if(!is.null(Delta[[r]])){
          nf[r] = nrow(Delta[[r]])
       }
-      if(!is.null(initPar$Psi[[r]])){
+      if(!is.null(Psi[[r]])){
          nf[r] = nrow(Psi[[r]])
       }
-      if(!is.null(initPar$Lambda[[r]])){
+      if(!is.null(LambdaTilde[[r]])){
+         nf[r] = nrow(LambdaTilde[[r]])
+      }
+      if(!is.null(Lambda[[r]])){
          nf[r] = nrow(Lambda[[r]])
       }
-      if(!is.null(initPar$Eta[[r]])){
+      if(!is.null(Eta[[r]])){
          nf[r] = ncol(Eta[[r]])
       }
       if(is.na(nf[r]))
          nf[r] = hM$rL[[r]]$nfMin
 
       ncr[r] = max(hM$rL[[r]]$xDim, 1)
-      if(is.null(initPar$Delta[[r]])){
+      if(is.null(Delta[[r]])){
          if(hM$rL[[r]]$xDim == 0){
             Delta[[r]] = matrix(c(rgamma(1,hM$rL[[r]]$a1,hM$rL[[r]]$b1), rgamma(nf[r]-1,hM$rL[[r]]$a2,hM$rL[[r]]$b2)))
          } else{
             Delta[[r]] = matrix(c(rgamma(ncr[r],hM$rL[[r]]$a1,hM$rL[[r]]$b1), rgamma(ncr[r]*(nf[r]-1),hM$rL[[r]]$a2,hM$rL[[r]]$b2)), nf[r],ncr[r],byrow=TRUE)
          }
-
       }
-      if(is.null(initPar$Psi[[r]])){
+      if(is.null(Psi[[r]])){
          if(hM$rL[[r]]$xDim == 0){
             Psi[[r]] = matrix(rgamma(nf[r]*hM$ns, hM$rL[[r]]$nu/2, hM$rL[[r]]$nu/2), nf[r], hM$ns)
          } else {
             Psi[[r]] = array(rgamma(nf[r]*hM$ns*ncr[r], hM$rL[[r]]$nu/2, hM$rL[[r]]$nu/2), dim=c(nf[r],hM$ns,ncr[r]))
          }
       }
-      if(is.null(initPar$Lambda[[r]])){
-         tau = matrix(apply(Delta[[r]], 2, cumprod), nf[r], ncr[r])
+      if(is.null(GammaLatent[[r]])){
+         if(hM$rL[[r]]$xDim == 0){
+            GammaLatent[[r]] = matrix(rnorm(nf[r]*hM$nt), nf[r],hM$nt)
+         } else{
+            stop("Capacity for covariate-dependent associations is currently disabled")
+         }
+      }
+      if(is.null(BetaLatent[[r]])){
+         if(hM$rL[[r]]$xDim == 0){
+            BetaLatent[[r]] = matrix(rnorm(nf[r]*hM$ns), nf[r],hM$ns)
+         } else{
+            stop("Capacity for covariate-dependent associations is currently disabled")
+         }
+      }
+      if(is.null(rhoLatent[[r]])){
+         if(hM$rL[[r]]$xDim == 0){
+            rhoLatent[[r]] = rep(1, nf[r])
+         } else{
+            stop("Capacity for covariate-dependent associations is currently disabled")
+         }
+      }
+      if(is.null(Varphi[[r]])){
+         if(hM$rL[[r]]$xDim == 0){
+            Varphi[[r]] = matrix(1,nf[r],hM$ns)
+         } else{
+            stop("Capacity for covariate-dependent associations is currently disabled")
+         }
+      }
+      if(is.null(Vartheta[[r]])){
+         if(hM$rL[[r]]$xDim == 0){
+            Vartheta[[r]] = rep(1, nf[r])
+            u = pmin(1+(1:nf[r]), nf[r])
+            tmp = table(c(u,1:nf[r])) - 1
+            v = rbeta(nf, shape1=1+tmp, shape2=hM$rL[[r]]$xi+nf[r]-cumsum(tmp))
+            v[nf[r]] = 1
+            w = v*c(1,cumprod(1-v[-nf]))
+            W[[r]] = w
+         } else{
+            stop("Capacity for covariate-dependent associations is currently disabled")
+         }
+      }
+      if(is.null(LambdaTilde[[r]])){
+         if(hM$rL[[r]]$progShrinkType=="MGP"){
+            tau = matrix(apply(Delta[[r]], 2, cumprod), nf[r], ncr[r])
+         } else if(hM$rL[[r]]$progShrinkType=="CUSP"){
+            tau = matrix(Delta[[r]], nf[r], ncr[r])
+         }
          if(hM$rL[[r]]$xDim == 0){
             tauMat = matrix(tau,nf[r],hM$ns)
             mult = sqrt(Psi[[r]]*tauMat)^-1
-            Lambda[[r]] = matrix(rnorm(nf[r]*hM$ns)*mult, nf[r], hM$ns)
+            LambdaTilde[[r]] = matrix(rnorm(nf[r]*hM$ns)*mult, nf[r], hM$ns)
+
          } else{
+            stop("Capacity for covariate-dependent associations is currently disabled")
             tauArray = array(tau,dim=c(nf[r],1,ncr[r]))[,rep(1,hM$ns),,drop=FALSE]
             mult = sqrt(Psi[[r]]*tauArray)^-1
+            LambdaTilde[[r]] = 0 #array(rnorm(nf[r]*hM$ns*ncr[r])*mult, dim=c(nf[r],hM$ns,ncr[r]))
+         }
+      }
+      if(is.null(Lambda[[r]])){
+         if(hM$rL[[r]]$xDim == 0){
+            Lambda[[r]] = Vartheta[[r]]*(LambdaTilde[[r]]*Varphi[[r]])
+         }
+         else{
+            stop("Capacity for covariate-dependent associations is currently disabled")
             Lambda[[r]] = array(rnorm(nf[r]*hM$ns*ncr[r])*mult, dim=c(nf[r],hM$ns,ncr[r]))
          }
       }
    }
 
-
    for(r in seq_len(hM$nr)){
-      if(!is.null(initPar$Eta[[r]])){
-         Eta[[r]] = initPar$Eta[[r]]
-      } else{
-         Eta[[r]] = matrix(rnorm(np[r]*nf[r]),np[r],nf[r])
+      if(is.null(Eta[[r]])){
+         Eta[[r]] = matrix(rnorm(hM$np[r]*nf[r]),hM$np[r],nf[r])
       }
    }
-   if(!is.null(initPar$Eta)){
-      Alpha = initPar$Alpha
-   } else{
-      Alpha = vector("list", hM$nr)
-   }
    for(r in seq_len(hM$nr)){
-      if(!is.null(initPar$Alpha[[r]])){
-         Alpha[[r]] = initPar$Alpha[[r]]
-      } else{
+      if(is.null(Alpha[[r]])){
          Alpha[[r]] = rep(1,nf[r])
       }
    }
@@ -269,11 +301,18 @@ computeInitialParameters = function(hM, initPar){
    parList$sigma = sigma
    parList$Eta = Eta
    parList$Lambda = Lambda
+   parList$LambdaTilde = LambdaTilde
    parList$Psi = Psi
    parList$Delta = Delta
    parList$Alpha = Alpha
    parList$rho = rho
    parList$Z = Z
+   parList$BetaLatent = BetaLatent
+   parList$GammaLatent = GammaLatent
+   parList$rhoLatent = rhoLatent
+   parList$Varphi = Varphi
+   parList$Vartheta = Vartheta
+   parList$W = W
 
    return(parList)
 }

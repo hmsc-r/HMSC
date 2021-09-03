@@ -12,6 +12,7 @@
   b1 = NULL,
   b2 = NULL,
   alphapw = NULL,
+  xi = NULL,
   nfMax = NULL,
   nfMin = NULL,
   setDefault = FALSE,

@@ -216,9 +216,14 @@ sampleMcmc =
       Delta = parList$Delta
       rho = parList$rho
       Z = parList$Z
+      BetaLatent = parList$BetaLatent
+      GammaLatent = parList$GammaLatent
+      rhoLatent = parList$rhoLatent
+      Vartheta = parList$Vartheta
+      Varphi = parList$Varphi
+      W = parList$W
 
       X1A = X1
-
       if(hM$ncsel>0){
          for (i in 1:hM$ncsel){
             XSel = hM$XSelect[[i]]
@@ -283,11 +288,15 @@ sampleMcmc =
             # if(length(rho)>1){
             #    warning('updateBetaLambda is not yet implemented for vector rho. Set updater$BetaLambda=FALSE.')
             # }
+            # BetaLambdaList = updateBetaLambda(Y=Y,Z=Z,Gamma=Gamma,iV=iV,
+            #    iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta,rho=rho, VC=VC,eC=eC,
+            #    X=X,Tr=Tr,Pi=Pi,dfPi=dfPi,C=C,rL=hM$rL, rhopw=rhopw)
             BetaLambdaList = updateBetaLambda(Y=Y,Z=Z,Gamma=Gamma,iV=iV,
-               iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta,rho=rho, VC=VC,eC=eC,
-               X=X,Tr=Tr,Pi=Pi,dfPi=dfPi,C=C,rL=hM$rL, rhopw=rhopw)
+                iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta,rho=rho,Vartheta=Vartheta,Varphi=Varphi,
+                VC=VC,eC=eC, X=X,Tr=Tr,Pi=Pi,dfPi=dfPi,C=C,rL=hM$rL, rhopw=rhopw)
             Beta = BetaLambdaList$Beta
             Lambda = BetaLambdaList$Lambda
+            LambdaTilde = BetaLambdaList$LambdaTilde
          }
 
          if(!identical(updater$wRRR, FALSE) &&  hM$ncRRR>0){
@@ -317,10 +326,26 @@ sampleMcmc =
                detQg=detQg, Tr=Tr, rhopw=rhopw,rhoAlphaDP=hM$rhoAlphaDP)
          }
 
-         if(!identical(updater$LambdaPriors, FALSE)){
-            PsiDeltaList = updateLambdaPriors(Lambda=Lambda,Delta=Delta, rL=hM$rL)
+         if(!identical(updater$latentBetaGammaRho, FALSE)){
+            latentBetaGammaRhoList = updateLatentBetaGammaRho(GammaLatent=GammaLatent,BetaLatent=BetaLatent,Varphi=Varphi,
+                                                              rhoLatent=rhoLatent, Tr=Tr,VC=VC,eC=eC,rL=hM$rL,  rhopw=rhopw)
+            BetaLatent = latentBetaGammaRhoList$BetaLatent
+            GammaLatent = latentBetaGammaRhoList$GammaLatent
+            rhoLatent = latentBetaGammaRhoList$rhoLatent
+         }
+
+         if(!identical(updater$LambdaContPriors, FALSE)){
+            PsiDeltaList = updateLambdaContPriors(LambdaTilde=LambdaTilde,Delta=Delta,Vartheta=Vartheta, rL=hM$rL)
             Psi = PsiDeltaList$Psi
             Delta = PsiDeltaList$Delta
+         }
+         if(!identical(updater$LambdaDiscPriors, FALSE)){
+            LambdaVarphiVarthetaWList = updateLambdaDiscPriors(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda,LambdaTilde=LambdaTilde,
+                                                  BetaLatent=BetaLatent,Varphi=Varphi,Vartheta=Vartheta,W=W, X=X,Pi=Pi,rL=hM$rL)
+            Lambda = LambdaVarphiVarthetaWList$Lambda
+            Varphi = LambdaVarphiVarthetaWList$Varphi
+            Vartheta = LambdaVarphiVarthetaWList$Vartheta
+            W = LambdaVarphiVarthetaWList$W
          }
          if(!identical(updater$wRRRPriors, FALSE) &&  hM$ncRRR>0){
             PsiDeltaList = updatewRRRPriors(wRRR=wRRR,Delta=DeltaRRR,
@@ -372,7 +397,8 @@ sampleMcmc =
 
          if((iter>transient) && ((iter-transient) %% thin == 0)){
             postList[[(iter-transient)/thin]] = combineParameters(Beta=Beta,BetaSel=BetaSel,wRRR = wRRR, Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,
-               Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,Delta=Delta,
+               Eta=Eta,Alpha=Alpha,LambdaTilde=LambdaTilde,Lambda=Lambda,Psi=Psi,Delta=Delta,
+               Vartheta=Vartheta,Varphi=Varphi,W=W,BetaLatent=BetaLatent,GammaLatent=GammaLatent,rhoLatent=rhoLatent,
                PsiRRR=PsiRRR,DeltaRRR=DeltaRRR,
                ncNRRR=hM$ncNRRR, ncRRR=hM$ncRRR, ncsel = hM$ncsel, XSelect = hM$XSelect,
                XScalePar=hM$XScalePar, XInterceptInd=hM$XInterceptInd, XRRRScalePar=hM$XRRRScalePar,

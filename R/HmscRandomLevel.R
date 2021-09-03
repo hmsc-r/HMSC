@@ -66,10 +66,10 @@
 
 HmscRandomLevel =
     function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NULL, units=NULL,
-             N=NULL, nNeighbours=NULL, sKnot=NULL, longlat = FALSE)
+             N=NULL, nNeighbours=NULL, sKnot=NULL, longlat = FALSE, progShrinkType="MGP")
 {
    rL = structure(list(pi=NULL, s=NULL, sDim=NULL, spatialMethod=NULL, x=NULL, xDim=NULL, N=NULL, distMat=NULL, #
-      nfMax=NULL, nfMin=NULL, nNeighbours=NULL, nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, alphapw=NULL), class="HmscRandomLevel")
+      nfMax=NULL, nfMin=NULL, nNeighbours=NULL, progShrinkType=NULL, nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, xi=NULL,cns=NULL, alphapw=NULL), class="HmscRandomLevel")
    if(nargs()==0)
       stop("at least one argument must be specified")
    if(!is.null(distMat) && !is.null(sData)){
@@ -149,6 +149,11 @@ HmscRandomLevel =
       rL$N = N
       rL$pi = as.factor(1:N)
       rL$sDim = 0
+   }
+   if(progShrinkType!="MGP" && progShrinkType!="CUSP"){
+      stop("progShrinkType string parameter must be MGP or CUSP")
+   } else{
+      rL$progShrinkType = progShrinkType
    }
 
    rL = setPriors(rL, setDefault=TRUE)

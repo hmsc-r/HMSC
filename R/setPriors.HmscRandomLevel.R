@@ -18,7 +18,8 @@
 #'
 #' @export
 
-setPriors.HmscRandomLevel = function(rL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=NULL, alphapw=NULL, nfMax=NULL, nfMin=NULL, setDefault=FALSE, ...)
+setPriors.HmscRandomLevel = function(rL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=NULL, alphapw=NULL, xi=NULL,cns=NULL,
+                                     sigma2_gammaLatent=NULL, nfMax=NULL, nfMin=NULL, setDefault=FALSE, ...)
 {
    stopifnot(inherits(rL, "HmscRandomLevel"))
    xDim = max(rL$xDim, 1)
@@ -106,6 +107,34 @@ setPriors.HmscRandomLevel = function(rL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=
          enclosingRectDiag = max(rL$distMat)
       }
       rL$alphapw = cbind(enclosingRectDiag*c(0:alphaN)/alphaN, c(0.5,rep(0.5/alphaN,alphaN)))
+   }
+   if(!is.null(xi)){
+      if(length(xi) == 1){
+         rL$xi = xi
+      } else{
+         stop("length of xi argument must be 1")
+      }
+   } else if(setDefault){
+      rL$xi = 1
+   }
+   if(!is.null(cns)){
+      if(length(cns) == 1){
+         rL$cns = cns
+      } else{
+         stop("length of cns argument must be 1")
+      }
+   } else if(setDefault){
+      warning("default value for cns argument is a completely random value")
+      rL$cns = 0.5
+   }
+   if(!is.null(sigma2_gammaLatent)){
+      if(length(sigma2_gammaLatent) == 1){
+         rL$sigma2_gammaLatent = sigma2_gammaLatent
+      } else{
+         stop("length of sigma2_gammaLatent argument must be 1")
+      }
+   } else if(setDefault){
+      rL$sigma2_gammaLatent = 1
    }
    if(!is.null(nfMax)){
       rL$nfMax = nfMax
