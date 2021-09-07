@@ -5,6 +5,7 @@ updateLambdaDiscPriors = function(Z, Beta,iSigma, Eta,Lambda,LambdaTilde,BetaLat
    # require(mc2d)    # vectorize density of multinomial likelihood
    # require(matrixStats)
    nr = length(rL)
+   ny = nrow(Z)
    sigma05 = 1/sqrt(iSigma)
 
    switch(class(X)[1L],
@@ -62,7 +63,7 @@ updateLambdaDiscPriors = function(Z, Beta,iSigma, Eta,Lambda,LambdaTilde,BetaLat
                #                               as.vector(logprobit_1[inactFact,])), 1, logSumExp), inactFact,ns)
                # varphi[inactFact, ] = round( matrix(runif(ns*length(inactFact)),inactFact,ns) <
                #                                   exp(logprobit_1[inactFact,]-sumlog) )
-               varphi[inactFact, ] = rbinom(length(inactFact)*ns, 1, probit[inactFact,])
+               varphi[inactFact,] = rbinom(length(inactFact)*ns, 1, probit[inactFact,])
             }
          } else if(rL[[r]]$progShrinkType=="MGP"){
             actFact = seq_len(nf)

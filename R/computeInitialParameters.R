@@ -193,6 +193,11 @@ computeInitialParameters = function(hM, initPar){
          } else{
             stop("Capacity for covariate-dependent associations is currently disabled")
          }
+      } else{
+         rhoLatent[[r]] = rep(NA, nf[r])
+         for(h in 1:nf[r]){
+            rhoLatent[[r]][h] = which.min(abs(initPar$rhoLatent[[r]][h]-hM$rhopw[,1]))
+         }
       }
       if(is.null(Varphi[[r]])){
          if(hM$rL[[r]]$xDim == 0){
@@ -254,8 +259,8 @@ computeInitialParameters = function(hM, initPar){
       }
    }
 
-   if(!is.null(initPar$rho)){
-      rho = which.min(abs(initPar$rho-hM$rhopw[,1]))
+   if(!is.null(initPar[["rho"]])){
+      rho = which.min(abs(initPar[["rho"]]-hM$rhopw[,1]))
    } else{
       if(hM$rhoAlphaDP==0){
          rho = 1

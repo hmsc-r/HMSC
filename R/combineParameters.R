@@ -55,6 +55,7 @@ combineParameters = function(Beta, BetaSel, wRRR, Gamma, iV, rho, iSigma, Eta,Al
 
    V = chol2inv(chol(iV))
    sigma = 1/iSigma
+   rhoLatent = lapply(rhoLatent, function(v) rhopw[v,1])
    par = list(Beta=Beta, wRRR=wRRR, Gamma=Gamma, V=V, rho=rhopw[rho,1], sigma=sigma, Eta=Eta,Alpha=Alpha,
               LambdaTilde=LambdaTilde,Lambda=Lambda,Psi=Psi,Delta=Delta,Vartheta=Vartheta,
               Varphi=Varphi,W=W,BetaLatent=BetaLatent,GammaLatent=GammaLatent,rhoLatent=rhoLatent,

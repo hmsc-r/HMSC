@@ -52,39 +52,36 @@ updateLatentBetaGammaRho = function(GammaLatent,BetaLatent,Varphi,rhoLatent, Tr,
       VCT = crossprod(VC,Tr)
       ZVC = zeta%*%VC
       eQMat = tcrossprod(matrix(eC),rhopw[,1,drop=FALSE]) + tcrossprod(matrix(1,ns,1),1-rhopw[,1,drop=FALSE])
-      # logDetQ  = colSums(log(eQ))
+      eQHatMat = eQMat + 1
+      logDetQHat = colSums(log(eQHatMat))
       for(h in seq_len(nf)){
          # we sample (gamma|zeta,rho) by marginalizing out the beta
-         eQ = eQMat[,rholatent[h]] #rholatent[h]*eC + (1-rholatent[h])
-         iSigma = diag(rep(1/sigma2_gammaLatent,nt)) + crossprod((eQ+1)^-0.5 * VCT)
+         eQ = eQMat[,rholatent[h]]
+         iSigma = diag(rep(sigma2_gammaLatent^-1,nt)) + crossprod((eQ+1)^-0.5 * VCT)
          RiSigma = chol(iSigma)
          tmp = backsolve(RiSigma, crossprod(VCT,((eQ+1)^-1 * ZVC[h,])), transpose=TRUE)
          gammaLatent[h,] = backsolve(RiSigma, tmp+rnorm(nt))
+
          # sample (rho|gamma,zeta).... technically possible to sample (rho|zeta), which would reduce autocorrelation,
          # but it is slightly more numerically complex and tedious/impossible to code loop-free without
          # batched linear algebra operations
          mu = Tr%*%gammaLatent[h,]
          eps = zeta[h,] - mu
          VCeps = crossprod(VC,eps)
-         # print(VCeps)
-         eQHatMat = eQMat + 1
-         logDetQHat = colSums(log(eQHatMat))
          qF = crossprod(eQHatMat^-1, VCeps^2)
          logLike = log(rhopw[,2]) - 0.5*logDetQHat - 0.5*qF
-         # print(rhopw)
-         # print(logDetQHat)
-         # print(qF)
          logLike = logLike - logSumExp(logLike)
          rholatent[h] = sample(nrow(rhopw),1,prob=exp(logLike))
+
          # sample (beta|zeta,gamma,rho)
          eQ = eQMat[,rholatent[h]] #rholatent[h]*eC + (1-rholatent[h])
          eK = (eQ^-1 + 1^-1)^-1
-         v = crossprod(VC, eQ^-1*(VCT%*%gammaLatent[h,])) + ZVC[h,]
+         v = eQ^-1*(VCT%*%gammaLatent[h,]) + ZVC[h,]
          betaLatent[h,] = VC%*%(eK*v + rnorm(ns,0,sqrt(eK)))
       }
 
-      BetaLatent[[r]] = matrix(unlist(betaLatent), nf, ns, byrow = T)
-      GammaLatent[[r]] = matrix(unlist(gammaLatent), nf, nt, byrow = T)
+      BetaLatent[[r]] = betaLatent
+      GammaLatent[[r]] = gammaLatent
       rhoLatent[[r]] = rholatent
    }
    return(list(BetaLatent=BetaLatent, GammaLatent=GammaLatent, rhoLatent=rhoLatent))

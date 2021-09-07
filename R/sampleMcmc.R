@@ -209,6 +209,7 @@ sampleMcmc =
       wRRR = parList$wRRR
       sigma = parList$sigma
       iSigma = 1 / sigma
+      LambdaTilde = parList$LambdaTilde
       Lambda = parList$Lambda
       Eta = parList$Eta
       Alpha = parList$Alpha
