@@ -385,13 +385,24 @@ sampleMcmc =
 
          if(updater$latentLoadingOrderSwap>0 && (iter %% updater$latentLoadingOrderSwap == 0)){
             for(r in seq_len(nr)){
-               listPar = updateLatentLoadingOrder(eta=Eta[[r]],lambda=Lambda[[r]],alpha=Alpha[[r]],delta=Delta[[r]],rL=hM$rL[[r]])
-               Lambda[[r]] = listPar$lambda
-               Eta[[r]] = listPar$eta
-               Alpha[[r]] = listPar$alpha
-               Delta[[r]] = listPar$delta
+               if(hM$rL[[r]]$progShrinkType=="MGP"){
+                  listPar = updateLatentLoadingOrder(eta=Eta[[r]],alpha=Alpha[[r]],
+                                                     lambdaTilde=LambdaTilde[[r]],lambda=Lambda[[r]],
+                                                     delta=Delta[[r]],varphi=Varphi[[r]],
+                                                     betaLatent=BetaLatent[[r]],gammaLatent=GammaLatent[[r]],
+                                                     rhoLatent=rhoLatent[[r]], rL=hM$rL[[r]])
+                  Eta[[r]] = listPar$eta
+                  Alpha[[r]] = listPar$alpha
+                  LambdaTilde[[r]] = listPar$lambdaTilde
+                  Lambda[[r]] = listPar$lambda
+                  Delta[[r]] = listPar$delta
+                  Varphi[[r]] = listPar$varphi
+                  BetaLatent[[r]] = listPar$betaLatent
+                  GammaLatent[[r]] = listPar$gammaLatent
+                  rhoLatent[[r]] = listPar$rhoLatent
+               }
             }
-            PsiDeltaList = updateLambdaPriors(Lambda=Lambda,Delta=Delta, rL=hM$rL)
+            PsiDeltaList = updateLambdaContPriors(LambdaTilde=LambdaTilde,Delta=Delta,Vartheta=Vartheta, rL=hM$rL)
             Psi = PsiDeltaList$Psi
             Delta = PsiDeltaList$Delta
          }
