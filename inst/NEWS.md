@@ -1,9 +1,9 @@
-Version 3.0-12
+Version 3.0-12 (not released, only in github)
 ==============
 
 ### New Features
 
-* Posterior samples from several independent `Hmcs` objects can be
+* Posterior samples from several independent `Hmsc` objects can be
   combined as new chains with new method function `c()`. This provides
   an easy alternative for distributed computing. The user should take
   care that these independent models are defined similarly so that
@@ -18,7 +18,7 @@ Version 3.0-12
   but other platforms can profit from the use of fork clusters which
   may have lower memory use and are faster to set up, and also may be
   marginally faster. The choice can be made with new argument
-  `clusterType`. It also possible to use a pre-constructed socket
+  `clusterType`. It is possible to use a pre-constructed socket
   cluster in all platforms. This will avoid overhead of setting new
   clusters and allows for a wider range of cluster configurations.
 
