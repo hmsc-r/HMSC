@@ -3,8 +3,10 @@
 #' Function combines posterior samples of several sampled
 #' \code{\link{Hmsc}} models (see \code{\link{sampleMcmc}}) as new
 #' chains in the first fitted model. The combined models must be
-#' identical, but this is not checked in the function and is left as
-#' user responsibility.
+#' comparable, and there are some tests for detecting non-equal
+#' models. These tests will only give warning, and it is at user
+#' deliberation to decide which models and which posterior samples can
+#' be combined.
 #'
 #' @param ... Sampled \code{Hmsc} models with posterior samples that
 #'     will be added as new chaings in the first listed model.
