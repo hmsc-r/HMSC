@@ -27,14 +27,43 @@
 {
     ## get models
     hMList <- list(...)
-    ## Check inputs:
+    ## Check inputs
     ## all elements are Hmsc objects?
     if (!all(sapply(hMList, inherits, what = "Hmsc")))
         stop("all elements should be Hmsc objects")
-    ## all Hmsc object have identical Calls (can give false alarms)
-    tmp <- lapply(hMList, getCall)
-    if (!all(sapply(tmp, identical, y = tmp[[1]])))
-        warning("not all elements have identical function Call")
+    ## all Hmsc objects are equal. This does not check elements set by
+    ## sampleMcmc - sampling features are checked separately
+    ## before. This will give false positives and therefore we just
+    ## warn. As of now, we do not check elements that are changed in
+    ## sampleMcmc (but we have separate checks for some of these):
+    ## samples, transient, thin, verbose, adaptNf, randSeed, postList,
+    ## HmscVersion; we do not check formulae but only model.matrix
+    ## procuded (XFormula, XRRRFormula, TrFormula) as typographically
+    ## different formulae can define identical models; we do not check
+    ## phyloTree (but only C); call. What about *Names, data.frames
+    ## (built to model.matrix)?
+    checkItems <-
+        c("Y", "XData", "X", "XScaled", "XRRRData", "XRRRScaled",
+          "YScaled", "XInterceptInd", "studyDesign", "ranLevels",
+          "ranLevelsUsed", "dfPi", "rL", "Pi", "TrData","Tr",
+          "TrScaled", "TrInterceptInd", "C", "distr", "ny", "ns",
+          "nc", "ncNRRR", "ncRRR", "ncORRR", "ncsel", "nr", "nt",
+          "nf", "ncr", "ncs", "np", "spNames", "covNames", "trNames",
+          "rLNames", "XScalePar", "XRRRScalePar", "YScalePar",
+          "TrScalePar", "V0", "f0", "mGamma", "UGamma", "aSigma",
+          "bSigma", "nu", "a1", "b1", "a2", "b2", "rhopw", "nuRRR",
+          "a1RRR", "b1RRR", "a2RRR", "b2RRR",  "initPar", "repN")
+    tmp <- hMList[[1]]
+    objCheck <- lapply(hMList[-1],
+                       function(z) all.equal(tmp[checkItems], z[checkItems],
+                                             check.attributes=FALSE))
+    if(!all(equalObjs <- sapply(objCheck, isTRUE))) {
+        warning("some objects differ from the first: may be false alarm, but check")
+        pick <- which(!equalObjs)
+        cat("Some objects differ when compared to the first object\n")
+        cat("object(s) ", paste0(pick+1, collapse=", "), ":\n\n", sep="")
+        print(objCheck[pick])
+    }
     ## all chains should be same size
     tmp <- unlist(lapply(hMList, function(x) x$samples))
     if (!all(tmp[1] == tmp))
