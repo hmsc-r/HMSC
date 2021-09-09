@@ -3,6 +3,16 @@ Version 3.0-12
 
 ### New Features
 
+* Posterior samples from several independent `Hmcs` objects can be
+  combined as new chains with new method function `c()`. This provides
+  an easy alternative for distributed computing. The user should take
+  care that these independent models are defined similarly so that
+  they really can be combined. The function tests for similarity of
+  objects, but it only gives warnings and can allow combination of
+  incompatible models at user will. The user should be careful **not**
+  to start these models from the same random number seed as these just
+  duplicate your data instead of adding independent new samples.
+
 * `sampleMcmc` allows the use of fork clusters instead of socket
   clusters. Socket clusters are still the only alternative in Windows,
   but other platforms can profit from the use of fork clusters which
