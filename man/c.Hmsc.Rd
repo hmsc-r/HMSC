@@ -21,7 +21,9 @@ chains in the first fitted model. The combined models must be
 comparable, and there are some tests for detecting non-equal
 models. These tests will only give warning, and it is at user
 deliberation to decide which models and which posterior samples can
-be combined.
+be combined.  You should be careful not start two models from the
+same random number seed, because these will only duplicate your
+data instead of providing new independent samples.
 }
 \examples{
 ## Fitted model with two chains

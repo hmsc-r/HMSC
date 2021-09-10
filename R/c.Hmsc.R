@@ -6,7 +6,9 @@
 #' comparable, and there are some tests for detecting non-equal
 #' models. These tests will only give warning, and it is at user
 #' deliberation to decide which models and which posterior samples can
-#' be combined.
+#' be combined.  You should be careful not start two models from the
+#' same random number seed, because these will only duplicate your
+#' data instead of providing new independent samples.
 #'
 #' @param ... Sampled \code{Hmsc} models with posterior samples that
 #'     will be added as new chaings in the first listed model.
@@ -66,6 +68,10 @@
         cat("object(s) ", paste0(pick+1, collapse=", "), ":\n\n", sep="")
         print(objCheck[pick])
     }
+    ## chains should not start from the same random seed
+    tmp <- do.call(rbind, lapply(hMList, function(x) x$randSeed))
+    if (any(duplicated(tmp)))
+        warning("some chains start from the same random seed and may give duplicated samples")
     ## all chains should be same size
     tmp <- unlist(lapply(hMList, function(x) x$samples))
     if (!all(tmp[1] == tmp))
