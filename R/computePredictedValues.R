@@ -163,6 +163,8 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
             pred1Array = array(dim=c(sum(val),hM$ns,postN))
             nfolds.sp = length(unique(partition.sp))
             for (i in 1:nfolds.sp){
+               if(verbose)
+                   cat("   ... species partition", i, "\n")
                train.sp = (partition.sp!=i)
                val.sp = (partition.sp==i)
                YcFull = hM$Y
