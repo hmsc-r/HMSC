@@ -6,9 +6,6 @@ Using computePredictedValues examples on Mac Mini M1 with stock R and latest (as
 partition = createPartition(TD$m, nfolds = 2)
 predsCV1 = computePredictedValues(TD$m,partition=partition)
 
-$sampling.time
-[1] 9.34
-
 $by.total
                          total.time total.pct self.time self.pct
 "computePredictedValues"       9.34    100.00      0.00     0.00
@@ -42,17 +39,29 @@ However, this gave only 25% speed-up.
 
 Using pre-set socket cluster was a bit better with 33% speed-up
 indicating that more than 1 sec was used in repeated setting and
-closing socket clusters. clusterType cannot be passed to sampleMcmc
-from this function and could not be tested.
+closing socket clusters. Also adding of argument clusterType in
+computePredictedValues and running with clusterType="fork" will cut
+off the overhead and give similar times as with pre-set socket cluster.
 
 > cl <- makeCluster(2)
-> system.time(predsCV1 <- computePredictedValues(TD$m,partition=partition, verbose=0, nParallel=cl))
+> system.time(predsCV1 <- computePredictedValues(TD$m,partition=partition, verbose=F, nParallel=cl))
 Cross-validation, fold 1 out of 2
 setting updater$Gamma2=FALSE due to specified phylogeny matrix
 Cross-validation, fold 2 out of 2
 setting updater$Gamma2=FALSE due to specified phylogeny matrix
    user  system elapsed 
-  0.296   0.007   6.545
+  0.297   0.014   5.543 
+> system.time(predsCV1 <- computePredictedValues(TD$m,partition=partition, verbose=F, nParallel=2, clusterType="fork"))
+Cross-validation, fold 1 out of 2
+setting updater$Gamma2=FALSE due to specified phylogeny matrix
+Computing chain 1
+Computing chain 2
+Cross-validation, fold 2 out of 2
+setting updater$Gamma2=FALSE due to specified phylogeny matrix
+Computing chain 1
+Computing chain 2
+   user  system elapsed 
+ 10.680   0.514   5.800 
 
 CASE 2: conditional by species
 
@@ -62,9 +71,6 @@ CASE 2: conditional by species
      partition.sp = 1:TD$m$ns, mcmcStep = 100)
 
 This was *much* slower (49 times), although there were only 4 species
-
-$sampling.time
-[1] 383.28
 
 $by.total
                            total.time total.pct self.time self.pct
