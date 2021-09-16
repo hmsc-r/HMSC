@@ -1,0 +1,89 @@
+TIMINGS
+
+Using computePredictedValues examples on Mac Mini M1 with stock R and latest (as of 16/9/21) Hmsc
+
+# Compute predicted values for a previously fitted HMSC model using 2 folds
+partition = createPartition(TD$m, nfolds = 2)
+predsCV1 = computePredictedValues(TD$m,partition=partition)
+
+$sampling.time
+[1] 9.34
+
+$by.total
+                         total.time total.pct self.time self.pct
+"computePredictedValues"       9.34    100.00      0.00     0.00
+"sampleMcmc"                   9.30     99.57      0.00     0.00
+"sampleChain"                  9.06     97.00      0.04     0.43
+"updateGammaEta"               6.10     65.31      0.02     0.21
+
+sampleMcmc dominates, and sampleChain() uses 97% of time, and this can
+be parallelized.
+
+> system.time(predsCV1 <- computePredictedValues(TD$m,partition=partition, verbose=0))
+Cross-validation, fold 1 out of 2
+setting updater$Gamma2=FALSE due to specified phylogeny matrix
+Computing chain 1
+Computing chain 2
+Cross-validation, fold 2 out of 2
+setting updater$Gamma2=FALSE due to specified phylogeny matrix
+Computing chain 1
+Computing chain 2
+   user  system elapsed 
+  9.748   0.021   9.770 
+> system.time(predsCV1 <- computePredictedValues(TD$m,partition=partition, verbose=0, nParallel=2))
+Cross-validation, fold 1 out of 2
+setting updater$Gamma2=FALSE due to specified phylogeny matrix
+Cross-validation, fold 2 out of 2
+setting updater$Gamma2=FALSE due to specified phylogeny matrix
+   user  system elapsed 
+  0.312   0.017   7.829 
+
+However, this gave only 25% speed-up.
+
+Using pre-set socket cluster was a bit better with 33% speed-up
+indicating that more than 1 sec was used in repeated setting and
+closing socket clusters. clusterType cannot be passed to sampleMcmc
+from this function and could not be tested.
+
+> cl <- makeCluster(2)
+> system.time(predsCV1 <- computePredictedValues(TD$m,partition=partition, verbose=0, nParallel=cl))
+Cross-validation, fold 1 out of 2
+setting updater$Gamma2=FALSE due to specified phylogeny matrix
+Cross-validation, fold 2 out of 2
+setting updater$Gamma2=FALSE due to specified phylogeny matrix
+   user  system elapsed 
+  0.296   0.007   6.545
+
+CASE 2: conditional by species
+
+# Compute conditional predictions for a previously fitted HMSC model using 2
+# folds
+     predsCV2 = computePredictedValues(TD$m, partition = partition,
+     partition.sp = 1:TD$m$ns, mcmcStep = 100)
+
+This was *much* slower (49 times), although there were only 4 species
+
+$sampling.time
+[1] 383.28
+
+$by.total
+                           total.time total.pct self.time self.pct
+"computePredictedValues"       383.28    100.00      0.00     0.00
+"predict.Hmsc"                 374.08     97.60      0.72     0.19
+"predict"                      374.08     97.60      0.00     0.00
+"updateEta"                    347.08     90.56     17.24     4.50
+...
+"sampleMcmc"                     9.08      2.37      0.00     0.00
+"sampleChain"                    8.88      2.32      0.00     0.00
+
+The run was dominated by predict.Hmsc (97.6%), and there by updateEta
+(90.6%). sampleMcmc took only 2.4%, and as it is the only function we
+can parallelize now, using nParallel would give 1% speed-up and was
+not worth testing.
+
+updateEta uses its time in matrix algebra and speed-up in BLAS/Lapack
+could help a lot. There is one l--o--n--g loop over number of chains
+that could be parallelized with potential speed-up, in particular when
+there are many chains. That is, the content of that loop would be
+written as a function than can be called in that loop sequentially or
+alternatively in parallel call.
