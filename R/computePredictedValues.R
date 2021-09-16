@@ -3,19 +3,33 @@
 #' @description Computes predicted values from the fitted \code{Hmsc} model
 #'
 #' @param hM a fitted \code{Hmsc} model object
-#' @param partition partition vector for cross-validation created by \code{\link{createPartition}}
-#' @param partition.sp species partitioning vector for conditional cross-validation
+#' @param partition partition vector for cross-validation created by
+#'     \code{\link{createPartition}}
+#' @param partition.sp species partitioning vector for conditional
+#'     cross-validation
 #' @param start index of first MCMC sample included
 #' @param thin thinning interval of posterior distribution
-#' @param Yc response matrix on which the predictions are to be conditioned
-#' @param mcmcStep number of MCMC steps used to make conditional predictions
-#' @param expected whether expected values (TRUE) or realizations (FALSE) are to be predicted
-#' @param initPar a named list of parameter values used for initialization of MCMC states
-#' @param nParallel number of parallel processes by which the chains are executed
+#' @param Yc response matrix on which the predictions are to be
+#'     conditioned
+#' @param mcmcStep number of MCMC steps used to make conditional
+#'     predictions
+#' @param expected whether expected values (TRUE) or realizations
+#'     (FALSE) are to be predicted
+#' @param initPar a named list of parameter values used for
+#'     initialization of MCMC states
+#' @param nParallel number of parallel processes by which the chains
+#'     are executed, or alternatively a predefined socket cluster
+#'     (passed to \code{\link{sampleMcmcm}})
+#' @param clusterType cluster type in parallel processing; socket
+#'     clusters are also used if supplied in \code{nParallel} and
+#'     always in Windows (passed to \code{\link{sampleMcmc}}
 #' @param nChains number of independent MCMC chains to be run
-#' @param updater a named list, specifying which conditional updaters should be omitted
-#' @param verbose the interval between MCMC steps printed to the console
-#' @param alignPost boolean flag indicating whether the posterior of each chains should be aligned
+#' @param updater a named list, specifying which conditional updaters
+#'     should be omitted
+#' @param verbose the interval between MCMC steps printed to the
+#'     console
+#' @param alignPost boolean flag indicating whether the posterior of
+#'     each chains should be aligned
 #'
 #' @return an array of model predictions, made for each posterior sample
 #'
@@ -53,8 +67,11 @@
 
 computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1, thin=1,
                                   Yc=NULL, mcmcStep=1, expected=TRUE, initPar=NULL,
-                                  nParallel=1, nChains = length(hM$postList), updater=list(),
-                                  verbose = hM$verbose, alignPost = TRUE){
+                                  nParallel=1, clusterType = c("socket","fork"),
+                                  nChains = length(hM$postList), updater=list(),
+                                  verbose = hM$verbose, alignPost = TRUE)
+{
+   clusterType <- match.arg(clusterType)
    if(is.null(partition)){
       postList = poolMcmcChains(hM$postList, start=start, thin=thin)
       pred = predict(hM, post=postList, Yc=Yc, mcmcStep=1, expected=expected)
@@ -131,8 +148,9 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
          hM1$TrInterceptInd = hM$TrInterceptInd
          hM1$TrScalePar = hM$TrScalePar
          hM1$TrScaled = (hM1$Tr - matrix(hM1$TrScalePar[1,],hM1$ns,hM1$nt,byrow=TRUE)) / matrix(hM1$TrScalePar[2,],hM1$ns,hM1$nt,byrow=TRUE)
-         hM1 = sampleMcmc(hM1, samples=hM$samples, thin=hM$thin, transient=hM$transient, adaptNf=hM$adaptNf,
-                          initPar=initPar, nChains=nChains, nParallel=nParallel, updater = updater,
+         hM1 = sampleMcmc(hM1, samples=hM$samples, thin=hM$thin, transient=hM$transient,
+                          adaptNf=hM$adaptNf, initPar=initPar, nChains=nChains,
+                          nParallel=nParallel, clusterType = clusterType, updater = updater,
                           verbose = verbose, alignPost=alignPost)
          postList = poolMcmcChains(hM1$postList, start=start, thin = thin)
          ## stringsAsFactors probably not needed below

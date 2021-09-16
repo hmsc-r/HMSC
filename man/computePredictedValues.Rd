@@ -15,6 +15,7 @@ computePredictedValues(
   expected = TRUE,
   initPar = NULL,
   nParallel = 1,
+  clusterType = c("socket", "fork"),
   nChains = length(hM$postList),
   updater = list(),
   verbose = hM$verbose,
@@ -24,31 +25,46 @@ computePredictedValues(
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}
 
-\item{partition}{partition vector for cross-validation created by \code{\link{createPartition}}}
+\item{partition}{partition vector for cross-validation created by
+\code{\link{createPartition}}}
 
-\item{partition.sp}{species partitioning vector for conditional cross-validation}
+\item{partition.sp}{species partitioning vector for conditional
+cross-validation}
 
 \item{start}{index of first MCMC sample included}
 
 \item{thin}{thinning interval of posterior distribution}
 
-\item{Yc}{response matrix on which the predictions are to be conditioned}
+\item{Yc}{response matrix on which the predictions are to be
+conditioned}
 
-\item{mcmcStep}{number of MCMC steps used to make conditional predictions}
+\item{mcmcStep}{number of MCMC steps used to make conditional
+predictions}
 
-\item{expected}{whether expected values (TRUE) or realizations (FALSE) are to be predicted}
+\item{expected}{whether expected values (TRUE) or realizations
+(FALSE) are to be predicted}
 
-\item{initPar}{a named list of parameter values used for initialization of MCMC states}
+\item{initPar}{a named list of parameter values used for
+initialization of MCMC states}
 
-\item{nParallel}{number of parallel processes by which the chains are executed}
+\item{nParallel}{number of parallel processes by which the chains
+are executed, or alternatively a predefined socket cluster
+(passed to \code{\link{sampleMcmcm}})}
+
+\item{clusterType}{cluster type in parallel processing; socket
+clusters are also used if supplied in \code{nParallel} and
+always in Windows (passed to \code{\link{sampleMcmc}}}
 
 \item{nChains}{number of independent MCMC chains to be run}
 
-\item{updater}{a named list, specifying which conditional updaters should be omitted}
+\item{updater}{a named list, specifying which conditional updaters
+should be omitted}
 
-\item{verbose}{the interval between MCMC steps printed to the console}
+\item{verbose}{the interval between MCMC steps printed to the
+console}
 
-\item{alignPost}{boolean flag indicating whether the posterior of each chains should be aligned}
+\item{alignPost}{boolean flag indicating whether the posterior of
+each chains should be aligned}
 }
 \value{
 an array of model predictions, made for each posterior sample
