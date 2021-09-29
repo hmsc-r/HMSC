@@ -299,8 +299,11 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
             Eta = updateEta(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
                             Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, X=X,Pi=Pi,dfPi=dfPi,rL=hM$rL)
 
-         if(!identical(updater$Alpha, FALSE))
-            Alpha = updateAlpha(Eta=Eta, rLPar=rLPar, rL=hM$rL)
+         if(!identical(updater$Alpha, FALSE)){
+            # Alpha = updateAlpha(Eta=Eta, rLPar=rLPar, rL=hM$rL)
+            Alpha = updateAlpha(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda,
+                                rLPar=rLPar, X=X,Pi=Pi,dfPi=dfPi,rL=hM$rL)
+         }
 
          if(!identical(updater$InvSigma, FALSE))
             iSigma = updateInvSigma(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,

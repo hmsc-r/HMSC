@@ -1,6 +1,6 @@
 #' @importFrom stats runif rnorm dgamma dt
 #' @importFrom abind abind
-#' @importFrom pracma meshgrid
+#' @importFrom pracma meshgrid ndims
 #' @importFrom matrixStats logSumExp
 updateLatentLoadingOrder = function(eta,lambda,alpha,delta, rL){
    #!!!!!! Current implementation will not work for covariate-dependnet latent loadings!!!!!!!!!!
@@ -53,7 +53,11 @@ updateLatentLoadingOrder = function(eta,lambda,alpha,delta, rL){
             ind2 = ind%/%N + 1
             lambda[h:(h+1),] = lambda[(h+1):h,]
             eta[,h:(h+1)] = eta[,(h+1):h]
-            alpha[h:(h+1)] = alpha[(h+1):h]
+            if(ndims(alpha) == 1){
+               alpha[h:(h+1)] = alpha[(h+1):h]
+            } else{
+               alpha[h:(h+1),] = alpha[(h+1):h,]
+            }
          } else{
             ind = sample(0:(N^2-1), 1, prob=exp(log_prior_loading-max(log_prior_loading)))
             ind1 = ind%%N + 1

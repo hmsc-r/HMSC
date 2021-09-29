@@ -47,6 +47,7 @@ Imports:
    pracma,
    pROC,
    sp,
+   SparseM,
    statmod,
    tensorflow,
    truncnorm
