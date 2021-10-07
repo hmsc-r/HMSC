@@ -6,6 +6,8 @@
 #'
 updateAlpha = function(Z,Beta,iSigma,Eta,Lambda, rLPar, X,Pi,dfPi,rL){
    nr = length(rL)
+   ny = nrow(Z)
+   ns = ncol(Z)
    ic = function(...){
       return(as.integer(c(...)))
    }
@@ -218,7 +220,7 @@ updateAlpha = function(Z,Beta,iSigma,Eta,Lambda, rLPar, X,Pi,dfPi,rL){
                      A = (iKsArray*iKtArray[,2,it-ic(1)][,NULL,NULL])[,NULL,,] + tfla$diag(lidl[,NULL]*tf$constant(numKronObsMat,tf$float64)[,it-ic(1)])
                      B = (iKsArray*iKtArray[,1,it-ic(2)][,NULL,NULL])[,NULL,,]
                      iLB = tfla$triangular_solve(L, B)
-                     L = tfla$cholesky(A - tf$matmul(iLB, iLB, transpose_a=TRUE))
+                     L = tfla$cholesky(A - tf$matmul(iLB,iLB,transpose_a=TRUE))
                      logDetV = tf$constant(2,tf$float64)*tf$reduce_sum(tfm$log(tfla$diag_part(L)), ic(-1))
                      iLm0 = tf$squeeze(tfla$triangular_solve(L, m0Mat[,it-ic(1),,NULL] - tf$matmul(iLB,iLm0[,,,NULL],transpose_a=TRUE)),ic(-1))
                      qF = qF + tf$reduce_sum(iLm0**2, ic(-1))

@@ -129,7 +129,9 @@ computeVariancePartitioning =
 
    for (i in 1:hM$samples){
       for (k in 1:nc){
-         R2T.Beta[k] = R2T.Beta[k] + cor(lbeta[[i]][k,],lmu[[i]][k,])^2
+         if(sd(lbeta[[i]][k,])>0 && sd(lmu[[i]][k,])>0){
+            R2T.Beta[k] = R2T.Beta[k] + cor(lbeta[[i]][k,],lmu[[i]][k,])^2
+         }
       }
 
       fixed1 = matrix(0,nrow=ns,ncol=1);

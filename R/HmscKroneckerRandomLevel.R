@@ -24,10 +24,10 @@
 #'
 #' @export
 
-HmscKroneckerRandomLevel = function(rLList, sepStr="=", etaMethod="R", alphaMethod="R") {
+HmscKroneckerRandomLevel = function(rLList, sepStr="=", etaMethod="R", alphaMethod="R", conserveMemoryFlag=FALSE, cgIterN=NULL) {
    kRL = structure(list(rLList=NULL, kN=NULL, pi=NULL, sDim=NULL, xDim=NULL, N=NULL, sepStr=sepStr, #
                         nfMax=NULL, nfMin=NULL, nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, alphaPrior=NULL,
-                        etaMethod=etaMethod, alphaMethod=alphaMethod),
+                        etaMethod=etaMethod, alphaMethod=alphaMethod, conserveMemoryFlag=conserveMemoryFlag, cgIterN=cgIterN),
                    class=c("HmscKroneckerRandomLevel","HmscRandomLevel"))
    kRL$rLList = rLList #TODO introduce some checks
    if(length(rLList) != 2){

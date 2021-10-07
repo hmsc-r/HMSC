@@ -327,53 +327,116 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                epsFullRand = rnorm(nx*nt*nf)
             }
             if(!exists("updateEta_kronecker_A1_tf", envir=parent.frame())){
-               fun = function(iKtArray,iKsArray,m0Mat,LamiDLam,epsMat){
+               fun = function(iKtArray,iKsArray,m0Mat,LamiDLam,epsMat,alphaTFlag0){
+                  conserveMemoryFlag = rL[[r]]$conserveMemoryFlag
                   tfla = tf$linalg
                   tfm = tf$math
-                  LArray = tf$zeros(ic(nt,nx*nf,nx*nf), tf$float64)
-                  CArray = tf$zeros(ic(nt-1,nx*nf,nx*nf), tf$float64)
-                  iLm0 = tf$zeros(ic(nt,nx*nf), tf$float64)
-                  it = 1
+                  it = tf$constant(ic(0),tf$int32)
                   diagBlockiKtVec = iKtArray[,2,it]
                   A = tf$reshape(tf$transpose(tfla$diag(diagBlockiKtVec*tf$transpose(iKsArray,ic(1,2,0))),ic(0,2,1,3)), ic(nx*nf,nx*nf))
                   A = A + tf$reshape(tf$transpose(tfla$diag(LamiDLam[,,NULL]*tf$constant(numKronObsMat,tf$float64)[,it]), ic(2,0,3,1)), ic(nf*nx,nf*nx))
                   L = tfla$cholesky(A)
-                  LArray = tf$tensor_scatter_nd_add(LArray, tf$constant(ic(it-1),tf$int32)[NULL,NULL], L[NULL,,])
-                  iLm0 = tf$tensor_scatter_nd_add(iLm0, tf$constant(ic(it-1),tf$int32)[NULL,NULL], tfla$triangular_solve(L, m0Mat[it,,NULL])[NULL,,1])
-                  A1Loop1Cond = function(it,LArray,CArray,iLm0) tfm$less_equal(it, as.integer(nt))
-                  A1Loop1Body = function(it,LArray,CArray,iLm0){
-                     diagBlockiKtVec = iKtArray[,2,it-ic(1)]
+                  iLm0 = tf$scatter_nd(it[NULL,NULL], tfla$triangular_solve(L, m0Mat[it,,NULL])[NULL,,1],ic(nt,nx*nf))
+                  A1Loop1Cond = function(it,L,C,iLm0) tfm$less(it, ic(nt))
+                  conserveMemoryFlagTmp = conserveMemoryFlag
+                  conserveMemoryFlag = FALSE
+                  if(conserveMemoryFlag==FALSE){ # saving intermediate results for faster backward loop
+                     LArray = tf$scatter_nd(it[NULL,NULL], L[NULL,,], ic(nt,nx*nf,nx*nf))
+                     CArray = tf$zeros(ic(nt-1,nx*nf,nx*nf), tf$float64)
+                  }
+                  A1Loop1Body = function(it,L,C,iLm0){
+                     if(conserveMemoryFlag==FALSE){
+                        LArray = L; CArray = C
+                     }
+                     diagBlockiKtVec = iKtArray[,2,it]
                      A = tf$reshape(tf$transpose(tfla$diag(diagBlockiKtVec*tf$transpose(iKsArray,ic(1,2,0))),ic(0,2,1,3)), ic(nx*nf,nx*nf))
-                     A = A + tf$reshape(tf$transpose(tfla$diag(LamiDLam[,,NULL]*tf$constant(numKronObsMat,tf$float64)[,it-ic(1)]), ic(2,0,3,1)), ic(nf*nx,nf*nx))
-                     offdiagBlockiKtVec = iKtArray[,3,it-ic(1)]
+                     A = A + tf$reshape(tf$transpose(tfla$diag(LamiDLam[,,NULL]*tf$constant(numKronObsMat,tf$float64)[,it]), ic(2,0,3,1)), ic(nf*nx,nf*nx))
+                     offdiagBlockiKtVec = iKtArray[,3,it]
                      B = tf$reshape(tf$transpose(tfla$diag(offdiagBlockiKtVec*tf$transpose(iKsArray,ic(1,2,0))),ic(0,2,1,3)), ic(nx*nf,nx*nf))
-                     C = tf$transpose(tfla$triangular_solve(LArray[it-ic(2),,], B))
-                     CArray = tf$tensor_scatter_nd_add(CArray, (it-ic(2))[NULL,NULL], C[NULL,,])
+                     if(conserveMemoryFlag==FALSE){
+                        C = tf$transpose(tfla$triangular_solve(LArray[it-ic(1),,], B))
+                     } else{
+                        C = tf$transpose(tfla$triangular_solve(L, B))
+                     }
                      L = tfla$cholesky(A-tf$matmul(C,C,transpose_b=TRUE))
-                     LArray = tf$tensor_scatter_nd_add(LArray, (it-ic(1))[NULL,NULL], L[NULL,,])
-                     v = m0Mat[it-ic(1),] - tf$squeeze(tf$matmul(C,iLm0[it-ic(2),,NULL]),-1)
-                     iLm0 = tf$tensor_scatter_nd_add(iLm0, (it-ic(1))[NULL,NULL], tfla$triangular_solve(L, v[,NULL])[NULL,,1])
-                     return(c(it+ic(1),LArray,CArray,iLm0))
+                     v = m0Mat[it,] - tf$squeeze(tf$matmul(C,iLm0[it-ic(1),,NULL]),-1)
+                     iLm0 = tf$tensor_scatter_nd_add(iLm0, it[NULL,NULL], tfla$triangular_solve(L, v[,NULL])[NULL,,1])
+                     if(conserveMemoryFlag==FALSE){
+                        CArray = tf$tensor_scatter_nd_add(CArray, (it-ic(1))[NULL,NULL], C[NULL,,])
+                        LArray = tf$tensor_scatter_nd_add(LArray, it[NULL,NULL], L[NULL,,])
+                        return(c(it+ic(1),LArray,CArray,iLm0))
+                     } else{
+                        return(c(it+ic(1),L,C,iLm0))
+                     }
                   }
-                  A1Loop1Init = c(tf$constant(as.integer(2),tf$int32),LArray,CArray,iLm0)
-                  A1Loop1Res = tf$while_loop(A1Loop1Cond, A1Loop1Body, A1Loop1Init)
-                  LArray = A1Loop1Res[[2]]; CArray = A1Loop1Res[[3]]; iLm0 = A1Loop1Res[[4]]
-                  iLTiLm0 = tf$zeros(ic(nt,nx*nf), tf$float64)
-                  it = nt
+                  if(conserveMemoryFlag==FALSE){
+                     A1Loop1Init = c(tf$constant(ic(1),tf$int32),LArray,CArray,iLm0)
+                     A1Loop1Res = tf$while_loop(A1Loop1Cond, A1Loop1Body, A1Loop1Init)
+                     LArray = A1Loop1Res[[2]]; CArray = A1Loop1Res[[3]]; iLm0 = A1Loop1Res[[4]]
+                     L = LArray[nt,,]
+                  } else{
+                     A1Loop1Init = c(tf$constant(ic(1),tf$int32),L,tf$zeros(ic(nx*nf,nx*nf),tf$float64),iLm0)
+                     A1Loop1Res = tf$while_loop(A1Loop1Cond, A1Loop1Body, A1Loop1Init)
+                     L = A1Loop1Res[[2]]; iLm0 = A1Loop1Res[[4]]
+                  }
+
+                  conserveMemoryFlag = conserveMemoryFlagTmp
+                  it = tf$constant(ic(nt-1),tf$int32)
                   v = iLm0[it,] + epsMat[it,]
-                  iLTiLm0 = tf$tensor_scatter_nd_add(iLTiLm0, tf$constant(ic(it-1),tf$int32)[NULL,NULL], tfla$triangular_solve(LArray[it,,], v[,NULL], adjoint=TRUE)[NULL,,1])
-                  A1Loop2Cond = function(it,iLTiLm0) tfm$greater_equal(it, as.integer(1))
-                  A1Loop2Body = function(it,iLTiLm0){
-                     v = iLm0[it-ic(1),] + epsMat[it-ic(1),] - tf$squeeze(tf$matmul(CArray[it-ic(1),,],iLTiLm0[it+ic(0),,NULL],transpose_a=TRUE),-1)
-                     iLTiLm0 = tf$tensor_scatter_nd_add(iLTiLm0, (it-ic(1))[NULL,NULL], tfla$triangular_solve(LArray[it-ic(1),,], v[,NULL], adjoint=TRUE)[NULL,,1])
-                     return(c(it-ic(1),iLTiLm0))
+                  if(conserveMemoryFlag==FALSE){
+                     iLTiLm0 = tf$scatter_nd(it[NULL,NULL], tfla$triangular_solve(LArray[it,,], v[,NULL], adjoint=TRUE)[NULL,,1], ic(nt,nx*nf))
+                     A1Loop2Cond = function(it,iLTiLm0) tfm$greater_equal(it, ic(0))
+                     A1Loop2Body = function(it,iLTiLm0){
+                        v = iLm0[it,] + epsMat[it,] - tf$squeeze(tf$matmul(CArray[it,,],iLTiLm0[it+ic(1),,NULL],transpose_a=TRUE),-1)
+                        iLTiLm0 = tf$tensor_scatter_nd_add(iLTiLm0, it[NULL,NULL], tfla$triangular_solve(LArray[it,,], v[,NULL], adjoint=TRUE)[NULL,,1])
+                        return(c(it-ic(1),iLTiLm0))
+                     }
+                     A1Loop2Init = c(it-ic(1),iLTiLm0)
+                     A1Loop2Res = tf$while_loop(A1Loop2Cond, A1Loop2Body, A1Loop2Init)
+                     iLTiLm0 = A1Loop2Res[[2]]
+                  } else{ #TODO currently this remains numerically unstable, probably due to accumulation of small errors
+                     mult0 = tf$reshape(tf$tile(alphaTFlag0[NULL,], ic(nx,1)), ic(nx*nf))
+                     iLTiLm0 = tf$scatter_nd(it[NULL,NULL], tfla$triangular_solve(L, v[,NULL], adjoint=TRUE)[NULL,,1], ic(nt,nx*nf))
+                     A1Loop2Cond = function(it,L,iLTiLm0) tfm$greater_equal(it, ic(0))
+                     A1Loop2Body = function(it,L,iLTiLm0){
+                        tf$print(it)
+                        # tf$print("L1-1",L)
+                        # tf$print("L1-2",LArray[it+ic(1),,])
+                        diagBlockiKtVec = iKtArray[,2,it+ic(1)]
+                        A = tf$reshape(tf$transpose(tfla$diag(diagBlockiKtVec*tf$transpose(iKsArray,ic(1,2,0))),ic(0,2,1,3)), ic(nx*nf,nx*nf))
+                        A = A + tf$reshape(tf$transpose(tfla$diag(LamiDLam[,,NULL]*tf$constant(numKronObsMat,tf$float64)[,it+ic(1)]), ic(2,0,3,1)), ic(nf*nx,nf*nx))
+                        offdiagBlockiKtVec = iKtArray[,3,it+ic(1)]
+                        B = tf$reshape(tf$transpose(tfla$diag(offdiagBlockiKtVec*tf$transpose(iKsArray,ic(1,2,0))),ic(0,2,1,3)), ic(nx*nf,nx*nf))
+                        # B = (mult0-1)[,NULL]*B*(mult0-1) + tfla$diag(mult0)
+                        H = A - tf$matmul(L,L,transpose_b=TRUE)
+                        # H = (mult0-1)[,NULL]*H*(mult0-1) + tfla$diag(mult0)
+                        tf$print("H-1",H)
+                        tf$print("H-2",tf$matmul(CArray[it,,],CArray[it,,],transpose_b=TRUE))
+                        LH = tfla$cholesky(H, name="LH")
+                        iLHB = tfla$triangular_solve(LH, B, name="iLHB")
+                        QRList = tfla$qr(iLHB)
+                        # the diagonal of QRList$r is not necessarily positive
+                        # signDiagRVec = tf$sign(tfla$diag_part(QRList$r))
+                        L = tf$transpose(QRList$r)
+                        C = tf$matmul(LH, QRList$q)
+                        # BiHB = tf$matmul(iLHB,iLHB,transpose_a=TRUE)
+                        # L = tfla$cholesky(BiHB, name="L")
+                        # C = tf$transpose(tfla$triangular_solve(L, B, name="C"))
+                        tf$print("L-1",L)
+                        tf$print("L-2",LArray[it,,])
+                        tf$print("C-1",C)
+                        tf$print("C-2",CArray[it,,])
+                        v = iLm0[it,] + epsMat[it,] - tf$squeeze(tf$matmul(C,iLTiLm0[it+ic(1),,NULL],transpose_a=TRUE),-1)
+                        iLTiLm0 = tf$tensor_scatter_nd_add(iLTiLm0, it[NULL,NULL], tfla$triangular_solve(L, v[,NULL], adjoint=TRUE, name="iLTiLm0")[NULL,,1])
+                        return(c(it-ic(1),L,iLTiLm0))
+                     }
+                     A1Loop2Init = c(it-ic(1),L,iLTiLm0)
+                     A1Loop2Res = tf$while_loop(A1Loop2Cond, A1Loop2Body, A1Loop2Init)
+                     iLTiLm0 = A1Loop2Res[[3]]
                   }
-                  A1Loop2Init = c(tf$constant(as.integer(nt-1),tf$int32),iLTiLm0)
-                  A1Loop2Res = tf$while_loop(A1Loop2Cond, A1Loop2Body, A1Loop2Init)
-                  iLTiLm0 = A1Loop2Res[[2]]
                   return(tf$reshape(iLTiLm0, ic(nt*nx,nf)))
                }
-               sampleEtaA1_tf_fun = tf_function(fun)
+               sampleEtaA1_tf_fun = tf_function(fun) #tf_function
                assign("updateEta_kronecker_A1_tf", sampleEtaA1_tf_fun, envir=parent.frame())
             } else{
                sampleEtaA1_tf_fun = get("updateEta_kronecker_A1_tf", envir=parent.frame())
@@ -391,13 +454,176 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
             iKtArray = tf$stack(lapply(rLPar[[r]][[1]]$iWg[alpha[,1]], getTridiagonal))
             iKsArray = tf$stack(lapply(rLPar[[r]][[2]]$iWg[alpha[,2]], as.matrix))
             LamiDLam = tf$constant(LamInvSigLam, dtype=tf$float64)
-            EtaFullTf = sampleEtaA1_tf_fun(iKtArray,iKsArray,m0Mat,LamiDLam,epsMat)
+            alphaTFlag0 = tf$constant(alpha[,1]==1,tf$float64)
+            EtaFullTf = sampleEtaA1_tf_fun(iKtArray,iKsArray,m0Mat,LamiDLam,epsMat,alphaTFlag0)
             EtaFull = EtaFullTf$numpy()
-         }
-         if(np[r] == nx*nt){
-            eta = EtaFull
-         } else{
-            eta = EtaFull[indKronObs,]
+            if(np[r] == nx*nt){
+               eta = EtaFull
+            } else{
+               eta = EtaFull[indKronObs,]
+            }
+         } else if(rL[[r]]$etaMethod == "TF_krylov"){
+            nt = npElemVec[1]
+            nx = npElemVec[2]
+            if(np[r] == nx*nt){
+               m0Full = as.vector(as.matrix(fS))
+               numKronObsMat = matrix(numObsVec,nx,nt)
+               epsFullRand = epsRand
+               EtaPrevFull = array(Eta[[r]],c(nt,nx,nf))
+            } else{
+               M0Full = matrix(0,nx*nt,nf)
+               M0Full[indKronObs,] = as.matrix(fS)
+               m0Full = as.vector(M0Full)
+               numKronObsMat = matrix(0,nx,nt)
+               numKronObsMat[indKronObs] = numObsVec
+               epsFullRand = rnorm(nx*nt*nf)
+               EtaPrevFull = matrix(0,nt*nx,nf)
+               EtaPrevFull[indKronObs,] = Eta[[r]]
+            }
+            if(!exists("updateEta_kronecker_A1a_tf", envir=parent.frame())){
+               fun = function(iKtArray,iKsArray,eKtMat,eKsMat,vKtArray,vKsArray,LamiDLam,m0Array,epsArray,EtaPrevArray){
+                  cgIterN = rL[[r]]$cgIterN
+                  tfla = tf$linalg
+                  tfm = tf$math
+                  frac = tf$constant(sum(numKronObsMat) / (nx*nt), tf$float64)
+                  eKArray = tf$einsum("ha,hc->hac",eKtMat,eKsMat)
+                  x = EtaPrevArray
+                  iKx = tf$transpose(tfla$tridiagonal_matmul(iKtArray, tf$matmul(tf$transpose(x,ic(2,0,1)), iKsArray)), ic(1,2,0))
+                  Bx = tf$matmul(x, LamiDLam) * tf$constant(t(numKronObsMat),tf$float64)[,,NULL]
+                  Ax = iKx + Bx
+                  r = m0Array - Ax
+                  tmp1 = tf$einsum("hab,ach,hcd->hbd", vKtArray,r,vKsArray)
+                  tmp2 = tmp1 * (eKArray^-1 + frac*tfla$diag_part(LamiDLam)[,NULL,NULL])^-1
+                  z = tf$einsum("hab,hbd,hcd->ach", vKtArray,tmp2,vKsArray)
+                  p = z
+                  rTz = tf$reduce_sum(r*z)
+                  # for(cgIter in 1:cgIterN){
+                  #    iKp = tf$transpose(tfla$tridiagonal_matmul(iKtArray, tf$matmul(tf$transpose(p,ic(2,0,1)), iKsArray)), ic(1,2,0))
+                  #    Bp = tf$matmul(p, LamiDLam) * tf$constant(t(numKronObsMat),tf$float64)[,,NULL]
+                  #    Ap = iKp + Bp
+                  #    pTAp = tf$reduce_sum(p*Ap)
+                  #    a = rTz / pTAp
+                  #    x = x + a*p
+                  #    rNew = r - a*Ap
+                  #    tmp1 = tf$einsum("hab,ach,hcd->hbd", vKtArray,rNew,vKsArray)
+                  #    tmp2 = tmp1 * (eKArray^-1 + frac*tfla$diag_part(LamiDLam)[,NULL,NULL])^-1
+                  #    zNew = tf$einsum("hab,hbd,hcd->ach", vKtArray,tmp2,vKsArray)
+                  #    rTrNew = tf$reduce_sum(rNew^2)
+                  #    rTzNew = tf$reduce_sum(rNew*zNew)
+                  #    EPS = 1e-12
+                  #    b = tf$cond(rTrNew < EPS, function() tf$constant(0,tf$float64), function() rTzNew/rTz)
+                  #    p = zNew + b*p
+                  #    r = rNew; z = zNew; rTz = rTzNew
+                  # }
+                  # EtaFullMean = tf$reshape(x,ic(nx*nt,nf))
+                  A1aLoop1Cond = function(cgIter,x,p,r,z,rTz) tfm$less(cgIter, ic(cgIterN))
+                  A1aLoop1Body = function(cgIter,x,p,r,z,rTz){
+                     iKp = tf$transpose(tfla$tridiagonal_matmul(iKtArray, tf$matmul(tf$transpose(p,ic(2,0,1)), iKsArray)), ic(1,2,0))
+                     Bp = tf$matmul(p, LamiDLam) * tf$constant(t(numKronObsMat),tf$float64)[,,NULL]
+                     Ap = iKp + Bp
+                     pTAp = tf$reduce_sum(p*Ap)
+                     a = rTz / pTAp
+                     x = x + a*p
+                     rNew = r - a*Ap
+                     tmp1 = tf$einsum("hab,ach,hcd->hbd", vKtArray,rNew,vKsArray)
+                     tmp2 = tmp1 * (eKArray^-1 + frac*tfla$diag_part(LamiDLam)[,NULL,NULL])^-1
+                     zNew = tf$einsum("hab,hbd,hcd->ach", vKtArray,tmp2,vKsArray)
+                     rTrNew = tf$reduce_sum(rNew^2)
+                     rTzNew = tf$reduce_sum(rNew*zNew)
+                     EPS = 1e-12
+                     b = tf$cond(rTrNew < EPS, function() tf$constant(0,tf$float64), function() rTzNew/rTz)
+                     p = zNew + b*p
+                     return(c(cgIter+ic(1),x,p,rNew,zNew,rTzNew))
+                  }
+                  A1aLoop1Init = c(tf$constant(ic(0),tf$int32),x,p,r,z,rTz)
+                  A1aLoop1Res = tf$while_loop(A1aLoop1Cond, A1aLoop1Body, A1aLoop1Init)
+                  EtaFullMean = tf$reshape(A1aLoop1Res[[2]],ic(nx*nt,nf))
+                  epsArrayNorm = tf$sqrt(tf$reduce_sum(epsArray^2))
+                  V = tf$scatter_nd(tf$zeros(ic(1,1),tf$int32), tf$reshape(epsArray,ic(1,nt,nx,nf))/epsArrayNorm, ic(cgIterN+1,nt,nx,nf))
+                  alpha = tf$zeros(ic(cgIterN), tf$float64)
+                  beta = tf$zeros(ic(cgIterN+1), tf$float64)
+                  # for(j in 1:cgIterN){
+                  #    tmp1 = tf$einsum("hab,ach,hcd->hbd", vKtArray,V[j,,,],vKsArray)
+                  #    tmp2 = tmp1 * (eKArray^-1 + frac*tfla$diag_part(LamiDLam)[,NULL,NULL])^-0.5
+                  #    Gvj = tf$einsum("hab,hbd,hcd->ach", vKtArray,tmp2,vKsArray)
+                  #    iKGvj = tf$transpose(tfla$tridiagonal_matmul(iKtArray, tf$matmul(tf$transpose(Gvj,ic(2,0,1)), iKsArray)), ic(1,2,0))
+                  #    BGvj = tf$matmul(Gvj, LamiDLam) * tf$constant(t(numKronObsMat),tf$float64)[,,NULL]
+                  #    AGvj = iKGvj + BGvj
+                  #    tmp1 = tf$einsum("hab,ach,hcd->hbd", vKtArray,AGvj,vKsArray)
+                  #    tmp2 = tmp1 * (eKArray^-1 + frac*tfla$diag_part(LamiDLam)[,NULL,NULL])^-0.5
+                  #    GAGvj = tf$einsum("hab,hbd,hcd->ach", vKtArray,tmp2,vKsArray)
+                  #    v = GAGvj
+                  #    if(j > 1) v = v - beta[j]*V[j-1,,,]
+                  #    # v = tf$cond(tf$constant(j,tf$int32)>ic(1), function() v-beta[j+1]*V[j,,,], function() v)
+                  #    alpha = tf$tensor_scatter_nd_add(alpha, ic(j-1)*tf$ones(ic(1,1),tf$int32), tf$reduce_sum(V[j,,,]*v)[NULL])
+                  #    v = v - alpha[j]*V[j,,,]
+                  #    beta = tf$tensor_scatter_nd_add(beta, ic(j)*tf$ones(ic(1,1),tf$int32), tf$sqrt(tf$reduce_sum(v^2))[NULL])
+                  #    V = tf$tensor_scatter_nd_add(V, ic(j)*tf$ones(ic(1,1),tf$int32), (v/beta[j+1])[NULL,,,])
+                  # }
+                  A1aLoop2Cond = function(j,V,alpha,beta) tfm$less(j, ic(cgIterN))
+                  A1aLoop2Body = function(j,V,alpha,beta){
+                     tmp1 = tf$einsum("hab,ach,hcd->hbd", vKtArray,V[j,,,],vKsArray)
+                     tmp2 = tmp1 * (eKArray^-1 + frac*tfla$diag_part(LamiDLam)[,NULL,NULL])^-0.5
+                     Gvj = tf$einsum("hab,hbd,hcd->ach", vKtArray,tmp2,vKsArray)
+                     iKGvj = tf$transpose(tfla$tridiagonal_matmul(iKtArray, tf$matmul(tf$transpose(Gvj,ic(2,0,1)), iKsArray)), ic(1,2,0))
+                     BGvj = tf$matmul(Gvj, LamiDLam) * tf$constant(t(numKronObsMat),tf$float64)[,,NULL]
+                     AGvj = iKGvj + BGvj
+                     tmp1 = tf$einsum("hab,ach,hcd->hbd", vKtArray,AGvj,vKsArray)
+                     tmp2 = tmp1 * (eKArray^-1 + frac*tfla$diag_part(LamiDLam)[,NULL,NULL])^-0.5
+                     GAGvj = tf$einsum("hab,hbd,hcd->ach", vKtArray,tmp2,vKsArray)
+                     v = GAGvj
+                     v = tf$cond(j>ic(0), function() v-beta[j]*V[j-ic(1),,,], function() v)
+                     alpha = tf$tensor_scatter_nd_add(alpha, j*tf$ones(ic(1,1),tf$int32), tf$reduce_sum(V[j,,,]*v)[NULL])
+                     v = v - alpha[j]*V[j,,,]
+                     beta = tf$tensor_scatter_nd_add(beta, (j+ic(1))*tf$ones(ic(1,1),tf$int32), tf$sqrt(tf$reduce_sum(v^2))[NULL])
+                     V = tf$tensor_scatter_nd_add(V, (j+ic(1))*tf$ones(ic(1,1),tf$int32), (v/beta[j+ic(1)])[NULL,,,])
+                     return(c(j+ic(1),V,alpha,beta))
+                  }
+                  A1aLoop2Init = c(tf$constant(ic(0),tf$int32),V,alpha,beta)
+                  A1aLoop2Res = tf$while_loop(A1aLoop2Cond, A1aLoop2Body, A1aLoop2Init)
+                  V=A1aLoop2Res[[2]]; alpha=A1aLoop2Res[[3]]; beta=A1aLoop2Res[[4]]
+                  V = tf$reshape(tf$transpose(V[1:cgIterN,,,], ic(1,2,3,0)), ic(nt*nx*nf,cgIterN))
+                  #evT = tf.linalg.eigh_tridiagonal(....)# in v2.6.0+ m,m,c(-1,0,1),list(beta[2:m],alpha,beta[2:m]))
+                  TM = tfla$LinearOperatorTridiag(list(tf$concat(list(beta[2:cgIterN],tf$zeros(ic(1),tf$float64)),ic(0)), alpha, beta[1:cgIterN]), diagonals_format='sequence')$to_dense()
+                  evT = tfla$eigh(TM)
+                  eT=evT[[1]]; vT=evT[[2]]
+                  e1 = tf$scatter_nd(tf$zeros(ic(1,1),tf$int32), tf$ones(ic(1),tf$float64), ic(cgIterN)*tf$ones(ic(1),tf$int32))
+                  iT05e1 = tf$matmul(vT, (eT^-0.5)[,NULL]*tf$matmul(vT,e1[,NULL],transpose_a=TRUE))
+                  ViT05e1 = tf$reshape(tf$matmul(V,iT05e1), ic(nt,nx,nf))
+                  tmp1 = tf$einsum("hab,ach,hcd->hbd", vKtArray,ViT05e1,vKsArray)
+                  tmp2 = tmp1 * (eKArray^-1 + frac*tfla$diag_part(LamiDLam)[,NULL,NULL])^-0.5
+                  GViT05e1 = tf$einsum("hab,hbd,hcd->ach", vKtArray,tmp2,vKsArray)
+                  EtaFullRand = epsArrayNorm*tf$reshape(GViT05e1, ic(nt*nx,nf))
+                  EtaFull = EtaFullMean + EtaFullRand
+                  # tf$print(EtaFullRand)
+                  return(EtaFull)
+               }
+               sampleEtaA1a_tf_fun = tf_function(fun) #tf_function
+               assign("updateEta_kronecker_A1a_tf", sampleEtaA1a_tf_fun, envir=parent.frame())
+            } else{
+               sampleEtaA1a_tf_fun = get("updateEta_kronecker_A1a_tf", envir=parent.frame())
+            }
+            m0Array = tf$reshape(tf$constant(aperm(array(m0Full,c(nx,nt,nf)),c(2,1,3)), dtype=tf$float64), ic(nt,nx,nf))
+            epsArray = tf$reshape(tf$constant(aperm(array(epsFullRand,c(nx,nt,nf)),c(2,1,3)), dtype=tf$float64), ic(nt,nx,nf))
+            EtaPrevArray = tf$reshape(tf$constant(aperm(array(EtaPrevFull,c(nx,nt,nf)),c(2,1,3)), dtype=tf$float64), ic(nt,nx,nf))
+            indL = 2 + (nt+1)*(0:(nt-2))
+            indD = 1 + (nt+1)*(0:(nt-1))
+            indU = (nt+1)*(1:(nt-1))
+            getTridiagonal = function(A) t(matrix(c(A[indU],0,A[indD],0,A[indL]),nrow(A),3))
+            iKtArray = tf$cast(tf$stack(lapply(rLPar[[r]][[1]]$iWg[alpha[,1]], getTridiagonal)), tf$float64)
+            eKtMat = tf$cast(tf$stack(rLPar[[r]][[1]]$eWg[alpha[,1]]), tf$float64)
+            vKtArray = tf$cast(tf$stack(rLPar[[r]][[1]]$vWg[alpha[,1]]), tf$float64)
+            iKsArray = tf$cast(tf$stack(lapply(rLPar[[r]][[2]]$iWg[alpha[,2]], as.matrix)), tf$float64)
+            eKsMat = tf$cast(tf$stack(rLPar[[r]][[2]]$eWg[alpha[,2]]), tf$float64)
+            vKsArray = tf$cast(tf$stack(rLPar[[r]][[2]]$vWg[alpha[,2]]), tf$float64)
+            LamiDLam = tf$constant(LamInvSigLam, dtype=tf$float64)
+            EtaFullTf = sampleEtaA1a_tf_fun(iKtArray,iKsArray,eKtMat,eKsMat,vKtArray,vKsArray,LamiDLam,m0Array,epsArray,EtaPrevArray)
+            EtaFull = EtaFullTf$numpy()
+            if(np[r] == nx*nt){
+               eta = EtaFull
+            } else{
+               eta = EtaFull[indKronObs,]
+            }
          }
       }
       rownames(eta)=rnames

@@ -11,6 +11,7 @@
 #' @importFrom sp spDists
 #' @importFrom FNN get.knn
 #' @importFrom Matrix .sparseDiagonal t solve band
+#' @importFrom tensorflow tf
 #'
 #' @export
 
@@ -48,7 +49,7 @@ computeDataParameters = function(hM){
 
    rLPar = vector("list", hM$nr)
    for(r in seq_len(hM$nr)){
-      print(class(hM$rL[[r]]))
+      # print(class(hM$rL[[r]]))
       if(inherits(hM$rL[[r]],"HmscSpatialRandomLevel",TRUE)==1){
          if(hM$rL[[r]]$sDim > 0){
             alphapw = hM$rL[[r]]$alphapw
@@ -234,43 +235,56 @@ computeDataParameters = function(hM){
                dfPiElem = as.factor(unlist(lapply(strsplit(as.character(m$dfPi[,r]), "="), function(a) a[l])))
                np = length(levels(dfPiElem))
                alphaN = length(alphaGrid)
-               switch(rL$spatialMethod,
-                      "Full" = {
-                         if(is.null(rL$distMat)){
-                            s = rL$s[levels(dfPiElem),]
-                            if (is(s, "Spatial"))
-                               distance <- spDists(s)
-                            else
-                               distance = as.matrix(dist(s))
-                         } else{
-                            distance = rL$distMat[levels(dfPiElem),levels(dfPiElem)]
-                         }
-                         Wg = vector("list", alphaN)
-                         iWg = vector("list", alphaN)
-                         RiWg = vector("list", alphaN)
-                         detWg = rep(NA, alphaN)
-                         for(ag in 1:alphaN){
-                            alpha = rL$alphapw[ag,1]
-                            if(alpha==0){
-                               W = diag(np)
-                            } else{
-                               W = exp(-distance/alpha)
-                            }
-                            RW = chol(W)
-                            iW = chol2inv(RW)
-                            if(rL$sDim == 1){
-                               iW = Matrix(band(iW,-1,1), sparse=TRUE)
-                            }
-                            Wg[[ag]] = W
-                            iWg[[ag]] = iW
-                            RiWg[[ag]] = chol(iW)
-                            detWg[ag] = 2*sum(log(diag(RW)))
-                         }
-                         rLPar[[r]][[l]] = list(Wg=Wg, iWg=iWg, RiWg=RiWg, detWg=detWg)
-                      },
-                      "NNGP" = {stop("Hmsc.computeDataParameters: kronecker random levels with NNGP are not implemented")},
-                      "GPP" = {stop("Hmsc.computeDataParameters: kronecker random levels with GPP are not implemented")}
-               )
+               if(rL$spatialMethod=="Full"){
+                  if(is.null(rL$distMat)){
+                     s = rL$s[levels(dfPiElem),]
+                     if (is(s, "Spatial"))
+                        distance <- spDists(s)
+                     else
+                        distance = as.matrix(dist(s))
+                  } else{
+                     distance = rL$distMat[levels(dfPiElem),levels(dfPiElem)]
+                  }
+                  Wg = vector("list", alphaN)
+                  iWg = vector("list", alphaN)
+                  RiWg = vector("list", alphaN)
+                  detWg = rep(NA, alphaN)
+                  eWg = vector("list", alphaN)
+                  vWg = vector("list", alphaN)
+                  for(ag in 1:alphaN){
+                     alpha = rL$alphapw[ag,1]
+                     if(alpha==0){
+                        W = diag(np)
+                     } else{
+                        W = exp(-distance/alpha)
+                     }
+                     RW = chol(W)
+                     iW = chol2inv(RW)
+                     if(rL$sDim == 1){
+                        iW = Matrix(band(iW,-1,1), sparse=TRUE)
+                     }
+                     Wg[[ag]] = W
+                     iWg[[ag]] = iW
+                     RiWg[[ag]] = chol(iW)
+                     detWg[ag] = 2*sum(log(diag(RW)))
+                     # if(hM$rL[[r]]$etaMethod=="TF_krylov"){
+                     #    ev = eigen(W, TRUE)
+                     #    eWg[[ag]] = ev$values
+                     #    vWg[[ag]] = ev$vectors
+                     # }
+                  }
+                  if(hM$rL[[r]]$etaMethod=="TF_krylov"){
+                     WStack = tf$stack(Wg)
+                     evWStack = tf$linalg$eigh(WStack)
+                     eWg = lapply(tf$split(evWStack[[1]], as.integer(alphaN)), function(a) a[1,]$numpy())
+                     vWg = lapply(tf$split(evWStack[[2]], as.integer(alphaN)), function(a) a[1,,]$numpy())
+                  }
+                  rLPar[[r]][[l]] = list(Wg=Wg, iWg=iWg, RiWg=RiWg, detWg=detWg, eWg=eWg, vWg=vWg)
+               } else if(rL$spatialMethod=="NNGP"){
+                  stop("Hmsc.computeDataParameters: kronecker random levels with NNGP are not implemented")
+               } else if(rL$spatialMethod=="NNGP"){
+                  stop("Hmsc.computeDataParameters: kronecker random levels with GPP are not implemented")
+               }
             }
          }
       }

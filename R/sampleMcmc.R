@@ -168,8 +168,9 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
    }
 
    sampleChain = function(chain){
-      if(nChains>1)
-         cat(sprintf("Computing chain %d\n", chain))
+      startInitTime = proc.time()[3]
+      # if(nChains>1)
+      cat(sprintf("Computing chain %d\n", chain))
       set.seed(initSeed[chain])
       parList = computeInitialParameters(hM,initPar)
 
@@ -231,6 +232,10 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
       }
 
       postList = vector("list", samples)
+      elapsedInitTime = proc.time()[3] - startInitTime
+      cat(sprintf("Initialization took of chain %d took %.2f sec\n", chain, elapsedInitTime))
+      cat(sprintf("MCMC sampling of chain %d started\n", chain))
+      startSamplingTime = proc.time()[3]
       for(iter in seq_len(transient+samples*thin)){
 
          if(!identical(updater$Gamma2, FALSE))
@@ -354,7 +359,8 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
             } else{
                samplingStatusString = "transient"
             }
-            cat(sprintf("Chain %d, iteration %d of %d, (%s)\n", chain, iter, transient+samples*thin, samplingStatusString) )
+            elapsedSamplingTime = proc.time()[3] - startSamplingTime
+            cat(sprintf("Chain %d, iteration %d of %d, (%s). Elapsed %.2f sec\n", chain, iter, transient+samples*thin, samplingStatusString, elapsedSamplingTime))
          }
       }
       return(postList)
