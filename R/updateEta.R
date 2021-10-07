@@ -12,6 +12,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
    ic = function(...){
       return(as.integer(c(...)))
    }
+   EtaFullList = vector("list",nr)
 
    switch(class(X)[1L],
           matrix = {
@@ -28,6 +29,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
       LRan[[r]] = computePredictor.HmscRandomLevel(rL[[r]], Eta[[r]], Lambda[[r]], Pi[,r], dfPi[,r])
    }
    for(r in seq_len(nr)){
+      EtaFull = NULL
       rnames=rownames(Eta[[r]])
       if(nr > 1){
          S = Z - (LFix + Reduce("+", LRan[setdiff(1:nr, r)]))
@@ -628,6 +630,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
       }
       rownames(eta)=rnames
       Eta[[r]] = eta
+      EtaFullList[[r]] = EtaFull
       if(r < nr){
          if(class(rL[[r]])[1]=="HmscRandomLevel"){
             if(rL[[r]]$xDim == 0){
@@ -642,6 +645,6 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
          }
       }
    }
-   return(Eta)
+   return(list(Eta, EtaFullList))
 }
 

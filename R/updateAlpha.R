@@ -4,7 +4,7 @@
 #' @importFrom plyr mdply
 #' @importFrom tensorflow tf
 #'
-updateAlpha = function(Z,Beta,iSigma,Eta,Lambda, rLPar, X,Pi,dfPi,rL){
+updateAlpha = function(Z,Beta,iSigma,Eta,EtaFull,Lambda, rLPar, X,Pi,dfPi,rL){
    nr = length(rL)
    ny = nrow(Z)
    ns = ncol(Z)
@@ -97,9 +97,9 @@ updateAlpha = function(Z,Beta,iSigma,Eta,Lambda, rLPar, X,Pi,dfPi,rL){
          allUnits = factor(do.call(function(...) paste(..., sep=rL[[r]]$sepStr),dfTmp))
          indKronObs = as.numeric(factor(m$dfPi[,r], levels=levels(allUnits)))
          gNVec = sapply(rL[[r]]$alphaPrior$alphaGridList, length)
-         if(rL[[r]]$alphaMethod == "R"){
-            if(length(allUnits) == np[r]){
-               etaArray = array(eta,c(rev(npElemVec),nf))
+         if(rL[[r]]$alphaMethod=="R" || rL[[r]]$alphaMethod=="R_full"){
+            if(rL[[r]]$alphaMethod=="R_full"){
+               etaArray = array(EtaFull[[r]],c(rev(npElemVec),nf))
                iWgEtaList = vector("list", krN)
                for(l in seq_len(krN)){
                   if(rL[[r]]$rLList[[l]]$sDim == 0){
@@ -137,8 +137,7 @@ updateAlpha = function(Z,Beta,iSigma,Eta,Lambda, rLPar, X,Pi,dfPi,rL){
                logPriorArray = array(log(rL[[r]]$alphaPrior$alphaProb), c(gN1,gN2,nf))
                logProbArray = logPriorArray - 0.5*logDetWArray - 0.5*qFArray #dimension-based const coefficients are omitted in this expr
                logProbArray1 = logProbArray
-            } else{
-               # stop("updateAlpha: not implemented yet")
+            } else if(rL[[r]]$alphaMethod=="R"){
                ind = as.numeric(factor(m$dfPi[,r], levels=levels(allUnits)))
                qFArray = array(NA,c(nf,gNVec))
                logDetWArray = array(NA,gNVec)

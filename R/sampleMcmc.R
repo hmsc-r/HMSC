@@ -233,7 +233,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
 
       postList = vector("list", samples)
       elapsedInitTime = proc.time()[3] - startInitTime
-      cat(sprintf("Initialization took of chain %d took %.2f sec\n", chain, elapsedInitTime))
+      cat(sprintf("Initialization of chain %d took %.2f sec\n", chain, elapsedInitTime))
       cat(sprintf("MCMC sampling of chain %d started\n", chain))
       startSamplingTime = proc.time()[3]
       for(iter in seq_len(transient+samples*thin)){
@@ -300,13 +300,15 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
             DeltaRRR = PsiDeltaList$Delta
          }
 
-         if(!identical(updater$Eta, FALSE))
-            Eta = updateEta(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
+         if(!identical(updater$Eta, FALSE)){
+            resList = updateEta(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
                             Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, X=X,Pi=Pi,dfPi=dfPi,rL=hM$rL)
+            Eta = resList[[1]]; EtaFull = resList[[2]]
+         }
 
          if(!identical(updater$Alpha, FALSE)){
             # Alpha = updateAlpha(Eta=Eta, rLPar=rLPar, rL=hM$rL)
-            Alpha = updateAlpha(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda,
+            Alpha = updateAlpha(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,EtaFull=EtaFull,Lambda=Lambda,
                                 rLPar=rLPar, X=X,Pi=Pi,dfPi=dfPi,rL=hM$rL)
          }
 
