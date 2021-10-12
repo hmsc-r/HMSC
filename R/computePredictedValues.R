@@ -87,6 +87,8 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
       else
           postN = Reduce(sum, lapply(hM$postList, length))
       predArray = array(NA,c(hM$ny,hM$ns,postN))
+      ## collect models for each fold
+      hM1 <- list()
       for (k in 1:nfolds){
          cat(sprintf("Cross-validation, fold %d out of %d\n", k, nfolds))
          train = (partition!=k)
@@ -121,34 +123,36 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
          ## below. If this disturbs, it should probably be fixed in
          ## Hmsc(), but currently ranLevels=character(0) seems to
          ## work.
-         hM1 = Hmsc(Y=hM$Y[train,,drop=FALSE], X=XTrain,
+         hM1[[k]] = Hmsc(Y=hM$Y[train,,drop=FALSE], X=XTrain,
                     XRRR=XRRRTrain, ncRRR = hM$ncRRR, XSelect = hM$XSelect,
                     distr=hM$distr, studyDesign=dfPi, Tr=hM$Tr, C=hM$C, ranLevels=hM$rL)
-         setPriors(hM1, V0=hM$V0, f0=hM$f0, mGamma=hM$mGamma, UGamma=hM$UGamma, aSigma=hM$aSigma, bSigma=hM$bSigma,
+         setPriors(hM1[[k]], V0=hM$V0, f0=hM$f0, mGamma=hM$mGamma, UGamma=hM$UGamma, aSigma=hM$aSigma, bSigma=hM$bSigma,
                    nu=hM$nu, a1=hM$a1, b1=hM$b1, a2=hM$a2, b2=hM$b2, rhopw=hM$rhowp)
-         hM1$YScalePar = hM$YScalePar
-         hM1$YScaled = (hM1$Y - matrix(hM1$YScalePar[1,],hM1$ny,hM1$ns,byrow=TRUE)) / matrix(hM1$YScalePar[2,],hM1$ny,hM1$ns,byrow=TRUE)
-         hM1$XInterceptInd = hM$XInterceptInd
-         hM1$XScalePar = hM$XScalePar
+         hM1[[k]]$YScalePar = hM$YScalePar
+         hM1[[k]]$YScaled = (hM1[[k]]$Y - matrix(hM1[[k]]$YScalePar[1,],hM1[[k]]$ny,hM1[[k]]$ns,byrow=TRUE)) / matrix(hM1[[k]]$YScalePar[2,],hM1[[k]]$ny,hM1[[k]]$ns,byrow=TRUE)
+         hM1[[k]]$XInterceptInd = hM$XInterceptInd
+         hM1[[k]]$XScalePar = hM$XScalePar
          switch(class(hM$X)[1L],
                 matrix = {
-                   hM1$XScaled = (hM1$X - matrix(hM1$XScalePar[1,],hM1$ny,hM1$ncNRRR,byrow=TRUE)) / matrix(hM1$XScalePar[2,],hM1$ny,hM1$ncNRRR,byrow=TRUE)
+                   hM1[[k]]$XScaled = (hM1[[k]]$X - matrix(hM1[[k]]$XScalePar[1,],hM1[[k]]$ny,hM1[[k]]$ncNRRR,byrow=TRUE)) / matrix(hM1[[k]]$XScalePar[2,],hM1[[k]]$ny,hM1[[k]]$ncNRRR,byrow=TRUE)
                 },
                 list = {
-                   hM1$XScaled = list()
-                   for (zz in seq_len(length(hM1$X))){
-                      hM1$XScaled[[zz]] = (hM1$X[[zz]] - matrix(hM1$XScalePar[1,],hM1$ny,hM1$ncNRRR,byrow=TRUE)) / matrix(hM1$XScalePar[2,],hM1$ny,hM1$ncNRRR,byrow=TRUE)
+                   hM1[[k]]$XScaled = list()
+                   for (zz in seq_len(length(hM1[[k]]$X))){
+                      hM1[[k]]$XScaled[[zz]] = (hM1[[k]]$X[[zz]] - matrix(hM1[[k]]$XScalePar[1,],hM1[[k]]$ny,hM1[[k]]$ncNRRR,byrow=TRUE)) / matrix(hM1[[k]]$XScalePar[2,],hM1[[k]]$ny,hM1[[k]]$ncNRRR,byrow=TRUE)
                    }
                 }
          )
-         if(hM1$ncRRR>0){
-            hM1$XRRRScalePar = hM$XRRRScalePar
-            hM1$XRRRScaled = (hM1$XRRR - matrix(hM1$XRRRScalePar[1,],hM1$ny,hM1$ncORRR,byrow=TRUE)) / matrix(hM1$XRRRScalePar[2,],hM1$ny,hM1$ncORRR,byrow=TRUE)
+         if(hM1[[k]]$ncRRR>0){
+            hM1[[k]]$XRRRScalePar = hM$XRRRScalePar
+            hM1[[k]]$XRRRScaled = (hM1[[k]]$XRRR - matrix(hM1[[k]]$XRRRScalePar[1,],hM1[[k]]$ny,hM1[[k]]$ncORRR,byrow=TRUE)) / matrix(hM1[[k]]$XRRRScalePar[2,],hM1[[k]]$ny,hM1[[k]]$ncORRR,byrow=TRUE)
          }
-         hM1$TrInterceptInd = hM$TrInterceptInd
-         hM1$TrScalePar = hM$TrScalePar
-         hM1$TrScaled = (hM1$Tr - matrix(hM1$TrScalePar[1,],hM1$ns,hM1$nt,byrow=TRUE)) / matrix(hM1$TrScalePar[2,],hM1$ns,hM1$nt,byrow=TRUE)
-         hM1 = sampleMcmc(hM1, samples=hM$samples, thin=hM$thin, transient=hM$transient,
+         hM1[[k]]$TrInterceptInd = hM$TrInterceptInd
+         hM1[[k]]$TrScalePar = hM$TrScalePar
+         hM1[[k]]$TrScaled = (hM1[[k]]$Tr - matrix(hM1[[k]]$TrScalePar[1,],hM1[[k]]$ns,hM1[[k]]$nt,byrow=TRUE)) / matrix(hM1[[k]]$TrScalePar[2,],hM1[[k]]$ns,hM1[[k]]$nt,byrow=TRUE)
+      }
+      for (k in 1:nfolds) {
+         hM1[[k]] = sampleMcmc(hM1[[k]], samples=hM$samples, thin=hM$thin, transient=hM$transient,
                           adaptNf=hM$adaptNf, initPar=initPar, nChains=nChains,
                           nParallel=nParallel, clusterType = clusterType, updater = updater,
                           verbose = verbose, alignPost=alignPost)

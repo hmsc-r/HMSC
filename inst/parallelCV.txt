@@ -87,9 +87,13 @@ The run was dominated by predict.Hmsc (97.6%), and there by updateEta
 can parallelize now, using nParallel would give 1% speed-up and was
 not worth testing.
 
+
 updateEta uses its time in matrix algebra and speed-up in BLAS/Lapack
 could help a lot. There is one l--o--n--g loop over number of chains
 that could be parallelized with potential speed-up, in particular when
 there are many chains. That is, the content of that loop would be
 written as a function than can be called in that loop sequentially or
 alternatively in parallel call.
+
+THE LOOPS
+
