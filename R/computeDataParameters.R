@@ -252,7 +252,7 @@ computeDataParameters = function(hM){
                   eWg = vector("list", alphaN)
                   vWg = vector("list", alphaN)
                   for(ag in 1:alphaN){
-                     alpha = rL$alphapw[ag,1]
+                     alpha = alphaGrid[ag]
                      if(alpha==0){
                         W = diag(np)
                      } else{
@@ -286,6 +286,50 @@ computeDataParameters = function(hM){
                   stop("Hmsc.computeDataParameters: kronecker random levels with GPP are not implemented")
                }
             }
+         }
+         if(hM$rL[[r]]$alphaMethod=="TF_direct_krylov"){
+            tfla = tf$linalg
+            tfm = tf$math
+            ic = function(...){
+               return(as.integer(c(...)))
+            }
+            krN = length(hM$rL[[r]]$rLList)
+            dfPiElemLevelList = vector("list", krN)
+            npElemVec = rep(NA, krN)
+            for(l in seq_len(krN)){
+               dfPiElem = as.factor(unlist(lapply(strsplit(as.character(m$dfPi[,r]), "="), function(a) a[l])))
+               dfPiElemLevelList[[l]] = levels(dfPiElem)
+               npElemVec[l] = length(dfPiElemLevelList[[l]])
+            }
+            dfTmp = expand.grid(rev(dfPiElemLevelList))[rev(1:krN)]
+            allUnits = factor(do.call(function(...) paste(..., sep=hM$rL[[r]]$sepStr),dfTmp))
+            indKronObs = as.numeric(factor(m$dfPi[,r], levels=levels(allUnits)))
+            gNVec = sapply(hM$rL[[r]]$alphaPrior$alphaGridList, length)
+            tAlphaGridN = gNVec[1]
+            sAlphaGridN = gNVec[2]
+            nt = npElemVec[1]
+            nx = npElemVec[2]
+            obsMat = tf$transpose(tf$constant(matrix(table(c(indKronObs,1:(nt*nx)))-1,nx,nt), tf$float64))
+            KtSt = tf$stack(rLPar[[r]][[1]]$Wg)
+            KsSt = tf$stack(rLPar[[r]][[2]]$Wg)
+            LKtSt = tfla$cholesky(KtSt)
+            LKsSt = tfla$cholesky(KsSt)
+            iKtSt = tfla$cholesky_solve(LKtSt, tf$eye(ic(nt),batch_shape=ic(tAlphaGridN)*tf$ones(ic(1),tf$int32),dtype=tf$float64))
+            iKsSt = tfla$cholesky_solve(LKsSt, tf$eye(ic(nx),batch_shape=ic(sAlphaGridN)*tf$ones(ic(1),tf$int32),dtype=tf$float64))
+            A = (1-obsMat[1,,NULL])*(iKtSt[,NULL,1,1,NULL,NULL]*iKsSt[NULL,,,])*(1-obsMat[1,]) + tfla$diag(obsMat[1,])
+            L = tfla$cholesky(A)
+            logDet = 2*tf$reduce_sum(tfm$log(tfla$diag_part(L)),ic(-1))
+            for(i in 2:nt){
+               B = (1-obsMat[i,,NULL])*(iKtSt[,NULL,i,i-1,NULL,NULL]*iKsSt[NULL,,,])*(1-obsMat[i-1,])
+               CT = tfla$triangular_solve(L, tf$transpose(B,ic(0,1,3,2)))
+               A = (1-obsMat[i,,NULL])*(iKtSt[,NULL,i,i,NULL,NULL]*iKsSt[NULL,,,])*(1-obsMat[i,]) + tfla$diag(obsMat[i,])
+               H = A - tf$matmul(CT,CT,transpose_a=TRUE)
+               L = tfla$cholesky(H)
+               logDet = logDet + 2*tf$reduce_sum(tfm$log(tfla$diag_part(L)),ic(-1))
+            }
+            logDetKt = 2*tf$reduce_sum(tfm$log(tfla$diag_part(LKtSt)), ic(-1))
+            logDetKs = 2*tf$reduce_sum(tfm$log(tfla$diag_part(LKsSt)), ic(-1))
+            rLPar[[r]]$logDetK = (nx*logDetKt[,NULL] + nt*logDetKs[NULL,] + logDet)$numpy()
          }
       }
    }
