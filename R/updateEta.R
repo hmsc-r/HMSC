@@ -483,11 +483,28 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                EtaPrevFull[indKronObs,] = Eta[[r]]
             }
             if(!exists("updateEta_kronecker_A1a_tf", envir=parent.frame())){
-               fun = function(iKtArray,iKsArray,eKtMat,eKsMat,vKtArray,vKsArray,LamiDLam,m0Array,epsArray,EtaPrevArray){
+               fun = function(alpha,LamiDLam,m0Array,epsArray,EtaPrevArray){
                   cgIterN = rL[[r]]$cgIterN
                   tfla = tf$linalg
                   tfm = tf$math
                   frac = tf$constant(sum(numKronObsMat) / (nx*nt), tf$float64)
+                  indL = 2 + (nt+1)*(0:(nt-2))
+                  indD = 1 + (nt+1)*(0:(nt-1))
+                  indU = (nt+1)*(1:(nt-1))
+                  getTridiagonal = function(A) t(matrix(c(A[indU],0,A[indD],0,A[indL]),nrow(A),3))
+                  iKtStack = tf$cast(tf$stack(lapply(rLPar[[r]][[1]]$iWg, getTridiagonal)), tf$float64)
+                  eKtStack = tf$cast(tf$stack(rLPar[[r]][[1]]$eWg), tf$float64)
+                  vKtStack = tf$cast(tf$stack(rLPar[[r]][[1]]$vWg), tf$float64)
+                  iKsStack = tf$cast(tf$stack(lapply(rLPar[[r]][[2]]$iWg, as.matrix)), tf$float64)
+                  eKsStack = tf$cast(tf$stack(rLPar[[r]][[2]]$eWg), tf$float64)
+                  vKsStack = tf$cast(tf$stack(rLPar[[r]][[2]]$vWg), tf$float64)
+
+                  iKtArray = tf$gather(iKtStack, alpha[,1])
+                  eKtMat = tf$gather(eKtStack, alpha[,1])
+                  vKtArray = tf$gather(vKtStack, alpha[,1])
+                  iKsArray = tf$gather(iKsStack, alpha[,2])
+                  eKsMat = tf$gather(eKsStack, alpha[,2])
+                  vKsArray = tf$gather(vKsStack, alpha[,2])
                   eKArray = tf$einsum("ha,hc->hac",eKtMat,eKsMat)
                   x = EtaPrevArray
                   iKx = tf$transpose(tfla$tridiagonal_matmul(iKtArray, tf$matmul(tf$transpose(x,ic(2,0,1)), iKsArray)), ic(1,2,0))
@@ -499,25 +516,6 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                   z = tf$einsum("hab,hbd,hcd->ach", vKtArray,tmp2,vKsArray)
                   p = z
                   rTz = tf$reduce_sum(r*z)
-                  # for(cgIter in 1:cgIterN){
-                  #    iKp = tf$transpose(tfla$tridiagonal_matmul(iKtArray, tf$matmul(tf$transpose(p,ic(2,0,1)), iKsArray)), ic(1,2,0))
-                  #    Bp = tf$matmul(p, LamiDLam) * tf$constant(t(numKronObsMat),tf$float64)[,,NULL]
-                  #    Ap = iKp + Bp
-                  #    pTAp = tf$reduce_sum(p*Ap)
-                  #    a = rTz / pTAp
-                  #    x = x + a*p
-                  #    rNew = r - a*Ap
-                  #    tmp1 = tf$einsum("hab,ach,hcd->hbd", vKtArray,rNew,vKsArray)
-                  #    tmp2 = tmp1 * (eKArray^-1 + frac*tfla$diag_part(LamiDLam)[,NULL,NULL])^-1
-                  #    zNew = tf$einsum("hab,hbd,hcd->ach", vKtArray,tmp2,vKsArray)
-                  #    rTrNew = tf$reduce_sum(rNew^2)
-                  #    rTzNew = tf$reduce_sum(rNew*zNew)
-                  #    EPS = 1e-12
-                  #    b = tf$cond(rTrNew < EPS, function() tf$constant(0,tf$float64), function() rTzNew/rTz)
-                  #    p = zNew + b*p
-                  #    r = rNew; z = zNew; rTz = rTzNew
-                  # }
-                  # EtaFullMean = tf$reshape(x,ic(nx*nt,nf))
                   A1aLoop1Cond = function(cgIter,x,p,r,z,rTz) tfm$less(cgIter, ic(cgIterN))
                   A1aLoop1Body = function(cgIter,x,p,r,z,rTz){
                      iKp = tf$transpose(tfla$tridiagonal_matmul(iKtArray, tf$matmul(tf$transpose(p,ic(2,0,1)), iKsArray)), ic(1,2,0))
@@ -544,24 +542,6 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                   V = tf$scatter_nd(tf$zeros(ic(1,1),tf$int32), tf$reshape(epsArray,ic(1,nt,nx,nf))/epsArrayNorm, ic(cgIterN+1,nt,nx,nf))
                   alpha = tf$zeros(ic(cgIterN), tf$float64)
                   beta = tf$zeros(ic(cgIterN+1), tf$float64)
-                  # for(j in 1:cgIterN){
-                  #    tmp1 = tf$einsum("hab,ach,hcd->hbd", vKtArray,V[j,,,],vKsArray)
-                  #    tmp2 = tmp1 * (eKArray^-1 + frac*tfla$diag_part(LamiDLam)[,NULL,NULL])^-0.5
-                  #    Gvj = tf$einsum("hab,hbd,hcd->ach", vKtArray,tmp2,vKsArray)
-                  #    iKGvj = tf$transpose(tfla$tridiagonal_matmul(iKtArray, tf$matmul(tf$transpose(Gvj,ic(2,0,1)), iKsArray)), ic(1,2,0))
-                  #    BGvj = tf$matmul(Gvj, LamiDLam) * tf$constant(t(numKronObsMat),tf$float64)[,,NULL]
-                  #    AGvj = iKGvj + BGvj
-                  #    tmp1 = tf$einsum("hab,ach,hcd->hbd", vKtArray,AGvj,vKsArray)
-                  #    tmp2 = tmp1 * (eKArray^-1 + frac*tfla$diag_part(LamiDLam)[,NULL,NULL])^-0.5
-                  #    GAGvj = tf$einsum("hab,hbd,hcd->ach", vKtArray,tmp2,vKsArray)
-                  #    v = GAGvj
-                  #    if(j > 1) v = v - beta[j]*V[j-1,,,]
-                  #    # v = tf$cond(tf$constant(j,tf$int32)>ic(1), function() v-beta[j+1]*V[j,,,], function() v)
-                  #    alpha = tf$tensor_scatter_nd_add(alpha, ic(j-1)*tf$ones(ic(1,1),tf$int32), tf$reduce_sum(V[j,,,]*v)[NULL])
-                  #    v = v - alpha[j]*V[j,,,]
-                  #    beta = tf$tensor_scatter_nd_add(beta, ic(j)*tf$ones(ic(1,1),tf$int32), tf$sqrt(tf$reduce_sum(v^2))[NULL])
-                  #    V = tf$tensor_scatter_nd_add(V, ic(j)*tf$ones(ic(1,1),tf$int32), (v/beta[j+1])[NULL,,,])
-                  # }
                   A1aLoop2Cond = function(j,V,alpha,beta) tfm$less(j, ic(cgIterN))
                   A1aLoop2Body = function(j,V,alpha,beta){
                      tmp1 = tf$einsum("hab,ach,hcd->hbd", vKtArray,V[j,,,],vKsArray)
@@ -608,18 +588,8 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
             m0Array = tf$reshape(tf$constant(aperm(array(m0Full,c(nx,nt,nf)),c(2,1,3)), dtype=tf$float64), ic(nt,nx,nf))
             epsArray = tf$reshape(tf$constant(aperm(array(epsFullRand,c(nx,nt,nf)),c(2,1,3)), dtype=tf$float64), ic(nt,nx,nf))
             EtaPrevArray = tf$reshape(tf$constant(aperm(array(EtaPrevFull,c(nx,nt,nf)),c(2,1,3)), dtype=tf$float64), ic(nt,nx,nf))
-            indL = 2 + (nt+1)*(0:(nt-2))
-            indD = 1 + (nt+1)*(0:(nt-1))
-            indU = (nt+1)*(1:(nt-1))
-            getTridiagonal = function(A) t(matrix(c(A[indU],0,A[indD],0,A[indL]),nrow(A),3))
-            iKtArray = tf$cast(tf$stack(lapply(rLPar[[r]][[1]]$iWg[alpha[,1]], getTridiagonal)), tf$float64)
-            eKtMat = tf$cast(tf$stack(rLPar[[r]][[1]]$eWg[alpha[,1]]), tf$float64)
-            vKtArray = tf$cast(tf$stack(rLPar[[r]][[1]]$vWg[alpha[,1]]), tf$float64)
-            iKsArray = tf$cast(tf$stack(lapply(rLPar[[r]][[2]]$iWg[alpha[,2]], as.matrix)), tf$float64)
-            eKsMat = tf$cast(tf$stack(rLPar[[r]][[2]]$eWg[alpha[,2]]), tf$float64)
-            vKsArray = tf$cast(tf$stack(rLPar[[r]][[2]]$vWg[alpha[,2]]), tf$float64)
             LamiDLam = tf$constant(LamInvSigLam, dtype=tf$float64)
-            EtaFullTf = sampleEtaA1a_tf_fun(iKtArray,iKsArray,eKtMat,eKsMat,vKtArray,vKsArray,LamiDLam,m0Array,epsArray,EtaPrevArray)
+            EtaFullTf = sampleEtaA1a_tf_fun(tf$constant(alpha-1,tf$int32),LamiDLam,m0Array,epsArray,EtaPrevArray)
             EtaFull = EtaFullTf$numpy()
             if(np[r] == nx*nt){
                eta = EtaFull
