@@ -69,6 +69,8 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
                       nChains=1, nParallel=1, dataParList=NULL, updater=list(),
                       fromPrior = FALSE, alignPost = TRUE,
                       TensorFlowAccelerationZFlag=FALSE,TensorFlowAccelerationGammaEtaFlag=FALSE){
+   startInitTime = proc.time()[3]
+   cat(sprintf("HMSC sampling initiated\n"))
    if (missing(verbose)) {
       if (samples*thin <= 50) # report every sampling
          verbose <- 1
@@ -368,6 +370,8 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
       return(postList)
    }
 
+   elapsedInitTime = proc.time()[3] - startInitTime
+   cat(sprintf("Initialization of cross-chain model objects took %.2f sec\n", elapsedInitTime))
    if(nParallel > 1){
       cl = makeCluster(nParallel, type="SOCK")
       clusterExport(cl, c("hM","nChains","transient","samples","thin","verbose","adaptNf","initSeed","initPar","updater",

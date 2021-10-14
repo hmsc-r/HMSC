@@ -249,8 +249,6 @@ computeDataParameters = function(hM){
                   iWg = vector("list", alphaN)
                   RiWg = vector("list", alphaN)
                   detWg = rep(NA, alphaN)
-                  eWg = vector("list", alphaN)
-                  vWg = vector("list", alphaN)
                   for(ag in 1:alphaN){
                      alpha = alphaGrid[ag]
                      if(alpha==0){
@@ -267,19 +265,31 @@ computeDataParameters = function(hM){
                      iWg[[ag]] = iW
                      RiWg[[ag]] = chol(iW)
                      detWg[ag] = 2*sum(log(diag(RW)))
-                     # if(hM$rL[[r]]$etaMethod=="TF_krylov"){
-                     #    ev = eigen(W, TRUE)
-                     #    eWg[[ag]] = ev$values
-                     #    vWg[[ag]] = ev$vectors
-                     # }
                   }
                   if(hM$rL[[r]]$etaMethod=="TF_krylov"){
-                     WStack = tf$stack(Wg)
+                     # WStack = tf$stack(Wg)
+                     # evWStack = tf$linalg$eigh(WStack)
+                     # eWg = lapply(tf$split(evWStack[[1]], as.integer(alphaN)), function(a) a[1,]$numpy())
+                     # vWg = lapply(tf$split(evWStack[[2]], as.integer(alphaN)), function(a) a[1,,]$numpy())
+                     WStack = tf$cast(tf$stack(Wg), tf$float64)
+                     if(l==1){
+                        nt = np
+                        indL = 2 + (nt+1)*(0:(nt-2))
+                        indD = 1 + (nt+1)*(0:(nt-1))
+                        indU = (nt+1)*(1:(nt-1))
+                        getTridiagonal = function(A) t(matrix(c(A[indU],0,A[indD],0,A[indL]),nrow(A),3))
+                        iWStack = tf$cast(tf$stack(lapply(iWg, getTridiagonal)), tf$float64)
+                     } else{
+                        iWStack = tf$cast(tf$stack(lapply(iWg, as.matrix)), tf$float64)
+                     }
                      evWStack = tf$linalg$eigh(WStack)
-                     eWg = lapply(tf$split(evWStack[[1]], as.integer(alphaN)), function(a) a[1,]$numpy())
-                     vWg = lapply(tf$split(evWStack[[2]], as.integer(alphaN)), function(a) a[1,,]$numpy())
+                     eWStack = evWStack[[1]]; vWStack = evWStack[[2]]
+                  } else{
+                     iWStack = eWStack = eWStack = NULL
                   }
-                  rLPar[[r]][[l]] = list(Wg=Wg, iWg=iWg, RiWg=RiWg, detWg=detWg, eWg=eWg, vWg=vWg)
+                  # rLPar[[r]][[l]] = list(Wg=Wg, iWg=iWg, RiWg=RiWg, detWg=detWg, eWg=eWg, vWg=vWg)
+                  rLPar[[r]][[l]] = list(Wg=Wg, iWg=iWg, RiWg=RiWg, detWg=detWg,
+                                         iWStack=iWStack, eWStack=eWStack, vWStack=vWStack)
                } else if(rL$spatialMethod=="NNGP"){
                   stop("Hmsc.computeDataParameters: kronecker random levels with NNGP are not implemented")
                } else if(rL$spatialMethod=="NNGP"){
