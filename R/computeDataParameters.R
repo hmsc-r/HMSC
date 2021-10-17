@@ -297,7 +297,7 @@ computeDataParameters = function(hM){
                }
             }
          }
-         if(hM$rL[[r]]$alphaMethod=="TF_direct_krylov"){
+         if(hM$rL[[r]]$alphaMethod=="TF_direct_krylov" || hM$rL[[r]]$alphaMethod=="TF_direct_local_krylov"){
             tfla = tf$linalg
             tfm = tf$math
             ic = function(...){

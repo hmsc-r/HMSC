@@ -310,7 +310,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
 
          if(!identical(updater$Alpha, FALSE)){
             # Alpha = updateAlpha(Eta=Eta, rLPar=rLPar, rL=hM$rL)
-            Alpha = updateAlpha(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,EtaFull=EtaFull,Lambda=Lambda,
+            Alpha = updateAlpha(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,EtaFull=EtaFull,Alpha=Alpha,Lambda=Lambda,
                                 rLPar=rLPar, X=X,Pi=Pi,dfPi=dfPi,rL=hM$rL)
          }
 
