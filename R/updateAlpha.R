@@ -421,8 +421,8 @@ updateAlpha = function(Z,Beta,iSigma,Eta,EtaFull,Alpha,Lambda, rLPar, X,Pi,dfPi,
             tInd = matrix(rep(-rad:rad,each=2*rad+1),gN,nf) + matrix(Alpha[[r]][,1],gN,nf,byrow=TRUE) - 1
             sInd = matrix(rep(-rad:rad,2*rad+1),gN,nf) + matrix(Alpha[[r]][,2],gN,nf,byrow=TRUE) - 1
             remFlag = tf$transpose(tf$constant(((tInd<0) | (tInd>=gNVec[1]) | (sInd<0) | (sInd>=gNVec[2])), tf$float64))
-            tInd = pmin(pmax(tInd,0),gNVec[1])
-            sInd = pmin(pmax(sInd,0),gNVec[2])
+            tInd = pmin(pmax(tInd,0),gNVec[1]-1)
+            sInd = pmin(pmax(sInd,0),gNVec[2]-1)
             qF = qF_C1_tf_fun(vArray, tf$constant(tInd,tf$int32), tf$constant(sInd,tf$int32))
             indMat = tf$cast(tf$stack(list(tInd,sInd),ic(-1)),tf$int32)
             logDetK = tf$gather_nd(tf$constant(rLPar[[r]]$logDetK,tf$float64), indMat)
