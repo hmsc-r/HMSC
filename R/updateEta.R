@@ -259,13 +259,13 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
          npElemVec = rep(NA, length(rL[[r]]$rLList))
          for(l in seq_len(length(rL[[r]]$rLList))){
             dfPiElem = as.factor(unlist(lapply(strsplit(as.character(m$dfPi[,r]), rL[[r]]$sepStr), function(a) a[l])))
-            dfPiElemLevelList[[l]] = unique(dfPiElem)
+            dfPiElemLevelList[[l]] = levels(dfPiElem)
             npElemVec[l] = length(dfPiElemLevelList[[l]])
          }
          dfTmp = expand.grid(rev(dfPiElemLevelList))[,rev(1:length(rL[[r]]$rLList))]
          # allUnits = factor(mdply(dfTmp,paste,sep=rL[[r]]$sepStr,.expand=FALSE)[,2])
          allUnits = factor(do.call(function(...) paste(..., sep=rL[[r]]$sepStr),dfTmp))
-         indKronObs = as.numeric(factor(m$dfPi[,r], levels=levels(allUnits)))
+         indKronObs = as.numeric(factor(levels(m$dfPi[,r]), levels=levels(allUnits)))
          if(rL[[r]]$etaMethod == "R"){
             if(rL[[r]]$sDim == 0){
                iWs = Diagonal(np[r]*nf)

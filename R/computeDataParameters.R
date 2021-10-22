@@ -232,7 +232,7 @@ computeDataParameters = function(hM){
             rL = hM$rL[[r]]$rLList[[l]]
             if(rL$sDim > 0){
                alphaGrid = alphaPrior$alphaGridList[[l]]
-               dfPiElem = as.factor(unlist(lapply(strsplit(as.character(m$dfPi[,r]), "="), function(a) a[l])))
+               dfPiElem = as.factor(unlist(lapply(strsplit(as.character(hM$dfPi[,r]), hM$rL[[r]]$sepStr), function(a) a[l])))
                np = length(levels(dfPiElem))
                alphaN = length(alphaGrid)
                if(rL$spatialMethod=="Full"){
@@ -307,13 +307,13 @@ computeDataParameters = function(hM){
             dfPiElemLevelList = vector("list", krN)
             npElemVec = rep(NA, krN)
             for(l in seq_len(krN)){
-               dfPiElem = as.factor(unlist(lapply(strsplit(as.character(m$dfPi[,r]), "="), function(a) a[l])))
+               dfPiElem = as.factor(unlist(lapply(strsplit(as.character(hM$dfPi[,r]), hM$rL[[r]]$sepStr), function(a) a[l])))
                dfPiElemLevelList[[l]] = levels(dfPiElem)
                npElemVec[l] = length(dfPiElemLevelList[[l]])
             }
             dfTmp = expand.grid(rev(dfPiElemLevelList))[rev(1:krN)]
             allUnits = factor(do.call(function(...) paste(..., sep=hM$rL[[r]]$sepStr),dfTmp))
-            indKronObs = as.numeric(factor(m$dfPi[,r], levels=levels(allUnits)))
+            indKronObs = as.numeric(factor(hM$dfPi[,r], levels=levels(allUnits)))
             gNVec = sapply(hM$rL[[r]]$alphaPrior$alphaGridList, length)
             tAlphaGridN = gNVec[1]
             sAlphaGridN = gNVec[2]

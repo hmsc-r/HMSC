@@ -91,10 +91,10 @@ updateAlpha = function(Z,Beta,iSigma,Eta,EtaFull,Alpha,Lambda, rLPar, X,Pi,dfPi,
             dfPiElemLevelList[[l]] = levels(dfPiElem)
             npElemVec[l] = length(dfPiElemLevelList[[l]])
          }
-         dfTmp = expand.grid(rev(dfPiElemLevelList))[rev(1:krN)]
+         dfTmp = expand.grid(rev(dfPiElemLevelList))[,rev(1:krN)]
          # allUnits = as.factor(mdply(dfTmp, paste, sep=rL[[r]]$sepStr)[,length(dfPiElemLevelList)+1])
          allUnits = factor(do.call(function(...) paste(..., sep=rL[[r]]$sepStr),dfTmp))
-         indKronObs = as.numeric(factor(m$dfPi[,r], levels=levels(allUnits)))
+         indKronObs = as.numeric(factor(levels(m$dfPi[,r]), levels=levels(allUnits)))
          gNVec = sapply(rL[[r]]$alphaPrior$alphaGridList, length)
          if(rL[[r]]$alphaMethod=="R" || rL[[r]]$alphaMethod=="R_full"){
             if(rL[[r]]$alphaMethod=="R_full"){
