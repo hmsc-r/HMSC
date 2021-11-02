@@ -338,6 +338,7 @@ computeDataParameters = function(hM){
                   H = A - tf$matmul(CT,CT,transpose_a=TRUE)
                   L = tfla$cholesky(H)
                   logDet = logDet + 2*tf$reduce_sum(tfm$log(tfla$diag_part(L)),ic(-1))
+                  gc()
                }
             } else{
                batchN = ceiling((tAlphaGridN*sAlphaGridN)/batchSize)

@@ -420,18 +420,18 @@ updateAlpha = function(Z,Beta,iSigma,Eta,EtaFull,Alpha,Lambda, rLPar, X,Pi,dfPi,
             }
             tInd = matrix(rep(-rad:rad,each=2*rad+1),gN,nf) + matrix(Alpha[[r]][,1],gN,nf,byrow=TRUE) - 1
             sInd = matrix(rep(-rad:rad,2*rad+1),gN,nf) + matrix(Alpha[[r]][,2],gN,nf,byrow=TRUE) - 1
-            remFlag = tf$transpose(tf$constant(((tInd<0) | (tInd>=gNVec[1]) | (sInd<0) | (sInd>=gNVec[2])), tf$float64))
-            tInd = pmin(pmax(tInd,0),gNVec[1]-1)
-            sInd = pmin(pmax(sInd,0),gNVec[2]-1)
-            qF = qF_C1_tf_fun(vArray, tf$constant(tInd,tf$int32), tf$constant(sInd,tf$int32))
+            remFlag = tf$constant(((tInd<0) | (tInd>=gNVec[1]) | (sInd<0) | (sInd>=gNVec[2])), tf$float64)
+            tInd = (1-remFlag)*tInd
+            sInd = (1-remFlag)*sInd
+            qF = qF_C1_tf_fun(vArray, tf$cast(tInd,tf$int32), tf$cast(sInd,tf$int32))
             indMat = tf$cast(tf$stack(list(tInd,sInd),ic(-1)),tf$int32)
             logDetK = tf$gather_nd(tf$constant(rLPar[[r]]$logDetK,tf$float64), indMat)
             logPriorProb = tf$math$log(tf$gather_nd(tf$constant(rL[[r]]$alphaPrior$alphaProb,tf$float64), indMat))
-            logLikeMat = tf$transpose(-0.5*qF - 0.5*logDetK + logPriorProb, ic(1,0))
+            logLikeMat = -0.5*qF - 0.5*logDetK + logPriorProb
 
             logLikeMat = logLikeMat*(1-remFlag) - tf$math$multiply_no_nan(tf$constant(Inf,tf$float64),remFlag)
             logLikeMat = logLikeMat - tf$reduce_logsumexp(logLikeMat, ic(-1), keepdims=TRUE)
-            sampleInd = tf$cast(tf$squeeze(tf$random$categorical(logLikeMat, ic(1)), ic(-1)), tf$int32)
+            sampleInd = tf$squeeze(tf$random$categorical(tf$transpose(logLikeMat), ic(1), tf$int32), ic(-1))
             sampleIndMat = tf$stack(list(sampleInd,tf$constant(0:(nf-1),tf$int32)), ic(-1))
             Alpha[[r]][,2] = tf$gather_nd(sInd,sampleIndMat)$numpy() + 1
             Alpha[[r]][,1] = tf$gather_nd(tInd,sampleIndMat)$numpy() + 1

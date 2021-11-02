@@ -471,7 +471,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                m0Full = as.vector(as.matrix(fS))
                numKronObsMat = matrix(numObsVec,nx,nt)
                epsFullRand = epsRand
-               EtaPrevFull = array(Eta[[r]],c(nt,nx,nf))
+               EtaPrevFull = Eta[[r]]
             } else{
                M0Full = matrix(0,nx*nt,nf)
                M0Full[indKronObs,] = as.matrix(fS)
@@ -543,7 +543,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                   }
                   A1aLoop1Init = c(tf$constant(ic(0),tf$int32),x,p,r,z,rTz)
                   A1aLoop1Res = tf$while_loop(A1aLoop1Cond, A1aLoop1Body, A1aLoop1Init)
-                  EtaFullMean = tf$reshape(A1aLoop1Res[[2]],ic(nx*nt,nf))
+                  EtaFullMean = tf$reshape(A1aLoop1Res[[2]],ic(nt*nx,nf))
                   epsArrayNorm = tf$sqrt(tf$reduce_sum(epsArray^2))
                   V = tf$scatter_nd(tf$zeros(ic(1,1),tf$int32), tf$reshape(epsArray,ic(1,nt,nx,nf))/epsArrayNorm, ic(cgIterN+1,nt,nx,nf))
                   alpha = tf$zeros(ic(cgIterN), tf$float64)
@@ -591,9 +591,9 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
             } else{
                sampleEtaA1a_tf_fun = get("updateEta_kronecker_A1a_tf", envir=parent.frame())
             }
-            m0Array = tf$reshape(tf$constant(aperm(array(m0Full,c(nx,nt,nf)),c(2,1,3)), dtype=tf$float64), ic(nt,nx,nf))
-            epsArray = tf$reshape(tf$constant(aperm(array(epsFullRand,c(nx,nt,nf)),c(2,1,3)), dtype=tf$float64), ic(nt,nx,nf))
-            EtaPrevArray = tf$reshape(tf$constant(aperm(array(EtaPrevFull,c(nx,nt,nf)),c(2,1,3)), dtype=tf$float64), ic(nt,nx,nf))
+            m0Array = tf$constant(aperm(array(m0Full,c(nx,nt,nf)),c(2,1,3)), dtype=tf$float64)
+            epsArray = tf$constant(aperm(array(epsFullRand,c(nx,nt,nf)),c(2,1,3)), dtype=tf$float64)
+            EtaPrevArray = tf$constant(aperm(array(EtaPrevFull,c(nx,nt,nf)),c(2,1,3)), dtype=tf$float64)
             LamiDLam = tf$constant(LamInvSigLam, dtype=tf$float64)
             EtaFullTf = sampleEtaA1a_tf_fun(tf$constant(alpha-1,tf$int32),LamiDLam,m0Array,epsArray,EtaPrevArray)
             EtaFull = EtaFullTf$numpy()
