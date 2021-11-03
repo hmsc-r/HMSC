@@ -430,7 +430,7 @@ updateAlpha = function(Z,Beta,iSigma,Eta,EtaFull,Alpha,Lambda, rLPar, X,Pi,dfPi,
             logLikeMat = -0.5*qF - 0.5*logDetK + logPriorProb
 
             logLikeMat = logLikeMat*(1-remFlag) - tf$math$multiply_no_nan(tf$constant(Inf,tf$float64),remFlag)
-            logLikeMat = logLikeMat - tf$reduce_logsumexp(logLikeMat, ic(-1), keepdims=TRUE)
+            logLikeMat = logLikeMat - tf$reduce_logsumexp(logLikeMat, ic(0), keepdims=TRUE)
             sampleInd = tf$squeeze(tf$random$categorical(tf$transpose(logLikeMat), ic(1), tf$int32), ic(-1))
             sampleIndMat = tf$stack(list(sampleInd,tf$constant(0:(nf-1),tf$int32)), ic(-1))
             Alpha[[r]][,2] = tf$gather_nd(sInd,sampleIndMat)$numpy() + 1
