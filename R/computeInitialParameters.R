@@ -203,7 +203,7 @@ computeInitialParameters = function(hM, initPar){
          Eta[[r]] = matrix(rnorm(np[r]*nf[r]),np[r],nf[r])
       }
    }
-   if(!is.null(initPar$Eta)){
+   if(!is.null(initPar$Alpha)){
       Alpha = initPar$Alpha
    } else{
       Alpha = vector("list", hM$nr)
