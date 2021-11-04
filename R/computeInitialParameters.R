@@ -93,6 +93,16 @@ computeInitialParameters = function(hM, initPar){
 
       if(!is.null(initPar$Beta)){
          Beta = initPar$Beta
+         for(k in 1:hM$nc){
+            m = hM$XScalePar[1,k]
+            s = hM$XScalePar[2,k]
+            if(m!=0 || s!=1){
+               if(!is.null(hM$XInterceptInd)){
+                  Beta[hM$XInterceptInd,] = Beta[hM$XInterceptInd,] + m*Beta[k,]
+               }
+               Beta[k,] = Beta[k,]*s
+            }
+         }
       } else{
          Beta = matrix(NA, hM$nc, hM$ns)
          Mu = tcrossprod(Gamma,hM$Tr)

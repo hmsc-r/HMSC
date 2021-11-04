@@ -263,7 +263,6 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
             npElemVec[l] = length(dfPiElemLevelList[[l]])
          }
          dfTmp = expand.grid(rev(dfPiElemLevelList))[,rev(1:length(rL[[r]]$rLList))]
-         # allUnits = factor(mdply(dfTmp,paste,sep=rL[[r]]$sepStr,.expand=FALSE)[,2])
          allUnits = factor(do.call(function(...) paste(..., sep=rL[[r]]$sepStr),dfTmp))
          indKronObs = as.numeric(factor(levels(m$dfPi[,r]), levels=levels(allUnits)))
          if(rL[[r]]$etaMethod == "R"){
@@ -488,22 +487,6 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                   tfla = tf$linalg
                   tfm = tf$math
                   frac = tf$constant(sum(numKronObsMat) / (nx*nt), tf$float64)
-                  # indL = 2 + (nt+1)*(0:(nt-2))
-                  # indD = 1 + (nt+1)*(0:(nt-1))
-                  # indU = (nt+1)*(1:(nt-1))
-                  # getTridiagonal = function(A) t(matrix(c(A[indU],0,A[indD],0,A[indL]),nrow(A),3))
-                  # iKtStack = tf$cast(tf$stack(lapply(rLPar[[r]][[1]]$iWg, getTridiagonal)), tf$float64)
-                  # eKtStack = tf$cast(tf$stack(rLPar[[r]][[1]]$eWg), tf$float64)
-                  # vKtStack = tf$cast(tf$stack(rLPar[[r]][[1]]$vWg), tf$float64)
-                  # iKsStack = tf$cast(tf$stack(lapply(rLPar[[r]][[2]]$iWg, as.matrix)), tf$float64)
-                  # eKsStack = tf$cast(tf$stack(rLPar[[r]][[2]]$eWg), tf$float64)
-                  # vKsStack = tf$cast(tf$stack(rLPar[[r]][[2]]$vWg), tf$float64)
-                  # iKtArray = tf$gather(iKtStack, alpha[,1])
-                  # eKtMat = tf$gather(eKtStack, alpha[,1])
-                  # vKtArray = tf$gather(vKtStack, alpha[,1])
-                  # iKsArray = tf$gather(iKsStack, alpha[,2])
-                  # eKsMat = tf$gather(eKsStack, alpha[,2])
-                  # vKsArray = tf$gather(vKsStack, alpha[,2])
                   iKtArray = tf$gather(rLPar[[r]][[1]]$iWStack, alpha[,1])
                   eKtMat = tf$gather(rLPar[[r]][[1]]$eWStack, alpha[,1])
                   vKtArray = tf$gather(rLPar[[r]][[1]]$vWStack, alpha[,1])
@@ -537,7 +520,8 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                      rTrNew = tf$reduce_sum(rNew^2)
                      rTzNew = tf$reduce_sum(rNew*zNew)
                      EPS = 1e-12
-                     b = tf$cond(rTrNew < EPS, function() tf$constant(0,tf$float64), function() rTzNew/rTz)
+                     # b = tf$cond(rTrNew < EPS, function() tf$constant(0,tf$float64), function() rTzNew/rTz)
+                     b = tfm$multiply_no_nan(rTzNew/rTz, tf$cast(rTrNew>EPS, tf$float64))
                      p = zNew + b*p
                      return(c(cgIter+ic(1),x,p,rNew,zNew,rTzNew))
                   }
@@ -623,4 +607,40 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
    }
    return(list(Eta, EtaFullList))
 }
+
+
+
+
+
+
+# if(!exists("updateEta_kronecker_A1a_tf", envir=parent.frame())){
+#    fun = function(alpha,LamiDLam,m0Array,epsArray,EtaPrevArray){
+#       cgIterN = rL[[r]]$cgIterN
+#       tfla = tf$linalg
+#       tfm = tf$math
+#       frac = tf$constant(sum(numKronObsMat) / (nx*nt), tf$float64)
+#       # indL = 2 + (nt+1)*(0:(nt-2))
+#       # indD = 1 + (nt+1)*(0:(nt-1))
+#       # indU = (nt+1)*(1:(nt-1))
+#       # getTridiagonal = function(A) t(matrix(c(A[indU],0,A[indD],0,A[indL]),nrow(A),3))
+#       # iKtStack = tf$cast(tf$stack(lapply(rLPar[[r]][[1]]$iWg, getTridiagonal)), tf$float64)
+#       # eKtStack = tf$cast(tf$stack(rLPar[[r]][[1]]$eWg), tf$float64)
+#       # vKtStack = tf$cast(tf$stack(rLPar[[r]][[1]]$vWg), tf$float64)
+#       # iKsStack = tf$cast(tf$stack(lapply(rLPar[[r]][[2]]$iWg, as.matrix)), tf$float64)
+#       # eKsStack = tf$cast(tf$stack(rLPar[[r]][[2]]$eWg), tf$float64)
+#       # vKsStack = tf$cast(tf$stack(rLPar[[r]][[2]]$vWg), tf$float64)
+#       # iKtArray = tf$gather(iKtStack, alpha[,1])
+#       # eKtMat = tf$gather(eKtStack, alpha[,1])
+#       # vKtArray = tf$gather(vKtStack, alpha[,1])
+#       # iKsArray = tf$gather(iKsStack, alpha[,2])
+#       # eKsMat = tf$gather(eKsStack, alpha[,2])
+#       # vKsArray = tf$gather(vKsStack, alpha[,2])
+#       iKtArray = tf$gather(rLPar[[r]][[1]]$iWStack, alpha[,1])
+#       eKtMat = tf$gather(rLPar[[r]][[1]]$eWStack, alpha[,1])
+#       vKtArray = tf$gather(rLPar[[r]][[1]]$vWStack, alpha[,1])
+#       iKsArray = tf$gather(rLPar[[r]][[2]]$iWStack, alpha[,2])
+#       eKsMat = tf$gather(rLPar[[r]][[2]]$eWStack, alpha[,2])
+#       vKsArray = tf$gather(rLPar[[r]][[2]]$vWStack, alpha[,2])
+#    }
+# }
 
