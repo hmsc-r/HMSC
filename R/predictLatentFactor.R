@@ -150,8 +150,25 @@ predictLatentFactor =
                   unitsAll = c(units,unitsPred[indNew])
                   s = rL$s[unitsAll,,drop=FALSE]
                   sOld = s[1:np,, drop=FALSE]
-                  sNew = as.matrix(s[np+(1:nn),, drop=FALSE])
-                  indNN = knnx.index(sOld,sNew,k=rL$nNeighbours)
+                  sNew = s[np+(1:nn),, drop=FALSE]
+                  ## In Euclidean coordinates we use fast
+                  ## FNN::knnx.index, but for Spatial coordinates we
+                  ## need to first calculate spatial distances
+                  if (is(sOld, "Spatial")) {
+                      ## if we use NNGP, full distance matrix can be
+                      ## too big, and we loop over sOld rows: this is
+                      ## slow but needs less memory
+                      nnabo <- rL$nNeighbours
+                      indNN <- matrix(0, np, nnabo)
+                      for (i in seq_len(nn)) {
+                          indNN[i,] <-
+                              order(spDists(sOld,
+                                            sNew[i,, drop=FALSE]))[seq_len(nnabo)]
+                      }
+                  } else {
+                      sNew <- as.matrix(sNew)
+                      indNN = knnx.index(sOld,sNew,k=rL$nNeighbours)
+                  }
                   indices = list()
                   dist12 = matrix(NA,nrow=rL$nNeighbours,ncol=nn)
                   dist11 = array(NA, c(rL$nNeighbours,rL$nNeighbours,nn))
