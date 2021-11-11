@@ -266,11 +266,7 @@ computeDataParameters = function(hM){
                      RiWg[[ag]] = chol(iW)
                      detWg[ag] = 2*sum(log(diag(RW)))
                   }
-                  if(hM$rL[[r]]$etaMethod=="TF_krylov"){
-                     # WStack = tf$stack(Wg)
-                     # evWStack = tf$linalg$eigh(WStack)
-                     # eWg = lapply(tf$split(evWStack[[1]], as.integer(alphaN)), function(a) a[1,]$numpy())
-                     # vWg = lapply(tf$split(evWStack[[2]], as.integer(alphaN)), function(a) a[1,,]$numpy())
+                  if(hM$rL[[r]]$etaMethod=="TF_krylov" || hM$rL[[r]]$alphaMethod=="TF_full" || hM$rL[[r]]$alphaMethod=="TF_direct_krylov"){
                      WStack = tf$cast(tf$stack(Wg), tf$float64)
                      if(l==1){
                         nt = np
@@ -282,14 +278,17 @@ computeDataParameters = function(hM){
                      } else{
                         iWStack = tf$cast(tf$stack(lapply(iWg, as.matrix)), tf$float64)
                      }
+                  } else{
+                     WStack = iWStack = NULL
+                  }
+                  if(hM$rL[[r]]$etaMethod=="TF_krylov"){
                      evWStack = tf$linalg$eigh(WStack)
                      eWStack = evWStack[[1]]; vWStack = evWStack[[2]]
                   } else{
-                     iWStack = eWStack = eWStack = NULL
+                     eWStack = eWStack = NULL
                   }
-                  # rLPar[[r]][[l]] = list(Wg=Wg, iWg=iWg, RiWg=RiWg, detWg=detWg, eWg=eWg, vWg=vWg)
                   rLPar[[r]][[l]] = list(Wg=Wg, iWg=iWg, RiWg=RiWg, detWg=detWg,
-                                         iWStack=iWStack, eWStack=eWStack, vWStack=vWStack)
+                                         WStack=WStack, iWStack=iWStack, eWStack=eWStack, vWStack=vWStack)
                } else if(rL$spatialMethod=="NNGP"){
                   stop("Hmsc.computeDataParameters: kronecker random levels with NNGP are not implemented")
                } else if(rL$spatialMethod=="NNGP"){
