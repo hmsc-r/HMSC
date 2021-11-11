@@ -159,7 +159,7 @@ predictLatentFactor =
                       ## too big, and we loop over sOld rows: this is
                       ## slow but needs less memory
                       nnabo <- rL$nNeighbours
-                      indNN <- matrix(0, np, nnabo)
+                      indNN <- matrix(0, nn, nnabo)
                       for (i in seq_len(nn)) {
                           indNN[i,] <-
                               order(spDists(sOld,
