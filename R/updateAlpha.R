@@ -184,7 +184,7 @@ updateAlpha = function(Z,Beta,iSigma,Eta,EtaFull,Alpha,Lambda, rLPar, X,Pi,dfPi,
                         iWg = rLPar[[r]][[l]]$iWStack
                         if(l==1){
                            # iWgEta = tf$einsum("xtf,gtq->gxqf",etaArray, iWg)
-                           iWgEta = tf$linalg$tridiagonal_matmul(tf$expand_dims(iWg[,NULL,,],ic(1,npElemVec[2],1,1)),tf$expand_dims(etaArray[NULL,,,],ic(gNVec[1],1,1,1)))
+                           iWgEta = tf$linalg$tridiagonal_matmul(tf$tile(iWg[,NULL,,],ic(1,npElemVec[2],1,1)),tf$tile(etaArray[NULL,,,],ic(gNVec[1],1,1,1)))
                         }
                         if(l==2){
                            iWgEta = tf$einsum("gyx,xtf->gytf",iWg,etaArray)
