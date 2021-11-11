@@ -116,7 +116,7 @@ HmscRandomLevel =
       rL$distMat = distMat
       rL$N = nrow(distMat)
       rL$pi = as.factor(sort(rownames(distMat)))
-      if (is.null(rL$pi))
+      if (length(rL$pi) == 0) # rownames missing
          stop("'distMat' should have rownames for random levels")
       rL$spatialMethod = sMethod
       rL$nNeighbours = nNeighbours
