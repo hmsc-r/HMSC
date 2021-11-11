@@ -68,7 +68,8 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
                       verbose, adaptNf=rep(transient,hM$nr),
                       nChains=1, nParallel=1, dataParList=NULL, updater=list(),
                       fromPrior = FALSE, alignPost = TRUE,
-                      TensorFlowAccelerationZFlag=FALSE,TensorFlowAccelerationGammaEtaFlag=FALSE){
+                      TensorFlowAccelerationZFlag=FALSE,TensorFlowAccelerationGammaEtaFlag=FALSE,
+                      computeDataParametersOnlyFlag=FALSE){
    startInitTime = proc.time()[3]
    cat(sprintf("HMSC sampling initiated\n"))
    if (missing(verbose)) {
@@ -119,6 +120,8 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
 
    if(is.null(dataParList))
       dataParList = computeDataParameters(hM)
+   if(computeDataParametersOnlyFlag)
+      return(dataParList)
    Qg = dataParList$Qg
    iQg = dataParList$iQg
    RQg = dataParList$RQg
