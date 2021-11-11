@@ -4,7 +4,15 @@
 \alias{HmscKroneckerRandomLevel}
 \title{Create an \code{Hmsc} kronecker random level structure}
 \usage{
-HmscKroneckerRandomLevel(rLList)
+HmscKroneckerRandomLevel(
+  rLList,
+  sepStr = "=",
+  etaMethod = "R",
+  alphaMethod = "R",
+  conserveMemoryFlag = FALSE,
+  logDetKstBatchSize = 0,
+  cgIterN = NULL
+)
 }
 \arguments{
 \item{rLList}{}

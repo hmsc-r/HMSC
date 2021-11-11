@@ -15,6 +15,7 @@ sampleMcmc(
   nChains = 1,
   nParallel = 1,
   dataParList = NULL,
+  rLKronLogDetList = NULL,
   updater = list(),
   fromPrior = FALSE,
   alignPost = TRUE,

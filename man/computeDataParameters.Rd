@@ -4,7 +4,7 @@
 \alias{computeDataParameters}
 \title{computeDataParameters}
 \usage{
-computeDataParameters(hM)
+computeDataParameters(hM, rLKronLogDetList = NULL)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}
