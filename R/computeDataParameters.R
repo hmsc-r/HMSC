@@ -275,26 +275,18 @@ computeDataParameters = function(hM){
                   LWg = tfla$cholesky(Wg)
                   iWg = tfla$cholesky_solve(LWg, tf$eye(ic(nrow(distance)),batch_shape=ic(alphaN)*tf$ones(ic(1),tf$int32),dtype=tf$float64))
                   detWg = 2*tf$reduce_sum(tfm$log(tfla$diag_part(LWg)), ic(-1))
-                  Wg = lapply(tf$split(Wg, ic(alphaN)), function(e) tf$squeeze(e,ic(0))$numpy())
-                  RiWg = lapply(tf$split(tf$transpose(tfla$cholesky(iWg),ic(0,2,1)), ic(alphaN)), function(e) tf$squeeze(e,ic(0))$numpy())
-                  iWg = lapply(tf$split(iWg, ic(alphaN)), function(e) tf$squeeze(e,ic(0))$numpy())
-                  detWg = detWg$numpy()
-                  if(rL$sDim == 1){
-                     for(ag in 1:alphaN){
-                        iWg[[ag]] = Matrix(band(iWg[[ag]],-1,1), sparse=TRUE)
-                     }
-                  }
                   if(hM$rL[[r]]$etaMethod=="TF_krylov" || hM$rL[[r]]$alphaMethod=="TF_full" || hM$rL[[r]]$alphaMethod=="TF_direct_krylov"){
-                     WStack = tf$cast(tf$stack(Wg), tf$float64)
+                     WStack = Wg #tf$cast(tf$stack(Wg), tf$float64)
                      if(l==1){
-                        nt = np
-                        indL = 2 + (nt+1)*(0:(nt-2))
-                        indD = 1 + (nt+1)*(0:(nt-1))
-                        indU = (nt+1)*(1:(nt-1))
-                        getTridiagonal = function(A) t(matrix(c(A[indU],0,A[indD],0,A[indL]),nrow(A),3))
-                        iWStack = tf$cast(tf$stack(lapply(iWg, getTridiagonal)), tf$float64)
+                        # nt = np
+                        # indL = 2 + (nt+1)*(0:(nt-2)) - 1
+                        # indD = 1 + (nt+1)*(0:(nt-1)) - 1
+                        # indU = (nt+1)*(1:(nt-1)) - 1
+                        # getTridiagonal = function(A) t(matrix(c(A[indU],0,A[indD],0,A[indL]),nrow(A),3))
+                        # iWStack = tf$cast(tf$stack(lapply(iWg, getTridiagonal)), tf$float64)
+                        iWStack = tf$reverse(tf$linalg$diag_part(iWg, k=ic(-1,1)), ic(-2)*tf$ones(ic(1),tf$int32)) # works correctly due to symmetric property
                      } else{
-                        iWStack = tf$cast(tf$stack(lapply(iWg, as.matrix)), tf$float64)
+                        iWStack = iWg #tf$cast(tf$stack(lapply(iWg, as.matrix)), tf$float64)
                      }
                   } else{
                      WStack = iWStack = NULL
@@ -304,6 +296,15 @@ computeDataParameters = function(hM){
                      eWStack = evWStack[[1]]; vWStack = evWStack[[2]]
                   } else{
                      eWStack = eWStack = NULL
+                  }
+                  Wg = lapply(tf$split(Wg, ic(alphaN)), function(e) tf$squeeze(e,ic(0))$numpy())
+                  RiWg = lapply(tf$split(tf$transpose(tfla$cholesky(iWg),ic(0,2,1)), ic(alphaN)), function(e) tf$squeeze(e,ic(0))$numpy())
+                  iWg = lapply(tf$split(iWg, ic(alphaN)), function(e) tf$squeeze(e,ic(0))$numpy())
+                  detWg = detWg$numpy()
+                  if(rL$sDim == 1){
+                     for(ag in 1:alphaN){
+                        iWg[[ag]] = Matrix(band(iWg[[ag]],-1,1), sparse=TRUE)
+                     }
                   }
                   rLPar[[r]][[l]] = list(Wg=Wg, iWg=iWg, RiWg=RiWg, detWg=detWg,
                                          WStack=WStack, iWStack=iWStack, eWStack=eWStack, vWStack=vWStack)
