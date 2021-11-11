@@ -351,6 +351,7 @@ computeDataParameters = function(hM){
                logDet = tf$zeros(ic(tAlphaGridN*sAlphaGridN), tf$float64)
                # outerLoopCond = function(batch,logDet) tfm$less(batch, ic(batchN))
                # outerLoopBody = function(batch,logDet){
+               L = NULL
                tmp_fun = function(batch){
                   tf$print(batch)
                   batchLen = tfm$minimum((batch+ic(1))*ic(batchSize), ic(tAlphaGridN*sAlphaGridN)) - batch*ic(batchSize)
@@ -362,7 +363,10 @@ computeDataParameters = function(hM){
                   iKs = tf$gather(iKsSt, sGridInd)
                   i = tf$constant(ic(0), tf$int32)
                   A = (tf$constant(1,tf$float64)-obsMat[i,,NULL])*(iKt[,tf$constant(ic(1),tf$int32),i,NULL,NULL]*iKs)*(tf$constant(1,tf$float64)-obsMat[i,]) + tfla$diag(obsMat[i,])
-                  L = tfla$cholesky(A)
+                  if(is.null(L)){
+                     L <<- tf$Variable(tfla$cholesky(A))
+                  } else
+                     L$assign(tfla$cholesky(A))
                   logDetBatch = tf$constant(2,tf$float64)*tf$reduce_sum(tfm$log(tfla$diag_part(L)),ic(-1))
                   # innerLoopCond = function(i,logDetBatch,L) tfm$less(i, ic(nt))
                   # innerLoopBody = function(i,logDetBatch,L){
@@ -371,9 +375,9 @@ computeDataParameters = function(hM){
                      CT = tfla$triangular_solve(L, tf$transpose(B,ic(0,2,1)))
                      A = (tf$constant(1,tf$float64)-obsMat[i,,NULL])*(iKt[,tf$constant(ic(1),tf$int32),i,NULL,NULL]*iKs)*(tf$constant(1,tf$float64)-obsMat[i,]) + tfla$diag(obsMat[i,])
                      H = A - tf$matmul(CT,CT,transpose_a=TRUE)
-                     L = tfla$cholesky(H)
-                     logDetBatch = logDetBatch + tf$constant(2,tf$float64)*tf$reduce_sum(tfm$log(tfla$diag_part(L)),ic(-1))
-                     return(c(i+ic(1),logDetBatch,L))
+                     LL = tfla$cholesky(H)
+                     logDetBatch = logDetBatch + tf$constant(2,tf$float64)*tf$reduce_sum(tfm$log(tfla$diag_part(LL)),ic(-1))
+                     return(c(i+ic(1),logDetBatch,LL))
                   }
                   # innerLoopInit = c(i+ic(1),logDetBatch,L)
                   # innerLoopRes = tf$while_loop(innerLoopCond, innerLoopBody, innerLoopInit)
@@ -381,7 +385,9 @@ computeDataParameters = function(hM){
                   innerLoopFun_tf = tf_function(innerLoopFun)
                   for(i in 1:(nt-1)){
                      tmpRes = innerLoopFun_tf(tf$constant(i,tf$int32),logDetBatch,L)
-                     logDetBatch = tmpRes[[2]]; L = tmpRes[[3]]
+                     logDetBatch = tmpRes[[2]]
+                     # L = tmpRes[[3]]
+                     L$assign(tmpRes[[3]])
                   }
                   return(logDetBatch)
                }
