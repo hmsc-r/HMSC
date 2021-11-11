@@ -300,8 +300,8 @@ updateAlpha = function(Z,Beta,iSigma,Eta,EtaFull,Alpha,Lambda, rLPar, X,Pi,dfPi,
                      obsMat = matrix(0,nx,nt)
                      obsMat[indKronObs] = 1
                      obsMat = tf$transpose(tf$constant(obsMat, tf$float64))
-                     KtSt = rLPar[[r]][[l]]$WStack
-                     KsSt = rLPar[[r]][[l]]$WStack
+                     KtSt = rLPar[[r]][[1]]$WStack
+                     KsSt = rLPar[[r]][[2]]$WStack
                      iKtSt = tfla$inv(KtSt)
                      iKsSt = tfla$inv(KsSt)
 
