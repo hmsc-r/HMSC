@@ -355,8 +355,7 @@ computeDataParameters = function(hM){
                logDet = tf$zeros(ic(tAlphaGridN*sAlphaGridN), tf$float64)
                # outerLoopCond = function(batch,logDet) tfm$less(batch, ic(batchN))
                # outerLoopBody = function(batch,logDet){
-               for(batch_r in 1:batchN){
-                  batch = tf$constant(ic(batch_r-1), tf$int32)
+               tmp_fun = function(batch){
                   tf$print(batch)
                   batchLen = tfm$minimum((batch+ic(1))*ic(batchSize), ic(tAlphaGridN*sAlphaGridN)) - batch*ic(batchSize)
                   batchInd = tf$range(batch*ic(batchSize), batch*ic(batchSize)+batchLen)
@@ -366,24 +365,32 @@ computeDataParameters = function(hM){
                   iKt = tf$gather(iKtSt, tGridInd)
                   iKs = tf$gather(iKsSt, sGridInd)
                   i = tf$constant(ic(0), tf$int32)
-                  A = (1-obsMat[i,,NULL])*(iKt[,tf$constant(ic(1),tf$int32),i,NULL,NULL]*iKs)*(1-obsMat[i,]) + tfla$diag(obsMat[i,])
-                  # L = tfla$cholesky(A)
-                  L = tf$Variable(tfla$cholesky(A))
-                  logDetBatch = 2*tf$reduce_sum(tfm$log(tfla$diag_part(L)),ic(-1))
+                  A = (tf$constant(1,tf$float64)-obsMat[i,,NULL])*(iKt[,tf$constant(ic(1),tf$int32),i,NULL,NULL]*iKs)*(tf$constant(1,tf$float64)-obsMat[i,]) + tfla$diag(obsMat[i,])
+                  L = tfla$cholesky(A)
+                  # L = tf$Variable(tfla$cholesky(A))
+                  logDetBatch = tf$constant(2,tf$float64)*tf$reduce_sum(tfm$log(tfla$diag_part(L)),ic(-1))
                   innerLoopCond = function(i,logDetBatch,L) tfm$less(i, ic(nt))
                   innerLoopBody = function(i,logDetBatch,L){
-                     B = (1-obsMat[i,,NULL])*(iKt[,tf$constant(ic(2),tf$int32),i,NULL,NULL]*iKs)*(1-obsMat[i-ic(1),])
+                     B = (tf$constant(1,tf$float64)-obsMat[i,,NULL])*(iKt[,tf$constant(ic(2),tf$int32),i,NULL,NULL]*iKs)*(tf$constant(1,tf$float64)-obsMat[i-ic(1),])
                      CT = tfla$triangular_solve(L, tf$transpose(B,ic(0,2,1)))
-                     A = (1-obsMat[i,,NULL])*(iKt[,tf$constant(ic(1),tf$int32),i,NULL,NULL]*iKs)*(1-obsMat[i,]) + tfla$diag(obsMat[i,])
+                     A = (tf$constant(1,tf$float64)-obsMat[i,,NULL])*(iKt[,tf$constant(ic(1),tf$int32),i,NULL,NULL]*iKs)*(tf$constant(1,tf$float64)-obsMat[i,]) + tfla$diag(obsMat[i,])
                      H = A - tf$matmul(CT,CT,transpose_a=TRUE)
-                     # L = tfla$cholesky(H)
-                     L$assign(tfla$cholesky(H))
-                     logDetBatch = logDetBatch + 2*tf$reduce_sum(tfm$log(tfla$diag_part(L)),ic(-1))
+                     L = tfla$cholesky(H)
+                     # L$assign(tfla$cholesky(H))
+                     logDetBatch = logDetBatch + tf$constant(2,tf$float64)*tf$reduce_sum(tfm$log(tfla$diag_part(L)),ic(-1))
                      return(c(i+ic(1),logDetBatch,L))
                   }
                   innerLoopInit = c(i+ic(1),logDetBatch,L)
                   innerLoopRes = tf$while_loop(innerLoopCond, innerLoopBody, innerLoopInit)
                   logDetBatch = innerLoopRes[[2]]
+                  return(logDetBatch)
+               }
+               tmp_fun_tf = tf_function(tmp_fun)
+               for(batch_r in 1:batchN){
+                  batch = tf$constant(ic(batch_r-1), tf$int32)
+                  logDetBatch = tmp_fun_tf(batch)
+                  batchLen = tfm$minimum((batch+ic(1))*ic(batchSize), ic(tAlphaGridN*sAlphaGridN)) - batch*ic(batchSize)
+                  batchInd = tf$range(batch*ic(batchSize), batch*ic(batchSize)+batchLen)
                   logDet = tf$tensor_scatter_nd_add(logDet, batchInd[,NULL], logDetBatch)
                   # return(c(batch+ic(1),logDet))
                }
