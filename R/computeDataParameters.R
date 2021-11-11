@@ -315,6 +315,8 @@ computeDataParameters = function(hM){
                }
             }
          }
+         Wg = LWg = iWg = RiWg = iWg = WStack = iWStack = eWStack = eWStack = NULL
+         gc()
          if(hM$rL[[r]]$alphaMethod=="TF_direct_krylov" || hM$rL[[r]]$alphaMethod=="TF_direct_local_krylov"){
             krN = length(hM$rL[[r]]$rLList)
             dfPiElemLevelList = vector("list", krN)
