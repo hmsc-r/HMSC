@@ -278,12 +278,6 @@ computeDataParameters = function(hM){
                   if(hM$rL[[r]]$etaMethod=="TF_krylov" || hM$rL[[r]]$alphaMethod=="TF_full" || hM$rL[[r]]$alphaMethod=="TF_direct_krylov"){
                      WStack = Wg #tf$cast(tf$stack(Wg), tf$float64)
                      if(l==1){
-                        # nt = np
-                        # indL = 2 + (nt+1)*(0:(nt-2)) - 1
-                        # indD = 1 + (nt+1)*(0:(nt-1)) - 1
-                        # indU = (nt+1)*(1:(nt-1)) - 1
-                        # getTridiagonal = function(A) t(matrix(c(A[indU],0,A[indD],0,A[indL]),nrow(A),3))
-                        # iWStack = tf$cast(tf$stack(lapply(iWg, getTridiagonal)), tf$float64)
                         iWStack = tf$reverse(tf$linalg$diag_part(iWg, k=ic(-1,1)), ic(-2)*tf$ones(ic(1),tf$int32)) # works correctly due to symmetric property
                      } else{
                         iWStack = iWg #tf$cast(tf$stack(lapply(iWg, as.matrix)), tf$float64)
@@ -369,22 +363,26 @@ computeDataParameters = function(hM){
                   i = tf$constant(ic(0), tf$int32)
                   A = (tf$constant(1,tf$float64)-obsMat[i,,NULL])*(iKt[,tf$constant(ic(1),tf$int32),i,NULL,NULL]*iKs)*(tf$constant(1,tf$float64)-obsMat[i,]) + tfla$diag(obsMat[i,])
                   L = tfla$cholesky(A)
-                  # L = tf$Variable(tfla$cholesky(A))
                   logDetBatch = tf$constant(2,tf$float64)*tf$reduce_sum(tfm$log(tfla$diag_part(L)),ic(-1))
-                  innerLoopCond = function(i,logDetBatch,L) tfm$less(i, ic(nt))
-                  innerLoopBody = function(i,logDetBatch,L){
+                  # innerLoopCond = function(i,logDetBatch,L) tfm$less(i, ic(nt))
+                  # innerLoopBody = function(i,logDetBatch,L){
+                  innerLoopFun = function(i,logDetBatch,L){
                      B = (tf$constant(1,tf$float64)-obsMat[i,,NULL])*(iKt[,tf$constant(ic(2),tf$int32),i,NULL,NULL]*iKs)*(tf$constant(1,tf$float64)-obsMat[i-ic(1),])
                      CT = tfla$triangular_solve(L, tf$transpose(B,ic(0,2,1)))
                      A = (tf$constant(1,tf$float64)-obsMat[i,,NULL])*(iKt[,tf$constant(ic(1),tf$int32),i,NULL,NULL]*iKs)*(tf$constant(1,tf$float64)-obsMat[i,]) + tfla$diag(obsMat[i,])
                      H = A - tf$matmul(CT,CT,transpose_a=TRUE)
                      L = tfla$cholesky(H)
-                     # L$assign(tfla$cholesky(H))
                      logDetBatch = logDetBatch + tf$constant(2,tf$float64)*tf$reduce_sum(tfm$log(tfla$diag_part(L)),ic(-1))
                      return(c(i+ic(1),logDetBatch,L))
                   }
-                  innerLoopInit = c(i+ic(1),logDetBatch,L)
-                  innerLoopRes = tf$while_loop(innerLoopCond, innerLoopBody, innerLoopInit)
-                  logDetBatch = innerLoopRes[[2]]
+                  # innerLoopInit = c(i+ic(1),logDetBatch,L)
+                  # innerLoopRes = tf$while_loop(innerLoopCond, innerLoopBody, innerLoopInit)
+                  # logDetBatch = innerLoopRes[[2]]
+                  innerLoopFun_tf = tf_function(innerLoopFun)
+                  for(i in 1:(nt-1)){
+                     tmpRes = innerLoopFun_tf(tf$constant(i,tf$int32),logDetBatch,L)
+                     logDetBatch = tmpRes[[2]]; L = tmpRes[[3]]
+                  }
                   return(logDetBatch)
                }
                tmp_fun_tf = tf_function(tmp_fun)
