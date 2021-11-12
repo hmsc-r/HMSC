@@ -148,6 +148,20 @@ predictLatentFactor =
                },
                'NNGP' = {
                   unitsAll = c(units,unitsPred[indNew])
+                  indices = list()
+                  dist12 = matrix(NA,nrow=rL$nNeighbours,ncol=nn)
+                  dist11 = array(NA, c(rL$nNeighbours,rL$nNeighbours,nn))
+                  if (is.null(rL$s)) { # distMat instead of coordinates s
+                      d <- rL$distMat[unitsAll, unitsAll]
+                      indNN <- t(apply(d[np+(1:nn), 1:np], 1,
+                                       order)[seq_len(rL$nNeighbours),])
+                      for(i in 1:nn) {
+                          ind <- indNN[i,]
+                          indices[[i]] <- rbind(i*rep(1, length(ind)), ind)
+                          dist12[,i] <- d[np+i, ind]
+                          dist11[,,i] <- d[ind, ind]
+                      }
+                  } else { # spatial coordinates
                   s = rL$s[unitsAll,,drop=FALSE]
                   sOld = s[1:np,, drop=FALSE]
                   sNew = s[np+(1:nn),, drop=FALSE]
@@ -169,9 +183,6 @@ predictLatentFactor =
                       sNew <- as.matrix(sNew)
                       indNN = knnx.index(sOld,sNew,k=rL$nNeighbours)
                   }
-                  indices = list()
-                  dist12 = matrix(NA,nrow=rL$nNeighbours,ncol=nn)
-                  dist11 = array(NA, c(rL$nNeighbours,rL$nNeighbours,nn))
                   for(i in 1:nn){
                      ind = indNN[i,]
                      indices[[i]] = rbind(i*rep(1,length(ind)),ind)
@@ -185,6 +196,7 @@ predictLatentFactor =
                         dist12[,i] <- sqrt(das)
                         dist11[,,i] <- as.matrix(dist(sOld[ind,]))
                      }
+                  }
                   }
                   BgA = list()
                   FgA = list()
