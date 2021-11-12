@@ -105,6 +105,11 @@ HmscRandomLevel =
       rL$spatialMethod = sMethod
       rL$nNeighbours = nNeighbours
       rL$sKnot = sKnot
+      ## check that data are adequate for sMethod
+      if (sMethod == "GPP" && is.null(rL$s))
+          stop("sMethod GPP needs sData of coordinates")
+      if (sMethod == "GPP" && is.null(rL$sKnot))
+          stop("sMethod GPP needs sKnot of coordinates")
    } else
        rL$sDim = 0
    ## we test against duplicated location in sData, but not here: zero
