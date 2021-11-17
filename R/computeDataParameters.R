@@ -187,6 +187,12 @@ computeDataParameters = function(hM){
                                               seq_len(dim))))
                       di22 = as.matrix(dist(sKnot))
                    }
+                   ## knots should not duplicate data points
+                   if (any(di12 <= 0)) {
+                       dups <- which(di12 <= 0, arr.ind = TRUE)[,2]
+                       warning("following knots (sKnot) duplicate data (sData): ",
+                               paste(dups, collapse=", "))
+                   }
                    idDg = matrix(NA,nrow=np,ncol=alphaN)
                    idDW12g = array(NA, c(np,nKnots,alphaN))
                    Fg = array(NA, c(nKnots,nKnots,alphaN))
