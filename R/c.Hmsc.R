@@ -19,9 +19,9 @@
 #' TD$m
 #' ## New chains: check carefully that these are sampled exactly like
 #' ## the previous model
-#' m2 <- sampleMcmc(TD$m, nChains=2, samples=100, thin=1, transient=50,
+#' m2 <- sampleMcmc(TD$m, nChains=1, samples=100, thin=1, transient=50,
 #'     verbose=0)
-#' ## Now four chains
+#' ## Now three chains
 #' mnew <- c(TD$m, m2)
 #' mnew
 #'
