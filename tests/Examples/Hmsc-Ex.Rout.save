@@ -1,5 +1,5 @@
 
-R version 4.1.1 (2021-08-10) -- "Kick Things"
+R version 4.1.2 (2021-11-01) -- "Bird Hippie"
 Copyright (C) 2021 The R Foundation for Statistical Computing
 Platform: aarch64-apple-darwin20 (64-bit)
 
@@ -135,16 +135,14 @@ Hmsc object with 50 sampling units, 4 species, 3 covariates, 3 traits and 2 rand
 Posterior MCMC sampling with 2 chains each with 100 samples, thin 1 and transient 50 
 > ## New chains: check carefully that these are sampled exactly like
 > ## the previous model
-> m2 <- sampleMcmc(TD$m, nChains=2, samples=100, thin=1, transient=50,
+> m2 <- sampleMcmc(TD$m, nChains=1, samples=100, thin=1, transient=50,
 +     verbose=0)
 setting updater$Gamma2=FALSE due to specified phylogeny matrix
-Computing chain 1
-Computing chain 2
-> ## Now four chains
+> ## Now three chains
 > mnew <- c(TD$m, m2)
 > mnew
 Hmsc object with 50 sampling units, 4 species, 3 covariates, 3 traits and 2 random levels
-Posterior MCMC sampling with 4 chains each with 100 samples, thin 1 and transient 50 
+Posterior MCMC sampling with 3 chains each with 100 samples, thin 1 and transient 50 
 > 
 > 
 > 
@@ -551,7 +549,7 @@ Chain 1, iteration 10 of 10 (sampling)
 > cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  6.238 0.094 6.341 0 0.001 
+Time elapsed:  4.28 0.087 4.392 0.001 0.001 
 > grDevices::dev.off()
 null device 
           1 
