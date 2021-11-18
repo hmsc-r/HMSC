@@ -89,7 +89,7 @@ We are now ready to call `sampleMcmc` and thus estimate the model parameters.
 
 ```{r IV}
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
-                    nChains = nChains, verbose = verbose)
+                    nChains = nChains, nParallel = nChains, verbose = verbose)
 ```
 
 Note that we set `verbose` to zero to suppress the output reporting how MCMC sampling is proceeding. This was done here just to avoid printing many extra lines to the vignette. Normally one wishes to see the progress, especially if posterior sampling takes a lot of time.
@@ -151,7 +151,7 @@ rL = HmscRandomLevel(units = studyDesign$sample)
 m = Hmsc(Y = Y, XData = XData, XFormula = ~x1+x2, 
          studyDesign = studyDesign, ranLevels = list(sample = rL))
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
-                    nChains = nChains, verbose = verbose)
+                    nChains = nChains, nParallel = nChains, verbose = verbose)
 ```
 
 In a model with random effects, it is important to look at the convergence diagnostics not only for the $\beta$ parameters, but also for the $\Omega$ parameters. The matrix $\Omega$ is the matrix of species-to-species residual covariances.
@@ -196,7 +196,7 @@ Let us then repeat the above analyses with a model that is otherwise identical b
 m = Hmsc(Y=Y, XData=XData, XFormula=~x1, 
          studyDesign=studyDesign, ranLevels=list(sample=rL))
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
-                    nChains = nChains, verbose = verbose)
+                    nChains = nChains, nParallel = nChains, verbose = verbose)
 postBeta = getPostEstimate(m, parName="Beta")
 plotBeta(m, post=postBeta, param="Support", supportLevel = 0.95)
 ```
@@ -260,7 +260,7 @@ rL$nfMax=2
 m = Hmsc(Y=Y, XData=XData, XFormula=~1, 
          studyDesign=studyDesign, ranLevels=list(sample=rL))
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
-                    nChains = nChains, verbose = verbose)
+                    nChains = nChains, nParallel = nChains, verbose = verbose)
 ```
 
 We now extract the posterior means of the $\eta$ and $\lambda$ parameters, which represent the site loadings ($\eta$) and species loadings ($\lambda$) on the latent factors. We then assign colors to the site loadings according to the value of the covariate $x_2$ used in simulating the data (but that was not used in model fitting).
@@ -313,7 +313,7 @@ We next fit the model and check the MCMC diagnostics.
 
 ```{r XXII}
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
-                    nChains = nChains, verbose = verbose)
+                    nChains = nChains, nParallel = nChains, verbose = verbose)
 mpost = convertToCodaObject(m)
 effectiveSize(mpost$Beta)
 gelman.diag(mpost$Beta, multivariate=FALSE)$psrf

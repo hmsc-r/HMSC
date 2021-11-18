@@ -195,7 +195,7 @@ Y=as.matrix(y)
 m = Hmsc(Y=Y, XData=XData, XFormula=~x, distr="probit")
 verbose = 0
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
-                    nChains = nChains, verbose = verbose)
+                    nChains = nChains, nParallel = nChains, verbose = verbose)
 mpost = convertToCodaObject(m)
 summary(mpost$Beta)
 effectiveSize(mpost$Beta)
@@ -218,7 +218,7 @@ plot(x,y,las=1)
 Y=as.matrix(y)
 m = Hmsc(Y=Y, XData=XData, XFormula=~x, distr="poisson")
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
-                    nChains = nChains, verbose = verbose)
+                    nChains = nChains, nParallel = nChains, verbose = verbose)
 mpost = convertToCodaObject(m)
 summary(mpost$Beta)
 effectiveSize(mpost$Beta)
@@ -242,7 +242,7 @@ plot(x,y, las = 1)
 Y=as.matrix(y)
 m = Hmsc(Y=Y, XData=XData, XFormula=~x, distr="lognormal poisson")
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
-                    nChains = nChains, verbose = verbose)
+                    nChains = nChains, nParallel = nChains, verbose = verbose)
 mpost = convertToCodaObject(m)
 summary(mpost$Beta)
 effectiveSize(mpost$Beta)
@@ -297,7 +297,7 @@ rL = HmscRandomLevel(units = studyDesign$plot)
 m = Hmsc(Y=Y, XData=XData, XFormula=~x, 
          studyDesign=studyDesign, ranLevels=list("plot"=rL))
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
-                    nChains = nChains, verbose = verbose)
+                    nChains = nChains, nParallel = nChains, verbose = verbose)
 ```
 
 Here we have included two new input parameters. First, `studyDesign` defines the nature of the study design, here the individual sampling units and the plots to which the sampling units belong. Second, `ranLevels` includes a list of those aspects of the study design to which a random effect will be included, here the plot. The random effect object `rL` was created with the function `HmscRandomLevel` assuming the default options for latent variables. We note that in typical applications of HMSC, the data are multivariate, and the latent factor approach is used to reduce dimensionality of residual association matrices by having a smaller number of latent factors than the number of species. As we assume a univariate model, it is not necessary to have more than one latent variable, and in general it is not necessary to have more latent variables than there are speciess. This is because having the same number of latent variables as species is sufficient to generate a full rank species association matrix. For this reason, when calling `Hmsc`, the default option is to reduce the maximal number of factors to be at most the number of species, and thus in the univariate case the above script fixes the number of the underlying latent factors to one.
@@ -397,7 +397,7 @@ Model fitting and evaluation of explanatory and predictive power can be done as 
 
 ```{r XXVII}
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
-                    nChains = nChains, verbose = verbose)
+                    nChains = nChains, nParallel = nChains, verbose = verbose)
 preds = computePredictedValues(m)
 MF = evaluateModelFit(hM=m, predY=preds)
 MF$R2
@@ -425,7 +425,7 @@ For comparison, let us fit a non-spatial model to the same data.
 ```{r XXX}
 m = Hmsc(Y=Y, XData=XData, XFormula=~x)
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
-                    nChains = nChains, verbose = verbose)
+                    nChains = nChains, nParallel = nChains, verbose = verbose)
 preds = computePredictedValues(m)
 MF = evaluateModelFit(hM=m, predY=preds)
 MF$R2

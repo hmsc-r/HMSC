@@ -128,7 +128,8 @@ if (test.run){
 }
 
 m.spatial = sampleMcmc(m.spatial, thin = thin, samples = samples, transient = transient,
-               nChains = nChains, verbose = verbose,updater=list(GammaEta=FALSE))
+               nChains = nChains, nParallel = nChains, verbose = verbose,
+	       updater=list(GammaEta=FALSE))
 ```
 
 The explanatory and predictive power of the model can now be calculated in the same way as before. 
@@ -163,7 +164,7 @@ For comparison, let us fit a non-spatial model to the same data.
 ```{r}
 m = Hmsc(Y=yprob, XData=XData, XFormula=~x1, studyDesign = studyDesign, distr="probit")
 m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
-               nChains = nChains, verbose = verbose)
+               nChains = nChains, nParallel = nChains, verbose = verbose)
 preds = computePredictedValues(m)
 MF = evaluateModelFit(hM=m, predY=preds)
 MF
@@ -192,7 +193,8 @@ Running the model and checking the fit is done in the same way as earlier.
 m.nngp = Hmsc(Y=yprob, XData=XData, XFormula=~x1,
          studyDesign=studyDesign, ranLevels=list("sample"=rL.nngp),distr="probit")
 m.nngp = sampleMcmc(m.nngp, thin = thin, samples = samples, transient = transient,
-               nChains = nChains, verbose = verbose, updater=list(GammaEta=FALSE))
+               nChains = nChains, nParallel = nChains, verbose = verbose,
+	       updater=list(GammaEta=FALSE))
 preds.nngp = computePredictedValues(m.nngp,updater=list(GammaEta=FALSE))
 MF.nngp = evaluateModelFit(hM=m.nngp, predY=preds.nngp)
 MF.nngp
@@ -232,7 +234,8 @@ rL.gpp = setPriors(rL.gpp,nfMin=1,nfMax=1)
 m.gpp = Hmsc(Y=yprob, XData=XData, XFormula=~x1,
          studyDesign=studyDesign, ranLevels=list("sample"=rL.gpp),distr="probit")
 m.gpp = sampleMcmc(m.gpp, thin = thin, samples = samples, transient = transient,
-               nChains = nChains, verbose = verbose,updater=list(GammaEta=FALSE))
+               nChains = nChains, nParallel = nChains, verbose = verbose,
+	       updater=list(GammaEta=FALSE))
 preds.gpp = computePredictedValues(m.gpp,updater=list(GammaEta=FALSE))
 MF.gpp = evaluateModelFit(hM=m.gpp, predY=preds.gpp)
 MF.gpp
