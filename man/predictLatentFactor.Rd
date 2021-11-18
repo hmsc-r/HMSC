@@ -54,7 +54,11 @@ Length of \code{units} vector and number of rows in
 
   This method uses only the coordinates \code{rL$s} field of the
   \code{rL$s} argument. This field shall be a matrix with rownames
-  covering the union of \code{unitsPred} and \code{units} factors.
+  covering the union of \code{unitsPred} and \code{units}
+  factors. Alternatively, it can use distance matrix
+  \code{rL$distMat} which is a symmetric square matrix with similar
+  row names as the coordinate data (except for the GPP models that
+  only can use coordinates).
 
   In case of spatial random level, the computational complexity of
   the generic method scales cubically as the number of unobserved

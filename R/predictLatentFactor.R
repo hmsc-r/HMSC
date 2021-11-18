@@ -30,7 +30,11 @@
 #'
 #'   This method uses only the coordinates \code{rL$s} field of the
 #'   \code{rL$s} argument. This field shall be a matrix with rownames
-#'   covering the union of \code{unitsPred} and \code{units} factors.
+#'   covering the union of \code{unitsPred} and \code{units}
+#'   factors. Alternatively, it can use distance matrix
+#'   \code{rL$distMat} which is a symmetric square matrix with similar
+#'   row names as the coordinate data (except for the GPP models that
+#'   only can use coordinates).
 #'
 #'   In case of spatial random level, the computational complexity of
 #'   the generic method scales cubically as the number of unobserved
@@ -148,26 +152,55 @@ predictLatentFactor =
                },
                'NNGP' = {
                   unitsAll = c(units,unitsPred[indNew])
-                  s = rL$s[unitsAll,,drop=FALSE]
-                  sOld = s[1:np,, drop=FALSE]
-                  sNew = as.matrix(s[np+(1:nn),, drop=FALSE])
-                  indNN = knnx.index(sOld,sNew,k=rL$nNeighbours)
                   indices = list()
                   dist12 = matrix(NA,nrow=rL$nNeighbours,ncol=nn)
                   dist11 = array(NA, c(rL$nNeighbours,rL$nNeighbours,nn))
-                  for(i in 1:nn){
-                     ind = indNN[i,]
-                     indices[[i]] = rbind(i*rep(1,length(ind)),ind)
-                     if (is(sOld, "Spatial")) {
-                        dist12[,i] <- spDists(sOld[ind,,drop=FALSE], sNew[i,])
-                        dist11[,,i] = spDists(sOld[ind,, drop=FALSE])
-                     } else {
-                        das <- 0
-                        for (dim in seq_len(rL$sDim))
-                           das <- das + (sOld[ind, dim] - sNew[i, dim])^2
-                        dist12[,i] <- sqrt(das)
-                        dist11[,,i] <- as.matrix(dist(sOld[ind,]))
-                     }
+                  if (is.null(rL$s)) { # distMat instead of coordinates s
+                      d <- rL$distMat[unitsAll, unitsAll]
+                      indNN <- t(apply(d[np+(1:nn), 1:np], 1,
+                                       order)[seq_len(rL$nNeighbours),])
+                      for(i in 1:nn) {
+                          ind <- indNN[i,]
+                          indices[[i]] <- rbind(i*rep(1, length(ind)), ind)
+                          dist12[,i] <- d[np+i, ind]
+                          dist11[,,i] <- d[ind, ind]
+                      }
+                  } else { # spatial coordinates
+                      s = rL$s[unitsAll,,drop=FALSE]
+                      sOld = s[1:np,, drop=FALSE]
+                      sNew = s[np+(1:nn),, drop=FALSE]
+                      ## In Euclidean coordinates we use fast
+                      ## FNN::knnx.index, but for Spatial coordinates we
+                      ## need to first calculate spatial distances
+                      if (is(sOld, "Spatial")) {
+                          ## if we use NNGP, full distance matrix can be
+                          ## too big, and we loop over sOld rows: this is
+                          ## slow but needs less memory
+                          nnabo <- rL$nNeighbours
+                          indNN <- matrix(0, nn, nnabo)
+                          for (i in seq_len(nn)) {
+                              indNN[i,] <-
+                                  order(spDists(sOld,
+                                                sNew[i,, drop=FALSE]))[seq_len(nnabo)]
+                          }
+                      } else {
+                          sNew <- as.matrix(sNew)
+                          indNN = knnx.index(sOld,sNew,k=rL$nNeighbours)
+                      }
+                      for(i in 1:nn){
+                          ind = indNN[i,]
+                          indices[[i]] = rbind(i*rep(1,length(ind)),ind)
+                          if (is(sOld, "Spatial")) {
+                              dist12[,i] <- spDists(sOld[ind,,drop=FALSE], sNew[i,])
+                              dist11[,,i] = spDists(sOld[ind,, drop=FALSE])
+                          } else {
+                              das <- 0
+                              for (dim in seq_len(rL$sDim))
+                                  das <- das + (sOld[ind, dim] - sNew[i, dim])^2
+                              dist12[,i] <- sqrt(das)
+                              dist11[,,i] <- as.matrix(dist(sOld[ind,]))
+                          }
+                      }
                   }
                   BgA = list()
                   FgA = list()
