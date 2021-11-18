@@ -20,7 +20,7 @@ poolMcmcChains = function(postList, chainIndex=1:length(postList),
                           start=1, thin=1)
 {
    if (is.null(postList))
-       stop("Hmsc object has no posterior samples")
+       stop("there are no posterior samples")
    post = list()
    for(i in chainIndex){
       chain = postList[[i]]
