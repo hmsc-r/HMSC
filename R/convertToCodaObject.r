@@ -35,8 +35,11 @@
 
 convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
   covNamesNumbers=c(TRUE,TRUE), trNamesNumbers=c(TRUE,TRUE),
-  Beta=TRUE, Gamma=TRUE, V=TRUE, Sigma=TRUE, Rho=TRUE, Eta=TRUE, Lambda=TRUE, Alpha=TRUE,
-  Omega=TRUE, Psi=TRUE, Delta=TRUE) {
+  Beta=TRUE, Gamma=TRUE, V=TRUE, Sigma=TRUE, Rho=TRUE, Eta=TRUE, Lambda=TRUE,
+  Alpha=TRUE, Omega=TRUE, Psi=TRUE, Delta=TRUE)
+{
+   if (is.null(hM$postList))
+      stop("Hmsc object ", sQuote(substitute(hM)), " has no posterior samples")
    if (is.null(hM$C)){
       Rho = FALSE
    }
