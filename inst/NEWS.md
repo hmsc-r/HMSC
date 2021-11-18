@@ -22,6 +22,14 @@ Version 3.0-12 (not released, only in github)
   cluster in all platforms. This will avoid overhead of setting new
   clusters and allows for a wider range of cluster configurations.
 
+* Implemented longitude-latitude coordinates and user-supplied
+  distance matrices for NNGP spatial models. Sanity checks for spatial
+  model input were improved.
+
+* Detect cases when user tries to analyse posterior samples of
+  non-sampled `Hmsc` object to avoid confusing error messages such as
+  reported in [issue #125](https://github.com/hmsc-r/HMSC/issues/125).
+
 ### Bug Fixes
 
 * `sampleMcmc` with `initPar = "fixed effects"` failed if **Y**
