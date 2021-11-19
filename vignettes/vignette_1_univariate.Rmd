@@ -321,10 +321,15 @@ partition = createPartition(m, nfolds = 2, column = "sample")
 partition
 ```
 
-The idea of cross-validation is that when making predictions for a particular fold, data from that fold is not used for parameter estimation. Model fitting and predictions are made separately for each fold, so that in the end a prediction is obtained for each sampling unit.
+The idea of cross-validation is that when making predictions for a
+particular fold, data from that fold is not used for parameter
+estimation. Model fitting and predictions are made separately for each
+fold, so that in the end a prediction is obtained for each sampling
+unit. Re-fitting models can be slow, but we can fit each chain in parallel
+to speed up calculation.
 
 ```{r XXII}
-preds = computePredictedValues(m, partition = partition)
+preds = computePredictedValues(m, partition = partition, nParallel = nChains)
 MF = evaluateModelFit(hM = m, predY = preds)
 MF$R2
 ```
@@ -343,7 +348,7 @@ t(cbind(plot.id, partition)[1:15,])
 As seen by examining the correspondence between plots and the partition (shown here for the first 15 sampling units), now all sampling units belonging to a particular plot have been included in the same fold.
 
 ```{r XXIV}
-preds = computePredictedValues(m, partition=partition)
+preds = computePredictedValues(m, partition=partition, nParallel = nChains)
 MF = evaluateModelFit(hM = m, predY = preds)
 MF$R2
 ```
@@ -405,7 +410,7 @@ MF$R2
 
 ```{r XXVIII}
 partition = createPartition(m, nfolds = 2, column = "sample")
-preds = computePredictedValues(m, partition=partition)
+preds = computePredictedValues(m, partition=partition, nParallel = nChains)
 MF = evaluateModelFit(hM=m, predY=preds)
 MF$R2
 ```
@@ -429,7 +434,7 @@ m = sampleMcmc(m, thin = thin, samples = samples, transient = transient,
 preds = computePredictedValues(m)
 MF = evaluateModelFit(hM=m, predY=preds)
 MF$R2
-preds = computePredictedValues(m, partition=partition)
+preds = computePredictedValues(m, partition=partition, nParallel = nChains)
 MF = evaluateModelFit(hM=m, predY=preds)
 MF$R2
 ```

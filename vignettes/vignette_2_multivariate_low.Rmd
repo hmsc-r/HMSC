@@ -127,7 +127,7 @@ We next evaluate the model's predictive power through two-fold cross validation.
 
 ```{r VIII}
 partition = createPartition(m, nfolds = 2)
-preds = computePredictedValues(m, partition = partition)
+preds = computePredictedValues(m, partition = partition, nParallel = nChains)
 evaluateModelFit(hM = m, predY = preds)
 ```
 
@@ -227,7 +227,7 @@ The explanatory power of the reduced model (that has only $x_1$ as the covariate
 We next evaluate the predictive power of the model by cross-validation.
 
 ```{r XVII}
-preds = computePredictedValues(m, partition = partition)
+preds = computePredictedValues(m, partition = partition, nParallel = nChains)
 evaluateModelFit(hM = m, predY = preds)
 ```
 
@@ -237,7 +237,7 @@ With the multivariate model, it is also possible to generate conditional predict
 
 ```{r XVIII}
 preds = computePredictedValues(m, partition=partition,
-                               partition.sp=c(1,2,3,4,5), mcmcStep=10)
+    partition.sp=c(1,2,3,4,5), mcmcStep=10, nParallel = nChains)
 evaluateModelFit(hM=m, predY=preds)
 ```
 
