@@ -144,7 +144,8 @@ MF.spatial
 ```{r}
 #Predictive power
 partition = createPartition(m.spatial, nfolds = 2, column = "sample")
-cvpreds.spatial = computePredictedValues(m.spatial, partition=partition,updater=list(GammaEta=FALSE))
+cvpreds.spatial = computePredictedValues(m.spatial, partition=partition,
+    nParallel = nChains, updater=list(GammaEta=FALSE))
 cvMF.spatial = evaluateModelFit(hM=m.spatial, predY=cvpreds.spatial)
 cvMF.spatial
 ```
@@ -169,7 +170,7 @@ preds = computePredictedValues(m)
 MF = evaluateModelFit(hM=m, predY=preds)
 MF
 partition = createPartition(m, nfolds = 2, column = "sample")
-preds = computePredictedValues(m, partition=partition)
+preds = computePredictedValues(m, partition=partition, nParallel = nChains)
 MF = evaluateModelFit(hM=m, predY=preds)
 MF
 ```
@@ -195,11 +196,12 @@ m.nngp = Hmsc(Y=yprob, XData=XData, XFormula=~x1,
 m.nngp = sampleMcmc(m.nngp, thin = thin, samples = samples, transient = transient,
                nChains = nChains, nParallel = nChains, verbose = verbose,
 	       updater=list(GammaEta=FALSE))
-preds.nngp = computePredictedValues(m.nngp,updater=list(GammaEta=FALSE))
+preds.nngp = computePredictedValues(m.nngp, updater=list(GammaEta=FALSE))
 MF.nngp = evaluateModelFit(hM=m.nngp, predY=preds.nngp)
 MF.nngp
 partition = createPartition(m.nngp, nfolds = 2, column = "sample")
-cvpreds.nngp = computePredictedValues(m.nngp, partition=partition,updater=list(GammaEta=FALSE))
+cvpreds.nngp = computePredictedValues(m.nngp, partition=partition,
+    nParallel = nChains, updater=list(GammaEta=FALSE))
 cvMF.nngp = evaluateModelFit(hM=m.nngp, predY=cvpreds.nngp)
 cvMF.nngp
 ```
@@ -236,10 +238,11 @@ m.gpp = Hmsc(Y=yprob, XData=XData, XFormula=~x1,
 m.gpp = sampleMcmc(m.gpp, thin = thin, samples = samples, transient = transient,
                nChains = nChains, nParallel = nChains, verbose = verbose,
 	       updater=list(GammaEta=FALSE))
-preds.gpp = computePredictedValues(m.gpp,updater=list(GammaEta=FALSE))
+preds.gpp = computePredictedValues(m.gpp, updater=list(GammaEta=FALSE))
 MF.gpp = evaluateModelFit(hM=m.gpp, predY=preds.gpp)
 MF.gpp
-cvpreds.gpp = computePredictedValues(m.gpp, partition=partition,updater=list(GammaEta=FALSE))
+cvpreds.gpp = computePredictedValues(m.gpp, partition=partition,
+    nParallel = nChains, updater=list(GammaEta=FALSE))
 cvMF.gpp = evaluateModelFit(hM=m.gpp, predY=cvpreds.gpp)
 cvMF.gpp
 ```
