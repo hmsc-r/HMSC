@@ -68,7 +68,7 @@
 
 HmscRandomLevel =
     function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NULL, units=NULL,
-             N=NULL, nNeighbours=NULL, sKnot=NULL, longlat = FALSE)
+             N=NULL, nNeighbours=10, sKnot=NULL, longlat = FALSE)
 {
    rL = structure(list(pi=NULL, s=NULL, sDim=NULL, spatialMethod=NULL, x=NULL, xDim=NULL, N=NULL, distMat=NULL, #
       nfMax=NULL, nfMin=NULL, nNeighbours=NULL, nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, alphapw=NULL), class="HmscRandomLevel")
@@ -121,7 +121,8 @@ HmscRandomLevel =
       if (length(rL$pi) == 0) # rownames missing
          stop("'distMat' should have rownames for random levels")
       rL$spatialMethod = sMethod
-      rL$nNeighbours = nNeighbours
+      if (sMethod == "NNGP")
+          rL$nNeighbours = nNeighbours
       rL$sDim = Inf
    }
    ## check that data are adequate for sMethod
