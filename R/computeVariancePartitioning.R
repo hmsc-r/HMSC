@@ -48,9 +48,11 @@ computeVariancePartitioning =
 
    if(is.null(group)){
       ## default: use terms
-      if(nc>1){
+      if(nc > 1){
+         if (is.null(hM$XFormula))
+             stop("no XFormula: you must give 'group' and 'groupnames'")
          group = attr(hM$X, "assign")
-         if (group[1] == 0) # assign (Intercept) to gro
+         if (group[1] == 0) # assign (Intercept) to group
             group[1] <- 1
          groupnames = attr(terms(hM$XFormula), "term.labels")
       } else {
