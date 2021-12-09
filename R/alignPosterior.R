@@ -37,21 +37,34 @@ alignPosterior=function(hM){
          nf = nrow(LambdaPostList[[1]])
          s = NULL
          for(k in 1:nf){
-            if(hM$ns > 1 || hM$rL[[r]]$xDim > 1){
-               s = rbind(s,sign(abind(lapply(LambdaPostList, function(a){
+            if(hM$rL[[r]]$xDim == 0){
+               if(hM$ns > 1){
+                  s = rbind(s,sign(abind(lapply(LambdaPostList, function(a){
                      if(sd(as.vector(LambdaPostMean[k,]))>0 && sd(as.vector(a[k,]))>0){
                         return(cor(as.vector(LambdaPostMean[k,]),as.vector(a[k,])))
                      } else
                         return(0)
                   }))))
-            } else
-               s = rbind(s,abind(lapply(LambdaPostList, function(a) sign(LambdaPostMean[k,])*sign(a[k,]))))
+               } else
+                  s = rbind(s,abind(lapply(LambdaPostList, function(a) sign(LambdaPostMean[k,])*sign(a[k,]))))
+            } else{
+               s = rbind(s,sign(abind(lapply(LambdaPostList, function(a){
+                  if(sd(as.vector(LambdaPostMean[k,,]))>0 && sd(as.vector(a[k,,]))>0){
+                     return(cor(as.vector(LambdaPostMean[k,,]),as.vector(a[k,,])))
+                  } else
+                     return(0)
+               }))))
+            }
          }
          for(j in 1:length(cpL)){
             for(k in 1:nf){
                if(s[k,j]<0){
-                  cpL[[j]]$Lambda[[r]][k,] = -cpL[[j]]$Lambda[[r]][k,]
                   cpL[[j]]$Eta[[r]][,k] = -cpL[[j]]$Eta[[r]][,k]
+                  if(hM$rL[[r]]$xDim == 0){
+                     cpL[[j]]$Lambda[[r]][k,] = -cpL[[j]]$Lambda[[r]][k,]
+                  } else{
+                     cpL[[j]]$Lambda[[r]][k,,] = -cpL[[j]]$Lambda[[r]][k,,]
+                  }
                }
             }
             if(nf < nfMax){
