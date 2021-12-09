@@ -26,6 +26,8 @@
 biPlot=function(hM, etaPost, lambdaPost, factors=c(1,2), colVar=NULL, colors = NULL, spNames=hM$spNames, ...){
    if(!is.null(colVar)){
       col = hM$XData[,colVar]
+      if (is.null(col))
+          stop("either XData or colVar were undefined")
       if (!is.factor(col)){
          if(is.null(colors)){
             colors = colorRampPalette(c("blue","white","red"))
@@ -44,7 +46,7 @@ biPlot=function(hM, etaPost, lambdaPost, factors=c(1,2), colVar=NULL, colors = N
    }
    else{
       cols="grey"
-      plotorder=1:nrow(hM$XData)
+      plotorder=1:hM$ny
    }
    scale1 = abs(c(min(etaPost$mean[,factors[1]]),max(etaPost$mean[,factors[1]])))
    scale2 = abs(c(min(etaPost$mean[,factors[2]]),max(etaPost$mean[,factors[2]])))
