@@ -77,10 +77,10 @@ updateGamma2 = function(Z,Gamma=Gamma,iV,iSigma,Eta,Lambda, X,Pi,dfPi,Tr,C,rL, i
          iBXtSiD = matrix(NA,nc,ns)
          for(j in 1:ns){ # TODO this cycle shall be redone as batched operations
             RBst[j,,] = chol(Bst[j,,])
-            iLBstXtX[j,,] = backsolve(RBst[j,,],XtX,transpose=TRUE)
+            iLBstXtX[j,,] = backsolve(as.matrix(RBst[j,,]),XtX,transpose=TRUE)
             XtXiBstXtX[j,,] = crossprod(iLBstXtX[j,,])
             tmp1 = tmp1 + iSigma[j]^2 * kronecker(crossprod(Tr[j,,drop=FALSE]), XtXiBstXtX[j,,])
-            iBXtSiD[,j] = backsolve(RBst[j,,],backsolve(RBst[j,,],XtSiD[,j],transpose=TRUE))
+            iBXtSiD[,j] = backsolve(as.matrix(RBst[j,,]),backsolve(as.matrix(RBst[j,,]),XtSiD[,j],transpose=TRUE))
          }
          iSg = iUGamma + kronecker(TtiDT,XtX) - tmp1
          tmp2 = XtX %*% ((matrix(iSigma,nc,ns,byrow=TRUE)*iBXtSiD) %*% Tr)

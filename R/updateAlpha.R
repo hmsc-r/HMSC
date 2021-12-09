@@ -4,36 +4,16 @@
 #' @importFrom plyr mdply
 #' @importFrom tensorflow tf
 #'
-updateAlpha = function(Z,Beta,iSigma,Eta,EtaFull,Alpha,Lambda, rLPar, X,Pi,dfPi,rL){
-   nr = length(rL)
-   ny = nrow(Z)
-   ns = ncol(Z)
+updateAlpha = function(Eta,EtaFull,Alpha, rLPar, dfPi,rL){
+   tfla = tf$linalg
+   tfm = tf$math
    ic = function(...){
       return(as.integer(c(...)))
    }
+   nr = length(rL)
 
-   switch(class(X)[1L],
-          matrix = {
-             LFix = X%*%Beta
-          },
-          list = {
-             LFix = matrix(NA,ny,ns)
-             for(j in 1:ns)
-                LFix[,j] = X[[j]]%*%Beta[,j]
-          }
-   )
-   LRan = vector("list", nr)
    for(r in seq_len(nr)){
-      LRan[[r]] = computePredictor.HmscRandomLevel(rL[[r]], Eta[[r]], Lambda[[r]], Pi[,r], dfPi[,r])
-   }
-   for(r in seq_len(nr)){
-      if(nr > 1){
-         S = Z - (LFix + Reduce("+", LRan[setdiff(1:nr, r)]))
-      } else{
-         S = Z - LFix
-      }
       eta = Eta[[r]]
-      lambda = Lambda[[r]]
       np = nrow(eta)
       nf = ncol(eta)
       if(inherits(rL[[r]],"HmscRandomLevel",TRUE)==1){
@@ -83,18 +63,16 @@ updateAlpha = function(Z,Beta,iSigma,Eta,EtaFull,Alpha,Lambda, rLPar, X,Pi,dfPi,
          }
       } else if(inherits(rL[[r]],"HmscKroneckerRandomLevel",TRUE)==1){
          krN = length(rL[[r]]$rLList)
-         # Alpha[[r]] = matrix(NA, nf, krN)
          dfPiElemLevelList = vector("list", krN)
          npElemVec = rep(NA, krN)
          for(l in seq_len(krN)){
-            dfPiElem = as.factor(unlist(lapply(strsplit(as.character(m$dfPi[,r]), "="), function(a) a[l])))
+            dfPiElem = as.factor(unlist(lapply(strsplit(as.character(dfPi[,r]), rL[[r]]$sepStr), function(a) a[l])))
             dfPiElemLevelList[[l]] = levels(dfPiElem)
             npElemVec[l] = length(dfPiElemLevelList[[l]])
          }
          dfTmp = expand.grid(rev(dfPiElemLevelList))[,rev(1:krN)]
-         # allUnits = as.factor(mdply(dfTmp, paste, sep=rL[[r]]$sepStr)[,length(dfPiElemLevelList)+1])
          allUnits = factor(do.call(function(...) paste(..., sep=rL[[r]]$sepStr),dfTmp))
-         indKronObs = as.numeric(factor(levels(m$dfPi[,r]), levels=levels(allUnits)))
+         indKronObs = as.numeric(factor(levels(dfPi[,r]), levels=levels(allUnits)))
          gNVec = sapply(rL[[r]]$alphaPrior$alphaGridList, length)
          if(rL[[r]]$alphaMethod=="R" || rL[[r]]$alphaMethod=="R_full"){
             if(rL[[r]]$alphaMethod=="R_full"){
@@ -136,7 +114,7 @@ updateAlpha = function(Z,Beta,iSigma,Eta,EtaFull,Alpha,Lambda, rLPar, X,Pi,dfPi,
                logProbArray = logPriorArray - 0.5*logDetWArray - 0.5*qFArray #dimension-based const coefficients are omitted in this expr
                logProbArray1 = logProbArray
             } else if(rL[[r]]$alphaMethod=="R"){
-               ind = as.numeric(factor(m$dfPi[,r], levels=levels(allUnits)))
+               ind = as.numeric(factor(dfPi[,r], levels=levels(allUnits)))
                qFArray = array(NA,c(nf,gNVec))
                logDetWArray = array(NA,gNVec)
                for(gInd1 in seq_len(gNVec[1])){
@@ -174,16 +152,14 @@ updateAlpha = function(Z,Beta,iSigma,Eta,EtaFull,Alpha,Lambda, rLPar, X,Pi,dfPi,
                alphaInd2 = ((alphaFlatInd-1) %/% gNVec[1]) + 1
                Alpha[[r]][h,] = c(alphaInd1,alphaInd2)
             }
-         } else if(rL[[r]]$alphaMethod=="TF_full" || rL[[r]]$alphaMethod=="TF_obs" || rL[[r]]$alphaMethod=="TF_direct_krylov"){
+         } else if(rL[[r]]$alphaMethod=="TF_full" || rL[[r]]$alphaMethod=="TF_direct_krylov"){
             if(rL[[r]]$alphaMethod=="TF_full"){
                if(!exists("updateAlpha_TF_full", envir=parent.frame())){
                   fun = function(etaArray){
                      iWgEtaList = vector("list", krN)
                      for(l in seq_len(krN)){
-                        # iWg = tf$cast(tf$stack(lapply(rLPar[[r]][[l]]$iWg, as.matrix)), tf$float64)
                         iWg = rLPar[[r]][[l]]$iWStack
                         if(l==1){
-                           # iWgEta = tf$einsum("xtf,gtq->gxqf",etaArray, iWg)
                            iWgEta = tf$linalg$tridiagonal_matmul(tf$tile(iWg[,NULL,,],ic(1,npElemVec[2],1,1)),tf$tile(etaArray[NULL,,,],ic(gNVec[1],1,1,1)))
                         }
                         if(l==2){
@@ -191,11 +167,9 @@ updateAlpha = function(Z,Beta,iSigma,Eta,EtaFull,Alpha,Lambda, rLPar, X,Pi,dfPi,
                         }
                         iWgEtaList[[l]] = iWgEta
                      }
-                     gN1 = gNVec[1]
-                     gN2 = gNVec[2]
                      qFArray = tf$linalg$einsum("axtf,bxtf->fab",iWgEtaList[[1]],iWgEtaList[[2]])
-                     tmp1 = matrix(rLPar[[r]][[1]]$detWg, gN1,gN2)
-                     tmp2 = matrix(rLPar[[r]][[2]]$detWg, gN1,gN2, byrow=TRUE)
+                     tmp1 = matrix(rLPar[[r]][[1]]$detWg, gNVec[1],gNVec[2])
+                     tmp2 = matrix(rLPar[[r]][[2]]$detWg, gNVec[1],gNVec[2], byrow=TRUE)
                      logDetW = npElemVec[2]*tmp1+npElemVec[1]*tmp2
                      logPrior = log(rL[[r]]$alphaPrior$alphaProb)
                      logLikeArray = -tf$constant(0.5,tf$float64)*qFArray - 0.5*logDetW + logPrior #dimension-based const coefficients are omitted in this expr
@@ -209,82 +183,8 @@ updateAlpha = function(Z,Beta,iSigma,Eta,EtaFull,Alpha,Lambda, rLPar, X,Pi,dfPi,
                etaArray = tf$constant(array(EtaFull[[r]],c(rev(npElemVec),nf)), tf$float64)
                logLikeMat = logLike_tf_fun(etaArray)
                logLikeMat1 = logLikeMat
-            } else if(rL[[r]]$alphaMethod=="TF_obs"){ #TODO to be checked thoughtfully
-               nt = npElemVec[1]
-               nx = npElemVec[2]
-               P = sparseMatrix(i=1:ny,j=Pi[,r])
-               numObsVec = Matrix::colSums(P)
-               # Y1 = as.matrix(Matrix::crossprod(P, (S - LRan[[r]] + tf$einsum("ih,hj->hij", eta[Pi[,r],], lambda))))
-               Y1 = S - LRan[[r]] + tf$einsum("ih,hj->hij", eta[Pi[,r],], lambda)
-               iDY1 = Y1 * matrix(iSigma,ny,ns,byrow=TRUE)
-               LambdaiDY1 = tf$einsum("hj,hij->hi",lambda,iDY1)
-               LambdaiDY1 = tf$transpose(tf$scatter_nd(tf$constant(matrix(ic(Pi[,r]-1),ny,1)), tf$transpose(LambdaiDY1), tf$constant(ic(np,nf))))
-               if(np == nt*nx){
-                  m0Mat = LambdaiDY1
-                  numKronObsMat = matrix(numObsVec,nx,nt)
-               } else{
-                  m0Mat = matrix(0,nf,nt*nx)
-                  m0Mat[,indKronObs] = LambdaiDY1$numpy()
-                  numKronObsMat = matrix(0,nx,nt)
-                  numKronObsMat[indKronObs] = numObsVec
-                  m0Mat = tf$constant(m0Mat, tf$float64)
-               }
-               m0Mat = tf$reshape(m0Mat, ic(nf,nt,nx))
-               y1iDy1 = tf$reduce_sum(Y1**2 * tf$constant(iSigma,tf$float64), ic(1,2))
-               logDetD = -ny*sum(log(iSigma))
-               lidl = tf$einsum("hj,j,hj->h",lambda,tf$constant(iSigma,tf$float64),lambda)
-               if(!exists("updateAlpha_kronecker_B2_tf", envir=parent.frame())){
-                  fun = function(m0Mat,lidl){
-                     tfla = tf$linalg
-                     tfm = tf$math
-                     tAlphaGridN = gNVec[1]
-                     sAlphaGridN = gNVec[2]
-                     indL = 2 + (nt+1)*(0:(nt-2))
-                     indD = 1 + (nt+1)*(0:(nt-1))
-                     indU = (nt+1)*(1:(nt-1))
-                     getTridiagonal = function(A) t(matrix(c(A[indU],0,A[indD],0,A[indL]),nrow(A),3))
-                     iKtGrid = tf$stack(lapply(rLPar[[r]][[1]]$iWg, getTridiagonal))
-                     iKsGrid = tf$stack(lapply(rLPar[[r]][[2]]$iWg, as.matrix))
-                     iKsArray = tf$gather(iKsGrid, rep(0:(sAlphaGridN-1),tAlphaGridN), axis=ic(0))
-                     iKtArray = tf$gather(iKtGrid, rep(0:(tAlphaGridN-1),each=sAlphaGridN), axis=ic(0))
-                     ldLoopCond = function(it,logDet,L,iLm0,qF) tfm$less_equal(it, as.integer(nt))
-                     ldLoopBody = function(it,logDet,L,iLm0,qF){
-                        A = (iKsArray*iKtArray[,2,it-ic(1)][,NULL,NULL])[,NULL,,] + tfla$diag(lidl[,NULL]*tf$constant(numKronObsMat,tf$float64)[,it-ic(1)])
-                        B = (iKsArray*iKtArray[,1,it-ic(2)][,NULL,NULL])[,NULL,,]
-                        iLB = tfla$triangular_solve(L, B)
-                        L = tfla$cholesky(A - tf$matmul(iLB,iLB,transpose_a=TRUE))
-                        logDetV = tf$constant(2,tf$float64)*tf$reduce_sum(tfm$log(tfla$diag_part(L)), ic(-1))
-                        iLm0 = tf$squeeze(tfla$triangular_solve(L, m0Mat[,it-ic(1),,NULL] - tf$matmul(iLB,iLm0[,,,NULL],transpose_a=TRUE)),ic(-1))
-                        qF = qF + tf$reduce_sum(iLm0**2, ic(-1))
-                        return(c(it+ic(1),logDet+logDetV,L,iLm0,qF))
-                     }
-                     it = 1
-                     A = (iKsArray*iKtArray[,2,it,drop=FALSE])[,NULL,,] + tfla$diag(lidl[,NULL]*tf$constant(numKronObsMat,tf$float64)[,it])
-                     LInit = tfla$cholesky(A)
-                     iLm0Init = tf$squeeze(tfla$triangular_solve(LInit, m0Mat[,it,,NULL]))
-                     qFInit = tf$reduce_sum(iLm0Init**2, ic(-1))
-                     logDetInit = tf$constant(2,tf$float64)*tf$reduce_sum(tfm$log(tfla$diag_part(LInit)), ic(-1))
-                     ldLoopInit = c(tf$constant(as.integer(2),tf$int32),logDetInit,LInit,iLm0Init,qFInit)
-                     ldLoopRes = tf$while_loop(ldLoopCond, ldLoopBody, ldLoopInit)
-                     logDetW = ldLoopRes[[2]]
-                     qF2 = ldLoopRes[[5]]
-                     return(c(qF2,logDetW))
-                  }
-                  qF2_logDetW_B2_tf_fun = tf_function(fun)
-                  assign("updateAlpha_kronecker_B2_tf", qF2_logDetW_B2_tf_fun, envir=parent.frame())
-               } else{
-                  qF2_logDetW_B2_tf_fun = get("updateAlpha_kronecker_B2_tf", envir=parent.frame())
-               }
-               res = qF2_logDetW_B2_tf_fun(m0Mat,lidl)
-               qF2 = res[[1]]
-               logDetW = res[[2]]
-               qF = y1iDy1 - qF2
-               logDetKstMat = matrix(nt*rLPar[[r]][[2]]$detWg,gNVec[2],gNVec[1]) + matrix(nx*rLPar[[r]][[1]]$detWg,gNVec[2],gNVec[1],byrow=TRUE)
-               logDet = logDetD + matrix(logDetKstMat,gNVec[2]*gNVec[1],1) + logDetW
-               logLikeMat = tf$transpose(-0.5*qF -0.5*logDet)
             } else if(rL[[r]]$alphaMethod=="TF_direct_krylov"){
-               nt = npElemVec[1]
-               nx = npElemVec[2]
+               nt = npElemVec[1]; nx = npElemVec[2]
                if(np == nt*nx){
                   vMat = eta
                } else{
@@ -293,56 +193,47 @@ updateAlpha = function(Z,Beta,iSigma,Eta,EtaFull,Alpha,Lambda, rLPar, X,Pi,dfPi,
                }
                vArray = tf$transpose(tf$constant(array(vMat,c(nx,nt,nf)),tf$float64), ic(2,1,0))
                if(!exists("updateAlpha_TF_direct_krylov", envir=parent.frame())){
+                  x_var = r_var = z_var = p_var = rTz_var = NULL
                   fun = function(vArray){
                      rInd = r
-                     tfla = tf$linalg
-                     tfm = tf$math
                      obsMat = matrix(0,nx,nt)
                      obsMat[indKronObs] = 1
                      obsMat = tf$transpose(tf$constant(obsMat, tf$float64))
-                     KtSt = rLPar[[r]][[1]]$WStack
-                     KsSt = rLPar[[r]][[2]]$WStack
-                     iKtSt = tfla$inv(KtSt)
-                     iKsSt = tfla$inv(KsSt)
+                     KtSt = rLPar[[rInd]][[1]]$WStack
+                     KsSt = rLPar[[rInd]][[2]]$WStack
+                     iKtSt = rLPar[[rInd]][[1]]$iWStack
+                     iKsSt = rLPar[[rInd]][[2]]$iWStack
 
                      x = tf$zeros(ic(gNVec[1],gNVec[2],nf,nt,nx),tf$float64)
                      r = tf$tile(vArray[NULL,NULL,,,], ic(gNVec[1],gNVec[2],1,1,1))
-                     z = obsMat*tfla$matmul(iKtSt[,NULL,NULL,,], tf$matmul(r, iKsSt[NULL,,NULL,,]))
+                     z = obsMat*tfla$tridiagonal_matmul(tf$tile(iKtSt[,NULL,NULL,,],ic(1,gNVec[2],nf,1,1)),
+                                                        tf$matmul(r, iKsSt[NULL,,NULL,,]))
                      p = z
                      rTz = tf$reduce_sum(r*z, ic(-1,-2))
-                     # for(cgIter in 1:rL[[rInd]]$cgIterN){
-                     #    Ap = obsMat*tfla$matmul(KtSt[,NULL,NULL,,], tf$matmul(p, KsSt[NULL,,NULL,,]))
-                     #    pTAp = tf$reduce_sum(p*Ap, ic(-1,-2))
-                     #    a = tfm$divide_no_nan(rTz, pTAp)
-                     #    x = x + a[,,,NULL,NULL]*p
-                     #    rNew = r - a[,,,NULL,NULL]*Ap
-                     #    zNew = obsMat*tfla$matmul(iKtSt[,NULL,NULL,,], tf$matmul(rNew, iKsSt[NULL,,NULL,,]))
-                     #    rTrNew = tf$reduce_sum(rNew^2, ic(-1,-2))
-                     #    rTzNew = tf$reduce_sum(rNew*zNew, ic(-1,-2))
-                     #    EPS = 1e-12
-                     #    b = tfm$multiply_no_nan((rTzNew/rTz), tf$cast(rTrNew>=EPS,tf$float64))
-                     #    p = zNew + b[,,,NULL,NULL]*p
-                     #    r=rNew; z=zNew; rTz=rTzNew
-                     # }
-                     cgLoopCond = function(cgIter,x,r,z,p,rTz) tfm$less_equal(cgIter, as.integer(rL[[rInd]]$cgIterN))
-                     cgLoopBody = function(cgIter,x,r,z,p,rTz){
+                     if(is.null(x_var)) x_var<<-tf$Variable(x) else x_var$assign(x)
+                     if(is.null(r_var)) r_var<<-tf$Variable(r) else r_var$assign(r)
+                     if(is.null(z_var)) z_var<<-tf$Variable(z) else z_var$assign(z)
+                     if(is.null(p_var)) p_var<<-tf$Variable(p) else p_var$assign(p)
+                     if(is.null(rTz_var)) rTz_var<<-tf$Variable(rTz) else rTz_var$assign(rTz)
+                     for(cgIter in tf$range(ic(rL[[rInd]]$cgIterN))){
+                        x=x_var; r=r_var; z=z_var; p=p_var; rTz=rTz_var
                         Ap = obsMat*tfla$matmul(KtSt[,NULL,NULL,,], tf$matmul(p, KsSt[NULL,,NULL,,]))
                         pTAp = tf$reduce_sum(p*Ap, ic(-1,-2))
                         a = tfm$divide_no_nan(rTz, pTAp)
                         x = x + a[,,,NULL,NULL]*p
                         rNew = r - a[,,,NULL,NULL]*Ap
-                        zNew = obsMat*tfla$matmul(iKtSt[,NULL,NULL,,], tf$matmul(rNew, iKsSt[NULL,,NULL,,]))
+                        zNew = obsMat*tfla$tridiagonal_matmul(tf$tile(iKtSt[,NULL,NULL,,],ic(1,gNVec[2],nf,1,1)),
+                                                              tf$matmul(rNew, iKsSt[NULL,,NULL,,]))
                         rTrNew = tf$reduce_sum(rNew^2, ic(-1,-2))
                         rTzNew = tf$reduce_sum(rNew*zNew, ic(-1,-2))
                         EPS = 1e-12
                         b = tfm$multiply_no_nan((rTzNew/rTz), tf$cast(rTrNew>=EPS,tf$float64))
                         p = zNew + b[,,,NULL,NULL]*p
-                        return(list(cgIter+ic(1),x,rNew,zNew,p,rTzNew))
+                        r=rNew; z=zNew; rTz=rTzNew
+                        x_var$assign(x); r_var$assign(r); z_var$assign(z); p_var$assign(p); rTz_var$assign(rTz)
+                        # tf$print(tf$reduce_sum(vArray*x_var, ic(-1,-2))[ic(2),ic(2),])
                      }
-                     cgLoopInit = list(tf$constant(ic(1),tf$int32),x,r,z,p,rTz)
-                     cgLoopRes = tf$while_loop(cgLoopCond, cgLoopBody, cgLoopInit)
-                     x = cgLoopRes[[2]]
-                     qF = tf$reduce_sum(vArray*x, ic(-1,-2))
+                     qF = tf$reduce_sum(vArray*x_var, ic(-1,-2))
                      r = rInd
                      return(qF)
                   }
@@ -352,95 +243,124 @@ updateAlpha = function(Z,Beta,iSigma,Eta,EtaFull,Alpha,Lambda, rLPar, X,Pi,dfPi,
                   qF_B3_tf_fun = get("updateAlpha_TF_direct_krylov", envir=parent.frame())
                }
                qF = qF_B3_tf_fun(vArray)
-               logLikeArray = -0.5*tf$transpose(qF,ic(2,0,1)) - 0.5*rLPar[[r]]$logDetK + log(rL[[r]]$alphaPrior$alphaProb)
-               logLikeMat = tf$reshape(logLikeArray, ic(nf,gNVec[1]*gNVec[2]))
+               logLikeArray = -0.5*tf$transpose(qF,ic(2,0,1)) - 0.5*rLPar[[r]]$logDetK
+               logPostArray = logLikeArray + log(rL[[r]]$alphaPrior$alphaProb)
+               logPostMat = tf$reshape(logPostArray, ic(nf,gNVec[1]*gNVec[2]))
             }
-            logLikeMat = logLikeMat - tf$reduce_logsumexp(logLikeMat, ic(-1), keepdims=TRUE)
-            sampleInd = tf$random$categorical(logLikeMat, ic(1))$numpy() + 1
+            logPostMat = logPostMat - tf$reduce_logsumexp(logPostMat, ic(-1), keepdims=TRUE)
+            sampleInd = tf$random$categorical(logPostMat, ic(1))$numpy() + 1
             Alpha[[r]][,2] = (sampleInd-1)%%gNVec[2]+1
             Alpha[[r]][,1] = (sampleInd-1)%/%gNVec[2]+1
-         } else if(rL[[r]]$alphaMethod=="TF_direct_local_krylov"){
-            rad = 1
-            nt = npElemVec[1]
-            nx = npElemVec[2]
-            if(np == nt*nx){
-               vMat = eta
-            } else{
-               vMat = matrix(0,nt*nx,nf)
-               vMat[indKronObs,] = eta
-            }
-            vArray = tf$transpose(tf$constant(array(vMat,c(nx,nt,nf)),tf$float64), ic(2,1,0))
-            gN = (2*rad+1)^2
-            if(!exists("updateAlpha_TF_direct_local_krylov", envir=parent.frame())){
-               fun = function(vArray, tInd, sInd){
-                  rInd = r
-                  tfla = tf$linalg
-                  tfm = tf$math
-                  obsMat = matrix(0,nx,nt)
-                  obsMat[indKronObs] = 1
-                  obsMat = tf$transpose(tf$constant(obsMat, tf$float64))
-                  KtSt = rLPar[[r]][[1]]$WStack
-                  KsSt = rLPar[[r]][[2]]$WStack
-                  iKtSt = rLPar[[r]][[1]]$iWStack
-                  iKsSt = rLPar[[r]][[2]]$iWStack
-
-                  Kt = tf$gather(KtSt, tInd)
-                  Ks = tf$gather(KsSt, sInd)
-                  iKt = tf$gather(iKtSt, tInd)
-                  iKs = tf$gather(iKsSt, sInd)
-                  x = tf$zeros(ic(gN,nf,nt,nx),tf$float64)
-                  r = tf$tile(vArray[NULL,,,], ic(gN,1,1,1))
-                  z = obsMat*tfla$tridiagonal_matmul(iKt, tf$matmul(r, iKs))
-                  p = z
-                  rTz = tf$reduce_sum(r*z, ic(-1,-2))
-                  cgLoopCond = function(cgIter,x,r,z,p,rTz) tfm$less_equal(cgIter, as.integer(rL[[rInd]]$cgIterN))
-                  cgLoopBody = function(cgIter,x,r,z,p,rTz){
-                     Ap = obsMat*tfla$matmul(Kt, tf$matmul(p, Ks))
-                     pTAp = tf$reduce_sum(p*Ap, ic(-1,-2))
-                     a = tfm$divide_no_nan(rTz, pTAp)
-                     x = x + a[,,NULL,NULL]*p
-                     rNew = r - a[,,NULL,NULL]*Ap
-                     zNew = obsMat*tfla$tridiagonal_matmul(iKt, tf$matmul(rNew, iKs))
-                     rTrNew = tf$reduce_sum(rNew^2, ic(-1,-2))
-                     rTzNew = tf$reduce_sum(rNew*zNew, ic(-1,-2))
-                     EPS = 1e-12
-                     b = tfm$multiply_no_nan((rTzNew/rTz), tf$cast(rTrNew>=EPS,tf$float64))
-                     p = zNew + b[,,NULL,NULL]*p
-                     return(list(cgIter+ic(1),x,rNew,zNew,p,rTzNew))
-                  }
-                  cgLoopInit = list(tf$constant(ic(1),tf$int32),x,r,z,p,rTz)
-                  cgLoopRes = tf$while_loop(cgLoopCond, cgLoopBody, cgLoopInit)
-                  x = cgLoopRes[[2]]
-                  qF = tf$reduce_sum(vArray*x, ic(-1,-2))
-                  r = rInd
-                  return(qF)
-               }
-               qF_C1_tf_fun = tf_function(fun)
-               assign("updateAlpha_TF_direct_local_krylov", qF_C1_tf_fun, envir=parent.frame())
-            } else{
-               qF_C1_tf_fun = get("updateAlpha_TF_direct_local_krylov", envir=parent.frame())
-            }
-            tInd = matrix(rep(-rad:rad,each=2*rad+1),gN,nf) + matrix(Alpha[[r]][,1],gN,nf,byrow=TRUE) - 1
-            sInd = matrix(rep(-rad:rad,2*rad+1),gN,nf) + matrix(Alpha[[r]][,2],gN,nf,byrow=TRUE) - 1
-            remFlag = tf$constant(((tInd<0) | (tInd>=gNVec[1]) | (sInd<0) | (sInd>=gNVec[2])), tf$float64)
-            tInd = (1-remFlag)*tInd
-            sInd = (1-remFlag)*sInd
-            qF = qF_C1_tf_fun(vArray, tf$cast(tInd,tf$int32), tf$cast(sInd,tf$int32))
-            indMat = tf$cast(tf$stack(list(tInd,sInd),ic(-1)),tf$int32)
-            logDetK = tf$gather_nd(tf$constant(rLPar[[r]]$logDetK,tf$float64), indMat)
-            logPriorProb = tf$math$log(tf$gather_nd(tf$constant(rL[[r]]$alphaPrior$alphaProb,tf$float64), indMat))
-            logLikeMat = -0.5*qF - 0.5*logDetK + logPriorProb
-
-            logLikeMat = logLikeMat*(1-remFlag) - tf$math$multiply_no_nan(tf$constant(Inf,tf$float64),remFlag)
-            logLikeMat = logLikeMat - tf$reduce_logsumexp(logLikeMat, ic(0), keepdims=TRUE)
-            sampleInd = tf$squeeze(tf$random$categorical(tf$transpose(logLikeMat), ic(1), tf$int32), ic(-1))
-            sampleIndMat = tf$stack(list(sampleInd,tf$constant(0:(nf-1),tf$int32)), ic(-1))
-            Alpha[[r]][,2] = tf$gather_nd(sInd,sampleIndMat)$numpy() + 1
-            Alpha[[r]][,1] = tf$gather_nd(tInd,sampleIndMat)$numpy() + 1
          }
       }
    }
    return(Alpha)
 }
 
+
+# cgLoopCond = function(cgIter,x,r,z,p,rTz) tfm$less_equal(cgIter, as.integer(rL[[rInd]]$cgIterN))
+# cgLoopBody = function(cgIter,x,r,z,p,rTz){
+#    Ap = obsMat*tfla$matmul(KtSt[,NULL,NULL,,], tf$matmul(p, KsSt[NULL,,NULL,,]))
+#    pTAp = tf$reduce_sum(p*Ap, ic(-1,-2))
+#    a = tfm$divide_no_nan(rTz, pTAp)
+#    x = x + a[,,,NULL,NULL]*p
+#    rNew = r - a[,,,NULL,NULL]*Ap
+#    zNew = obsMat*tfla$matmul(iKtSt[,NULL,NULL,,], tf$matmul(rNew, iKsSt[NULL,,NULL,,]))
+#    rTrNew = tf$reduce_sum(rNew^2, ic(-1,-2))
+#    rTzNew = tf$reduce_sum(rNew*zNew, ic(-1,-2))
+#    EPS = 1e-12
+#    b = tfm$multiply_no_nan((rTzNew/rTz), tf$cast(rTrNew>=EPS,tf$float64))
+#    p = zNew + b[,,,NULL,NULL]*p
+#    return(list(cgIter+ic(1),x,rNew,zNew,p,rTzNew))
+# }
+# cgLoopInit = list(tf$constant(ic(1),tf$int32),x,r,z,p,rTz)
+# cgLoopRes = tf$while_loop(cgLoopCond, cgLoopBody, cgLoopInit)
+# x = cgLoopRes[[2]]
+
+
+
+# else{
+#    stop("Local samplers are currently incorrect. Logic of local samplers must be reconsidered and fixed.")
+#    rad = 1
+#    nt = npElemVec[1]; nx = npElemVec[2]
+#    gN = (2*rad+1)^2
+#    if(rL[[r]]$alphaMethod=="TF_direct_local_krylov"){
+#       if(np == nt*nx){
+#          vMat = eta
+#       } else{
+#          vMat = matrix(0,nt*nx,nf)
+#          vMat[indKronObs,] = eta
+#       }
+#       if(!exists("updateAlpha_TF_direct_local_krylov", envir=parent.frame())){
+#          fun = function(vArray, tInd, sInd){
+#             rInd = r
+#             tfla = tf$linalg
+#             tfm = tf$math
+#             obsMat = matrix(0,nx,nt)
+#             obsMat[indKronObs] = 1
+#             obsMat = tf$transpose(tf$constant(obsMat, tf$float64))
+#             KtSt = rLPar[[r]][[1]]$WStack
+#             KsSt = rLPar[[r]][[2]]$WStack
+#             iKtSt = rLPar[[r]][[1]]$iWStack
+#             iKsSt = rLPar[[r]][[2]]$iWStack
+#
+#             Kt = tf$gather(KtSt, tInd)
+#             Ks = tf$gather(KsSt, sInd)
+#             iKt = tf$gather(iKtSt, tInd)
+#             iKs = tf$gather(iKsSt, sInd)
+#             x = tf$zeros(ic(gN,nf,nt,nx),tf$float64)
+#             r = tf$tile(vArray[NULL,,,], ic(gN,1,1,1))
+#             z = obsMat*tfla$tridiagonal_matmul(iKt, tf$matmul(r, iKs))
+#             p = z
+#             rTz = tf$reduce_sum(r*z, ic(-1,-2))
+#             cgLoopCond = function(cgIter,x,r,z,p,rTz) tfm$less_equal(cgIter, as.integer(rL[[rInd]]$cgIterN))
+#             cgLoopBody = function(cgIter,x,r,z,p,rTz){
+#                Ap = obsMat*tfla$matmul(Kt, tf$matmul(p, Ks))
+#                pTAp = tf$reduce_sum(p*Ap, ic(-1,-2))
+#                a = tfm$divide_no_nan(rTz, pTAp)
+#                x = x + a[,,NULL,NULL]*p
+#                rNew = r - a[,,NULL,NULL]*Ap
+#                zNew = obsMat*tfla$tridiagonal_matmul(iKt, tf$matmul(rNew, iKs))
+#                rTrNew = tf$reduce_sum(rNew^2, ic(-1,-2))
+#                rTzNew = tf$reduce_sum(rNew*zNew, ic(-1,-2))
+#                EPS = 1e-12
+#                b = tfm$multiply_no_nan((rTzNew/rTz), tf$cast(rTrNew>=EPS,tf$float64))
+#                p = zNew + b[,,NULL,NULL]*p
+#                return(list(cgIter+ic(1),x,rNew,zNew,p,rTzNew))
+#             }
+#             cgLoopInit = list(tf$constant(ic(1),tf$int32),x,r,z,p,rTz)
+#             cgLoopRes = tf$while_loop(cgLoopCond, cgLoopBody, cgLoopInit)
+#             x = cgLoopRes[[2]]
+#             qF = tf$reduce_sum(vArray*x, ic(-1,-2))
+#             r = rInd
+#             return(qF)
+#          }
+#          qF_C1_tf_fun = tf_function(fun)
+#          assign("updateAlpha_TF_direct_local_krylov", qF_C1_tf_fun, envir=parent.frame())
+#       } else{
+#          qF_C1_tf_fun = get("updateAlpha_TF_direct_local_krylov", envir=parent.frame())
+#       }
+#       tInd = matrix(rep(-rad:rad,each=2*rad+1),gN,nf) + matrix(Alpha[[r]][,1],gN,nf,byrow=TRUE) - 1
+#       sInd = matrix(rep(-rad:rad,2*rad+1),gN,nf) + matrix(Alpha[[r]][,2],gN,nf,byrow=TRUE) - 1
+#       remFlag = tf$constant(((tInd<0) | (tInd>=gNVec[1]) | (sInd<0) | (sInd>=gNVec[2])), tf$float64)
+#       tInd = (1-remFlag)*tInd
+#       sInd = (1-remFlag)*sInd
+#       vArray = tf$transpose(tf$constant(array(vMat,c(nx,nt,nf)),tf$float64), ic(2,1,0))
+#       qF = qF_C1_tf_fun(vArray, tf$cast(tInd,tf$int32), tf$cast(sInd,tf$int32))
+#       indMat = tf$cast(tf$stack(list(tInd,sInd),ic(-1)),tf$int32)
+#       logDetK = tf$gather_nd(tf$constant(rLPar[[r]]$logDetK,tf$float64), indMat)
+#    }
+#    logPriorProb = tf$math$log(tf$gather_nd(tf$constant(rL[[r]]$alphaPrior$alphaProb,tf$float64), indMat))
+#    logLikeMat = -0.5*qF - 0.5*logDetK + logPriorProb
+#
+#    logLikeMat = logLikeMat*(1-remFlag) - tf$math$multiply_no_nan(tf$constant(Inf,tf$float64),remFlag)
+#    logLikeMat = logLikeMat - tf$reduce_logsumexp(logLikeMat, ic(0), keepdims=TRUE)
+#    sampleInd = tf$squeeze(tf$random$categorical(tf$transpose(logLikeMat), ic(1), tf$int32), ic(-1))
+#    sampleIndMat = tf$stack(list(sampleInd,tf$constant(0:(nf-1),tf$int32)), ic(-1))
+#    # print(vMat)
+#    # print(tf$round(logLikeMat,2))
+#    # print(sampleIndMat)
+#    Alpha[[r]][,2] = tf$gather_nd(sInd,sampleIndMat)$numpy() + 1
+#    Alpha[[r]][,1] = tf$gather_nd(tInd,sampleIndMat)$numpy() + 1
+# }
 

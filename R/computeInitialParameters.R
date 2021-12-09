@@ -53,20 +53,22 @@ computeInitialParameters = function(hM, initPar){
       cat("Hmsc::computeInitialParameter - initializing fixed effects with SSDM estimates\n")
       Beta = matrix(NA,hM$nc,hM$ns)
       for(j in 1:hM$ns){
+         indNotNa = !is.na(hM$YScaled[,j])
+         yEff = hM$YScaled[indNotNa,j]
          switch(class(hM$X)[1L],
                 matrix = {
-                   XEff = XScaled
+                   XEff = XScaled[indNotNa,,drop=FALSE]
                 },
                 list = {
-                   XEff = XScaled[[j]]
+                   XEff = XScaled[[j]][indNotNa,,drop=FALSE]
                 }
          )
          if(hM$distr[j,1] == 1)
-            fm = lm.fit(XEff, hM$Y[,j])
+            fm = lm.fit(XEff, yEff)
          if(hM$distr[j,1] == 2)
-            fm = glm.fit(XEff, hM$Y[,j], family=binomial(link="probit"))
+            fm = glm.fit(XEff, yEff, family=binomial(link="probit"))
          if(hM$distr[j,1] == 3)
-            fm = glm.fit(XEff, hM$Y[,j], family=poisson())
+            fm = glm.fit(XEff, yEff, family=poisson())
          Beta[,j] = coef(fm)
       }
       Gamma = matrix(NA,hM$nc,hM$nt)
@@ -258,7 +260,7 @@ computeInitialParameters = function(hM, initPar){
       Z = LFix + Reduce("+", LRan)
    } else
       Z = LFix
-   Z = updateZ(Y=hM$Y,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=XScaled,Pi=hM$Pi,dfPi=hM$dfPi,distr=hM$distr,rL=hM$rL)
+   Z = updateZ(Y=hM$YScaled,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=XScaled,Pi=hM$Pi,dfPi=hM$dfPi,distr=hM$distr,rL=hM$rL)
 
    parList$Gamma = Gamma
    parList$V = V

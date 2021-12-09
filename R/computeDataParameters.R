@@ -243,44 +243,24 @@ computeDataParameters = function(hM,rLKronLogDetList=NULL){
                if(rL$spatialMethod=="Full"){
                   if(is.null(rL$distMat)){
                      s = rL$s[levels(dfPiElem),]
-                     if (is(s, "Spatial"))
+                     if(is(s, "Spatial"))
                         distance <- spDists(s)
                      else
                         distance = as.matrix(dist(s))
                   } else{
                      distance = rL$distMat[levels(dfPiElem),levels(dfPiElem)]
                   }
-                  # Wg = vector("list", alphaN)
-                  # iWg = vector("list", alphaN)
-                  # RiWg = vector("list", alphaN)
-                  # detWg = rep(NA, alphaN)
-                  # for(ag in 1:alphaN){
-                  #    alpha = alphaGrid[ag]
-                  #    if(alpha==0){
-                  #       W = diag(np)
-                  #    } else{
-                  #       W = exp(-distance/alpha)
-                  #    }
-                  #    RW = chol(W)
-                  #    iW = chol2inv(RW)
-                  #    if(rL$sDim == 1){
-                  #       iW = Matrix(band(iW,-1,1), sparse=TRUE)
-                  #    }
-                  #    Wg[[ag]] = W
-                  #    iWg[[ag]] = iW
-                  #    RiWg[[ag]] = chol(iW)
-                  #    detWg[ag] = 2*sum(log(diag(RW)))
-                  # }
                   Wg = tf$exp(-tf$math$multiply_no_nan(tf$constant(alphaGrid^-1,tf$float64)[,NULL,NULL],tf$constant(distance,tf$float64)))
                   LWg = tfla$cholesky(Wg)
                   iWg = tfla$cholesky_solve(LWg, tf$eye(ic(nrow(distance)),batch_shape=ic(alphaN)*tf$ones(ic(1),tf$int32),dtype=tf$float64))
                   detWg = 2*tf$reduce_sum(tfm$log(tfla$diag_part(LWg)), ic(-1))
-                  if(hM$rL[[r]]$etaMethod=="TF_krylov" || hM$rL[[r]]$alphaMethod=="TF_full" || hM$rL[[r]]$alphaMethod=="TF_direct_krylov"){
-                     WStack = Wg #tf$cast(tf$stack(Wg), tf$float64)
+                  if(hM$rL[[r]]$etaMethod=="TF" || hM$rL[[r]]$etaMethod=="TF_krylov" || hM$rL[[r]]$alphaMarginalMethod=="TF_obs" ||
+                     hM$rL[[r]]$alphaMethod=="TF_full" || hM$rL[[r]]$alphaMethod=="TF_direct_krylov" || hM$rL[[r]]$alphaMethod=="TF_direct_local_krylov"){
+                     WStack = Wg
                      if(l==1){
                         iWStack = tf$reverse(tf$linalg$diag_part(iWg, k=ic(-1,1)), ic(-2)*tf$ones(ic(1),tf$int32)) # works correctly due to symmetric property
                      } else{
-                        iWStack = iWg #tf$cast(tf$stack(lapply(iWg, as.matrix)), tf$float64)
+                        iWStack = iWg
                      }
                   } else{
                      WStack = iWStack = NULL
@@ -289,7 +269,7 @@ computeDataParameters = function(hM,rLKronLogDetList=NULL){
                      evWStack = tf$linalg$eigh(WStack)
                      eWStack = evWStack[[1]]; vWStack = evWStack[[2]]
                   } else{
-                     eWStack = eWStack = NULL
+                     eWStack = vWStack = NULL
                   }
                   Wg = lapply(tf$split(Wg, ic(alphaN)), function(e) tf$squeeze(e,ic(0))$numpy())
                   RiWg = lapply(tf$split(tf$transpose(tfla$cholesky(iWg),ic(0,2,1)), ic(alphaN)), function(e) tf$squeeze(e,ic(0))$numpy())
@@ -352,27 +332,19 @@ computeDataParameters = function(hM,rLKronLogDetList=NULL){
                } else{
                   batchN = ceiling((tAlphaGridN*sAlphaGridN)/batchSize)
                   logDet = tf$zeros(ic(tAlphaGridN*sAlphaGridN), tf$float64)
-                  # outerLoopCond = function(batch,logDet) tfm$less(batch, ic(batchN))
-                  # outerLoopBody = function(batch,logDet){
                   L = NULL
                   tmp_fun = function(batch){
                      tf$print(batch)
                      batchLen = tfm$minimum((batch+ic(1))*ic(batchSize), ic(tAlphaGridN*sAlphaGridN)) - batch*ic(batchSize)
                      batchInd = tf$range(batch*ic(batchSize), batch*ic(batchSize)+batchLen)
-                     # batchInd = tf$reshape(batchInd, batchInd$shape[1])
                      tGridInd = tfm$floordiv(batchInd, ic(sAlphaGridN))
                      sGridInd = tfm$floormod(batchInd, ic(sAlphaGridN))
                      iKt = tf$gather(iKtSt, tGridInd)
                      iKs = tf$gather(iKsSt, sGridInd)
                      i = tf$constant(ic(0), tf$int32)
                      A = (tf$constant(1,tf$float64)-obsMat[i,,NULL])*(iKt[,tf$constant(ic(1),tf$int32),i,NULL,NULL]*iKs)*(tf$constant(1,tf$float64)-obsMat[i,]) + tfla$diag(obsMat[i,])
-                     if(is.null(L)){
-                        L <<- tf$Variable(tfla$cholesky(A))
-                     } else
-                        L$assign(tfla$cholesky(A))
+                     if(is.null(L)) L<<-tf$Variable(tfla$cholesky(A)) else L$assign(tfla$cholesky(A))
                      logDetBatch = tf$constant(2,tf$float64)*tf$reduce_sum(tfm$log(tfla$diag_part(L)),ic(-1))
-                     # innerLoopCond = function(i,logDetBatch,L) tfm$less(i, ic(nt))
-                     # innerLoopBody = function(i,logDetBatch,L){
                      innerLoopFun = function(i,logDetBatch,L){
                         B = (tf$constant(1,tf$float64)-obsMat[i,,NULL])*(iKt[,tf$constant(ic(2),tf$int32),i,NULL,NULL]*iKs)*(tf$constant(1,tf$float64)-obsMat[i-ic(1),])
                         CT = tfla$triangular_solve(L, tf$transpose(B,ic(0,2,1)))
@@ -382,14 +354,10 @@ computeDataParameters = function(hM,rLKronLogDetList=NULL){
                         logDetBatch = logDetBatch + tf$constant(2,tf$float64)*tf$reduce_sum(tfm$log(tfla$diag_part(LL)),ic(-1))
                         return(c(i+ic(1),logDetBatch,LL))
                      }
-                     # innerLoopInit = c(i+ic(1),logDetBatch,L)
-                     # innerLoopRes = tf$while_loop(innerLoopCond, innerLoopBody, innerLoopInit)
-                     # logDetBatch = innerLoopRes[[2]]
                      innerLoopFun_tf = tf_function(innerLoopFun)
                      for(i in 1:(nt-1)){
                         tmpRes = innerLoopFun_tf(tf$constant(i,tf$int32),logDetBatch,L)
                         logDetBatch = tmpRes[[2]]
-                        # L = tmpRes[[3]]
                         L$assign(tmpRes[[3]])
                      }
                      return(logDetBatch)
@@ -401,11 +369,7 @@ computeDataParameters = function(hM,rLKronLogDetList=NULL){
                      batchLen = tfm$minimum((batch+ic(1))*ic(batchSize), ic(tAlphaGridN*sAlphaGridN)) - batch*ic(batchSize)
                      batchInd = tf$range(batch*ic(batchSize), batch*ic(batchSize)+batchLen)
                      logDet = tf$tensor_scatter_nd_add(logDet, batchInd[,NULL], logDetBatch)
-                     # return(c(batch+ic(1),logDet))
                   }
-                  # outerLoopInit = c(tf$constant(ic(0),tf$int32), logDet)
-                  # outerLoopRes = tf$while_loop(outerLoopCond, outerLoopBody, outerLoopInit)
-                  # logDet = outerLoopRes[[2]]
                   logDet = tf$reshape(logDet, ic(tAlphaGridN,sAlphaGridN))
                }
                logDetKt = tf$constant(rLPar[[r]][[1]]$detWg, tf$float64)

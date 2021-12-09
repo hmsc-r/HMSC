@@ -195,7 +195,6 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
       Z = parList$Z
 
       X1A = X1
-
       if(hM$ncsel>0){
          for (i in 1:hM$ncsel){
             XSel = hM$XSelect[[i]]
@@ -209,8 +208,8 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
             }
          }
       }
-
       X = X1A
+
       if(hM$ncRRR>0){
          XB=hM$XRRRScaled%*%t(wRRR)
          if(is.matrix(X)){
@@ -302,16 +301,20 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
             DeltaRRR = PsiDeltaList$Delta
          }
 
+         if(!identical(updater$AlphaMarginal, FALSE)){
+            res = updateAlphaMarginal(iter=iter,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,EtaFull=EtaFull,Alpha=Alpha,Lambda=Lambda,
+                                      rLPar=rLPar, Y=Y,X=X,Pi=Pi,dfPi=dfPi,rL=hM$rL)
+            Alpha = res[[1]]; # Eta = res[[2]]
+         }
          if(!identical(updater$Eta, FALSE)){
-            resList = updateEta(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
-                            Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, X=X,Pi=Pi,dfPi=dfPi,rL=hM$rL)
+            resList = updateEta(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda,Alpha=Alpha,
+                                rLPar=rLPar, Y=Y,X=X,Pi=Pi,dfPi=dfPi,rL=hM$rL)
             Eta = resList[[1]]; EtaFull = resList[[2]]
          }
 
          if(!identical(updater$Alpha, FALSE)){
             # Alpha = updateAlpha(Eta=Eta, rLPar=rLPar, rL=hM$rL)
-            Alpha = updateAlpha(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,EtaFull=EtaFull,Alpha=Alpha,Lambda=Lambda,
-                                rLPar=rLPar, X=X,Pi=Pi,dfPi=dfPi,rL=hM$rL)
+            Alpha = updateAlpha(Eta=Eta,EtaFull=EtaFull,Alpha=Alpha, rLPar=rLPar, dfPi=dfPi,rL=hM$rL)
          }
 
          if(!identical(updater$InvSigma, FALSE))
@@ -366,6 +369,18 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
             elapsedSamplingTime = proc.time()[3] - startSamplingTime
             cat(sprintf("Chain %d, iteration %d of %d, (%s). Elapsed %.2f sec\n", chain, iter, transient+samples*thin, samplingStatusString, elapsedSamplingTime))
          }
+         print(t(Alpha[[1]]))
+         fInd = scan(file="tmp.txt",n=1,quiet=TRUE)
+         fInd = max(min(fInd,nf),1)
+         if(iter==1){
+            dfTmp = expand.grid(rev(list(hM$rL[[1]]$rLList[[1]]$pi,hM$rL[[1]]$rLList[[2]]$pi)))[,rev(1:2)]
+            allUnits = factor(do.call(function(...) paste(..., sep=hM$rL[[1]]$sepStr),dfTmp))
+            indKronObs = as.numeric(factor(levels(hM$dfPi[,1]), levels=levels(allUnits)))
+         }
+         EtaFullTmp = matrix(NA,nrow(sMat)*nrow(tMat),nf)
+         EtaFullTmp[indKronObs,] = Eta[[1]]
+         EtaArray = array(EtaFullTmp, c(nrow(sMat),nrow(tMat),nf))
+         # print(Matrix::image(Matrix::Matrix(EtaArray[,,fInd]), useAbs=FALSE, sub=paste(iter,fInd)))
       }
       return(postList)
    }
