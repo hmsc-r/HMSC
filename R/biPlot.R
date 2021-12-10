@@ -35,9 +35,13 @@ biPlot=function(hM, etaPost, lambdaPost, factors=c(1,2), colVar=NULL, colors = N
          if(is.null(colors)){
             colors = colorRampPalette(c("blue","white","red"))
          }
-         ## scale colVar to integers 1..100
-         col = round((col - min(col))/diff(range(col)) * 99 + 1)
-         cols = colors(100)[col]
+         ## evaluate colors to colour vector if a function
+         if (is.function(colors))
+             colors <- colors(100)
+         ## scale colVar to colors index
+         col = round((col - min(col))/diff(range(col)) *
+                     (length(colors) - 1) + 1)
+         cols = colors[col]
       } else {
          if(is.null(colors)){
             colors = palette("default")
