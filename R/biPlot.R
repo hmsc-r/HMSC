@@ -44,7 +44,7 @@ biPlot=function(hM, etaPost, lambdaPost, factors=c(1,2), colVar=NULL, colors = N
          cols = colors[col]
       } else {
          if(is.null(colors)){
-            colors = palette("default")
+            colors = palette()
             cols = colors[col]
          }
          cols = colors[col]
