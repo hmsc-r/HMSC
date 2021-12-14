@@ -505,8 +505,10 @@ sampleMcmc =
    }
    ## warn on failed updaters
    for(chain in seq_len(nChains)) {
+       ntries <- transient + samples * thin
        if (any(hM$postList[[chain]]$failedUpdates > 0)) {
-           cat("Failed updaters and their counts in chain", chain, ":\n")
+           cat("Failed updaters and their counts in chain", chain,
+               " (", ntries, " attempts):\n")
            failures <- hM$postList[[chain]]$failedUpdates
            failures <- failures[failures > 0]
            print(failures)
