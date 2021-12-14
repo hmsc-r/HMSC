@@ -12,5 +12,16 @@ print.Hmsc = function(x, ...)
             cat(nchain, "chains each with ")
         cat(x$samples, "samples, thin", x$thin, "and transient", x$transient,
             "\n")
+        ## info on failed updaters (if any)
+        fails <- sapply(x$postList, attr, which = "failedUpdates")
+        if (is.matrix(fails) && any(fails > 0)) {
+            fails <- t(fails)
+            rownames(fails) <- paste0("Chain ",
+                                      as.character(seq_len(nrow(fails))), ":")
+            fails <- fails[rowSums(fails) > 0, colSums(fails) > 0, drop = FALSE]
+            cat("Updater failures in following chains with ",
+                x$samples * x$thin + x$transient, " attemps in each chain:\n")
+            print(fails)
+        }
     }
 }
