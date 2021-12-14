@@ -511,6 +511,8 @@ sampleMcmc =
            failures <- failures[failures > 0]
            print(failures)
        }
+       attr(hM$postList[[chain]], "failedUpdates") <-
+           hM$postList[[chain]]$failedUpdates     # save as an attribute
        hM$postList[[chain]]$failedUpdates <- NULL # remove from postList
    }
    hM$samples = samples
