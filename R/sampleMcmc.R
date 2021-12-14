@@ -275,7 +275,7 @@ sampleMcmc =
          if(!identical(updater$Gamma2, FALSE)) {
             out = try(updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,
                Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,C=C,rL=hM$rL, iQg=iQg,
-               mGamma=mGamma,iUGamma=iUGamma))
+               mGamma=mGamma,iUGamma=iUGamma), silent = TRUE)
             if (!inherits(out, "try-error")) {
                 Gamma <- out
             } else {
@@ -285,7 +285,7 @@ sampleMcmc =
          if(!identical(updater$GammaEta, FALSE)){
             GammaEtaList = try(updateGammaEta(Z=Z,Gamma=Gamma,V=chol2inv(chol(iV)),iV=iV,id=iSigma,
                Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,rL=hM$rL, rLPar=rLPar,Q=Qg[,,rho],iQ=iQg[,,rho],RQ=RQg[,,rho],
-               mGamma=mGamma,U=hM$UGamma,iU=iUGamma))
+               mGamma=mGamma,U=hM$UGamma,iU=iUGamma), silent = TRUE)
             if (!inherits(GammaEtaList, "try-error")) {
                 Gamma = GammaEtaList$Gamma
                 Eta = GammaEtaList$Eta
@@ -297,7 +297,7 @@ sampleMcmc =
          if(!identical(updater$BetaLambda, FALSE)){
             BetaLambdaList = try(updateBetaLambda(Y=Y,Z=Z,Gamma=Gamma,iV=iV,
                iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta, iQ=iQg[,,rho],
-               X=X,Tr=Tr,Pi=Pi,dfPi=dfPi,C=C,rL=hM$rL))
+               X=X,Tr=Tr,Pi=Pi,dfPi=dfPi,C=C,rL=hM$rL), silent = TRUE)
             if (!inherits(BetaLambdaList, "try-error")) {
                 Beta = BetaLambdaList$Beta
                 Lambda = BetaLambdaList$Lambda
@@ -309,7 +309,7 @@ sampleMcmc =
          if(!identical(updater$wRRR, FALSE) &&  hM$ncRRR>0){
             wRRRXList = try(updatewRRR(Z=Z, Beta=Beta, iSigma=iSigma,
                                  Eta=Eta, Lambda=Lambda, X1A=X1A, XRRR=hM$XRRRScaled,
-                                 Pi=Pi, dfPi=dfPi,rL = hM$rL, PsiRRR=PsiRRR, DeltaRRR=DeltaRRR))
+                                 Pi=Pi, dfPi=dfPi,rL = hM$rL, PsiRRR=PsiRRR, DeltaRRR=DeltaRRR), silent = TRUE)
             if (!inherits(wRRRXList, "try-error")) {
                 wRRR = wRRRXList$wRRR
                 X = wRRRXList$X
@@ -320,7 +320,7 @@ sampleMcmc =
 
          if(!identical(updater$BetaSel, FALSE) &&  hM$ncsel>0){
             BetaSelXList = try(updateBetaSel(Z=Z,XSelect = hM$XSelect, BetaSel=BetaSel,Beta=Beta, iSigma=iSigma,
-                                             Lambda=Lambda, Eta=Eta, X1=X1,Pi=Pi,dfPi=dfPi,rL=hM$rL))
+                                             Lambda=Lambda, Eta=Eta, X1=X1,Pi=Pi,dfPi=dfPi,rL=hM$rL), silent = TRUE)
             if (!inherits(BetaSelXList, "try-error")) {
                 BetaSel = BetaSelXList$BetaSel
                 X = BetaSelXList$X
@@ -331,7 +331,7 @@ sampleMcmc =
 
          if(!identical(updater$GammaV, FALSE)){
             GammaVList = try(updateGammaV(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho,
-                                          iQg=iQg,RQg=RQg, Tr=Tr,C=C, mGamma=mGamma,iUGamma=iUGamma,V0=V0,f0=f0))
+                                          iQg=iQg,RQg=RQg, Tr=Tr,C=C, mGamma=mGamma,iUGamma=iUGamma,V0=V0,f0=f0), silent = TRUE)
             if (!inherits(GammaVList, "try-error")) {
                 Gamma = GammaVList$Gamma
                 iV = GammaVList$iV
@@ -342,7 +342,7 @@ sampleMcmc =
 
          if(!is.null(hM$C) && !identical(updater$Rho, FALSE)){
             out = try(updateRho(Beta=Beta,Gamma=Gamma,iV=iV, RQg=RQg,
-                                detQg=detQg, Tr=Tr, rhopw=rhopw))
+                                detQg=detQg, Tr=Tr, rhopw=rhopw), silent = TRUE)
             if (!inherits(out, "try-error"))
                 rho <- out
             else
@@ -350,7 +350,8 @@ sampleMcmc =
          }
 
          if(!identical(updater$LambdaPriors, FALSE)){
-            PsiDeltaList = try(updateLambdaPriors(Lambda=Lambda,Delta=Delta, rL=hM$rL))
+            PsiDeltaList = try(updateLambdaPriors(Lambda=Lambda,Delta=Delta,
+                                                  rL=hM$rL), silent = TRUE)
             if (!inherits(PsiDeltaList, "try-error")) {
                 Psi = PsiDeltaList$Psi
                 Delta = PsiDeltaList$Delta
@@ -361,7 +362,8 @@ sampleMcmc =
          if(!identical(updater$wRRRPriors, FALSE) &&  hM$ncRRR>0){
             PsiDeltaList = try(updatewRRRPriors(wRRR=wRRR,Delta=DeltaRRR,
                                            nu=hM$nuRRR,a1=hM$a1RRR,
-                                           b1=hM$b1RRR,a2=hM$a2RRR,b2=hM$b2RRR))
+                                           b1=hM$b1RRR,a2=hM$a2RRR,b2=hM$b2RRR),
+                               silent = TRUE)
             if (!inherits(PsiDeltaList, "try-error")) {
                 PsiRRR = PsiDeltaList$Psi
                 DeltaRRR = PsiDeltaList$Delta
@@ -373,14 +375,14 @@ sampleMcmc =
          if(!identical(updater$Eta, FALSE))
             out = try(updateEta(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
                                 Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, X=X,
-                                Pi=Pi,dfPi=dfPi,rL=hM$rL))
+                                Pi=Pi,dfPi=dfPi,rL=hM$rL), silent = TRUE)
             if (!inherits(out, "try-error"))
                 Eta <- out
             else
                 failed["Eta"] <- failed["Eta"] + 1
 
          if(!identical(updater$Alpha, FALSE))
-            out = try(updateAlpha(Eta=Eta, rLPar=rLPar, rL=hM$rL))
+            out = try(updateAlpha(Eta=Eta, rLPar=rLPar, rL=hM$rL), silent = TRUE)
             if (!inherits(out, "try-error"))
                 Alpha <- out
             else
@@ -390,7 +392,7 @@ sampleMcmc =
             out = try(updateInvSigma(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,
                                     Eta=Eta,Lambda=Lambda, distr=distr,X=X,
                                     Pi=Pi,dfPi=dfPi,rL=hM$rL, aSigma=aSigma,
-                                    bSigma=bSigma))
+                                    bSigma=bSigma), silent = TRUE)
             if (!inherits(out, "try-error"))
                 iSigma <- out
             else
@@ -403,7 +405,7 @@ sampleMcmc =
          for(r in seq_len(nr)){
             if(iter <= adaptNf[r]){
                listPar = try(updateNf(eta=Eta[[r]],lambda=Lambda[[r]],alpha=Alpha[[r]],psi=Psi[[r]],delta=Delta[[r]],
-                                      rL=hM$rL[[r]], iter=iter))
+                                      rL=hM$rL[[r]], iter=iter), silent = TRUE)
                if (!inherits(listPar, "try-error")) {
                    Lambda[[r]] = listPar$lambda
                    Eta[[r]] = listPar$eta
@@ -418,7 +420,7 @@ sampleMcmc =
 
          if(updater$latentLoadingOrderSwap>0 && (iter %% updater$latentLoadingOrderSwap == 0)){
             for(r in seq_len(nr)){
-               listPar = try(updateLatentLoadingOrder(eta=Eta[[r]],lambda=Lambda[[r]],alpha=Alpha[[r]],delta=Delta[[r]],rL=hM$rL[[r]]))
+               listPar = try(updateLatentLoadingOrder(eta=Eta[[r]],lambda=Lambda[[r]],alpha=Alpha[[r]],delta=Delta[[r]],rL=hM$rL[[r]]), silent = TRUE)
                if (!inherits(listPar, "try-error")) {
                    Lambda[[r]] = listPar$lambda
                    Eta[[r]] = listPar$eta
