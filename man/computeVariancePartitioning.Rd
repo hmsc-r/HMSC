@@ -15,14 +15,21 @@ computeVariancePartitioning(
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}
 
-\item{group}{vector of numeric values corresponding to group identifiers in groupnames. If missing, model terms are used.}
+\item{group}{vector of numeric values corresponding to group
+identifiers in groupnames. If the model was defined with
+\code{XData} and \code{XFormula}, the default is to use model
+terms.}
 
-\item{groupnames}{vector of names for each group of fixed effect. Should match \code{group}. If missing, labels of model terms.}
+\item{groupnames}{vector of names for each group of fixed
+effect. Should match \code{group}. If the model was defined
+with \code{XData} and \code{XFormula}, the default is to use
+the labels of model terms.}
 
 \item{start}{index of first MCMC sample included}
 
-\item{na.ignore}{logical. If TRUE, covariates are ignored for sites where the focal species
-is NA when computing variance-covariance matrices for each species}
+\item{na.ignore}{logical. If TRUE, covariates are ignored for sites
+where the focal species is NA when computing
+variance-covariance matrices for each species}
 }
 \value{
 returns an object VP with components VP$vals, VP$R2T, VP$group and VP$groupnames.

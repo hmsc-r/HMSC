@@ -33,6 +33,10 @@ As a shortcut, a single number \code{1} or \code{2} can be given as a type
 used for all non-focal variables.
 If a \code{non.focalVariable} is not listed, \code{type=2} is used as default.
 Note that if the focal variable is continuous, selecting type 2 for a non-focal categorical variable can cause abrupt changes in response.
+
+The function needs access to the original \code{XData} data frame,
+and cannot be used if you defined your model with \code{X} model
+matrix. In that case you must construct your gradient manually.
 }
 \examples{
 # Construct gradient for environmental covariate called 'x1'.

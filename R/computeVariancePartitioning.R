@@ -4,11 +4,18 @@
 #' of random effects
 #'
 #' @param hM a fitted \code{Hmsc} model object
-#' @param group vector of numeric values corresponding to group identifiers in groupnames. If missing, model terms are used.
-#' @param groupnames vector of names for each group of fixed effect. Should match \code{group}. If missing, labels of model terms.
+#' @param group vector of numeric values corresponding to group
+#'     identifiers in groupnames. If the model was defined with
+#'     \code{XData} and \code{XFormula}, the default is to use model
+#'     terms.
+#' @param groupnames vector of names for each group of fixed
+#'     effect. Should match \code{group}. If the model was defined
+#'     with \code{XData} and \code{XFormula}, the default is to use
+#'     the labels of model terms.
 #' @param start index of first MCMC sample included
-#' @param na.ignore logical. If TRUE, covariates are ignored for sites where the focal species
-#' is NA when computing variance-covariance matrices for each species
+#' @param na.ignore logical. If TRUE, covariates are ignored for sites
+#'     where the focal species is NA when computing
+#'     variance-covariance matrices for each species
 #'
 #'
 #' @return
@@ -48,9 +55,11 @@ computeVariancePartitioning =
 
    if(is.null(group)){
       ## default: use terms
-      if(nc>1){
+      if(nc > 1){
+         if (is.null(hM$XFormula))
+             stop("no XFormula: you must give 'group' and 'groupnames'")
          group = attr(hM$X, "assign")
-         if (group[1] == 0) # assign (Intercept) to gro
+         if (group[1] == 0) # assign (Intercept) to group
             group[1] <- 1
          groupnames = attr(terms(hM$XFormula), "term.labels")
       } else {

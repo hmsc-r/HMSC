@@ -22,6 +22,10 @@
 #' If a \code{non.focalVariable} is not listed, \code{type=2} is used as default.
 #' Note that if the focal variable is continuous, selecting type 2 for a non-focal categorical variable can cause abrupt changes in response.
 #'
+#' The function needs access to the original \code{XData} data frame,
+#' and cannot be used if you defined your model with \code{X} model
+#' matrix. In that case you must construct your gradient manually.
+#'
 #' @seealso
 #' \code{\link{plotGradient}}, \code{\link{predict}}.
 #'
@@ -43,6 +47,14 @@
 constructGradient =
    function(hM, focalVariable, non.focalVariables=list(), ngrid=20)
 {
+   ## FIXME: currently works only with data.frame XData, but fails
+   ## with model matrix X, although HMSC models can defined without
+   ## XData: see github issue #126. It could be possible to have much
+   ## of functionality with numeric model matrix X, but this needs
+   ## extensive changes also in plotGradient(), predict.Hmsc() and
+   ## prepareGradient, and now we just bail out.
+   if (is.null(hM$XData))
+       stop("needs model defined using 'XData' and 'XFormula'")
    ## default type 2 unless a single number is given as a non-focal variable
    if (is.numeric(non.focalVariables) && length(non.focalVariables) == 1) {
       defType <- non.focalVariables
