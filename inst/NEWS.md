@@ -37,6 +37,12 @@ Version 3.0-12 (not released, only in github)
   undocumented in the package, but was used in several scripts at
   large. See [issue #101](https://github.com/hmsc-r/HMSC/issues/101).
 
+* The default number of neighbours in NNGP spatial models was not
+  known in all posterior analysis tools giving very obscure error
+  messages. Reported by Ben Weigel (Uni Helsinki).
+
+* Covariate-dependent latent loadings did not have correct alignment.
+
 * `predict` did not honour setting `start` and `thin` which could
   result in huge output data that exhausted memory. See
   [issue #86](https://github.com/hmsc-r/HMSC/issues/86).
@@ -52,6 +58,14 @@ Version 3.0-12 (not released, only in github)
 
 * `prepareGradient` failed with geo-referenced spatial random levels.
 
+* More robust handling of models that were fitted with model matrix
+  `X` instead of model frame `XData` and model formula
+  `XFormula`. Concerns functions `biPlot`,
+  `computeVariancePartitioning` and `constructGradient`. Fixes
+  [issue #126](https://github.com/dshmsc-r/HMSC/issues/126).
+
+* `biPlot` has improved handling of colour scaling of continuous
+  variables.
 
 Version 3.0-11
 ==============
