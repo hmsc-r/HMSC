@@ -61,7 +61,7 @@ computeVariancePartitioning =
          group = attr(hM$X, "assign")
          if (group[1] == 0) # assign (Intercept) to group
             group[1] <- 1
-         groupnames = attr(terms(hM$XFormula), "term.labels")
+         groupnames = attr(terms(hM$XFormula, data = hM$XData), "term.labels")
       } else {
          group = c(1)
          groupnames = hM$covNames[1]
