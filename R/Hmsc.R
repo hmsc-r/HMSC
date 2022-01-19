@@ -189,10 +189,6 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    if(!is.null(XData) && !is.null(X)){
       stop("only one of XData and X arguments must be specified")
    }
-    ## XData can be missing if variables are in the working
-    ## environment, but we still need XData later
-    if (!is.null(XFormula) && is.null(XData))
-        XData <- model.frame(XFormula)
     if(!is.null(XData)) {
         ## function to check that all variables are numeric or factors
         ## (sometimes they are character strings which is OK for most
