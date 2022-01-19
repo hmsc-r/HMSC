@@ -185,10 +185,15 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    }
    hM$spNames = colnames(hM$Y)
 
-   # linear regression covariates
-   if(!is.null(XData) && !is.null(X)){
-      stop("only one of XData and X arguments must be specified")
-   }
+   ## User supplied model matrix instead of XData & XFormula
+    if(!is.null(X)) {
+        ## should be no model frame XData with model matrix X
+        if (!is.null(XData))
+            stop("only one of XData and X arguments can be specified")
+        ## XFormula should be NULL if there is no XData
+        if (!is.null(XFormula))
+            XFormula <- NULL
+    }
     if(!is.null(XData)) {
         ## function to check that all variables are numeric or factors
         ## (sometimes they are character strings which is OK for most
