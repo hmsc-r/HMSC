@@ -182,13 +182,15 @@ computePredictedValues =
                        byrow=TRUE)
         }
         for (k in 1:nfolds) {
+            val = partition == k
             hM1[[k]] = sampleMcmc(hM1[[k]], samples=hM$samples, thin=hM$thin,
                                   transient=hM$transient, adaptNf=hM$adaptNf,
                                   initPar=initPar, nChains=nChains,
                                   nParallel=nParallel,
                                   clusterType = clusterType, updater = updater,
                                   verbose = verbose, alignPost=alignPost)
-            postList = poolMcmcChains(hM1$postList, start=start, thin = thin)
+            postList = poolMcmcChains(hM1[[k]]$postList, start=start,
+                                      thin = thin)
             ## stringsAsFactors probably not needed below
             dfPi = as.data.frame(matrix(NA, sum(val), hM$nr),
                                  stringsAsFactors = TRUE)
@@ -197,7 +199,7 @@ computePredictedValues =
                 dfPi[,r] = factor(hM$dfPi[val,r])
             }
             if(is.null(partition.sp)) {
-                pred1 = predict(hM1, post=postList, X=XVal, XRRR=XRRRVal,
+                pred1 = predict(hM1[[k]], post=postList, X=XVal, XRRR=XRRRVal,
                                 studyDesign=dfPi, Yc=Yc[val,,drop=FALSE],
                                 mcmcStep=mcmcStep, expected=expected)
                 pred1Array = abind(pred1,along=3)
