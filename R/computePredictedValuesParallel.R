@@ -81,7 +81,18 @@
     }
     ## the next call can be made parallel
     mods <- lapply(seq_len(threads), function(i, hM) getSample(i, hM1))
-    ## STEP 3: combine predictions
+    ## STEP 3: combine predictions: this is still a loop
+    for (p in parts) {
+        val <- partition == p
+        m <- do.call(c.Hmsc, mods[which(idfold == p)])
+        m <- alignPosterior(m)
+        postList <- poolMcmcChains(m$postList, start=start, thin=thin)
+        dfPi <- droplevels(hM$dfPi[val,, drop=FALSE])
+        pred1 <- predict(m, post=postList, X = hM$X[val,, drop=FALSE],
+                         Yc = Yc[val,, drop=FALSE], mcmcStep = mcmcStep,
+                         expected = expected)
+        predArray[val,,] <- abind(pred1, along=3)
+    }
     ## OUT
-    mods
+    predArray
 }
