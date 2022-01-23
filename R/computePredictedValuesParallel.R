@@ -2,6 +2,7 @@
 
 #' @importFrom predict predict
 #' @importFrom abind abind
+#' @importFrom parallel mclapply detectCores
 
 #' @export
 `pcomputePredictedValues` <-
@@ -20,8 +21,9 @@
     }
     ## We have partitions: start with the the simple case without
     ## species partitions and implement first only fork clusters
-    if (!missing(clusterType))
-        .NotYetUsed("clusterType", error = FALSE)
+    clusterType <- match.arg(clusterType)
+    if (nParallel > 1 && .Platform$OS.type == "windows")
+        stop("parallel processing not yet implemented for Windows: use Linux or Mac")
     if (!missing(partition.sp))
         .NotYetUsed("partition.sp", error = TRUE)
     ## STAGE 1: Basic housekeeping
@@ -70,7 +72,7 @@
     seeds <- sample.int(.Machine$integer.max, threads)
     ## to be called in parallel for each chain x fold, and
     ## therefore we set nChains=1, nParallel=1 within
-    getSample <- function(i, hM1, ...) {
+    getSample <- function(i, ...) {
         set.seed(seeds[i])
         k <- idfold[i]
         sampleMcmc(hM1[[k]], samples = hM$samples, thin = hM$thin,
@@ -80,7 +82,16 @@
                    alignPost = alignPost)
     }
     ## the next call can be made parallel
-    mods <- lapply(seq_len(threads), function(i, hM) getSample(i, hM1))
+    if (nParallel <= 1) # serial
+        mods <- lapply(seq_len(threads), function(i, hM, hM1)
+            getSample(i, hM, hM1))
+    else { # parallel
+        Ncores <- min(nParallel, threads, detectCores())
+        message("using ", Ncores, " cores")
+        mods <- mclapply(seq_len(threads), function(i, hM, hM1)
+            getSample(i, hM, hM1),
+                         mc.cores = Ncores)
+    }
     ## STEP 3: combine predictions: this is still a loop
     for (p in parts) {
         val <- partition == p
