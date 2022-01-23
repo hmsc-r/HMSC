@@ -27,7 +27,7 @@
     if (!missing(partition.sp))
         .NotYetUsed("partition.sp", error = TRUE)
     ## STAGE 1: Basic housekeeping
-    parts <- unique(partition)
+    parts <- sort(unique(partition))
     nfolds <- length(parts)
     if (thin > 1 || start > 1)
         postN <- sum(sapply(hM$postList, function(z)
@@ -75,11 +75,13 @@
     getSample <- function(i, ...) {
         set.seed(seeds[i])
         k <- idfold[i]
-        sampleMcmc(hM1[[k]], samples = hM$samples, thin = hM$thin,
-                   transient = hM$transient, adaptNf = hM$adaptNf,
-                   initPar = initPar, nChains = 1, nParallel = 1,
-                   updater = updater, verbose = verbose,
-                   alignPost = alignPost)
+        m <- sampleMcmc(hM1[[k]], samples = hM$samples, thin = hM$thin,
+                        transient = hM$transient, adaptNf = hM$adaptNf,
+                        initPar = initPar, nChains = 1, nParallel = 1,
+                        updater = updater, verbose = verbose,
+                        alignPost = alignPost)
+        attr(m, "fold") <- k
+        m
     }
     ## the next call can be made parallel
     if (nParallel <= 1) # serial
@@ -90,9 +92,10 @@
         message("using ", Ncores, " cores")
         mods <- mclapply(seq_len(threads), function(i, hM, hM1)
             getSample(i, hM, hM1),
-                         mc.cores = Ncores)
+            mc.cores = Ncores)
     }
     ## STEP 3: combine predictions: this is still a loop
+    idfold <- sapply(mods, attr, which = "fold")
     for (p in parts) {
         val <- partition == p
         m <- do.call(c.Hmsc, mods[which(idfold == p)])
@@ -100,8 +103,8 @@
         postList <- poolMcmcChains(m$postList, start=start, thin=thin)
         dfPi <- droplevels(hM$dfPi[val,, drop=FALSE])
         pred1 <- predict(m, post=postList, X = hM$X[val,, drop=FALSE],
-                         Yc = Yc[val,, drop=FALSE], mcmcStep = mcmcStep,
-                         expected = expected)
+                         Yc = Yc[val,, drop=FALSE], studyDesign = dfPi,
+                         mcmcStep = mcmcStep, expected = expected)
         predArray[val,,] <- abind(pred1, along=3)
     }
     ## OUT
