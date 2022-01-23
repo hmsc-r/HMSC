@@ -1,9 +1,10 @@
 ### Complete re-write of computePredictedValues for parallel processing
 
-#' @importFrom predict predict
+#' @importFrom stats predict
 #' @importFrom abind abind
 #' @importFrom parallel mclapply detectCores
 
+#' @rdname computePredictedValues
 #' @export
 `pcomputePredictedValues` <-
     function(hM, partition=NULL, partition.sp=NULL, start=1, thin=1,
@@ -75,11 +76,13 @@
     getSample <- function(i, ...) {
         set.seed(seeds[i])
         k <- idfold[i]
+        message("starting thread ", i, "/", threads)
         m <- sampleMcmc(hM1[[k]], samples = hM$samples, thin = hM$thin,
                         transient = hM$transient, adaptNf = hM$adaptNf,
                         initPar = initPar, nChains = 1, nParallel = 1,
                         updater = updater, verbose = verbose,
                         alignPost = alignPost)
+        message("finished thread ", i, "/", threads)
         attr(m, "fold") <- k
         m
     }
@@ -92,7 +95,7 @@
         message("using ", Ncores, " cores")
         mods <- mclapply(seq_len(threads), function(i, hM, hM1)
             getSample(i, hM, hM1),
-            mc.cores = Ncores)
+            mc.cores = Ncores, mc.preschedule = FALSE)
     }
     ## STEP 3: combine predictions: this is still a loop
     idfold <- sapply(mods, attr, which = "fold")
