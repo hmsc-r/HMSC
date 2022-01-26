@@ -11,7 +11,7 @@
              Yc=NULL, mcmcStep=1, expected=TRUE, initPar=NULL,
              nParallel=1, clusterType = "fork",
              nChains = length(hM$postList), updater=list(),
-             verbose = hM$verbose, alignPost = TRUE)
+             verbose = nParallel == 1, alignPost = TRUE)
 {
     ## No cross-validation, just return what we got and bail out
     if (is.null(partition)) {
