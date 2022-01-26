@@ -55,13 +55,13 @@
         ## result is not saved, and it is currently skipped: CHECK
         ## THIS!
         m$YScalePar <- hM$YScalePar
-        m$Yscaled <- sweep(m$Y, 2, m$YScalePar[1,]/m$YScalePar[2,])
+        m$YScaled <- scale(m$Y, m$YScalePar[1,], m$YScalePar[2,])
         m$XInterceptInd <- hM$XInterceptInd
         m$XScalePar <- hM$XScalePar
-        m$XScaled <- sweep(m$X, 2, m$XScalePar[1,]/m$XScalePar[2,])
+        m$XScaled <- scale(m$X, m$XScalePar[1,], m$XScalePar[2,])
         m$TrInterceptInd <- hM$TrInterceptInd
         m$TrScalePar <- hM$TrScalePar
-        m$TrScaled <- sweep(m$Tr, 2, m$TrScalePar[1,]/m$TrScalePar[2,])
+        m$TrScaled <- scale(m$Tr, m$TrScalePar[1,], m$TrScalePar[2,])
         m
     }
     ## parallelism would only slow-down (due to start-off time)
