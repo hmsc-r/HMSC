@@ -103,11 +103,13 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho,Vartheta,Varph
    }
    Mu = rbind(tcrossprod(Gamma, Tr), matrix(0, nfSum, ns))
    Yx = !is.na(Y)
+   S = Yx*S
    XEtaTXEtaList = vector("list", ns)
    isXTS = matrix(NA, nc+nfSum, ns)
    for(j in 1:ns){
-      XEtaTXEtaList[[j]] = crossprod(XEtaList[[j]][Yx[,j],])
-      isXTS[,j] = crossprod(XEtaList[[j]][Yx[,j],], S[Yx[,j],j]) * iSigma[j]
+      tmp = Yx[,j]*XEtaList[[j]]
+      XEtaTXEtaList[[j]] = crossprod(tmp)
+      isXTS[,j] = crossprod(XEtaList[[j]], S[,j]) * iSigma[j]
    }
    if (is.null(C)) {
       diagiV = diag(iV)
@@ -147,7 +149,7 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho,Vartheta,Varph
       ind1 = rep(rep(1:ns, each = nc + nfSum) + ns * rep(0:(nc+nfSum-1), ns), nc + nfSum)
       ind2 = rep(1:((nc + nfSum) * ns), each=nc+nfSum)
       mat = sparseMatrix(ind1, ind2, x = as.vector(tmpMat))
-      RiU = chol(as.matrix(mat) + P)
+      RiU = Matrix::chol(mat + P)
       m1 = backsolve(RiU, P %*% as.vector(t(Mu)) + as.vector(t(isXTS)), transpose = TRUE)
       BetaLambda = matrix(backsolve(RiU, m1 + rnorm(ns * (nc+nfSum))), nc + nfSum, ns, byrow = TRUE)
    }
