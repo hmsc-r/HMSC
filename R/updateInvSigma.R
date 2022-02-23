@@ -1,10 +1,11 @@
 #' @importFrom stats rgamma
 #'
-updateInvSigma = function(Y,Z,Beta,iSigma,Eta,Lambda, distr,X,Pi,dfPi,rL, aSigma,bSigma){
+updateInvSigma = function(Z,Beta,iSigma,Eta,Lambda, distr,X,Pi,dfPi,rL, aSigma,bSigma){
    indVarSigma = (distr[,2]==1)
+   Yobs = !is.na(Z)
+   ny = nrow(Z)
+   ns = ncol(Z)
    if(any(indVarSigma)){
-      ny = nrow(Z)
-      ns = ncol(Z)
       nr = ncol(Pi)
 
       switch(class(X)[1L],
@@ -32,13 +33,13 @@ updateInvSigma = function(Y,Z,Beta,iSigma,Eta,Lambda, distr,X,Pi,dfPi,rL, aSigma
       } else
          Eps = Z - LFix
 
-      Yx = !is.na(Y)
-      nyx = colSums(Yx)
-      shape = aSigma + nyx/2
-      rate = bSigma + apply((Eps*Yx)^2, 2, sum)/2
+      nyObs = colSums(Yobs)
+      shape = aSigma + nyObs/2
+      rate = bSigma + apply((Eps*Yobs)^2, 2, sum, na.rm=TRUE)/2
 
       iSigma[indVarSigma] = rgamma(sum(indVarSigma), shape[indVarSigma], rate[indVarSigma])
    }
-   return(iSigma)
+   iD = Yobs*matrix(iSigma,ny,ns,byrow=TRUE)
+   return(list(iSigma=iSigma, iD=iD))
 }
 

@@ -1,6 +1,6 @@
 #' @importFrom stats pnorm runif
-#' 
-updateBetaSel = function(Z=Z,XSelect, BetaSel, Beta, iSigma,
+#'
+updateBetaSel = function(Z=Z,XSelect, BetaSel, Beta, iD,
                          Lambda, Eta, X1,Pi,dfPi,rL){
 
    ny = nrow(Z)
@@ -20,8 +20,6 @@ updateBetaSel = function(Z=Z,XSelect, BetaSel, Beta, iSigma,
             LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),k]) %*% Lambda[[r]][,,k]
       }
    }
-
-   std = iSigma^-0.5
 
    X0 = list()
    for(j in 1:ns){
@@ -48,9 +46,11 @@ updateBetaSel = function(Z=Z,XSelect, BetaSel, Beta, iSigma,
    } else
       E = LFix
 
-   ll = matrix(NA,ny,ns)
+   Yobs = !is.na(Z)
+   ll = matrix(0,ny,ns)
    for (j in 1:ns){
-      ll[,j]= pnorm(q = Z[,j], mean = E[,j], sd = std[j],log.p = TRUE)
+      indNotNA = Yobs[,j]
+      ll[indNotNA,j]= pnorm(q=Z[indNotNA,j], mean=E[indNotNA,j], sd=iD[indNotNA,j]^-0.5, log.p=TRUE)
    }
 
    BetaSelNew = BetaSel
@@ -76,7 +76,8 @@ updateBetaSel = function(Z=Z,XSelect, BetaSel, Beta, iSigma,
 
          llNew = ll
          for (j in fsp){
-            llNew[,j]= pnorm(q = Z[,j], mean = ENew[,j], sd = std[j],log.p = TRUE)
+            indNotNA = Yobs[,j]
+            llNew[indNotNA,j]= pnorm(q=Z[indNotNA,j], mean=ENew[indNotNA,j], sd=iD[indNotNA,j]^-0.5, log.p=TRUE)
          }
          lldif = sum(llNew[,fsp])-sum(ll[,fsp])
          q = XSel$q[spg]

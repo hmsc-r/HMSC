@@ -4,7 +4,7 @@
 #
 #' @importFrom stats rnorm
 #
-updatewRRR = function(Z,Beta,iSigma,Eta,Lambda,X1A,XRRR,Pi,dfPi,rL,PsiRRR,DeltaRRR){
+updatewRRR = function(Z,Beta,iD,Eta,Lambda,X1A,XRRR,Pi,dfPi,rL,PsiRRR,DeltaRRR){
    ny = nrow(Z)
    ns = ncol(Z)
    nr = ncol(Pi)
@@ -46,15 +46,17 @@ updatewRRR = function(Z,Beta,iSigma,Eta,Lambda,X1A,XRRR,Pi,dfPi,rL,PsiRRR,DeltaR
       S = Z - LFix
    }
 
-   A1 = BetaRRR%*%diag(iSigma,nrow = length(iSigma))%*%t(BetaRRR)
-   A2 = t(XRRR)%*%XRRR
-   QtiSigmaQ = kronecker(A2,A1)
+   A1 = tcrossprod(BetaRRR*sqrt(iD))
+   A2 = crossprod(XRRR)
+   QtiDQ = kronecker(A2,A1)
    tauRRR = matrix(apply(DeltaRRR, 2, cumprod), ncRRR, 1)
    tauMatRRR = matrix(tauRRR,ncRRR,ncORRR)
-   iU=diag(as.vector(PsiRRR*tauMatRRR))+QtiSigmaQ
+   iU=diag(as.vector(PsiRRR*tauMatRRR))+QtiDQ
    RiU = chol(iU)
    U = chol2inv(RiU)
-   mu1 = as.vector(BetaRRR%*%diag(iSigma,nrow = length(iSigma))%*%t(S)%*%XRRR)
+   iDS = iD*S
+   iDS[is.na(Z)] = 0
+   mu1 = as.vector(BetaRRR%*%t(iDS)%*%XRRR)
    mu = U %*% (mu1)
    we = mu + backsolve(RiU, rnorm(ncRRR*ncORRR))
    wRRR = matrix(we,nrow = ncRRR)

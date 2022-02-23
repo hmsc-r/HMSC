@@ -1,7 +1,7 @@
 #' @importFrom stats dnorm pnorm rnorm
 #' @importFrom truncnorm rtruncnorm
 #' @importFrom BayesLogit rpg
-updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind){
+updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind, fillMisObsNA=TRUE){
    ZPrev = Z
    ny = nrow(Y)
    ns = ncol(Y)
@@ -34,6 +34,7 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind){
       E = LFix
 
    Z = matrix(NA,ny,ns)
+   iD = matrix(iSigma,ny,ns,byrow=TRUE)
    indNA = is.na(Y)
    std = matrix(iSigma^-0.5,ny,ns,byrow=TRUE)
 
@@ -89,6 +90,12 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind){
       }
    }
 
-   Z[indNA] = rnorm(sum(indNA), E[indNA], std[indNA])
-   return(Z)
+   if(fillMisObsNA){
+      Z[indNA] = NA
+   } else{
+      Z[indNA] = rnorm(sum(indNA), E[indNA], std[indNA])
+   }
+   iD[indNA] = 0
+   resList = list(Z=Z, iD=iD)
+   return(resList)
 }

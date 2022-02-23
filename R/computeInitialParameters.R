@@ -62,13 +62,13 @@ computeInitialParameters = function(hM, initPar){
             }
             )
          ## Y can contain NA values
-         kk <- !is.na(hM$Y[,j])
+         kk <- !is.na(hM$YScaled[,j])
          if(hM$distr[j,1] == 1)
-            fm = lm.fit(XEff[kk,, drop=FALSE], hM$Y[kk,j])
+            fm = lm.fit(XEff[kk,, drop=FALSE], hM$YScaled[kk,j])
          if(hM$distr[j,1] == 2)
-            fm = glm.fit(XEff[kk,, drop=FALSE], hM$Y[kk,j], family=binomial(link="probit"))
+            fm = glm.fit(XEff[kk,, drop=FALSE], hM$YScaled[kk,j], family=binomial(link="probit"))
          if(hM$distr[j,1] == 3)
-            fm = glm.fit(XEff[kk,, drop=FALSE], hM$Y[kk,j], family=poisson())
+            fm = glm.fit(XEff[kk,, drop=FALSE], hM$YScaled[kk,j], family=poisson())
          Beta[,j] = coef(fm)
       }
       Gamma = matrix(NA,hM$nc,hM$nt)
@@ -253,7 +253,8 @@ computeInitialParameters = function(hM, initPar){
    } else
       Z = LFix
 
-   Z = updateZ(Y=hM$Y,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=XScaled,Pi=hM$Pi,dfPi=hM$dfPi,distr=hM$distr,rL=hM$rL)
+   resList = updateZ(Y=hM$YScaled,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=XScaled,Pi=hM$Pi,dfPi=hM$dfPi,distr=hM$distr,rL=hM$rL)
+   Z = resList$Z; iD = resList$iD
 
    parList$Gamma = Gamma
    parList$V = V
@@ -270,6 +271,7 @@ computeInitialParameters = function(hM, initPar){
    parList$Alpha = Alpha
    parList$rho = rho
    parList$Z = Z
+   parList$iD = iD
 
    return(parList)
 }

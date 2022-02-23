@@ -192,10 +192,12 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
 
       if(!is.null(Yc) && any(!is.na(Yc))){
          Z = L
-         Z = updateZ(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda, X=X,Pi=PiNew,dfPi=dfPiNew,distr=object$distr,rL=rL)
+         iD = (!is.na(Yc)) * matrix(sam$sigma^-1,nrow(Yc),ncol(Yc),byrow=TRUE)
+         Z = updateZ(Y=Yc,Z=Z,Beta=sam$Beta,iD=iD,Eta=Eta,Lambda=sam$Lambda, X=X,Pi=PiNew,dfPi=dfPiNew,distr=object$distr,rL=rL)
          for(sN in seq_len(mcmcStep)){
-            Eta = updateEta(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda,Alpha=sam$Alpha, rLPar=rLPar, X=X,Pi=PiNew,dfPi=dfPiNew,rL=rL)
-            Z = updateZ(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda, X=X,Pi=PiNew,dfPi=dfPiNew,distr=object$distr,rL=rL)
+            Eta = updateEta(Z=Z,Beta=sam$Beta,iD=iD,Eta=Eta,Lambda=sam$Lambda,Alpha=sam$Alpha, rLPar=rLPar, X=X,Pi=PiNew,dfPi=dfPiNew,rL=rL)
+            tmpResList = updateZ(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda, X=X,Pi=PiNew,dfPi=dfPiNew,distr=object$distr,rL=rL)
+            Z = tmpResList$Z; iD = tmpResList$iD
          }
          for(r in seq_len(object$nr)){
             if(rL[[r]]$xDim == 0){

@@ -4,8 +4,9 @@
 #
 #' @importFrom stats rnorm
 #' @importFrom Matrix bdiag Diagonal sparseMatrix
+#' @importFrom tensorflow tf
 #'
-updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,dfPi,C,rL){
+updateBetaLambda = function(Z,Gamma,iV,iD,Eta,Psi,Delta, iQ, X,Tr,Pi,dfPi,C,rL, tfCompFlag=FALSE){
    ny = nrow(Z)
    ns = ncol(Z)
    nc = nrow(Gamma)
@@ -59,90 +60,74 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,d
       priorLambda = matrix(numeric(0),0,ns)
    }
 
-   Mu = rbind(tcrossprod(Gamma,Tr), matrix(0,nfSum,ns)) # the always-zero part of Mu can be ommited in further computations
+   Mu = rbind(tcrossprod(Gamma,Tr), matrix(0,nfSum,ns))
+   iDS = iD*S
+   iDS[is.na(Z)] = 0
    switch(class(X)[1L],
       matrix = {
          XEtaTXEta = crossprod(XEta)
-         isXTS = crossprod(XEta,S) * matrix(iSigma,nc+nfSum,ns,byrow=TRUE)
+         XTiDS = crossprod(XEta,iDS)
       },
       list = {
          XEtaTXEta = lapply(XEta, crossprod)
-         isXTS = matrix(NA,nc+nfSum,ns)
+         XTiDS = matrix(NA,nc+nfSum,ns)
          for(j in 1:ns)
-            isXTS[,j] = crossprod(XEta[[j]],S[,j]) * iSigma[j]
+            XTiDS[,j] = crossprod(XEta[[j]],iDS[,j])
       }
    )
 
-   if(is.null(C)){
-      # no phylogeny information
-      Yx = !is.na(Y)
-      indColFull = apply(Yx,2,all)
-      indColNA = !indColFull
-
-      diagiV = diag(iV)
-      P0 = matrix(0,nc+nfSum,nc+nfSum)
-      P0[1:nc,1:nc] = iV
+   if(is.null(C)){ # no phylogeny information
       BetaLambda = matrix(NA, nc+nfSum, ns)
-
-      for(j in which(indColFull)){ # test whether worthy to rewrite with tensorA?
-         P = P0
-         diag(P) = c(diagiV, priorLambda[,j])
-         switch(class(X)[1L],
-            matrix = {
-               iU = P + XEtaTXEta*iSigma[j]
-            },
-            list = {
-               iU = P + XEtaTXEta[[j]]*iSigma[j]
+      randEps = matrix(rnorm((nc+nfSum)*ns), nc+nfSum, ns)
+      if(tfCompFlag==TRUE){
+         tfla = tf$linalg
+         ic = function(...) as.integer(c(...))
+         XEtaTiDXEta = tfla$einsum("ia,ij,ib->jab",XEta,iD,XEta)
+         iV_op = tfla$LinearOperatorFullMatrix(iV)
+         DiagPriorLambda_op = tfla$LinearOperatorDiag(t(priorLambda))
+         P = tfla$LinearOperatorBlockDiag(list(iV_op,DiagPriorLambda_op))$to_dense()
+         iU = P + XEtaTiDXEta
+         LiU = tfla$cholesky(iU)
+         m = tfla$cholesky_solve(LiU, tf$matmul(P,tf$expand_dims(t(Mu),ic(-1))) + tf$expand_dims(t(XTiDS),ic(-1)))
+         res = m + tfla$triangular_solve(LiU, tf$expand_dims(t(randEps),ic(-1)), adjoint=TRUE)
+         BetaLambda = t(tf$squeeze(res,ic(-1))$numpy())
+      } else{
+         diagiV = diag(iV)
+         P0 = matrix(0,nc+nfSum,nc+nfSum)
+         P0[1:nc,1:nc] = iV
+         for(j in 1:ns){
+            if(class(X)[1L]=="matrix"){
+               XEtaTiDXEta = crossprod(XEta,iD[,j]*XEta)
+            } else if(class(X)[1L]=="list"){
+               XEtaTiDXEta = crossprod(XEta[[j]],iD[,j]*XEta[[j]])
             }
-         )
-         RiU = chol(iU)
-         U = chol2inv(RiU)
-         m = U %*% (P%*%Mu[,j] + isXTS[,j]);
-         BetaLambda[,j] = m + backsolve(RiU, rnorm(nc+nfSum))
-      }
-      for(j in which(indColNA)){
-         indObs = Yx[,j]
-         switch(class(X)[1L],
-            matrix = {
-               XEtaTXEta = crossprod(XEta[indObs,,drop=FALSE])
-               isXTS = crossprod(XEta[indObs,,drop=FALSE],S[indObs,j]) * iSigma[j]
-            },
-            list = {
-               XEtaTXEta = crossprod(XEta[[j]][indObs,,drop=FALSE])
-               isXTS = crossprod(XEta[[j]][indObs,,drop=FALSE],S[indObs,j]) * iSigma[j]
-            }
-         )
-         P = P0
-         diag(P) = c(diagiV, priorLambda[,j])
-         iU = P + XEtaTXEta*iSigma[j]
-         RiU = chol(iU)
-         U = chol2inv(RiU)
-         m = U %*% (P%*%Mu[,j] + isXTS);
-         BetaLambda[,j] = m + backsolve(RiU, rnorm(nc+nfSum))
-      }
-
-   } else{
-      # available phylogeny information
-      P = bdiag(kronecker(iV,iQ), Diagonal(x=t(priorLambda)))
-      switch(class(X)[1L],
-         matrix = {
-            RiU = chol(kronecker(XEtaTXEta,diag(iSigma)) + P)
-         },
-         list = {
-            tmp = vector("list",ns)
-            for(j in 1:ns)
-               tmp[[j]] = XEtaTXEta[[j]] * iSigma[j]
-            tmpMat = Reduce(rbind, tmp)
-            ind1 = rep(rep(1:ns,each=nc+nfSum)+ns*rep(0:(nc+nfSum-1),ns), nc+nfSum)
-            ind2 = rep(1:((nc+nfSum)*ns), each=nc+nfSum)
-            mat = sparseMatrix(ind1, ind2, x=as.vector(tmpMat))
-            RiU = chol(as.matrix(mat) + P)
+            P = P0
+            diag(P) = c(diagiV, priorLambda[,j])
+            iU = P + XEtaTiDXEta
+            RiU = chol(iU)
+            U = chol2inv(RiU)
+            m = U %*% (P%*%Mu[,j] + XTiDS[,j]);
+            BetaLambda[,j] = m + backsolve(RiU, randEps[,j])
          }
-      )
-      # U = chol2inv(RiU)
-      # m = U %*% (P%*%as.vector(t(Mu)) + as.vector(t(isXTS)))
-      # BetaLambda = matrix(m + backsolve(RiU, rnorm(ns*(nc+nfSum))), nc+nfSum, ns, byrow=TRUE)
-      m1 = backsolve(RiU, P%*%as.vector(t(Mu)) + as.vector(t(isXTS)), transpose=TRUE)
+      }
+
+   } else{ # available phylogeny information
+      P = bdiag(kronecker(iV,iQ), Diagonal(x=t(priorLambda)))
+      tmp = vector("list",ns)
+      for(j in 1:ns){
+         if(class(X)[1L]=="matrix"){
+            XEtaTiDXEta = crossprod(XEta,iD[,j]*XEta)
+         } else if(class(X)[1L]=="list"){
+            XEtaTiDXEta = crossprod(XEta[[j]],iD[,j]*XEta[[j]])
+         }
+         tmp[[j]] = XEtaTiDXEta
+      }
+      tmpMat = Reduce(rbind, tmp)
+      ind1 = rep(rep(1:ns,each=nc+nfSum)+ns*rep(0:(nc+nfSum-1),ns), nc+nfSum)
+      ind2 = rep(1:((nc+nfSum)*ns), each=nc+nfSum)
+      mat = sparseMatrix(ind1, ind2, x=as.vector(tmpMat))
+      RiU = chol(as.matrix(mat) + P)
+      m1 = backsolve(RiU, P%*%as.vector(t(Mu)) + as.vector(t(XTiDS)), transpose=TRUE)
       BetaLambda = matrix(backsolve(RiU, m1 + rnorm(ns*(nc+nfSum))), nc+nfSum, ns, byrow=TRUE)
    }
    Beta = BetaLambda[1:nc,,drop=FALSE]

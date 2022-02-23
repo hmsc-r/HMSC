@@ -1,21 +1,12 @@
-
-### updating Gamma after marginalizing Beta
-
 #' @importFrom stats rnorm
+#' @importFrom tensorflow tf
 #'
-updateGamma2 = function(Z,Gamma=Gamma,iV,iSigma,Eta,Lambda, X,Pi,dfPi,Tr,C,rL, iQg, mGamma,iUGamma){
+updateGamma2 = function(Z,Gamma,iV,rho,iD,Eta,Lambda, X,Pi,dfPi,Tr,C,rL, iQ, mGamma,iUGamma, tfCompFlag=FALSE){
    ns = ncol(Z)
    ny = nrow(Z)
    nc = nrow(iV)
    nt = ncol(Tr)
    nr = ncol(Pi)
-
-   # inv = function(A){
-   #    return(chol2inv(chol(A)))
-   # }
-   # cholL = function(A){
-   #    return(t(chol(A)))
-   # }
 
    LRan = vector("list", nr)
    for(r in seq_len(nr)){
@@ -31,66 +22,71 @@ updateGamma2 = function(Z,Gamma=Gamma,iV,iSigma,Eta,Lambda, X,Pi,dfPi,Tr,C,rL, i
       S = Z - Reduce("+", LRan)
    } else
       S = Z
-
-   if(is.null(C)){
-      # if(all(iSigma==1)){
-      #    iV0 = iUGamma[1:nc,1:nc]
-      #    V0 = inv(iV0)
-      #    XtX = crossprod(X)
-      #    TT = crossprod(Tr)
-      #    iP = inv(iV + XtX)
-      #    LiP = cholL(iP)
-      #
-      #    R = inv( kronecker(diag(nt),iV0) + kronecker(TT,iV-tcrossprod(iV%*%LiP)) )
-      #    LR = cholL(R)
-      #    XZT = crossprod(X,S%*%Tr)
-      #    iPXZT = iP%*%XZT
-      #    tmp = kronecker(TT, V0%*%XtX%*%iP%*%iV)
-      #    muG = as.vector(V0%*%(XZT - XtX%*%iPXZT)) - tmp %*% R %*% as.vector(iV%*%iPXZT)
-      #    SigmaG = kronecker(diag(nt),V0) - kronecker(TT,tcrossprod(V0%*%t(X))-tcrossprod(V0%*%XtX%*%LiP)) + tcrossprod(tmp%*%LR)
-      #    LSigmaG = cholL(SigmaG)
-      #    Gamma = muG + LSigmaG%*%rnorm(nc*nt)
-      #    Gamma = matrix(Gamma,nc,nt)
-      # }
-
-      XtX = crossprod(X)
-      if(all(iSigma==1)){
-         TtT = crossprod(Tr)
-         B = iV + XtX
-         RB = chol(B)
-         iSg = iUGamma + kronecker(TtT,XtX-crossprod(backsolve(RB,XtX,transpose=TRUE)))
-         XtST = crossprod(X,S%*%Tr)
-         iBXtST = backsolve(RB,backsolve(RB,XtST,transpose=TRUE))
-         XtXiBXtST = XtX%*%iBXtST
-         mg0 = iUGamma%*%mGamma + as.vector(XtST - XtXiBXtST)
-      } else{
-         iDT = matrix(iSigma,ns,nt)*Tr
-         iD05T = matrix(sqrt(iSigma),ns,nt)*Tr
-         TtiDT = crossprod(iD05T)
-         Bst = array(rep(iV,each=ns),c(ns,nc,nc)) + array(iSigma,c(ns,nc,nc))*array(rep(XtX,each=ns),c(ns,nc,nc))
-         XtSiD = matrix(iSigma,nc,ns,byrow=TRUE)*crossprod(X,S)
-
-         RBst = array(NA, c(ns,nc,nc))
-         iLBstXtX = array(NA, c(ns,nc,nc))
-         XtXiBstXtX = array(NA, c(ns,nc,nc))
-         tmp1 = matrix(0,nt*nc,nt*nc)
-         iBXtSiD = matrix(NA,nc,ns)
-         for(j in 1:ns){ # TODO this cycle shall be redone as batched operations
-            RBst[j,,] = chol(Bst[j,,])
-            iLBstXtX[j,,] = backsolve(RBst[j,,],XtX,transpose=TRUE)
-            XtXiBstXtX[j,,] = crossprod(iLBstXtX[j,,])
-            tmp1 = tmp1 + iSigma[j]^2 * kronecker(crossprod(Tr[j,,drop=FALSE]), XtXiBstXtX[j,,])
-            iBXtSiD[,j] = backsolve(RBst[j,,],backsolve(RBst[j,,],XtSiD[,j],transpose=TRUE))
-         }
-         iSg = iUGamma + kronecker(TtiDT,XtX) - tmp1
-         tmp2 = XtX %*% ((matrix(iSigma,nc,ns,byrow=TRUE)*iBXtSiD) %*% Tr)
-         mg0 = iUGamma%*%mGamma + as.vector(XtSiD%*%Tr - tmp2)
-      }
-      RiSg = chol(iSg)
-      mg1 = backsolve(RiSg, mg0, transpose=TRUE)
-      Gamma = matrix(backsolve(RiSg,mg1+rnorm(nc*nt)),nc,nt)
+   iDS = iD*S
+   iDS[is.na(Z)] = 0
+   XtiDS = crossprod(X,iDS)
+   if(tfCompFlag==TRUE){
+      tfla = tf$linalg
+      ic = function(...) as.integer(c(...))
+      XtiDX = tfla$einsum("ic,ij,ik->jck",X,iD,X)
+      TtkXt_iD_XkT = tf$reshape(tfla$einsum("ja,jck,jb->acbk",Tr,XtiDX,Tr), ic(nt*nc,nt*nc))
+      XiDS = tfla$einsum("ik,ij->jk",X,iDS)
    } else{
-      # to be implemented later
+      XtiDX = array(NA, c(ns,nc,nc))
+      for(j in 1:ns){
+         XtiDX[j,,] = crossprod(sqrt(iD[,j])*X)
+      }
+   }
+   if(is.null(C)){
+      if(tfCompFlag==TRUE){
+         Bst = iV + XtiDX
+         LBst = tfla$cholesky(Bst)
+         iLBstXtiDX = tfla$triangular_solve(LBst, XtiDX)
+         XtiDXiBstXtiDX = tf$matmul(iLBstXtiDX,iLBstXtiDX,transpose_a=TRUE)
+         tmp1 = tf$reshape(tfla$einsum("jt,jck,jv->tcvk",Tr,XtiDXiBstXtiDX,Tr), ic(nt*nc,nt*nc))
+         iSigmaG = iUGamma + TtkXt_iD_XkT - tmp1
+         tmp2 = tf$squeeze(tfla$cholesky_solve(LBst, XiDS[,,NULL]), ic(-1))
+         tmp3 = tfla$einsum("jt,jck,jk->tc",Tr,XtiDX,tmp2)
+         mG0 = as.vector(iUGamma%*%mGamma) + tf$reshape(tfla$einsum("ik,ij,jt->tk",X,iDS,Tr),ic(nc*nt)) - tf$reshape(tmp3, ic(nc*nt))
+         iSigmaG = iSigmaG$numpy(); mG0 = mG0$numpy()
+      } else{
+         Bst = RBst = iLBstXtiDX = XtiDXiBstXtiDX = array(NA, c(ns,nc,nc))
+         tmp1 = matrix(0,nc*nt,nc*nt)
+         iBXtiDS = XtiDXiBXtiDS = matrix(NA,nc,ns)
+         for(j in 1:ns){
+            Bst[j,,] = iV + XtiDX[j,,]
+            RBst[j,,] = chol(Bst[j,,])
+            iLBstXtiDX[j,,] = backsolve(RBst[j,,],XtiDX[j,,],transpose=TRUE)
+            XtiDXiBstXtiDX[j,,] = crossprod(iLBstXtiDX[j,,])
+            tmp1 = tmp1 + kronecker(crossprod(Tr[j,,drop=FALSE]), XtiDX[j,,]-XtiDXiBstXtiDX[j,,])
+            iBXtiDS[,j] = backsolve(RBst[j,,],backsolve(RBst[j,,],XtiDS[,j],transpose=TRUE))
+            XtiDXiBXtiDS[,j] = XtiDX[j,,] %*% iBXtiDS[,j]
+         }
+         iSigmaG = iUGamma + tmp1
+         mG0 = as.vector(iUGamma%*%mGamma) + as.vector(XtiDS%*%Tr - XtiDXiBXtiDS%*%Tr)
+      }
+      RiSigmaG = chol(iSigmaG)
+      mG1 = backsolve(RiSigmaG, mG0, transpose=TRUE)
+      Gamma = matrix(backsolve(RiSigmaG,mG1+rnorm(nc*nt)),nc,nt)
+   } else{
+      if(tfCompFlag==TRUE){
+         W = kronecker(iQ,iV) + tf$reshape(tf$transpose(tfla$diag(tf$transpose(XtiDX,ic(1,2,0))), ic(2,0,3,1)), ic(ns*nc,ns*nc))
+         LW = tfla$cholesky(W)
+         iW = tfla$cholesky_solve(LW, tf$eye(ic(ns*nc),dtype=tf$float64))
+         tmp01 = tfla$einsum("jac,jcgk,gbk->jagb",XtiDX,tf$reshape(iW, ic(ns,nc,ns,nc)),XtiDX)
+         tmp02 = tfla$einsum("jt,jcgk,gv->tcvk",Tr,tmp01,Tr)
+         iSigmaG = iUGamma + TtkXt_iD_XkT - tf$reshape(tmp02, ic(nt*nc,nt*nc))
+         tmp2 = tf$reshape(tfla$cholesky_solve(LW, tf$reshape(XiDS,ic(ns*nc,1))), ic(ns,nc))
+         tmp3 = tfla$einsum("jt,jck,jk->tc",Tr,XtiDX,tmp2)
+         mG0 = as.vector(iUGamma%*%mGamma) + tf$reshape(tfla$einsum("ik,ij,jt->tk",X,iDS,Tr),ic(nc*nt)) - tf$reshape(tmp3, ic(nc*nt))
+         iSigmaG = iSigmaG$numpy(); mG0 = mG0$numpy()
+         RiSigmaG = chol(iSigmaG)
+         mG1 = backsolve(RiSigmaG, mG0, transpose=TRUE)
+         Gamma = matrix(backsolve(RiSigmaG,mG1+rnorm(nc*nt)),nc,nt)
+      }else{
+         warning("updateGamma2() is not yet implemented for model with phylogeny and tfCompFlag=FALSE. Adjust the tfCompFlag or disable this sampler. ")
+      }
+
    }
    return(Gamma)
 }

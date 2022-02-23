@@ -1,12 +1,19 @@
 #' @importFrom stats rnorm
 #' @importFrom Matrix bdiag Diagonal sparseMatrix t Matrix
+#' @importFrom tensorflow tf
 #'
-updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
+updateEta = function(Z,Beta,iD,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL, tfCompFlag=FALSE){
    ny = nrow(Z)
    ns = ncol(Z)
    nr = ncol(Pi)
    np = apply(Pi, 2, function(a) length(unique(a)))
-   Yx = !is.na(Y)
+   bandMatrix = function(A){
+      d1 = dim(A)[1]
+      d2 = dim(A)[2]
+      ind1 = rep(1:(d1*d2), each=d2)
+      ind2 = rep(rep((0:(d2-1))*d1,d1) + rep(1:d1,each=d2), d2)
+      bMat = sparseMatrix(ind1, ind2, x=as.vector(aperm(A,c(3,1,2))))
+   }
 
    switch(class(X)[1L],
           matrix = {
@@ -35,212 +42,120 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
       } else{
          S = Z - LFix
       }
+      iDS = iD*S
+      iDS[is.na(Z)] = 0
       lambda = Lambda[[r]]
       nf = dim(lambda)[1]
       lPi = Pi[,r]
       ldfPi = dfPi[,r]
+      randEps = matrix(rnorm(np[r]*nf),np[r],nf)
+
+      if(tfCompFlag==TRUE){
+         tfla = tf$linalg
+         ic = function(...) as.integer(c(...))
+         if(rL[[r]]$xDim == 0){
+            LamiDLam = tf$scatter_nd(matrix(ic(lPi)), tfla$einsum("hj,ij,gj->ihg",lambda,iD,lambda), tf$constant(ic(np[r],nf,nf)))
+            PiDSLambda = tf$matmul(tf$scatter_nd(matrix(ic(lPi)), iDS, tf$constant(ic(np[r],ns))), lambda, transpose_b=TRUE)
+         } else{
+            lambdaLocal = tf$einsum("ik,hjk->ihj", rL[[r]]$x[unLdfPi,], lambda)
+            LamiDLam = tf$scatter_nd(matrix(ic(lPi)), tfla$einsum("ihj,ij,igj->ihg",lambdaLocal,iD,lambdaLocal),
+                                     tf$constant(ic(np[r],nf,nf)))
+            PiDSLambda = tf$scatter_nd(matrix(ic(lPi)), tf$matmul(iDS, lambdaLocal, transpose_b=TRUE), tf$constant(ic(np[r],ns)))
+         }
+      } else{
+         LamiDLam = array(0,c(np[r],nf,nf))
+         PiDSLambda = matrix(0,np[r],nf)
+         for(q in 1:np[r]){
+            rows = which(lPi==q)
+            if(rL[[r]]$xDim == 0){
+               for(p in seq_len(length(rows)))
+                  LamiDLam[q,,] = LamiDLam[q,,] + tcrossprod(lambda*matrix(sqrt(iD[rows[p],]),nf,ns,byrow=TRUE))
+               PiDSLambda[q,] = colSums(tcrossprod(iDS[rows,,drop=FALSE], lambda))
+            } else{
+               ncr = rL[[r]]$xDim
+               lambdaLocal = rowSums(lambda * array(unlist(rep(rL[[r]]$x[unLdfPi[q],],each=nf*ns)), c(nf,ns,ncr)), dims=2)
+               for(p in seq_len(length(rows)))
+                  LamiDLam[q,,] = LamiDLam[q,,] + tcrossprod(lambdaLocal*matrix(sqrt(iD[rows[p],]),nf,ns,byrow=TRUE))
+               PiDSLambda[q,] = colSums(tcrossprod(iDS[rows,,drop=FALSE], lambdaLocal))
+            }
+         }
+      }
+
       if(rL[[r]]$sDim == 0){
          eta = matrix(NA,np[r],nf)
-         if(rL[[r]]$xDim == 0){
-            LamInvSigLam = tcrossprod(lambda*matrix(sqrt(iSigma),nf,ns,byrow=TRUE))
-            if(np[r] == ny){
-               indRowFull = apply(Yx,1,all)
-               indRowNA = !indRowFull
-               nyFull = sum(indRowFull)
-
-               if(nyFull > 0){
-                  iV = diag(nf) + LamInvSigLam
-                  RiV = chol(iV)
-                  V = chol2inv(RiV)
-                  mu = tcrossprod(S[indRowFull,],lambda*matrix(iSigma,nf,ns,byrow=TRUE)) %*% V
-                  eta[lPi[indRowFull],] = mu + t(backsolve(RiV,matrix(rnorm(nyFull*nf),nf,nyFull)))
-               }
-
-               for(i in which(indRowNA)){
-                  indSp = Yx[i,]
-                  lam = lambda[,indSp,drop=FALSE]
-                  iSig = iSigma[indSp]
-                  nsx = sum(indSp)
-                  LiSL = tcrossprod(lam*matrix(sqrt(iSig),nf,nsx,byrow=TRUE))
-                  iV = diag(nf) + LiSL
-                  RiV = chol(iV)
-                  V = chol2inv(RiV)
-                  mu = tcrossprod(S[i,indSp,drop=FALSE],lam*matrix(iSig,nf,nsx,byrow=TRUE)) %*% V
-                  eta[lPi[i],] = mu + t(backsolve(RiV,rnorm(nf)))
-               }
-            } else{
-               unLPi = unique(lPi)
-               for(q in 1:np[r]){
-                  rows = which(lPi==unLPi[q])
-                  if(all(Yx[rows,])){
-                     iV = diag(nf) + LamInvSigLam*length(rows)
-                     RiV = chol(iV)
-                     V = chol2inv(RiV)
-                     mu = tcrossprod(apply(S[rows,,drop=FALSE],2,sum), lambda*matrix(iSigma,nf,ns,byrow=TRUE)) %*% V
-                  } else{
-                     LiSL = matrix(0,nf,nf)
-                     for(p in 1:length(rows))
-                        LiSL = LiSL + tcrossprod(lambda*matrix(sqrt(iSigma)*Yx[rows[p],],nf,ns,byrow=TRUE))
-                     iV = diag(nf) + LiSL
-                     RiV = chol(iV)
-                     V = chol2inv(RiV)
-                     mu = colSums(tcrossprod(S[rows,,drop=FALSE]*matrix(iSigma,length(rows),ns,byrow=TRUE)*Yx[rows,], lambda)) %*% V
-                  }
-
-                  eta[unLPi[q],] = mu + t(backsolve(RiV,rnorm(ny)))
-               }
-            }
+         if(tfCompFlag==TRUE){
+            iV = diag(nf) + LamiDLam
+            LiV = tfla$cholesky(iV)
+            m = tfla$cholesky_solve(LiV, tf$expand_dims(PiDSLambda, ic(-1)))
+            res = m + tfla$triangular_solve(LiV, tf$expand_dims(randEps,ic(-1)), adjoint=TRUE)
+            eta = tf$squeeze(res, ic(-1))$numpy()
          } else{
-            ncr = rL[[r]]$xDim
-            unLPi = unique(lPi)
-            unLdfPi = unique(as.character(ldfPi))
             for(q in 1:np[r]){
-               lambdaLocal = rowSums(lambda * array(unlist(rep(rL[[r]]$x[unLdfPi[q],],each=nf*ns)), c(nf,ns,ncr)), dims=2)
-               rows = which(lPi==unLPi[q])
-               LiSL = matrix(0,nf,nf)
-               for(p in 1:length(rows))
-                  LiSL = LiSL + tcrossprod(lambdaLocal * matrix(sqrt(iSigma)*Yx[rows[p],],nf,ns,byrow=TRUE))
-               iV = diag(nf) + LiSL
+               rows = which(lPi==q)
+               iV = diag(nf) + LamiDLam[q,,]
                RiV = chol(iV)
                V = chol2inv(RiV)
-               mu = colSums(tcrossprod(S[rows,,drop=FALSE]*matrix(iSigma,length(rows),ns,byrow=TRUE)*Yx[rows,], lambdaLocal)) %*% V
-               eta[unLPi[q],] = mu + t(backsolve(RiV,rnorm(ny)))
+               mu = PiDSLambda[q,] %*% V
+               eta[q,] = mu + backsolve(RiV,randEps[q,])
             }
          }
       } else{
          eta = matrix(0,np[r],nf)
          alpha = Alpha[[r]]
          iWg = rLPar[[r]]$iWg
-         switch(rL[[r]]$spatialMethod,
-                "Full" = {
-                   iWs = bdiag(lapply(seq_len(nf), function(x) iWg[,,alpha[x]]))
-                   LamInvSigLam = tcrossprod(lambda*matrix(sqrt(iSigma),nf,ns,byrow=TRUE))
-                   if(np[r] == ny){
-                      tmp1 = kronecker(LamInvSigLam, Diagonal(ny))
-                      fS = tcrossprod(S[order(lPi),,drop=FALSE],lambda*matrix(iSigma,nf,ns,byrow=TRUE))
-                      iUEta = iWs + tmp1
-                      R = chol(iUEta)
-                      tmp2 = backsolve(R, as.vector(fS), transpose=TRUE) + rnorm(np[r]*nf)
-                      feta = backsolve(R, tmp2);
-                      eta = matrix(feta,np[r],nf);
-                   } else{
-                      P = sparseMatrix(i=1:ny,j=lPi)
-                      tmp1 = kronecker(LamInvSigLam, Diagonal(x=Matrix::colSums(P)))
-                      fS = Matrix::tcrossprod(Matrix::crossprod(P,S), lambda*matrix(iSigma,nf,ns,byrow=TRUE))
-                      iUEta = iWs + tmp1
-                      R = chol(iUEta)
-                      tmp2 = backsolve(R, as.vector(fS), transpose=TRUE) + rnorm(np[r]*nf)
-                      feta = backsolve(R, tmp2);
-                      eta = matrix(feta,np[r],nf);
-                   }
-                },
-                "NNGP" = {
-                   iWs = sparseMatrix(c(),c(),dims=c(np[r]*nf,np[r]*nf))
-                   for(h in seq_len(nf))
-                      iWs = iWs + kronecker(iWg[[alpha[h]]], Diagonal(x=c(rep(0,h-1),1,rep(0,nf-h))))
-                   LamInvSigLam = tcrossprod(lambda*matrix(sqrt(iSigma),nf,ns,byrow=TRUE))
-                   # TODO it is possible here to eliminate dependence on missing data at minor cost by using row-specific iSigma
-                   if(np[r] == ny){
-                      tmp1 = kronecker(Diagonal(ny), LamInvSigLam)
-                      fS = tcrossprod(S[order(lPi),,drop=FALSE], lambda*matrix(iSigma,nf,ns,byrow=TRUE))
-                   }else{
-                      P = sparseMatrix(i=1:ny,j=lPi)
-                      tmp1 = kronecker(Diagonal(x=Matrix::colSums(P)), LamInvSigLam)
-                      fS = Matrix::tcrossprod(Matrix::crossprod(P,S), lambda*matrix(iSigma,nf,ns,byrow=TRUE))
-                   }
-                   iUEta = iWs + tmp1
-                   R = chol(iUEta)
-                   tmp2 = backsolve(R, as.vector(t(fS)), transpose=TRUE) + rnorm(nf*np[r])
-                   feta = backsolve(R, tmp2)
-                   eta = matrix(feta,np[r],nf,byrow=TRUE)
-                },
-                "GPP" = {
-                   if(np[r] == ny){
-                      idDg = rLPar[[r]]$idDg
-                      idDW12g = rLPar[[r]]$idDW12g
-                      Fg = rLPar[[r]]$Fg
-                      nK = nrow(Fg)
-                      idD = idDg[,alpha]
-                      Fmat = matrix(0,nrow=(nK*nf),ncol=(nK*nf))
-                      idD1W12 = matrix(0,nrow=(np[r]*nf),ncol=(nK*nf))
-                      for(h in 1:nf){
-                         Fmat[(h-1)*nK+(1:nK), (h-1)*nK+(1:nK)] = Fg[,,alpha[h]]
-                         idD1W12[(h-1)*np[r]+(1:np[r]), (h-1)*nK+(1:nK)] = idDW12g[,,alpha[h]]
-                      }
-                      tmp = diag(iSigma,length(iSigma))%*%t(lambda)
-                      fS = S[order(lPi),,drop=FALSE]%*%tmp
-                      fS = matrix(fS,ncol=1)
-                      LamSigLamT = lambda%*%tmp
+         if(rL[[r]]$spatialMethod == "Full"){
+            iWs = bdiag(lapply(seq_len(nf), function(x) iWg[,,alpha[x]]))
+            LamiDLamBandMat = bandMatrix(LamiDLam)
+            iUEta = iWs + LamiDLamBandMat
+            R = chol(iUEta)
+            tmp2 = backsolve(R, as.vector(PiDSLambda), transpose=TRUE) + as.vector(randEps)
+            feta = backsolve(R, tmp2);
+            eta = matrix(feta,np[r],nf);
+         } else if(rL[[r]]$spatialMethod == "NNGP"){
+            iWs = sparseMatrix(c(),c(),dims=c(np[r]*nf,np[r]*nf))
+            for(h in seq_len(nf))
+               iWs = iWs + kronecker(iWg[[alpha[h]]], Diagonal(x=c(rep(0,h-1),1,rep(0,nf-h))))
+            LamiDLamBlockMat = bdiag(lapply(split(LamiDLam, 1:np[r]), function(x) matrix(x,nf,nf)))
+            iUEta = iWs + LamiDLamBlockMat
+            R = chol(iUEta)
+            tmp2 = backsolve(R, as.vector(t(PiDSLambda)), transpose=TRUE) + as.vector(t(randEps))
+            feta = backsolve(R, tmp2)
+            eta = matrix(feta,np[r],nf,byrow=TRUE)
+         } else if(rL[[r]]$spatialMethod == "GPP"){
+            # here iD and idD correspond to observation noise and GPP approximation parts respectively
+            idDg = rLPar[[r]]$idDg
+            idDW12g = rLPar[[r]]$idDW12g
+            Fg = rLPar[[r]]$Fg
+            nK = nrow(Fg)
+            idD = idDg[,alpha]
+            Fmat = matrix(0,nrow=(nK*nf),ncol=(nK*nf))
+            idD1W12 = matrix(0,nrow=(np[r]*nf),ncol=(nK*nf))
+            for(h in 1:nf){
+               Fmat[(h-1)*nK+(1:nK), (h-1)*nK+(1:nK)] = Fg[,,alpha[h]]
+               idD1W12[(h-1)*np[r]+(1:np[r]), (h-1)*nK+(1:nK)] = idDW12g[,,alpha[h]]
+            }
 
-                      B0 = array(LamSigLamT,c(nrow(LamSigLamT),ncol(LamSigLamT),ny))
-                      idDV = matrix(t(idD),nrow=1)
-                      tmp = t(matrix((c(1:ny)-1),nrow=ny,ncol=nf))
-                      ind = matrix(tmp,nrow=1)*nf^2 + rep(nf*((1:nf)-1)+(1:nf),ny)
-                      B0[ind] = B0[ind] + idDV
+            iAst = LiAst = array(NA,c(np[r],nf,nf))
+            for(i in 1:np[r]){
+               Ael = cholLamiDLam[i,,]+diag(idD[i,])
+               RAel = chol(Ael)
+               iAst[i,,] = chol2inv(RAel)
+               LiAst[i,,] = t(chol(iAst[i,,]))
+            }
+            iA = bandMatrix(B)
+            LiA = bandMatrix(LB)
+            iAidD1W12 = iA %*% idD1W12
+            H = Fmat - t(idD1W12)%*%iAidD1W12
+            RH = chol(as.matrix(H))
+            iRH = solve(RH)
 
-                      B1 = array(NA,c(ny,nf,nf))
-                      LB1 = array(NA,c(ny,nf,nf))
-                      for(i in 1:ny){
-                         B1[i,,] = chol2inv(chol((B0[,,i])))
-                         LB1[i,,] = t(chol(B1[i,,]))
-                      }
-                      ind1 = rep(1:(nf*ny),nf)
-                      tmp1 = t(matrix((1:nf-1),nrow=nf,ncol=(ny*nf))) * ny
-                      ind2 = rep(1:ny,nf^2) + t(matrix(tmp1,nrow=1))
-                      iA = Matrix(0,nrow=nf*ny, ncol=nf*ny,sparse=TRUE)
-                      iA[t(matrix(rbind(ind1,as.vector(ind2)),nrow=2))] = as.vector(B1)
-                      LiA = Matrix(0,nrow=nf*ny, ncol=nf*ny,sparse=TRUE)
-                      LiA[t(matrix(rbind(ind1,as.vector(ind2)),nrow=2))] = as.vector(LB1)
-                      iAidD1W12 = iA %*% idD1W12
-                      H = Fmat - t(idD1W12)%*%iAidD1W12
-                      RH = chol(as.matrix(H))
-                      iRH = solve(RH)
+            mu1 = iA%*%as.vector(PiDSLambda)
+            tmp1 = iAidD1W12 %*% iRH
+            mu2 = tmp1%*%(Matrix::t(tmp1)%*%as.vector(PiDSLambda))
 
-                      mu1 = iA%*%fS
-                      tmp1 = iAidD1W12 %*% iRH
-                      mu2 = tmp1%*%(Matrix::t(tmp1)%*%fS)
-
-                      etaR = LiA%*%rnorm(np[r]*nf)+tmp1%*%rnorm(nK*nf)
-                      eta = matrix(mu1+mu2+etaR,ncol=nf,nrow=np[r])
-                   } else {
-                      idDg = rLPar[[r]]$idDg
-                      idDW12g = rLPar[[r]]$idDW12g
-                      Fg = rLPar[[r]]$Fg
-                      nK = nrow(Fg)
-                      idD = idDg[,alpha]
-                      Fmat = matrix(0,nrow=(nK*nf),ncol=(nK*nf))
-                      idD1W12 = matrix(0,nrow=(np[r]*nf),ncol=(nK*nf))
-                      for(h in 1:nf){
-                         Fmat[(h-1)*nK+(1:nK), (h-1)*nK+(1:nK)] = Fg[,,alpha[h]]
-                         idD1W12[(h-1)*np[r]+(1:np[r]), (h-1)*nK+(1:nK)] = idDW12g[,,alpha[h]]
-                      }
-                      tmp = diag(iSigma,length(iSigma))%*%t(lambda)
-                      LamSigLamT = lambda%*%tmp
-
-                      P = sparseMatrix(i=1:ny,j=lPi)
-                      f = Matrix::crossprod(P,S)
-                      fS = f%*%tmp
-                      fS = matrix(fS,ncol=1)
-
-                      tmp1 = kronecker(LamSigLamT, Diagonal(x=Matrix::colSums(P)))
-                      tmp2 = tmp1 + Diagonal(x=idD[])
-                      iA = solve(tmp2)
-                      LiA = chol(iA)
-
-                      iAidD1W12 = iA %*% idD1W12
-                      H = Fmat - t(idD1W12)%*%iAidD1W12
-                      RH = chol(as.matrix(H))
-                      iRH = solve(RH)
-
-                      mu1 = iA%*%fS
-                      tmp1 = iAidD1W12 %*% iRH
-                      mu2 = tmp1%*%(Matrix::t(tmp1)%*%fS)
-
-                      etaR = LiA%*%rnorm(np[r]*nf)+tmp1%*%rnorm(nK*nf)
-                      eta = matrix(mu1+mu2+etaR,ncol=nf,nrow=np[r])
-                   }
-                }
-                )
+            etaR = LiA%*%rnorm(np[r]*nf) + tmp1%*%rnorm(nK*nf)
+            eta = matrix(mu1+mu2+etaR,ncol=nf,nrow=np[r])
+         }
       }
       rownames(eta)=rnames
       Eta[[r]] = eta

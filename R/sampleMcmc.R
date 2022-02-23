@@ -81,7 +81,8 @@ sampleMcmc =
              verbose, adaptNf=rep(transient,hM$nr),
              nChains=1, nParallel=1, clusterType = c("socket", "fork"),
              dataParList=NULL, updater=list(),
-             fromPrior = FALSE, alignPost = TRUE)
+             fromPrior = FALSE, alignPost = TRUE,
+             tfCompFlag=FALSE)
 {
    ## Select parallel processing strategy
    clusterType <- match.arg(clusterType)
@@ -154,22 +155,6 @@ sampleMcmc =
    ######## switching of the augmented updaters if the required conditions are not met
    EPS = 1e-6
    updaterWarningFlag = TRUE
-   # updater$Gamma2
-   if(!identical(updater$Gamma2, FALSE) && any(abs(mGamma) > EPS)){
-      updater$Gamma2 = FALSE
-      if(updaterWarningFlag)
-         message("setting updater$Gamma2=FALSE due to non-zero mGamma")
-   }
-   if(!identical(updater$Gamma2, FALSE) && any(abs(iUGamma - kronecker(iUGamma[1:hM$nc,1:hM$nc], diag(hM$nt))) > EPS)){
-      updater$Gamma2 = FALSE
-      if(updaterWarningFlag)
-         message("setting updater$Gamma2=FALSE due to non-kronecker structure of UGamma matrix")
-   }
-   if(!identical(updater$Gamma2, FALSE) && (!is.null(C))){
-      updater$Gamma2 = FALSE
-      if(updaterWarningFlag)
-         message("setting updater$Gamma2=FALSE due to specified phylogeny matrix")
-   }
    # updater$GammaEta
    if(!identical(updater$GammaEta, FALSE) && any(abs(mGamma) > EPS)){
       updater$GammaEta = FALSE
@@ -224,7 +209,7 @@ sampleMcmc =
       Delta = parList$Delta
       rho = parList$rho
       Z = parList$Z
-
+      iD = parList$iD
       X1A = X1
 
       if(hM$ncsel>0){
@@ -267,37 +252,42 @@ sampleMcmc =
       postList = vector("list", samples)
       for(iter in seq_len(transient+samples*thin)){
 
+         #TODO Zconditioning
          if(!identical(updater$Gamma2, FALSE))
-            Gamma = updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,
-               Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,C=C,rL=hM$rL, iQg=iQg,
-               mGamma=mGamma,iUGamma=iUGamma)
+            Gamma = updateGamma2(Z=Z,Gamma=Gamma,iV=iV,rho=rho,iD=iD,
+               Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,C=C,rL=hM$rL, iQ=iQg[,,rho],
+               mGamma=mGamma,iUGamma=iUGamma, tfCompFlag=tfCompFlag)
 
+         #TODO Zconditioning - !!!!NOT DONE!!!!
          if(!identical(updater$GammaEta, FALSE)){
-            GammaEtaList = updateGammaEta(Z=Z,Gamma=Gamma,V=chol2inv(chol(iV)),iV=iV,id=iSigma,
+            GammaEtaList = updateGammaEta(Z=Z,Gamma=Gamma,V=chol2inv(chol(iV)),iV=iV,iD=iD,
                Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,rL=hM$rL, rLPar=rLPar,Q=Qg[,,rho],iQ=iQg[,,rho],RQ=RQg[,,rho],
                mGamma=mGamma,U=hM$UGamma,iU=iUGamma)
             Gamma = GammaEtaList$Gamma
             Eta = GammaEtaList$Eta
          }
 
+         #TODO Zconditioning - DONE
          if(!identical(updater$BetaLambda, FALSE)){
-            BetaLambdaList = updateBetaLambda(Y=Y,Z=Z,Gamma=Gamma,iV=iV,
-               iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta, iQ=iQg[,,rho],
-               X=X,Tr=Tr,Pi=Pi,dfPi=dfPi,C=C,rL=hM$rL)
+            BetaLambdaList = updateBetaLambda(Z=Z,Gamma=Gamma,iV=iV,iD=iD,Eta=Eta,Psi=Psi,Delta=Delta, iQ=iQg[,,rho],
+               X=X,Tr=Tr,Pi=Pi,dfPi=dfPi,C=C,rL=hM$rL, tfCompFlag=tfCompFlag)
             Beta = BetaLambdaList$Beta
             Lambda = BetaLambdaList$Lambda
          }
 
+         #TODO Zconditioning - DONE
          if(!identical(updater$wRRR, FALSE) &&  hM$ncRRR>0){
-            wRRRXList = updatewRRR(Z=Z, Beta=Beta, iSigma=iSigma,
+            wRRRXList = updatewRRR(Z=Z, Beta=Beta, iD=iD,
                                  Eta=Eta, Lambda=Lambda, X1A=X1A, XRRR=hM$XRRRScaled,
                                  Pi=Pi, dfPi=dfPi,rL = hM$rL, PsiRRR=PsiRRR, DeltaRRR=DeltaRRR)
             wRRR = wRRRXList$wRRR
             X = wRRRXList$X
          }
 
+         #TODO Zconditioning - DONE
+         # This updater is potentially incompatible with marginalization trick for Poisson data augmentation
          if(!identical(updater$BetaSel, FALSE) &&  hM$ncsel>0){
-            BetaSelXList = updateBetaSel(Z=Z,XSelect = hM$XSelect, BetaSel=BetaSel,Beta=Beta, iSigma=iSigma,
+            BetaSelXList = updateBetaSel(Z=Z,XSelect = hM$XSelect, BetaSel=BetaSel,Beta=Beta, iD=iD,
                                     Lambda=Lambda, Eta=Eta, X1=X1,Pi=Pi,dfPi=dfPi,rL=hM$rL)
             BetaSel = BetaSelXList$BetaSel
             X = BetaSelXList$X
@@ -328,19 +318,25 @@ sampleMcmc =
             DeltaRRR = PsiDeltaList$Delta
          }
 
+         #TODO Zconditioning - DONE
          if(!identical(updater$Eta, FALSE))
-            Eta = updateEta(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
+            Eta = updateEta(Z=Z,Beta=Beta,iD=iD,Eta=Eta,
                Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, X=X,Pi=Pi,dfPi=dfPi,rL=hM$rL)
 
          if(!identical(updater$Alpha, FALSE))
             Alpha = updateAlpha(Eta=Eta, rLPar=rLPar, rL=hM$rL)
 
-         if(!identical(updater$InvSigma, FALSE))
-            iSigma = updateInvSigma(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,
+         #TODO Zconditioning - DONE
+         if(!identical(updater$InvSigma, FALSE)){
+            resList = updateInvSigma(Z=Z,Beta=Beta,iSigma=iSigma,
                Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi,dfPi=dfPi,rL=hM$rL, aSigma=aSigma,bSigma=bSigma)
+            iSigma = resList$iSigma; iD = resList$iD
+         }
 
+         #TODO Zconditioning - DONE
          if(!identical(updater$Z, FALSE)){
-            Z = updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,distr=distr,rL=hM$rL)
+            resList = updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,distr=distr,rL=hM$rL)
+            Z = resList$Z; iD = resList$iD
          }
 
          for(r in seq_len(nr)){
@@ -402,16 +398,17 @@ sampleMcmc =
                               "adaptNf","initSeed","initPar","updater",
                               "X1", "Tr", "Y", "distr", "Pi", "C", "nr",
                               "mGamma", "iUGamma", "V0", "f0", "aSigma", "bSigma",
-                              "rhopw","Qg", "iQg", "RQg", "detQg", "rLPar"),
+                              "rhopw","Qg", "iQg", "RQg", "detQg", "rLPar", "tfCompFlag"),
                         envir=environment())
 
           clusterEvalQ(cl, {
-              library(BayesLogit);
-              library(MCMCpack);
-              library(truncnorm);
-              library(Matrix);
-              library(abind);
-              library(Hmsc)})
+             library(BayesLogit);
+             library(MCMCpack);
+             library(truncnorm);
+             library(Matrix);
+             library(abind);
+             library(Hmsc);
+             library(tensorflow)})
           hM$postList = clusterApplyLB(cl, 1:nChains, fun=sampleChain)
           ## do not stop user-supplied cluster
           if (!hasCluster)
