@@ -44,8 +44,12 @@
     ## Pack setting training model into one function
     setHmsc <- function(k, hM) {
         train <- k != partition
-        m <- Hmsc(Y = hM$Y[train, , drop=FALSE],
-                  X = hM$X[train, , drop=FALSE],
+        ## X can be a list of matrices
+        XTrain <- if(is.matrix(hM$X))
+                      hM$X[train, , drop=FALSE]
+                  else if(is.list(hM$X))
+                      lapply(hM$X, function(a) a[train, , drop=FALSE])
+        m <- Hmsc(Y = hM$Y[train, , drop=FALSE], X = XTrain,
                   XRRR = hM$XRRR[train, , drop=FALSE],
                   ncRRR = hM$ncRRR, XSelect = hM$XSelect,
                   distr = hM$distr,
@@ -105,7 +109,10 @@
         m <- alignPosterior(m)
         postList <- poolMcmcChains(m$postList, start=start, thin=thin)
         dfPi <- droplevels(hM$dfPi[val,, drop=FALSE])
-        pred1 <- predict(m, post=postList, X = hM$X[val,, drop=FALSE],
+        Xval <- if (is.matrix(hM$X)) hM$X[val, , drop=FALSE]
+                else lapply(hM$X, function(a) a[val, , drop=FALSE])
+        pred1 <- predict(m, post=postList, X = Xval,
+                         XRRR = hM$XRRR[val,, drop=FALSE],
                          Yc = Yc[val,, drop=FALSE], studyDesign = dfPi,
                          mcmcStep = mcmcStep, expected = expected)
         predArray[val,,] <- abind(pred1, along=3)
