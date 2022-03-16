@@ -41,13 +41,13 @@
     ## only implement for the simple case first
     if (is.list(hM$X))
         stop("not yet implemented for a list of model matrices")
-    if (hM$ncRRR > 0)
-        stop("not yet implemendted for RRR models")
     ## Pack setting training model into one function
     setHmsc <- function(k, hM) {
         train <- k != partition
         m <- Hmsc(Y = hM$Y[train, , drop=FALSE],
                   X = hM$X[train, , drop=FALSE],
+                  XRRR = hM$XRRR[train, , drop=FALSE],
+                  ncRRR = hM$ncRRR, XSelect = hM$XSelect,
                   distr = hM$distr,
                   studyDesign = droplevels(hM$dfPi[train,, drop=FALSE]),
                   Tr = hM$Tr, C = hM$C, ranLevels = hM$rL)
