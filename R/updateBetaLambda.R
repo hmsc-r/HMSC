@@ -67,22 +67,23 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho,Vartheta,Varph
       }, list = {
          XEtaList = mapply(function(X,Y){ cbind(X, EtaSt*matrix(Y,ny,nfSum,byrow=TRUE)) }, X=X, Y=LambdaPriorDiscSt)
       })
-      PsiT = vector("list", nr)
-      for (r in 1:nr) {
+      PsiT = TauCt = vector("list", nr)
+      for (r in seq_len(nr)) {
          if (rL[[r]]$xDim == 0) {
             PsiT[[r]] = t(Psi[[r]])
          }
          else {
             PsiT[[r]] = aperm(Psi[[r]], c(2,1,3))
          }
+         # check if column specification is MGP or CUSP and compute the continuous part of Tau
+         if(rL[[r]]$progShrinkType=="MGP"){
+            TauCt[[r]] = apply(Delta[[r]], 2, cumprod)
+         } else if(rL[[r]]$progShrinkType=="CUSP"){
+            TauCt[[r]] = Delta[[r]] / Vartheta[[r]]
+         }
       }
       psiSt = matrix(unlist(PsiT), nfSum, ns, byrow=TRUE)
-      # check if column specification is MGP or CUSP and compute the continuous part of Tau
-      if(rL[[r]]$progShrinkType=="MGP"){
-         TauCt = lapply(Delta[[r]], function(a) apply(a, 2, cumprod))
-      } else if(rL[[r]]$progShrinkType=="CUSP"){
-         TauCt = Delta[[r]] / Vartheta[[r]]
-      }
+
       tauSt = matrix(unlist(TauCt), nfSum, 1)
       priorLambda = psiSt * matrix(tauSt, nfSum, ns)    # only the continuous part of lambda variance
    }
