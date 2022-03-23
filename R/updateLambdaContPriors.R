@@ -5,7 +5,7 @@
 # Psi is the local continuous scale
 # Delta is the column continuous scale
 # Vartheta is the remaining part of the column scale that can be
-# either bernoulli (CUSP) or product of delta (MGP, in this case Vartheta = NULL)
+# either mixture of normal (CUSP) or product of delta (MGP, in this case Vartheta = NULL)
 
 updateLambdaContPriors = function(LambdaTilde, Delta, Vartheta, rL){
    nr = length(rL)
@@ -16,36 +16,37 @@ updateLambdaContPriors = function(LambdaTilde, Delta, Vartheta, rL){
       b1 = rL[[r]]$b1
       a2 = rL[[r]]$a2
       b2 = rL[[r]]$b2
-      delta = Delta[[r]]
+      delta_1 = Delta[[r]]   # LS: changed the name in delta_1, consistently with our notation
       lambdaTilde = LambdaTilde[[r]]
+      vartheta = Vartheta[[r]]  # LS: added vartheta
       ns = dim(lambdaTilde)[2]
       nf = dim(lambdaTilde)[1]
 
       if(rL[[r]]$progShrinkType=="MGP"){
-         tau = apply(delta, 2, cumprod)     # classic MGP
+         tau_1 = apply(delta_1, 2, cumprod)     # classic MGP
       } else if(rL[[r]]$progShrinkType=="CUSP"){
-         tau = delta                        # Continuous Tau is simply delta
+         tau_1 = delta_1 / vartheta               # LS: Tau^(-1) is (delta X vartheta)^(-1)
       }
       lambdaTilde2 = lambdaTilde^2
       aPsi = nu/2 + 0.5
       if (is.matrix(lambdaTilde)) {
-         bPsi = nu/2 + 0.5 * lambdaTilde2 * matrix(tau, nf, ns)
-         psi = matrix(rgamma(nf * ns, aPsi, bPsi), nf, ns)
-         M = psi * lambdaTilde2
+         bPsi = nu/2 + 0.5 * lambdaTilde2 * matrix(tau_1, nf, ns)
+         psi_1 = matrix(rgamma(nf * ns, aPsi, bPsi), nf, ns)  # LS: changed the name in psi_1, consistently with our notation
+         M = psi_1 * lambdaTilde2
          rowSumM = rowSums(M)
          aVec = c(a1,rep(a2,nf-1))
          bVec = c(b1,rep(b2,nf-1))
          if(rL[[r]]$progShrinkType=="MGP"){
             for(h in seq_len(nf)) {
-               tau = apply(delta, 2, cumprod)
+               tau_1 = apply(delta_1, 2, cumprod)
                ad = aVec[h] + 0.5 * ns*(nf-h+1)
-               bd = bVec[h] + 0.5 * sum(tau[h:nf, ,drop=FALSE] * rowSumM[h:nf]) / delta[h]
-               delta[h] = rgamma(1, ad, bd)
+               bd = bVec[h] + 0.5 * sum(tau_1[h:nf, ,drop=FALSE] * rowSumM[h:nf]) / delta_1[h]
+               delta_1[h] = rgamma(1, ad, bd)
             }
          } else if(rL[[r]]$progShrinkType=="CUSP"){
             adVec = aVec + 0.5 * ns
-            bdVec = aVec + 0.5 * rowSumM
-            delta = rgamma(nf, adVec, bdVec)
+            bdVec = aVec + 0.5 * rowSumM / vartheta  # LS: added division by vartheta
+            delta_1 = rgamma(nf, adVec, bdVec)
          }
       }
       else {
@@ -70,8 +71,8 @@ updateLambdaContPriors = function(LambdaTilde, Delta, Vartheta, rL){
                tau = apply(delta, 2, cumprod)
                ad = a2 + 0.5 * ns * (nf - h + 1)
                bd = b2 + 0.5 * colSums(tau[h:nf,,drop = FALSE] * apply(M[-c(1:(h - 1)), , ,
-                                                                   drop = FALSE], c(1, 3), sum))/matrix(delta[h,
-                                                                   ], nf - h + 1, ncr, byrow = TRUE)
+                                                                         drop = FALSE], c(1, 3), sum))/matrix(delta[h,
+                                                                         ], nf - h + 1, ncr, byrow = TRUE)
             } else if(rL[[r]]$progShrinkType=="CUSP"){
                ad = a2 + 0.5 * ns
                bd = b2 + 0.5 * apply(M, c(1, 3), sum)[h,]
@@ -79,8 +80,8 @@ updateLambdaContPriors = function(LambdaTilde, Delta, Vartheta, rL){
             delta[h,] = rgamma(ncr, ad, bd)
          }
       }
-      Psi[[r]] = psi
-      Delta[[r]] = delta
+      Psi[[r]] = psi_1
+      Delta[[r]] = delta_1
    }
    return(list(Psi=Psi, Delta=Delta))
 }

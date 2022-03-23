@@ -42,11 +42,7 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho,Vartheta,Varph
       LambdaPriorDiscT = vector("list", nr)
       for(r in seq_len(nr)){
          if(rL[[r]]$xDim == 0){
-            if(rL[[r]]$progShrinkType=="MGP"){
-               LambdaPriorDiscT[[r]] = Varphi[[r]]
-            } else if(rL[[r]]$progShrinkType=="CUSP"){
-               LambdaPriorDiscT[[r]] = Varphi[[r]]*Vartheta[[r]]
-            }
+            LambdaPriorDiscT[[r]] = Varphi[[r]]
          } else { #GT: lets omit this more complicated case for now
             stop("Capacity for covariate-dependent associations is currently disabled")
             if(rL[[r]]$progShrinkType=="MGP"){
@@ -83,9 +79,9 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho,Vartheta,Varph
       psiSt = matrix(unlist(PsiT), nfSum, ns, byrow=TRUE)
       # check if column specification is MGP or CUSP and compute the continuous part of Tau
       if(rL[[r]]$progShrinkType=="MGP"){
-         TauCt = lapply(Delta, function(a) apply(a, 2, cumprod))
+         TauCt = lapply(Delta[[r]], function(a) apply(a, 2, cumprod))
       } else if(rL[[r]]$progShrinkType=="CUSP"){
-         TauCt = Delta
+         TauCt = Delta[[r]] / Vartheta[[r]]
       }
       tauSt = matrix(unlist(TauCt), nfSum, 1)
       priorLambda = psiSt * matrix(tauSt, nfSum, ns)    # only the continuous part of lambda variance

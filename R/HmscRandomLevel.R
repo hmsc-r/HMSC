@@ -66,10 +66,11 @@
 
 HmscRandomLevel =
     function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NULL, units=NULL,
-             N=NULL, nNeighbours=NULL, sKnot=NULL, longlat = FALSE, progShrinkType="MGP")
+             N=NULL, nNeighbours=NULL, sKnot=NULL, longlat = FALSE, progShrinkType="MGP", structuredShrinkage=FALSE)
 {
    rL = structure(list(pi=NULL, s=NULL, sDim=NULL, spatialMethod=NULL, x=NULL, xDim=NULL, N=NULL, distMat=NULL, #
-      nfMax=NULL, nfMin=NULL, nNeighbours=NULL, progShrinkType=NULL, nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, xi=NULL,cns=NULL, alphapw=NULL), class="HmscRandomLevel")
+      nfMax=NULL, nfMin=NULL, nNeighbours=NULL, progShrinkType=NULL, structuredShrinkage=NULL,
+      nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, vartheta_inf=NULL, xi=NULL,cns=NULL, alphapw=NULL), class="HmscRandomLevel")
    if(nargs()==0)
       stop("at least one argument must be specified")
    if(!is.null(distMat) && !is.null(sData)){
@@ -154,6 +155,11 @@ HmscRandomLevel =
       stop("progShrinkType string parameter must be MGP or CUSP")
    } else{
       rL$progShrinkType = progShrinkType
+   }
+   if(!is.logical(structuredShrinkage)){
+      stop("structuredShrinkage parameter must be TRUE/FALSE")
+   } else{
+      rL$structuredShrinkage = structuredShrinkage
    }
 
    rL = setPriors(rL, setDefault=TRUE)

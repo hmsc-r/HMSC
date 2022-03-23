@@ -18,7 +18,7 @@
 #'
 #' @export
 
-setPriors.HmscRandomLevel = function(rL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=NULL, alphapw=NULL, xi=NULL,cns=NULL,
+setPriors.HmscRandomLevel = function(rL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=NULL, vartheta_inf=NULL, alphapw=NULL, xi=NULL,cns=NULL,
                                      sigma2_gammaLatent=NULL, nfMax=NULL, nfMin=NULL, setDefault=FALSE, ...)
 {
    stopifnot(inherits(rL, "HmscRandomLevel"))
@@ -82,6 +82,18 @@ setPriors.HmscRandomLevel = function(rL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=
       }
    } else if(setDefault){
       rL$b2 = rep(1, xDim)
+   }
+   if(!is.null(vartheta_inf)){
+      if(length(vartheta_inf) == 1){
+         rL$vartheta_inf = rep(vartheta_inf, xDim)
+      } else{
+         if(length(vartheta_inf) == xDim){
+            rL$vartheta_inf = vartheta_inf
+         } else
+            stop("length of vartheta_inf argument must be either 1 or rL$xDim")
+      }
+   } else if(setDefault){
+      rL$vartheta_inf = rep(0.05^2, xDim)
    }
    if(!is.null(alphapw)){
       if(rL$sDim == 0)

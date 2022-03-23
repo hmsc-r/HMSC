@@ -129,7 +129,7 @@ computeInitialParameters = function(hM, initPar){
 
    nf = rep(NA, hM$nr)
    ncr = rep(NA, hM$nr)
-   parNames = c("Eta","Alpha", "LambdaTilde","Lambda","Delta","Psi","Varphi","Vartheta","W",
+   parNames = c("Eta","Alpha", "LambdaTilde","Lambda","Delta","Psi","Varphi","Vartheta","W","TildeU",
                 "BetaLatent","GammaLatent","rhoLatent")
    for(parName in parNames){
       if(!is.null(initPar[[parName]])){
@@ -210,11 +210,13 @@ computeInitialParameters = function(hM, initPar){
          if(hM$rL[[r]]$xDim == 0){
             Vartheta[[r]] = rep(1, nf[r])
             u = pmin(1+(1:nf[r]), nf[r])
+            tildeU = hM$rL[[r]]$vartheta_inf + as.numeric(u>(1:nf[r]))*(1-hM$rL[[r]]$vartheta_inf)
             tmp = table(c(u,1:nf[r])) - 1
             v = rbeta(nf, shape1=1+tmp, shape2=hM$rL[[r]]$xi+nf[r]-cumsum(tmp))
             v[nf[r]] = 1
             w = v*c(1,cumprod(1-v[-nf]))
             W[[r]] = w
+            TildeU[[r]] = tildeU
          } else{
             stop("Capacity for covariate-dependent associations is currently disabled")
          }
@@ -318,6 +320,7 @@ computeInitialParameters = function(hM, initPar){
    parList$Varphi = Varphi
    parList$Vartheta = Vartheta
    parList$W = W
+   parList$TildeU = TildeU
 
    return(parList)
 }

@@ -223,6 +223,7 @@ sampleMcmc =
       Vartheta = parList$Vartheta
       Varphi = parList$Varphi
       W = parList$W
+      TildeU = parList$TildeU
 
       X1A = X1
       if(hM$ncsel>0){
@@ -341,8 +342,8 @@ sampleMcmc =
             Delta = PsiDeltaList$Delta
          }
          if(!identical(updater$LambdaDiscPriors, FALSE)){
-            LambdaVarphiVarthetaWList = updateLambdaDiscPriors(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda,LambdaTilde=LambdaTilde,
-                                                  BetaLatent=BetaLatent,Varphi=Varphi,Vartheta=Vartheta,W=W, X=X,Pi=Pi,rL=hM$rL)
+            LambdaVarphiVarthetaWList = updateLambdaDiscPriors(Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda,LambdaTilde=LambdaTilde,Delta=Delta,
+                                                  BetaLatent=BetaLatent,Varphi=Varphi,Vartheta=Vartheta,TildeU=TildeU,W=W, X=X,Pi=Pi,rL=hM$rL)
             Lambda = LambdaVarphiVarthetaWList$Lambda
             Varphi = LambdaVarphiVarthetaWList$Varphi
             Vartheta = LambdaVarphiVarthetaWList$Vartheta
