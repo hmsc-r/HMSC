@@ -105,7 +105,7 @@
 #' m = Hmsc(Y=TD$Y, XData=TD$X, XFormula=~x1+x2,
 #' studyDesign=studyDesign,ranLevels=list("sample"=rL1,"plot"=rL2))
 #'
-#' @importFrom stats model.matrix
+#' @importFrom stats model.matrix .MFclass
 #' @importFrom ape vcv.phylo
 #' @importFrom utils packageVersion
 #'
@@ -198,9 +198,15 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
         ## function to check that all variables are numeric or factors
         ## (sometimes they are character strings which is OK for most
         ## analyses but can fail in predict.Hmsc): DF is a data.frame
-        OKvars <- function(DF) {
-            sapply(DF, function(a)
-                !is.matrix(a) && (is.numeric(a) || is.factor(a)))
+        BADvars <- function(DF) {
+            cl <- vapply(DF, .MFclass, "")
+            ## accepted types; character and matrix vars are baddies
+            ok <- cl %in% c("numeric", "factor", "ordered", "logical")
+            cl <- cl[!ok]
+            if (length(cl) > 0)
+                paste(names(cl), cl, sep=":", collapse=", ")
+            else
+                invisible(NULL)
         }
         if (inherits(XData, "list")) {
             if(length(XData) != hM$ns){
@@ -217,9 +223,8 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
             if(any(unlist(lapply(XData, function(a) nrow(a) != hM$ny)))){
                 stop("for each element of XData list the number of rows must be equal to the number of sampling units")
             }
-            if(!all(ok <- sapply(XData, function(a) OKvars(a))))
-                stop("some XData variables were not numeric or factors",
-                     paste(names(ok)[!ok], collapse=", "))
+            if(any(!sapply(lapply(XData, BADvars), is.null)))
+                stop("XData variables had bad types (e.g., matrix, non-numeric)")
             if(any(unlist(lapply(XData, function(a) any(is.na(a)))))){
                 stop("NA values are not allowed in XData")
             }
@@ -237,9 +242,8 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
             }
             ## check that all vars are numeric or factors (not, e.g.,
             ## characters)
-            if (!all(ok <- OKvars(XData)))
-                stop("some XData variables were not numeric or factors: ",
-                     paste(names(ok)[!ok], collapse = ", "))
+            if (!is.null(baddie <- BADvars(XData)))
+                stop("XData variables had bad types: ", baddie)
             ## check against derived classes of data.frame (such as tibble)
             if (class(XData)[1L] != "data.frame")
                 XData <- as.data.frame(XData, stringsAsFactors = TRUE)
