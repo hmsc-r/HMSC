@@ -1,7 +1,6 @@
 ### Complete re-write of computePredictedValues for parallel processing
 
 #' @importFrom stats predict
-#' @importFrom abind abind
 #' @importFrom parallel mclapply detectCores
 
 #' @rdname computePredictedValues
@@ -25,8 +24,6 @@
     clusterType <- match.arg(clusterType)
     if (nParallel > 1 && .Platform$OS.type == "windows")
         stop("parallel processing not yet implemented for Windows: use Linux or Mac")
-    if (!missing(partition.sp))
-        .NotYetUsed("partition.sp", error = TRUE)
     ## STAGE 1: Basic housekeeping
     parts <- sort(unique(partition))
     nfolds <- length(parts)
@@ -111,12 +108,71 @@
         dfPi <- droplevels(hM$dfPi[val,, drop=FALSE])
         Xval <- if (is.matrix(hM$X)) hM$X[val, , drop=FALSE]
                 else lapply(hM$X, function(a) a[val, , drop=FALSE])
-        pred1 <- predict(m, post=postList, X = Xval,
-                         XRRR = hM$XRRR[val,, drop=FALSE],
-                         Yc = Yc[val,, drop=FALSE], studyDesign = dfPi,
-                         mcmcStep = mcmcStep, expected = expected)
-        predArray[val,,] <- abind(pred1, along=3)
+        pred1 <- if (is.null(partition.sp)) {
+                     predict(m, post=postList, X = Xval,
+                             XRRR = hM$XRRR[val,, drop=FALSE],
+                             Yc = Yc[val,, drop=FALSE], studyDesign = dfPi,
+                             mcmcStep = mcmcStep, expected = expected)
+                 } else {
+                     getSpeciesFoldPrediction(hM, val, postList, dfPi,
+                                              partition.sp = partition.sp,
+                                              mcmcStep = mcmcStep,
+                                              expected = expected)
+                 }
+        predArray[val,,] <- simplify2array(pred1)
     }
     ## OUT
+    predArray
+}
+
+### Non-exported function to be called in STEP 3 of CV cycle if
+### partition.sp was defined. This not parallelized (yet?). NB, it may
+### be better to parallelize predict.Hmsc by posterior samples, since
+### that is the function that takes time.
+#' @param hM Original non-cv Hmsc model
+#' @param val Units in this CV partition (logical)
+#' @param postList Current partition pooled postList
+#' @param dfPi Current partition random level data frame
+#' @param partition.sp Partitioning vector for species
+#' @param mcmcStep Parameter passed to predict
+#' @param expected Parameter passed to predict
+#'
+#' @return Predictions for current partition
+#'
+`getSpeciesFoldPrediction` <-
+    function(hM, val, postList, dfPi, partition.sp = NULL, mcmcStep,
+             expected = expected)
+{
+    if (is.null(partition.sp))
+        return(NULL)
+    nfolds.sp <- length(unique(partition.sp))
+    ## update Hmsc object
+    if (is.null(hM$rLPar)) {
+        hM$rLPar <- computeDataParameters(hM)$rLPar
+    }
+    for (r in seq_len(hM$nr)) {
+        postEta <- lapply(postList, function(c) c$Eta[[r]])
+        postAlpha <- lapply(postList, function(c) c$Alpha[[r]])
+        predPostEta <-
+            predictLatentFactor(unitsPred = levels(hM$dfPi[,r]),
+                                units = levels(dfPi[,r]),
+                                postEta = postEta, postAlpha = postAlpha,
+                                rL = hM$rL[[r]])
+        for(i in seq_len(length(postList))) {
+            postList[[i]]$Eta[[r]] <- predPostEta[[i]]
+        }
+    }
+    ## Handle each species partition
+    predArray <- array(dim = c(sum(val), hM$ns, length(postList)))
+    for (i in seq_len(nfolds.sp)) {
+        val.sp <- partition.sp == i
+        YcFull <- hM$Y
+        YcFull[val, val.sp] <- NA
+        pred <- predict(hM, post = postList, X = hM$X, XRRR = hM$XRRR,
+                        studyDesign = hM$studyDesign, Yc = YcFull,
+                        mcmcStep = mcmcStep, expected = expected)
+        pred <- simplify2array(pred)
+        predArray[, val.sp, ] <- pred[val, val.sp, ]
+    }
     predArray
 }
