@@ -1,14 +1,15 @@
 ### Complete re-write of computePredictedValues for parallel processing
 
 #' @importFrom stats predict
-#' @importFrom parallel mclapply detectCores
+#' @importFrom parallel mclapply detectCores makeCluster clusterExport
+#'     clusterEvalQ clusterApplyLB stopCluster
 
 #' @rdname computePredictedValues
 #' @export
 `pcomputePredictedValues` <-
     function(hM, partition=NULL, partition.sp=NULL, start=1, thin=1,
              Yc=NULL, mcmcStep=1, expected=TRUE, initPar=NULL,
-             nParallel=1, clusterType = "fork",
+             nParallel=1, clusterType = c("socket", "fork"),
              nChains = length(hM$postList), updater=list(),
              verbose = nParallel == 1, alignPost = TRUE)
 {
@@ -22,8 +23,12 @@
     ## We have partitions: start with the the simple case without
     ## species partitions and implement first only fork clusters
     clusterType <- match.arg(clusterType)
-    if (nParallel > 1 && .Platform$OS.type == "windows")
-        stop("parallel processing not yet implemented for Windows: use Linux or Mac")
+    if (nParallel > 1) {
+        if (clusterType == "fork" && .Platform$OS.type == "windows") {
+            clusterType <- "socket"
+            message("clusterType='fork' unavailable in Windows; setting to 'socket'")
+        }
+    }
     ## STAGE 1: Basic housekeeping
     parts <- sort(unique(partition))
     nfolds <- length(parts)
@@ -94,9 +99,24 @@
     else { # parallel
         Ncores <- min(nParallel, threads, detectCores())
         message("using ", Ncores, " cores")
+        if (clusterType == "fork") { # everywhere except Windows
         mods <- mclapply(seq_len(threads), function(i, hM, hM1)
             getSample(i, hM, hM1),
             mc.cores = Ncores, mc.preschedule = FALSE)
+        } else { # socket cluster, works everywhere, incl Windows
+            cl <- makeCluster(Ncores)
+            clusterExport(cl, "getSample", envir = environment())
+            clusterEvalQ(cl, {
+                library(BayesLogit);
+                library(MCMCpack);
+                library(truncnorm);
+                library(Matrix);
+                library(abind);
+                library(Hmsc)})
+            mods <- clusterApplyLB(cl, seq_len(threads),
+                                   function(i, hM, hM1) getSample(i, hM, hM1))
+            stopCluster(cl)
+        }
     }
     ## STEP 3: combine predictions: this is still a loop
     idfold <- sapply(mods, attr, which = "fold")
