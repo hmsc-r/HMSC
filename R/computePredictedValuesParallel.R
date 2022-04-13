@@ -4,6 +4,14 @@
 #' @importFrom parallel mclapply detectCores makeCluster clusterExport
 #'     clusterEvalQ clusterApplyLB stopCluster
 
+## Most parameters are the same as in computePredictedValues: document
+## only the new one
+#' @param clusterType Type of parallel processing. Type
+#'     \code{"socket"} can be used in all operating systems, but it is
+#'     usually slower than type \code{"fork"} which can only be used
+#'     in non-Windows operating systems (macOS, Linux, unix-like
+#'     systems).
+
 #' @rdname computePredictedValues
 #' @export
 `pcomputePredictedValues` <-
@@ -149,16 +157,17 @@
 ### partition.sp was defined. This not parallelized (yet?). NB, it may
 ### be better to parallelize predict.Hmsc by posterior samples, since
 ### that is the function that takes time.
-#' @param hM Original non-cv Hmsc model
-#' @param val Units in this CV partition (logical)
-#' @param postList Current partition pooled postList
-#' @param dfPi Current partition random level data frame
-#' @param partition.sp Partitioning vector for species
-#' @param mcmcStep Parameter passed to predict
-#' @param expected Parameter passed to predict
-#'
-#' @return Predictions for current partition
-#'
+#
+# @param hM Original non-cv Hmsc model
+# @param val Units in this CV partition (logical)
+# @param postList Current partition pooled postList
+# @param dfPi Current partition random level data frame
+# @param partition.sp Partitioning vector for species
+# @param mcmcStep Parameter passed to predict
+# @param expected Parameter passed to predict
+#
+#  @return Predictions for current partition
+##
 `getSpeciesFoldPrediction` <-
     function(hM, val, postList, dfPi, partition.sp = NULL, mcmcStep,
              expected = expected)

@@ -34,10 +34,10 @@ pcomputePredictedValues(
   expected = TRUE,
   initPar = NULL,
   nParallel = 1,
-  clusterType = "fork",
+  clusterType = c("socket", "fork"),
   nChains = length(hM$postList),
   updater = list(),
-  verbose = hM$verbose,
+  verbose = nParallel == 1,
   alignPost = TRUE
 )
 }
@@ -69,6 +69,12 @@ pcomputePredictedValues(
 \item{verbose}{the interval between MCMC steps printed to the console}
 
 \item{alignPost}{boolean flag indicating whether the posterior of each chains should be aligned}
+
+\item{clusterType}{Type of parallel processing. Type
+\code{"socket"} can be used in all operating systems, but it is
+usually slower than type \code{"fork"} which can only be used
+in non-Windows operating systems (macOS, Linux, unix-like
+systems).}
 }
 \value{
 an array of model predictions, made for each posterior sample
@@ -77,6 +83,20 @@ an array of model predictions, made for each posterior sample
 Computes predicted values from the fitted \code{Hmsc} model
 }
 \details{
+There are two alternative functions \code{computePredictedValues}
+and \code{pcomputePredictedValues}. Function
+\code{pcomputePredictedValues} uses more aggressive parallelization
+and can be much faster when \code{partition} is used. Function
+\code{computePredictedValues} can run chains of each
+\code{sampleMcmc} partition in parallel, but
+\code{pcomputePredictedValues} can run each partition fold times
+chain in parallel (if hardware and operating systems
+permit). Function \code{pcomputePredictedValues} is still
+experimental, and therefore we provide both the old and new
+functions, but the old functions is scheduled to be removed in the
+future. Species partitions are not yet parallelized, and they can
+be very slow, especially with many \code{mcmcSteps}.
+
 If the option \code{partition} is not used, the posterior predictive distribution is based on the model
 fitted to the full data. If the option \code{partition} is used but \code{partition.sp} is not used, the posterior predictive distribution
 is based on cross-validation over the sampling units. If \code{partition.sp} is additionally used, then, when predictions are made for
