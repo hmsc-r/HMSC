@@ -100,8 +100,8 @@ sampleMcmc =
    force(adaptNf)
 
    if(!inherits(nParallel, "cluster") && nParallel > nChains){
-      warning('number of cores cannot be greater than the number of chains')
       nParallel <- nChains
+      message('using ', nParallel, ' cores for ', nChains, ' chains')
    }
    if(any(adaptNf>transient))
       stop('transient parameter should be no less than any element of adaptNf parameter')
