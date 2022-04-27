@@ -143,8 +143,11 @@ predictLatentFactor =
                         K22 = K[np+(1:nn),np+(1:nn)]
                         m = crossprod(K12, solve(K11, eta[,h]))
                         W = K22 - crossprod(K12, solve(K11, K12))
-                        L = t(chol(W))
-                        etaPred[indNew,h] = m + L%*%rnorm(nn)
+                        L = try(t(chol(W)))
+                        if (inherits(L, "try-error")) # assume sd is zero
+                            etaPred[indNew,h] <- m
+                        else
+                            etaPred[indNew,h] = m + L%*%rnorm(nn)
                      } else{
                         etaPred[indNew,h] = rnorm(nn)
                      }
