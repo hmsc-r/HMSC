@@ -142,7 +142,7 @@
                              Yc = Yc[val,, drop=FALSE], studyDesign = dfPi,
                              mcmcStep = mcmcStep, expected = expected)
                  } else {
-                     getSpeciesFoldPrediction(hM, val, postList, dfPi,
+                     getSpeciesFoldPrediction(hM, m, val, postList, dfPi,
                                               partition.sp = partition.sp,
                                               mcmcStep = mcmcStep,
                                               expected = expected)
@@ -169,7 +169,7 @@
 #  @return Predictions for current partition
 ##
 `getSpeciesFoldPrediction` <-
-    function(hM, val, postList, dfPi, partition.sp = NULL, mcmcStep,
+    function(hM, hM1, val, postList, dfPi, partition.sp = NULL, mcmcStep,
              expected = expected)
 {
     if (is.null(partition.sp))
@@ -184,7 +184,7 @@
         postAlpha <- lapply(postList, function(c) c$Alpha[[r]])
         predPostEta <-
             predictLatentFactor(unitsPred = levels(hM$dfPi[,r]),
-                                units = levels(dfPi[,r]),
+                                units = levels(hM1$dfPi[,r]),
                                 postEta = postEta, postAlpha = postAlpha,
                                 rL = hM$rL[[r]])
         for(i in seq_len(length(postList))) {
