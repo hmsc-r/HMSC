@@ -152,11 +152,9 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
    pred = vector("list",predN)
    ## simplify2array(predPostEta)[pN,][[nr]] == predPostEta[[nr]][[pN]]
    ppEta <- simplify2array(predPostEta)
-   for(pN in 1:predN)
-       pred[[pN]] <- get1prediction(object, X, XRRR, Yc, rL, rLPar, post[[pN]],
-                                    ppEta[pN,], PiNew, dfPiNew, nyNew,
-                                    expected, mcmcStep)
-
+   pred <- lapply(seq_len(predN), function(pN, ..)
+       get1prediction(object, X, XRRR, Yc, rL, rLPar, post[[pN]],
+                      ppEta[pN,], PiNew, dfPiNew, nyNew, expected, mcmcStep))
    pred
 }
 
