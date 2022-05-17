@@ -49,6 +49,7 @@
 #'
 #'
 #' @importFrom stats model.matrix rnorm pnorm rpois
+#' @importFrom parallel detectCores mclapply
 #'
 #' @export
 
@@ -56,9 +57,13 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
                         X=NULL, XRRRData=NULL, XRRR=NULL, # this has to be updated to cov-dependent associations
                         studyDesign=object$studyDesign, ranLevels=object$ranLevels,
                         Gradient=NULL, Yc=NULL, mcmcStep=1, expected=FALSE,
-                        predictEtaMean=FALSE, predictEtaMeanField=FALSE, ...)
+                        predictEtaMean=FALSE, predictEtaMeanField=FALSE,
+                        nParallel = 6, ...)
 {
-
+   ## check valid nParallel
+   if (.Platform$OS.type == "windows") # not yet implemented for Windows
+       nParallel <- 1
+   nParallel <- min(nParallel, detectCores())
    if(!is.null(Gradient)){
       XData=Gradient$XDataNew
       studyDesign=Gradient$studyDesignNew
@@ -152,9 +157,19 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
    pred = vector("list",predN)
    ## simplify2array(predPostEta)[pN,][[nr]] == predPostEta[[nr]][[pN]]
    ppEta <- simplify2array(predPostEta)
-   pred <- lapply(seq_len(predN), function(pN, ..)
-       get1prediction(object, X, XRRR, Yc, rL, rLPar, post[[pN]],
-                      ppEta[pN,], PiNew, dfPiNew, nyNew, expected, mcmcStep))
+   if (nParallel == 1) {
+       pred <- lapply(seq_len(predN), function(pN, ...)
+           get1prediction(object, X, XRRR, Yc, rL, rLPar, post[[pN]],
+                          ppEta[pN,], PiNew, dfPiNew, nyNew, expected,
+                          mcmcStep))
+   } else {
+       seed <- sample.int(.Machine$integer.max, predN)
+       pred <- mclapply(seq_len(predN), function(pN, ...)
+           get1prediction(object, X, XRRR, Yc, rL, rLPar, post[[pN]],
+                          ppEta[pN,], PiNew, dfPiNew, nyNew, expected,
+                          mcmcStep, seed = seed[pN]),
+           mc.cores=nParallel)
+   }
    pred
 }
 
@@ -166,8 +181,10 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
 
 get1prediction <-
     function(object, X, XRRR, Yc, rL, rLPar, sam, predPostEta, PiNew, dfPiNew,
-             nyNew, expected, mcmcStep)
+             nyNew, expected, mcmcStep, seed = NULL)
 {
+    if (!is.null(seed))
+        set.seed(seed)
     if(object$ncRRR>0){
         XB=XRRR%*%t(sam$wRRR)
     }
