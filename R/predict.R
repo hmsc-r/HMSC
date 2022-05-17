@@ -150,12 +150,11 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
       PiNew[,r] = sapply(dfPiNew[,r], function(s) which(rowNames==s))
    }
    pred = vector("list",predN)
-   ## simplify2array(predPostEta)[pN,][[nr]] ==
-   ## predPostEta[[nr]][[pN]] below
+   ## simplify2array(predPostEta)[pN,][[nr]] == predPostEta[[nr]][[pN]]
+   ppEta <- simplify2array(predPostEta)
    for(pN in 1:predN)
        pred[[pN]] <- get1prediction(object, X, XRRR, Yc, rL, rLPar, post[[pN]],
-                                    simplify2array(predPostEta)[pN,],
-                                    PiNew, dfPiNew, nyNew,
+                                    ppEta[pN,], PiNew, dfPiNew, nyNew,
                                     expected, mcmcStep)
 
    pred
