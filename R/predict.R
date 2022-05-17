@@ -153,8 +153,9 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
    ## simplify2array(predPostEta)[pN,][[nr]] ==
    ## predPostEta[[nr]][[pN]] below
    for(pN in 1:predN)
-       pred[[pN]] <- get1prediction(object, rL, rLPar, post[[pN]],
+       pred[[pN]] <- get1prediction(object, X, XRRR, Yc, rL, rLPar, post[[pN]],
                                     simplify2array(predPostEta)[pN,],
+                                    PiNew, dfPiNew, nyNew,
                                     expected, mcmcStep)
 
    pred
@@ -165,12 +166,10 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
 ##  Needs following variables or arguments that must be passsed:
 ##  PiNew X XRRR Yc dfPiNew expected mcmcStep nyNew object pN post
 ##  predPostEta rL rLPar
-##
-## Still unresolved:
-##  PiNew X XRRR Yc dfPiNew nyNew
 
 get1prediction <-
-    function(object, rL, rLPar, sam, predPostEta, expected, mcmcStep)
+    function(object, X, XRRR, Yc, rL, rLPar, sam, predPostEta, PiNew, dfPiNew,
+             nyNew, expected, mcmcStep)
 {
     if(object$ncRRR>0){
         XB=XRRR%*%t(sam$wRRR)
@@ -184,7 +183,7 @@ get1prediction <-
         LFix = X1 %*% sam$Beta
     },
     list = {
-        LFix = matrix(NA,nyNew,object$ns)
+        LFix = matrix(NA, nyNew, object$ns)
         for(j in 1:object$ns){
             X1=X[[j]]
             if(object$ncRRR>0){
