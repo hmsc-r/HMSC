@@ -58,7 +58,7 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
                         studyDesign=object$studyDesign, ranLevels=object$ranLevels,
                         Gradient=NULL, Yc=NULL, mcmcStep=1, expected=FALSE,
                         predictEtaMean=FALSE, predictEtaMeanField=FALSE,
-                        nParallel = 6, ...)
+                        nParallel = 1, ...)
 {
    ## check valid nParallel
    if (.Platform$OS.type == "windows") # not yet implemented for Windows

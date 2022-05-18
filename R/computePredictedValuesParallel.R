@@ -129,6 +129,7 @@
     ## STEP 3: combine predictions: this is still a loop
     idfold <- sapply(mods, attr, which = "fold")
     for (p in parts) {
+        message("predictions for partition ", p)
         val <- partition == p
         m <- do.call(c.Hmsc, mods[which(idfold == p)])
         m <- alignPosterior(m)
@@ -145,7 +146,8 @@
                      getSpeciesFoldPrediction(hM, m, val, postList, dfPi,
                                               partition.sp = partition.sp,
                                               mcmcStep = mcmcStep,
-                                              expected = expected)
+                                              expected = expected,
+                                              nParallel = nParallel)
                  }
         predArray[val,,] <- simplify2array(pred1)
     }
@@ -170,11 +172,13 @@
 ##
 `getSpeciesFoldPrediction` <-
     function(hM, hM1, val, postList, dfPi, partition.sp = NULL, mcmcStep,
-             expected = expected)
+             expected = expected, nParallel = nParallel)
 {
     if (is.null(partition.sp))
         return(NULL)
     nfolds.sp <- length(unique(partition.sp))
+    Ncores <- min(nParallel, detectCores())
+    message("species prediction using ", Ncores, " cores")
     ## update Hmsc object
     if (is.null(hM$rLPar)) {
         hM$rLPar <- computeDataParameters(hM)$rLPar
@@ -199,9 +203,11 @@
         YcFull[val, val.sp] <- NA
         pred <- predict(hM, post = postList, X = hM$X, XRRR = hM$XRRR,
                         studyDesign = hM$studyDesign, Yc = YcFull,
-                        mcmcStep = mcmcStep, expected = expected)
+                        mcmcStep = mcmcStep, expected = expected,
+                        nParallel = Ncores)
         pred <- simplify2array(pred)
         predArray[, val.sp, ] <- pred[val, val.sp, ]
+        message("finished species fold ", i, "/", nfolds.sp)
     }
     predArray
 }
