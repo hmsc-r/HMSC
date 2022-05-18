@@ -154,7 +154,6 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
       rowNames = rownames(predPostEta[[r]][[1]])
       PiNew[,r] = sapply(dfPiNew[,r], function(s) which(rowNames==s))
    }
-   pred = vector("list",predN)
    ## simplify2array(predPostEta)[pN,][[nr]] == predPostEta[[nr]][[pN]]
    ppEta <- simplify2array(predPostEta)
    if (nParallel == 1) {
