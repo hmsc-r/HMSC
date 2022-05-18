@@ -19,6 +19,7 @@
   expected = FALSE,
   predictEtaMean = FALSE,
   predictEtaMeanField = FALSE,
+  nParallel = 1,
   ...
 )
 }
@@ -64,6 +65,10 @@ predictive distribution for random effets corresponding for the new units.}
 
 \item{predictEtaMeanField}{boolean flag indicating whether to use draws from the mean-field of the
 posterior predictive distribution for random effets corresponding for the new units.}
+
+\item{nParallel}{Number of parallel processes. Parallel processing
+is only useful with new \code{Yc} data and extra
+\code{mcmcStep}.}
 
 \item{\dots}{other arguments passed to functions.}
 }

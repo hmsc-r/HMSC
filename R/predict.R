@@ -30,6 +30,11 @@
 #' predictive distribution for random effets corresponding for the new units.
 #' @param predictEtaMeanField boolean flag indicating whether to use draws from the mean-field of the
 #' posterior predictive distribution for random effets corresponding for the new units.
+#'
+#' @param nParallel Number of parallel processes. Parallel processing
+#'     is only useful with new \code{Yc} data and extra
+#'     \code{mcmcStep}.
+#'
 #' @param \dots other arguments passed to functions.
 #'
 #' @details In \code{mcmcStep,the number of extra mcmc steps used for updating the random effects
