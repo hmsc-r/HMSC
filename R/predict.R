@@ -54,7 +54,8 @@
 #'
 #'
 #' @importFrom stats model.matrix rnorm pnorm rpois
-#' @importFrom parallel detectCores mclapply
+#' @importFrom parallel detectCores mclapply makeCluster stopCluster
+#'     clusterExport clusterEvalQ parLapply
 #'
 #' @export
 
@@ -63,12 +64,17 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
                         studyDesign=object$studyDesign, ranLevels=object$ranLevels,
                         Gradient=NULL, Yc=NULL, mcmcStep=1, expected=FALSE,
                         predictEtaMean=FALSE, predictEtaMeanField=FALSE,
-                        nParallel = 1, ...)
+                        nParallel = 1, clusterType = c("socket", "fork"), ...)
 {
    ## check valid nParallel
-   if (.Platform$OS.type == "windows") # not yet implemented for Windows
-       nParallel <- 1
+   clusterType <- match.arg(clusterType)
    nParallel <- min(nParallel, detectCores())
+   if (nParallel > 1) {
+       if (clusterType == "fork" && .Platform$OS.type == "windows") {
+           clusterType <- "socket"
+           message("clusterType='fork' unavailable in Windows; setting to 'socket'")
+       }
+   }
    if(!is.null(Gradient)){
       XData=Gradient$XDataNew
       studyDesign=Gradient$studyDesignNew
@@ -161,12 +167,23 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
    }
    ## simplify2array(predPostEta)[pN,][[nr]] == predPostEta[[nr]][[pN]]
    ppEta <- simplify2array(predPostEta)
-   if (nParallel == 1) {
+   if (nParallel == 1) {  # non-Parallel
        pred <- lapply(seq_len(predN), function(pN, ...)
            get1prediction(object, X, XRRR, Yc, rL, rLPar, post[[pN]],
                           ppEta[pN,], PiNew, dfPiNew, nyNew, expected,
                           mcmcStep))
-   } else {
+   } else if (clusterType == "socket") { # socket cluster (Windows, mac, Linux)
+       seed <- sample.int(.Machine$integer.max, predN)
+       cl <- makeCluster(nParallel)
+       clusterExport(cl, "get1prediction", envir = environment())
+       clusterEvalQ(cl, {
+           library(Hmsc)})
+       pred <- parLapply(cl, seq_len(predN), function(pN, ...)
+           get1prediction(object, X, XRRR, Yc, rL, rLPar, post[[pN]],
+                          ppEta[pN,], PiNew, dfPiNew, nyNew, expected,
+                          mcmcStep, seed = seed[pN]))
+       stopCluster(cl)
+   } else { # fork (mac, Linux)
        seed <- sample.int(.Machine$integer.max, predN)
        pred <- mclapply(seq_len(predN), function(pN, ...)
            get1prediction(object, X, XRRR, Yc, rL, rLPar, post[[pN]],
@@ -232,6 +249,8 @@ get1prediction <-
         Z = updateZ(Y=Yc, Z=Z, Beta=sam$Beta, iSigma=1/sam$sigma, Eta=Eta,
                     Lambda=sam$Lambda, X=X, Pi=PiNew, dfPi=dfPiNew,
                     distr=object$distr, rL=rL)
+        ## species CV from computePredictedValues runs this innermost
+        ## loop nfolds * nfolds.sp * predN * mcmcStep times
         for(sN in seq_len(mcmcStep)){
             Eta = updateEta(Y=Yc, Z=Z, Beta=sam$Beta, iSigma=1/sam$sigma,
                             Eta=Eta, Lambda=sam$Lambda, Alpha=sam$Alpha,
