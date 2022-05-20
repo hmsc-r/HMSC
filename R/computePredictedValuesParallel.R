@@ -147,7 +147,8 @@
                                               partition.sp = partition.sp,
                                               mcmcStep = mcmcStep,
                                               expected = expected,
-                                              nParallel = nParallel)
+                                              nParallel = nParallel,
+                                              clusterType = clusterType)
                  }
         predArray[val,,] <- simplify2array(pred1)
     }
@@ -172,7 +173,8 @@
 ##
 `getSpeciesFoldPrediction` <-
     function(hM, hM1, val, postList, dfPi, partition.sp = NULL, mcmcStep,
-             expected = expected, nParallel = nParallel)
+             expected = expected, nParallel = nParallel,
+             clusterType = clusterType)
 {
     if (is.null(partition.sp))
         return(NULL)
@@ -204,7 +206,7 @@
         pred <- predict(hM, post = postList, X = hM$X, XRRR = hM$XRRR,
                         studyDesign = hM$studyDesign, Yc = YcFull,
                         mcmcStep = mcmcStep, expected = expected,
-                        nParallel = Ncores)
+                        nParallel = Ncores, clusterType = clusterType)
         pred <- simplify2array(pred)
         predArray[, val.sp, ] <- pred[val, val.sp, ]
         message("finished species fold ", i, "/", nfolds.sp)
