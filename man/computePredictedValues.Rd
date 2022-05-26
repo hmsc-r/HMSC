@@ -34,7 +34,7 @@ pcomputePredictedValues(
   expected = TRUE,
   initPar = NULL,
   nParallel = 1,
-  clusterType = c("socket", "fork"),
+  useSocket = .Platform$OS.type == "windows",
   nChains = length(hM$postList),
   updater = list(),
   verbose = nParallel == 1,
@@ -70,9 +70,9 @@ pcomputePredictedValues(
 
 \item{alignPost}{boolean flag indicating whether the posterior of each chains should be aligned}
 
-\item{clusterType}{Type of parallel processing. Type
-\code{"socket"} can be used in all operating systems, but it is
-usually slower than type \code{"fork"} which can only be used
+\item{useSocket}{(logical) use socket clusters in parallel processing;
+these can be used in all operating systems, but they are
+usually slower than forking which can only be used
 in non-Windows operating systems (macOS, Linux, unix-like
 systems).}
 }
