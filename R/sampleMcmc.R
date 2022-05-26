@@ -18,10 +18,11 @@
 #' @param nChains number of independent MCMC chains to be run
 #'
 #' @param nParallel number of parallel processes by which the chains
-#'     are executed, or alternatively a pre-defined socket cluster
-#' @param clusterType cluster type in parallel processing; socket
-#'     clusters are also used if supplied in \code{nParallel} and
-#'     always in Windows
+#'     are executed.
+#' @param useSocket (logical) use socket clusters in parallel
+#'     processing; in Windows this is the only option, but in other
+#'     operating systems fork clusters are a better alternative, and
+#'     this should be set \code{FALSE}.
 #'
 #' @param dataParList a named list with pre-computed \code{Qg}, \code{iQg}, \code{RQg}, \code{detQg}, \code{rLPar}
 #'   parameters
@@ -41,7 +42,7 @@
 #'
 #'   The value of 1 for \code{thin} argument means that at each MCMC step after the transient a sample is recorded.
 #'
-#'   Typically, the vlaue of \code{nParallel} equal to \code{nChains} leads to most efficient usage of available
+#'   Typically, the value of \code{nParallel} equal to \code{nChains} leads to most efficient usage of available
 #'   parallelization capacities. However, this may be not the case if R is configured with multi-tread linear
 #'   algebra libraries. For debug and test purposes, the \code{nParallel} should be set to 1, since only in this case a
 #'   details of the potentially encountered errors would be available.
@@ -79,15 +80,16 @@
 sampleMcmc =
     function(hM, samples, transient=0, thin=1, initPar=NULL,
              verbose, adaptNf=rep(transient,hM$nr),
-             nChains=1, nParallel=1, clusterType = c("socket", "fork"),
+             nChains=1, nParallel=1,
+             useSocket = .Platform$OS.type == "windows",
              dataParList=NULL, updater=list(),
              fromPrior = FALSE, alignPost = TRUE)
 {
-   ## Select parallel processing strategy
-   clusterType <- match.arg(clusterType)
-   ## use socket cluster if requested, supplied or in Windows
-   useSocket <- clusterType == "socket" || inherits(nParallel, "cluster") ||
-       .Platform$OS.type == "windows"
+   ## use socket cluster if requested or in Windows
+   if (nParallel > 1 && .Platform$OS.type == "windows" && !useSocket) {
+       useSocket <- TRUE
+       message("only socket clusters can be used in Windows: setting useSocket = TRUE")
+   }
    if (missing(verbose)) {
        if (samples*thin <= 50) # report every sampling
            verbose <- 1
@@ -99,11 +101,11 @@ sampleMcmc =
       nParallel = 1
    force(adaptNf)
 
-   if(!inherits(nParallel, "cluster") && nParallel > nChains){
+   if(nParallel > nChains) {
       nParallel <- nChains
       message('using ', nParallel, ' cores for ', nChains, ' chains')
    }
-   if(any(adaptNf>transient))
+   if(any(adaptNf > transient))
       stop('transient parameter should be no less than any element of adaptNf parameter')
 
    #X1 is the original X matrix (scaled version).
@@ -460,50 +462,41 @@ sampleMcmc =
       return(postList)
    }
 
-
-   ## use user-supplied pre-defined socket cluster
-   hasCluster <- inherits(nParallel, "cluster")
-   if(hasCluster || nParallel > 1) {
-      if (useSocket) {
-          if (!hasCluster)
-              cl = makeCluster(nParallel)
-          else
-              cl <- nParallel
-          clusterExport(cl, c("hM","nChains","transient","samples","thin","verbose",
-                              "adaptNf","initSeed","initPar","updater",
-                              "X1", "Tr", "Y", "distr", "Pi", "C", "nr",
-                              "mGamma", "iUGamma", "V0", "f0", "aSigma", "bSigma",
-                              "rhopw","Qg", "iQg", "RQg", "detQg", "rLPar"),
-                        envir=environment())
-
-          clusterEvalQ(cl, {
-              library(BayesLogit);
-              library(MCMCpack);
-              library(truncnorm);
-              library(Matrix);
-              library(abind);
-              library(Hmsc)})
-          hM$postList = clusterApplyLB(cl, 1:nChains, fun=sampleChain)
-          ## do not stop user-supplied cluster
-          if (!hasCluster)
-              stopCluster(cl)
-      } else { # fork cluster
-          verbose <- 0
-          hM$postList <- mclapply(seq_len(nChains), function(i) sampleChain(i),
-                                  mc.cores = nParallel)
-      }
-   } else {
-      for(chain in 1:nChains){
-         if (fromPrior){
-            postList = vector("list", samples)
-            for (iter in 1:samples){
-               postList[[iter]] = samplePrior(hM,dataParList = dataParList)
-            }
-            hM$postList[[chain]] = postList
-         } else {
-            hM$postList[[chain]] = sampleChain(chain)
-         }
-      }
+    if (nParallel > 1) {
+        if (useSocket) {
+            cl = makeCluster(nParallel)
+            clusterExport(cl, c("hM","nChains","transient","samples","thin","verbose",
+                                "adaptNf","initSeed","initPar","updater",
+                                "X1", "Tr", "Y", "distr", "Pi", "C", "nr",
+                                "mGamma", "iUGamma", "V0", "f0", "aSigma", "bSigma",
+                                "rhopw","Qg", "iQg", "RQg", "detQg", "rLPar"),
+                          envir=environment())
+            clusterEvalQ(cl, {
+                library(BayesLogit);
+                library(MCMCpack);
+                library(truncnorm);
+                library(Matrix);
+                library(abind);
+                library(Hmsc)})
+            hM$postList = clusterApplyLB(cl, 1:nChains, fun=sampleChain)
+            stopCluster(cl)
+        } else { # fork cluster
+            verbose <- 0
+            hM$postList <- mclapply(seq_len(nChains), function(i) sampleChain(i),
+                                    mc.cores = nParallel)
+        }
+    } else {
+       for(chain in 1:nChains ){
+           if (fromPrior){
+               postList = vector("list", samples)
+               for (iter in 1:samples){
+                   postList[[iter]] = samplePrior(hM,dataParList = dataParList)
+               }
+               hM$postList[[chain]] = postList
+           } else {
+               hM$postList[[chain]] = sampleChain(chain)
+           }
+       }
    }
    ## warn on failed updaters
    for(chain in seq_len(nChains)) {
