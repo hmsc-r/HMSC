@@ -6,9 +6,9 @@
 
 ## Most parameters are the same as in computePredictedValues: document
 ## only the new one
-#' @param clusterType Type of parallel processing. Type
-#'     \code{"socket"} can be used in all operating systems, but it is
-#'     usually slower than type \code{"fork"} which can only be used
+#' @param useSocket (logical) use socket clusters in parallel processing;
+#'     these can be used in all operating systems, but they are
+#'     usually slower than forking which can only be used
 #'     in non-Windows operating systems (macOS, Linux, unix-like
 #'     systems).
 
@@ -17,7 +17,7 @@
 `pcomputePredictedValues` <-
     function(hM, partition=NULL, partition.sp=NULL, start=1, thin=1,
              Yc=NULL, mcmcStep=1, expected=TRUE, initPar=NULL,
-             nParallel=1, clusterType = c("socket", "fork"),
+             nParallel=1, useSocket = .Platform$OS.type == "windows",
              nChains = length(hM$postList), updater=list(),
              verbose = nParallel == 1, alignPost = TRUE)
 {
@@ -30,11 +30,10 @@
     }
     ## We have partitions: start with the the simple case without
     ## species partitions and implement first only fork clusters
-    clusterType <- match.arg(clusterType)
     if (nParallel > 1) {
-        if (clusterType == "fork" && .Platform$OS.type == "windows") {
-            clusterType <- "socket"
-            message("clusterType='fork' unavailable in Windows; setting to 'socket'")
+        if (.Platform$OS.type == "windows" && !useSocket) {
+            useSocket <- TRUE
+            message("setting useSocket=TRUE: the only choice in Windows")
         }
     }
     ## STAGE 1: Basic housekeeping
@@ -101,13 +100,13 @@
         m
     }
     ## the next call can be made parallel
-    if (nParallel <= 1) # serial
+    if (nParallel < 2) # serial
         mods <- lapply(seq_len(threads), function(i, hM, hM1)
             getSample(i, hM, hM1))
     else { # parallel
         Ncores <- min(nParallel, threads, detectCores())
         message("using ", Ncores, " cores")
-        if (clusterType == "fork") { # everywhere except Windows
+        if (!useSocket) { # everywhere except Windows
         mods <- mclapply(seq_len(threads), function(i, hM, hM1)
             getSample(i, hM, hM1),
             mc.cores = Ncores, mc.preschedule = FALSE)
@@ -148,7 +147,7 @@
                                               mcmcStep = mcmcStep,
                                               expected = expected,
                                               nParallel = nParallel,
-                                              clusterType = clusterType)
+                                              useSocket = useSocket)
                  }
         predArray[val,,] <- simplify2array(pred1)
     }
@@ -174,7 +173,7 @@
 `getSpeciesFoldPrediction` <-
     function(hM, hM1, val, postList, dfPi, partition.sp = NULL, mcmcStep,
              expected = expected, nParallel = nParallel,
-             clusterType = clusterType)
+             useSocket = useSocket)
 {
     if (is.null(partition.sp))
         return(NULL)
@@ -206,7 +205,7 @@
         pred <- predict(hM, post = postList, X = hM$X, XRRR = hM$XRRR,
                         studyDesign = hM$studyDesign, Yc = YcFull,
                         mcmcStep = mcmcStep, expected = expected,
-                        nParallel = Ncores, clusterType = clusterType)
+                        nParallel = Ncores, useSocket = useSocket)
         pred <- simplify2array(pred)
         predArray[, val.sp, ] <- pred[val, val.sp, ]
         message("finished species fold ", i, "/", nfolds.sp)

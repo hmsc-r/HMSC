@@ -34,6 +34,10 @@
 #' @param nParallel Number of parallel processes. Parallel processing
 #'     is only useful with new \code{Yc} data and extra
 #'     \code{mcmcStep}.
+#' @param useSocket (logical) Use socket clusters in parallel
+#'     proecessing; these are the only alternative in Windows, but in
+#'     other systems this should be usually set \code{FALSE} for
+#'     forking.
 #'
 #' @param \dots other arguments passed to functions.
 #'
@@ -64,15 +68,15 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
                         studyDesign=object$studyDesign, ranLevels=object$ranLevels,
                         Gradient=NULL, Yc=NULL, mcmcStep=1, expected=FALSE,
                         predictEtaMean=FALSE, predictEtaMeanField=FALSE,
-                        nParallel = 1, clusterType = c("socket", "fork"), ...)
+                        nParallel = 1,
+                        useSocket = .Platform$OS.type == "windows", ...)
 {
    ## check valid nParallel
-   clusterType <- match.arg(clusterType)
    nParallel <- min(nParallel, detectCores())
    if (nParallel > 1) {
-       if (clusterType == "fork" && .Platform$OS.type == "windows") {
-           clusterType <- "socket"
-           message("clusterType='fork' unavailable in Windows; setting to 'socket'")
+       if (.Platform$OS.type == "windows" && !useSocket) {
+           useSocket <- TRUE
+           message("setting useSocket=TRUE; the only choice in Windows")
        }
    }
    if(!is.null(Gradient)){
@@ -172,7 +176,7 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
            get1prediction(object, X, XRRR, Yc, rL, rLPar, post[[pN]],
                           ppEta[pN,], PiNew, dfPiNew, nyNew, expected,
                           mcmcStep))
-   } else if (clusterType == "socket") { # socket cluster (Windows, mac, Linux)
+   } else if (useSocket) { # socket cluster (Windows, mac, Linux)
        seed <- sample.int(.Machine$integer.max, predN)
        cl <- makeCluster(nParallel)
        clusterExport(cl, "get1prediction", envir = environment())
