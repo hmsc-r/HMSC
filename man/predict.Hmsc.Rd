@@ -19,6 +19,8 @@
   expected = FALSE,
   predictEtaMean = FALSE,
   predictEtaMeanField = FALSE,
+  nParallel = 1,
+  useSocket = .Platform$OS.type == "windows",
   ...
 )
 }
@@ -64,6 +66,15 @@ predictive distribution for random effets corresponding for the new units.}
 
 \item{predictEtaMeanField}{boolean flag indicating whether to use draws from the mean-field of the
 posterior predictive distribution for random effets corresponding for the new units.}
+
+\item{nParallel}{Number of parallel processes. Parallel processing
+is only useful with new \code{Yc} data and extra
+\code{mcmcStep}.}
+
+\item{useSocket}{(logical) Use socket clusters in parallel
+proecessing; these are the only alternative in Windows, but in
+other systems this should be usually set \code{FALSE} for
+forking.}
 
 \item{\dots}{other arguments passed to functions.}
 }
