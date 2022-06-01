@@ -2,7 +2,10 @@
 #'
 #' @description Computes initial values before the sampling starts
 #'
-#' @param hM a fitted \code{Hmsc} model object
+#' @param hM a fitted \code{Hmsc} model object.
+#' @param Gradient Use data from new gradient (as from
+#'     \code{\link{constructGradient}}) instead of data from
+#'     \code{hM}.
 #'
 #' @return a list including pre-computed matrix inverses and determinants (for phylogenetic and spatial random effects) needed in MCMC sampling
 #'
@@ -15,7 +18,7 @@
 #' @export
 
 
-computeDataParameters = function(hM){
+computeDataParameters = function(hM, Gradient = NULL){
    parList = list()
 
    if(!is.null(hM$C)){
@@ -55,17 +58,25 @@ computeDataParameters = function(hM){
    for(r in seq_len(hM$nr)){
       if(hM$rL[[r]]$sDim > 0){
          alphapw = hM$rL[[r]]$alphapw
-         np = hM$np[r]
+         if (missing(Gradient) || is.null(Gradient))
+             np = hM$np[r]
+         else
+             np <- NROW(Gradient$XDataNew)
          alphaN = nrow(alphapw)
          switch(hM$rL[[r]]$spatialMethod,
                 "Full" = {
-                   if(is.null(hM$rL[[r]]$distMat)){
-                      s = hM$rL[[r]]$s[levels(hM$dfPi[,r]),]
+                      if(is.null(hM$rL[[r]]$distMat)) {
+                          if (missing(Gradient) || is.null(Gradient))
+                              s = hM$rL[[r]]$s[levels(hM$dfPi[,r]),]
+                          else
+                              s <- Gradient$rLNew[[r]]$s[levels(Gradient$studyDesignNew[[r]]), ]
                       if (is(s, "Spatial"))
                          distance <- spDists(s)
                       else
                          distance = as.matrix(dist(s))
                    } else{
+                      if (!missing(Gradient) || !is.null(Gradient))
+                          stop("'Gradient' cannot be used for models fitted with ´distMat'")
                       distance = hM$rL[[r]]$distMat[levels(hM$dfPi[,r]),levels(hM$dfPi[,r])]
                    }
                    Wg = array(NA, c(np,np,alphaN))

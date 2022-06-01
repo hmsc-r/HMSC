@@ -83,6 +83,7 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
       XData=Gradient$XDataNew
       studyDesign=Gradient$studyDesignNew
       ranLevels=Gradient$rLNew
+      rLPar <- computeDataParameters(object, Gradient)$rLPar
    }
 
    if(!is.null(XData) && !is.null(X)){
@@ -152,11 +153,13 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
    ## object can have pre-computed data parameters, but not
    ## necessarily. These are needed only in updateEta(), but get it
    ## here anyway...
-   rLPar <- if (is.null(object$rLPar)) {
-               computeDataParameters(object)$rLPar
-            } else {
-               object$rLPar
-            }
+   if (is.null(rLPar)) {
+        if(is.null(object$rLPar)) {
+            rLPar <- computeDataParameters(object)$rLPar
+        } else {
+            rLPar <- object$rLPar
+        }
+    }
 
    predN = length(post)
    predPostEta = vector("list", object$nr)
