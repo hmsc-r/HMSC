@@ -1,10 +1,12 @@
 #' @importFrom stats rgamma
 #'
-updateLatentBetaGammaRho = function(GammaLatent,BetaLatent,Varphi,rhoLatent, Tr,VC,eC,rL, rhopw){
+updateLatentBetaGammaRho = function(GammaLatent,BetaLatent,Varphi,rhoLatent, Tr,phyloPar,rL, rhopw){
    ns = nrow(Tr)
    nr = length(rL)
    nt = ncol(Tr)
    TtT = crossprod(Tr)
+   eC = phyloPar$eC
+   VC = phyloPar$VC
 
    for (r in seq_len(nr)) {
       # iQLatentList = vector("list", nr)

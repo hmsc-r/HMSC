@@ -3,7 +3,7 @@
 #'
 # @importFrom tensorflow tf
 
-updateGammaV = function(Beta,Gamma,iV,rho, Tr,C, VC,eC,iQg,RQg, mGamma,iUGamma,V0,f0,rhopw){
+updateGammaV = function(Beta,Gamma,iV,rho, Tr,C, phyloPar, mGamma,iUGamma,V0,f0,rhopw){
    ns = ncol(Beta)
    nc = nrow(Beta)
    nt = ncol(Tr)
@@ -15,22 +15,18 @@ updateGammaV = function(Beta,Gamma,iV,rho, Tr,C, VC,eC,iQg,RQg, mGamma,iUGamma,V
          iQ = diag(ns)
          RQ = diag(ns)
       } else{
-         iQ = iQg[,,rho]
-         RQ = RQg[,,rho]
+         iQ = phyloPar$iQg[,,rho] #TODO implement properly for with phyloFast option. Requires recursive computations?
+         RQ = phyloPar$RQg[,,rho]
       }
       A = E %*% tcrossprod(iQ, E)
       Vn = chol2inv(chol(A+V0))
       iV = rwish(f0+ns, Vn)
-      # tmp = crossprod(Tr, iQ)
-      # R = chol(iUGamma + kronecker(iV, tmp %*% Tr))
-      # res = tmp %*% crossprod(Beta, iV)
-      # mGammaS = chol2inv(R) %*% (iUGamma %*% mGamma + as.vector(res))
-      # Gamma = mGammaS + backsolve(R,rnorm(nc*nt))
-      # Gamma = matrix(Gamma,nc,nt,byrow=TRUE)
+
       R = chol(iUGamma + kronecker(crossprod(backsolve(RQ,Tr,transpose=TRUE)), iV))
       mg = chol2inv(R) %*% (iUGamma%*%mGamma + as.vector((iV%*%Beta)%*%(iQ%*%Tr)))
       Gamma = matrix(mg + backsolve(R,rnorm(nc*nt)),nc,nt)
    } else{
+      eC = phyloPar$eC; VC = phyloPar$VC
       eQ = matrix(eC,ns,nc) * matrix(rhopw[rho,1],ns,nc,byrow=TRUE) + (1-matrix(rhopw[rho,1],ns,nc,byrow=TRUE))
       ieQ05 = eQ^(-0.5)
       M = ieQ05 * t(E %*% VC)

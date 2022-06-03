@@ -1,4 +1,4 @@
-updateRho = function(rho,Beta,Gamma,iV, VC,eC,RQg,detQg, Tr, rhopw,rhoAlphaDP){
+updateRho = function(rho,Beta,Gamma,iV, phyloPar, Tr, rhopw,rhoAlphaDP){
    ns = ncol(Beta)
    nc = nrow(Beta)
    nt = ncol(Tr)
@@ -10,15 +10,14 @@ updateRho = function(rho,Beta,Gamma,iV, VC,eC,RQg,detQg, Tr, rhopw,rhoAlphaDP){
    if(rhoAlphaDP==0){
       E = tcrossprod(BT,RiV);
       qF = rep(NA, rhoN)
+      VTE = crossprod(phyloPar$VC, E)
       for(rN in 1:rhoN){
-         qF[rN] = sum(backsolve(RQg[,,rN],E,transpose=TRUE)^2)
+         # qF[rN] = sum(backsolve(phyloPar$RQg[,,rN],E,transpose=TRUE)^2)
+         qF[rN] = sum(((rhopw[rN,1]*phyloPar$eC+(1-rhopw[rN,1]))^-0.5 * VTE)^2)
       }
-      # logdetg = -ns*log(det(iV))+nc*detQg
-      logdetg = nc*detQg
+      logdetg = nc*phyloPar$detQg # -ns*log(det(iV)) part dropped as constant
       logLike = log(rhopw[,2]) - 0.5*logdetg - 0.5*qF
       logLike = logLike - max(logLike)
-      # indPos = which(like>0)
-      # rho = indPos[sample(c(1:rhoN)[indPos], prob=like[indPos])]
       rho = sample(rhoN, 1, prob=exp(logLike))
    } else{
       VCB = crossprod(VC,BT)

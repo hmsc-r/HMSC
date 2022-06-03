@@ -18,8 +18,7 @@
 #' @param nChains total number of independent MCMC chains to be run
 #' @param indChains vector with indexes of which chains shall be run
 #' @param nParallel number of parallel processes by which the chains are executed
-#' @param dataParList a named list with pre-computed \code{Qg}, \code{iQg}, \code{RQg}, \code{detQg}, \code{rLPar}
-#'   parameters
+#' @param dataParList a named list with pre-computed \code{phyloPar}, \code{rLPar} parameters
 #' @param updater a named list, specifying which conditional updaters should be ommitted
 #' @param fromPrior whether prior (TRUE) or posterior (FALSE) is to be sampled
 #' @param alignPost boolean flag indicating whether the posterior of each chains should be aligned
@@ -127,12 +126,7 @@ sampleMcmc =
 
    if(is.null(dataParList))
       dataParList = computeDataParameters(hM)
-   VC = dataParList$VC
-   eC = dataParList$eC
-   Qg = dataParList$Qg
-   iQg = dataParList$iQg
-   RQg = dataParList$RQg
-   detQg = dataParList$detQg
+   phyloPar = dataParList$phyloPar
    rLPar = dataParList$rLPar
 
    hM$postList = vector("list", nChains)
@@ -271,7 +265,7 @@ sampleMcmc =
                warning('Gamma2 is not yet implemented for vector rho. Set updater$Gamma2=FALSE.')
             }
             Gamma = updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,
-               Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,C=C,rL=hM$rL, iQg=iQg,
+               Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,C=C,rL=hM$rL, phyloPar=phyloPar,
                mGamma=mGamma,iUGamma=iUGamma)
          }
 
@@ -280,7 +274,7 @@ sampleMcmc =
                warning('updateGammaEta is not yet implemented for vector rho. Set updater$GammaEta=FALSE.')
             }
             GammaEtaList = updateGammaEta(Z=Z,Gamma=Gamma,V=chol2inv(chol(iV)),iV=iV,id=iSigma,
-               Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,rL=hM$rL, rLPar=rLPar,Q=Qg[,,rho],iQ=iQg[,,rho],RQ=RQg[,,rho],
+               Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,rL=hM$rL, rLPar=rLPar,phyloPar=phyloPar,rho=rho,
                mGamma=mGamma,U=hM$UGamma,iU=iUGamma)
             Gamma = GammaEtaList$Gamma
             Eta = GammaEtaList$Eta
@@ -295,7 +289,7 @@ sampleMcmc =
             #    X=X,Tr=Tr,Pi=Pi,dfPi=dfPi,C=C,rL=hM$rL, rhopw=rhopw)
             BetaLambdaList = updateBetaLambda(Y=Y,Z=Z,Gamma=Gamma,iV=iV,
                 iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta,rho=rho,Vartheta=Vartheta,Varphi=Varphi,
-                VC=VC,eC=eC, X=X,Tr=Tr,Pi=Pi,dfPi=dfPi,C=C,rL=hM$rL, rhopw=rhopw)
+                phyloPar=phyloPar, X=X,Tr=Tr,Pi=Pi,dfPi=dfPi,C=C,rL=hM$rL, rhopw=rhopw)
             Beta = BetaLambdaList$Beta
             Lambda = BetaLambdaList$Lambda
             LambdaTilde = BetaLambdaList$LambdaTilde
@@ -318,19 +312,19 @@ sampleMcmc =
 
          if(!identical(updater$GammaV, FALSE)){
             GammaVList = updateGammaV(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho,
-               VC=VC,eC=eC,iQg=iQg,RQg=RQg, Tr=Tr,C=C, mGamma=mGamma,iUGamma=iUGamma,V0=V0,f0=f0,rhopw=rhopw)
+               phyloPar=phyloPar, Tr=Tr,C=C, mGamma=mGamma,iUGamma=iUGamma,V0=V0,f0=f0,rhopw=rhopw)
             Gamma = GammaVList$Gamma
             iV = GammaVList$iV
          }
 
          if(!is.null(hM$C) && !identical(updater$Rho, FALSE)){
-            rho = updateRho(rho=rho,Beta=Beta,Gamma=Gamma,iV=iV, VC=VC,eC=eC,RQg=RQg,
-               detQg=detQg, Tr=Tr, rhopw=rhopw,rhoAlphaDP=hM$rhoAlphaDP)
+            rho = updateRho(rho=rho,Beta=Beta,Gamma=Gamma,iV=iV, phyloPar=phyloPar,
+               Tr=Tr, rhopw=rhopw,rhoAlphaDP=hM$rhoAlphaDP)
          }
 
          if(!identical(updater$latentBetaGammaRho, FALSE)){
             latentBetaGammaRhoList = updateLatentBetaGammaRho(GammaLatent=GammaLatent,BetaLatent=BetaLatent,Varphi=Varphi,
-                                                              rhoLatent=rhoLatent, Tr=Tr,VC=VC,eC=eC,rL=hM$rL,  rhopw=rhopw)
+                                                              rhoLatent=rhoLatent, Tr=Tr,phyloPar=phyloPar,rL=hM$rL, rhopw=rhopw)
             BetaLatent = latentBetaGammaRhoList$BetaLatent
             GammaLatent = latentBetaGammaRhoList$GammaLatent
             rhoLatent = latentBetaGammaRhoList$rhoLatent
@@ -435,7 +429,7 @@ sampleMcmc =
       clusterExport(cl, c("hM","nChains","indChains","transient","samples","thin","verbose","adaptNf","initSeed","initPar","updater",
          "X1", "Tr", "Y", "distr", "Pi", "C", "nr",
          "mGamma", "iUGamma", "V0", "f0", "aSigma", "bSigma", "rhopw",
-         "Qg", "iQg", "RQg", "detQg", "rLPar"), envir=environment())
+         "phyloPar", "rLPar"), envir=environment())
 
       clusterEvalQ(cl, {
          library(BayesLogit);
@@ -452,7 +446,7 @@ sampleMcmc =
          if (fromPrior){
             postList = vector("list", samples)
             for (iter in 1:samples){
-               postList[[iter]] = samplePrior(hM,dataParList = dataParList)
+               postList[[iter]] = samplePrior(hM, dataParList=dataParList)
             }
             hM$postList[[chain]] = postList
          } else {

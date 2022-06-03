@@ -18,6 +18,7 @@
 computeDataParameters = function(hM){
    parList = list()
 
+
    if(!is.null(hM$C)){
       Qg = array(NA, c(hM$ns,hM$ns,nrow(hM$rhopw)))
       iQg = array(NA, c(hM$ns,hM$ns,nrow(hM$rhopw)))
@@ -47,6 +48,33 @@ computeDataParameters = function(hM){
       tmp = eigen(hM$C, TRUE)
       VC = tmp$vectors
       eC = tmp$values
+      if(hM$phyloFast){
+         warning("phyloFast flag shall remove C construction altogether") #TODO
+         iQHatList = vector("list", nrow(hM$rhopw))
+         iQHatIndList = vector("list", nrow(hM$rhopw))
+         phyloStr = write.tree(hM$phyloTree)
+         s = substr(phyloStr, 2, nchar(phyloStr)-2)
+         pb = txtProgressBar(0, nrow(hM$rhopw), style=3)
+         for(rg in 1:nrow(hM$rhopw)){
+            rho = hM$rhopw[rg,1]
+            if(rho == 0){
+               iQHatList[[rg]] = Diagonal(hM$ns)
+               iQHatIndList[[rg]] = 1:hM$ns
+            } else{
+               res = recInvPhyloCovMat(s,rho)
+               iQHatList[[rg]] = res$mat
+               leafSpIndVec = rep(0, length(res$leafFlagVec))
+               leafSpIndVec[res$leafFlagVec==1] = match(hM$spNames, hM$phyloTree$tip.label)
+               iQHatIndList[[rg]] = leafSpIndVec
+            }
+            setTxtProgressBar(pb, rg)
+         }
+         close(pb)
+      } else{
+         iQHatList = list()
+         iQHatIndList = list()
+      }
+
    } else{
       Qg = array(diag(hM$ns), c(hM$ns,hM$ns,1))
       iQg = array(diag(hM$ns), c(hM$ns,hM$ns,1))
@@ -54,6 +82,8 @@ computeDataParameters = function(hM){
       RQg = array(diag(hM$ns), c(hM$ns,hM$ns,1))
       VC = diag(hM$ns)
       eC = rep(1,hM$ns)
+      iQBarList = list()
+      iQBarIndList = list()
    }
 
    rLPar = vector("list", hM$nr)
@@ -233,14 +263,11 @@ computeDataParameters = function(hM){
                 )
       }
    }
-   parList$VC = VC
-   parList$eC = eC
-   parList$Qg = Qg
-   parList$iQg = iQg
-   parList$RQg = RQg
-   parList$detQg = detQg
-   parList$rLPar = rLPar
+   phyloPar = list(VC=VC, eC=eC, Qg=Qg, iQg=iQg, RQg=RQg, detQg=detQg, iQHatList=iQHatList, iQHatIndList=iQHatIndList,
+                   phyloFast=hM$phyloFast)
 
+   parList$phyloPar = phyloPar
+   parList$rLPar = rLPar
    return(parList)
 }
 

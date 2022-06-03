@@ -118,7 +118,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
                 YScale = FALSE,
                 studyDesign=NULL, ranLevels=NULL, ranLevelsUsed=names(ranLevels),
                 TrFormula=NULL, TrData=NULL, Tr=NULL, TrScale=TRUE,
-                phyloTree=NULL, C=NULL,
+                phyloTree=NULL, C=NULL, phyloFast=FALSE,
                 distr="normal", truncateNumberOfFactors=TRUE){
 
    hM = structure(list(
@@ -129,7 +129,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       studyDesign=NULL, ranLevels=NULL, ranLevelsUsed=NULL,
       dfPi = NULL, rL=NULL, Pi=NULL,
       TrData=NULL, TrFormula=NULL, Tr=NULL, TrScaled=NULL, TrInterceptInd=NULL,
-      C=NULL, phyloTree=NULL,
+      C=NULL, phyloTree=NULL, phyloFast=FALSE,
       distr = NULL,
 
       # dimensions
@@ -535,12 +535,31 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       stop("only one of phyloTree and C arguments can be specified")
    }
    if(!is.null(phyloTree)){
-      corM = vcv.phylo(phyloTree, model="Brownian", corr=TRUE)
+      if(any(is.na(match(hM$spNames,phyloTree$tip.label)))){
+         stop("phyloTree tips do not contain all defined species names")
+      }
+      hM$phyloTree = drop.tip(phyloTree, setdiff(phyloTree$tip.label,hM$spNames), subtree=FALSE, collapse.singles=FALSE)
+      hM$phyloFast = phyloFast
+      if(phyloFast == TRUE){
+         warning("phyloFast flag shall remove C construction altogether") #TODO
+
+         if(hM$ns < length(hM$phyloTree$tip.label)){
+            warning(paste("For efficient usage with phyloFast option, the phyloTree shall be trimmed to only those",
+                          "tips that correspond to modelled species"))
+         }
+         covM = vcv.phylo(hM$phyloTree, model="Brownian", corr=FALSE)
+         if(any(diag(covM) != 1)){
+            stop("phyloFast flag requires that all leaves of phyloTree are normalized to depth 1")
+         }
+      }
+      corM = vcv.phylo(hM$phyloTree, model="Brownian", corr=TRUE)[hM$spNames,hM$spNames]
       corM = corM[hM$spNames,hM$spNames]
-      hM$phyloTree = phyloTree
       hM$C = corM
    }
    if(!is.null(C)) {
+      if(phyloFast == TRUE){
+         stop("phyloFast flag does not work with phylogeny specified via matrix C")
+      }
       if(any(dim(C) != hM$ns)){
          stop("the size of square matrix C must be equal to number of species")
       }

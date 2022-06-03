@@ -3,7 +3,7 @@
 # @description updates beta lambda
 #
 #' @importFrom stats rnorm
-#' @importFrom Matrix bdiag Diagonal sparseMatrix tcrossprod
+#' @importFrom Matrix bdiag Diagonal sparseMatrix tcrossprod forceSymmetric
 #'
 # NEW version
 # Psi is the local continuous scale
@@ -12,7 +12,7 @@
 # Vartheta is the remaining part of the column scale that can be
 # either bernoulli (CUSP) or product of delta (MGP, in this case Vartheta = NULL)
 
-updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho,Vartheta,Varphi, VC,eC, X,Tr,Pi,dfPi,C,rL, rhopw){
+updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho,Vartheta,Varphi, phyloPar, X,Tr,Pi,dfPi,C,rL, rhopw){
    ny = nrow(Z)
    ns = ncol(Z)
    nc = nrow(Gamma)
@@ -123,32 +123,71 @@ updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho,Vartheta,Varph
          BetaLambda[, j] = m + backsolve(RiU, rnorm(nc + nfSum))
       }
    }
-   else {
-      # available phylogeny information
-      if(length(rho)==1){
-         eiQ05 = (rhopw[rho,1]*eC + (1-rhopw[rho,1]))^-0.5
-         iQ = tcrossprod(VC*matrix(eiQ05,ns,ns,byrow=TRUE))
-         iQBar = kronecker(iV,iQ)
+   else { # available phylogeny information
+      if(phyloPar$phyloFast == FALSE){
+         if(length(rho)==1){
+            # eiQ05 = (rhopw[rho,1]*eC + (1-rhopw[rho,1]))^-0.5
+            # iQ = tcrossprod(VC*matrix(eiQ05,ns,ns,byrow=TRUE))
+            # iQBar = kronecker(iV,iQ)
+            iQBar = kronecker(iV, phyloPar$iQg[,,rho])
+         } else{
+            eiQ05List = lapply(as.list(rho), function(r) (rhopw[r,1]*eC + (1-rhopw[r,1]))^-0.5)
+            VCeiQ05List = lapply(eiQ05List, function(eiQ05) VC*matrix(eiQ05,ns,ns,byrow=TRUE))
+            tmp1 = bdiag(VCeiQ05List)
+            LiV = t(chol(iV))
+            tmp2 = kronecker(LiV,Diagonal(ns))
+            tmp3 = tmp1 %*% tmp2
+            iQBar = as.matrix(Matrix::tcrossprod(tmp3))
+         }
+         P = bdiag(iQBar, Diagonal(x=t(priorLambda)))
+         tmp = vector("list", ns)
+         for (j in 1:ns)
+            tmp[[j]] = XEtaTXEtaList[[j]] * iSigma[j]
+         tmpMat = do.call(rbind, tmp)
+         ind1 = rep(rep(1:ns, each = nc + nfSum) + ns * rep(0:(nc+nfSum-1), ns), nc + nfSum)
+         ind2 = rep(1:((nc + nfSum) * ns), each=nc+nfSum)
+         mat = sparseMatrix(ind1, ind2, x = as.vector(tmpMat))
+         RiU = Matrix::chol(mat + P)
+         m1 = backsolve(RiU, P %*% as.vector(t(Mu)) + as.vector(t(isXTS)), transpose=TRUE)
+         BetaLambda = matrix(backsolve(RiU, m1 + 0*rnorm(ns*(nc+nfSum))), nc+nfSum, ns, byrow=TRUE)
+         # BetaLambda1 = BetaLambda
       } else{
-         eiQ05List = lapply(as.list(rho), function(r) (rhopw[r,1]*eC + (1-rhopw[r,1]))^-0.5)
-         VCeiQ05List = lapply(eiQ05List, function(eiQ05) VC*matrix(eiQ05,ns,ns,byrow=TRUE))
-         tmp1 = bdiag(VCeiQ05List)
-         LiV = t(chol(iV))
-         tmp2 = kronecker(LiV,Diagonal(ns))
-         tmp3 = tmp1 %*% tmp2
-         iQBar = as.matrix(Matrix::tcrossprod(tmp3))
+         if(length(rho)==1){
+            iQHat = phyloPar$iQHatList[[rho]]
+            tipIndVec = phyloPar$iQHatIndList[[rho]]
+            tmp1 = kronecker(iQHat, bdiag(iV,0*Diagonal(nfSum)))
+            priorLambdaHat = matrix(0,nfSum,length(tipIndVec))
+            priorLambdaHat[,which(tipIndVec>0)] = priorLambda[,tipIndVec[which(tipIndVec>0)]]
+            priorLambdaHatExt = rbind(matrix(0,nc,length(tipIndVec)), priorLambdaHat)
+            tmp2 = Diagonal(x=as.vector(priorLambdaHatExt))
+            tmp3List = rep(list(matrix(0,nc+nfSum,nc+nfSum)),length(tipIndVec))
+            P = tmp1 + tmp2
+            for(i in which(tipIndVec>0)){
+               tmp3List[[i]] = XEtaTXEtaList[[tipIndVec[i]]] * iSigma[tipIndVec[i]]
+            }
+            iUHat = P + bdiag(tmp3List)
+            indVec = rep(tipIndVec>0,each=nc+nfSum)
+            indAllZero = Matrix::diag(iUHat)==0
+            P = P[!indAllZero,!indAllZero]
+            iUHat = iUHat[!indAllZero,!indAllZero]
+            indVec = indVec[!indAllZero]
+            RiUHat = Matrix::chol(forceSymmetric(iUHat))
+            MuHat = isXTSHat = matrix(0,nc+nfSum,length(tipIndVec))
+            MuHat[,which(tipIndVec>0)] = Mu[,tipIndVec[which(tipIndVec>0)]]
+            isXTSHat[,which(tipIndVec>0)] = isXTS[,tipIndVec[which(tipIndVec>0)]]
+            m0Hat = P %*% as.vector(MuHat)[!indAllZero] + as.vector(isXTSHat)[!indAllZero]
+            m1Hat = solve(t(RiUHat), m0Hat)
+            m2Hat = solve(RiUHat, m1Hat + 0*rnorm(length(m1Hat)))
+            BetaLambdaHat = matrix(0, nc+nfSum, length(tipIndVec))
+            BetaLambdaHat[!indAllZero] = m2Hat
+            BetaLambda = matrix(NA, nc+nfSum, ns)
+            BetaLambda[,tipIndVec[which(tipIndVec>0)]] = m2Hat[indVec]#BetaLambdaHat[,which(tipIndVec>0)]
+            # BetaLambda2 = BetaLambda
+         } else{
+            stop("Vector rho is not implemented with phyloFast option")
+         }
       }
-      P = bdiag(iQBar, Diagonal(x=t(priorLambda)))
-      tmp = vector("list", ns)
-      for (j in 1:ns)
-         tmp[[j]] = XEtaTXEtaList[[j]] * iSigma[j]
-      tmpMat = do.call(rbind, tmp)
-      ind1 = rep(rep(1:ns, each = nc + nfSum) + ns * rep(0:(nc+nfSum-1), ns), nc + nfSum)
-      ind2 = rep(1:((nc + nfSum) * ns), each=nc+nfSum)
-      mat = sparseMatrix(ind1, ind2, x = as.vector(tmpMat))
-      RiU = Matrix::chol(mat + P)
-      m1 = backsolve(RiU, P %*% as.vector(t(Mu)) + as.vector(t(isXTS)), transpose = TRUE)
-      BetaLambda = matrix(backsolve(RiU, m1 + rnorm(ns * (nc+nfSum))), nc + nfSum, ns, byrow = TRUE)
+         # plot(BetaLambda1, BetaLambda2, main=rho)
    }
    Beta = BetaLambda[1:nc,,drop=FALSE]
    nfCumSum = c(0, cumsum(nf * ncr)) + nc
