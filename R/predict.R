@@ -20,9 +20,16 @@
 #' Each level must cover all units, specified in the correspondingly named column of \code{studyDesign}
 #' argument. By default this argument is assigned the list of \code{HmscRandomLevel} objects
 #' specified for fitting Hmsc model.
-#' @param Gradient an object returned by \code{\link{constructGradient}}. Providing \code{Gradient} is
-#' an alternative for providing \code{XData}, \code{studyDesign} and \code{ranLevels}
-#' @param Yc a matrix of the outcomes that are assumed to be known for conditional predictions.
+#'
+#' @param Gradient an object returned by
+#'     \code{\link{constructGradient}}. Providing \code{Gradient} is
+#'     an alternative for providing \code{XData}, \code{studyDesign}
+#'     and \code{ranLevels}. Cannot be used together with \code{Yc}.
+#'
+#' @param Yc a matrix of the outcomes that are assumed to be known for
+#'     conditional predictions. Cannot be used together with
+#'     \code{Gradient}.
+#'
 #' @param mcmcStep the number of extra mcmc steps used for updating the random effects
 #' @param expected boolean flag indicating whether to return the location parameter of the observation
 #' models or sample the values from those.
