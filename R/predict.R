@@ -79,7 +79,11 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
            message("setting useSocket=TRUE; the only choice in Windows")
        }
    }
-   if(!is.null(Gradient)){
+   if(!is.null(Gradient)) {
+      ## don't know what to do if there is also Yc, and spatial models
+      ## will trigger an error in updateEta (github issue #135)
+      if (!is.null(Yc))
+          stop("predict with arguments 'Yc' and 'Gradient' jointly is not implemented (yet)")
       XData=Gradient$XDataNew
       studyDesign=Gradient$studyDesignNew
       ranLevels=Gradient$rLNew
