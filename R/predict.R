@@ -20,9 +20,16 @@
 #' Each level must cover all units, specified in the correspondingly named column of \code{studyDesign}
 #' argument. By default this argument is assigned the list of \code{HmscRandomLevel} objects
 #' specified for fitting Hmsc model.
-#' @param Gradient an object returned by \code{\link{constructGradient}}. Providing \code{Gradient} is
-#' an alternative for providing \code{XData}, \code{studyDesign} and \code{ranLevels}
-#' @param Yc a matrix of the outcomes that are assumed to be known for conditional predictions.
+#'
+#' @param Gradient an object returned by
+#'     \code{\link{constructGradient}}. Providing \code{Gradient} is
+#'     an alternative for providing \code{XData}, \code{studyDesign}
+#'     and \code{ranLevels}. Cannot be used together with \code{Yc}.
+#'
+#' @param Yc a matrix of the outcomes that are assumed to be known for
+#'     conditional predictions. Cannot be used together with
+#'     \code{Gradient}.
+#'
 #' @param mcmcStep the number of extra mcmc steps used for updating the random effects
 #' @param expected boolean flag indicating whether to return the location parameter of the observation
 #' models or sample the values from those.
@@ -79,7 +86,11 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
            message("setting useSocket=TRUE; the only choice in Windows")
        }
    }
-   if(!is.null(Gradient)){
+   if(!is.null(Gradient)) {
+      ## don't know what to do if there is also Yc, and spatial models
+      ## will trigger an error in updateEta (github issue #135)
+      if (!is.null(Yc))
+          stop("predict with arguments 'Yc' and 'Gradient' jointly is not implemented (yet)")
       XData=Gradient$XDataNew
       studyDesign=Gradient$studyDesignNew
       ranLevels=Gradient$rLNew
