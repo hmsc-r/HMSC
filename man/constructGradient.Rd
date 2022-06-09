@@ -4,7 +4,13 @@
 \alias{constructGradient}
 \title{constructGradient}
 \usage{
-constructGradient(hM, focalVariable, non.focalVariables = list(), ngrid = 20)
+constructGradient(
+  hM,
+  focalVariable,
+  non.focalVariables = list(),
+  ngrid = 20,
+  coordinates = list()
+)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}
@@ -14,6 +20,13 @@ constructGradient(hM, focalVariable, non.focalVariables = list(), ngrid = 20)
 \item{non.focalVariables}{list giving assumptions on how non-focal variables co-vary with the focal variable or a single number given the default type for all non-focal variables}
 
 \item{ngrid}{number of points along the gradient (for continuous focal variables)}
+
+\item{coordinates}{A named list of coordinates were model is
+evaluated in spatial or temporal models. The name should be one
+of the random levels, and value can be \code{"c"} for mean of
+coordinates (default), \code{"i"} for infinite coordinates
+without effect of spatial dependence, or a numeric vector of
+coordinates where the model is evaluated.}
 }
 \value{
 a named list with slots \code{XDataNew}, \code{studyDesignNew} and \code{rLNew}
