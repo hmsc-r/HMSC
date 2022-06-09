@@ -257,8 +257,11 @@ constructGradient =
       distMat = rL1$distMat
       if (!is.null(distMat)){
          units1 = c(rownames(distMat), "new_unit")
-         ## user given coordinates not enables for distMat
-         if (!is.null(coord) && coord == "i") {
+         ## user given coordinates not enabled for distMat
+         if (is.numeric(coord)) {
+             stop("numeric coordinates are not enabled for 'distMat'")
+         }
+         else if (!is.null(coord) && coord == "i") {
              newdist <- rep(Inf, NCOL(distMat))
          } else {
              ## Gower double-centring to find the centroid for new_unit
