@@ -228,9 +228,13 @@ constructGradient =
       distMat = rL1$distMat
       if (!is.null(distMat)){
          units1 = c(rownames(distMat), "new_unit")
-         rm=rowMeans(distMat)
-         focals = order(rm)[1:2]
-         newdist = colMeans(distMat[focals,])
+         ## Gower double-centring to find the centroid for new_unit
+         newdist <- distMat^2/2
+         newdist <- sweep(newdist, 2L, colMeans(newdist), check.margin = FALSE)
+         newdist <- sweep(newdist, 1L, rowMeans(newdist), check.margin = FALSE)
+         ## newdist is double-centred and centroid (new_unit) is 0:
+         ## back-transform to get distances of points to the centroid
+         newdist <- sqrt(diag(-newdist))
          distMat1=cbind(distMat,newdist)
          distMat1=rbind(distMat1,c(newdist,0))
          rownames(distMat1) = units1
