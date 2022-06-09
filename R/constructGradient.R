@@ -7,6 +7,13 @@
 #' @param non.focalVariables list giving assumptions on how non-focal variables co-vary with the focal variable or a single number given the default type for all non-focal variables
 #' @param ngrid number of points along the gradient (for continuous focal variables)
 #'
+#' @param coordinates A named list of coordinates were model is
+#'     evaluated in spatial or temporal models. The name should be one
+#'     of the random levels, and value can be \code{"c"} for mean of
+#'     coordinates (default), \code{"i"} for infinite coordinates
+#'     without effect of spatial dependence, or a numeric vector of
+#'     coordinates where the model is evaluated.
+#'
 #' @return a named list with slots \code{XDataNew}, \code{studyDesignNew} and \code{rLNew}
 #'
 #' @details
@@ -45,8 +52,14 @@
 #' @export
 
 constructGradient =
-   function(hM, focalVariable, non.focalVariables=list(), ngrid=20)
+    function(hM, focalVariable, non.focalVariables=list(), ngrid=20,
+             coordinates = list())
 {
+   ## check valid names in coordinates = list()
+   if (!is.null(coordinates)) {
+       if (!all(names(coordinates) %in% hM$rLNames))
+           stop("all names in coordinates should be names of random levels")
+   }
    ## FIXME: currently works only with data.frame XData, but fails
    ## with model matrix X, although HMSC models can defined without
    ## XData: see github issue #126. It could be possible to have much
@@ -211,26 +224,51 @@ constructGradient =
    rLNew = vector("list", hM$nr)
    names(rLNew) = hM$rLNames
    for (r in seq_len(hM$nr)){
+      rLname <- hM$rLNames[r]
+      coord <- coordinates[[rLname]]
+      ## now check that coord is valid
+      if (!is.null(coord) && !(is.numeric(coord) || coord %in% c("c","i")))
+          stop("'coordinates' must be 'c', 'i' or numeric in random level ",  sQuote(rLname))
       rL1 = hM$rL[[r]]
       xydata = rL1$s
       if (!is.null(xydata)) {
          if (is(xydata, "Spatial")) {
-            centre <- as.data.frame(t(colMeans(coordinates(xydata))))
+            if(!is.null(coord) && coord == "i")
+                centre <- rep(Inf, NCOL(coordinates(xydata)))
+            else if(is.numeric(coord))
+                centre <- coord
+            else
+                centre <- as.data.frame(t(colMeans(coordinates(xydata))))
             rownames(centre) <- "new_unit"
             coordinates(centre) <- colnames(centre)
             proj4string(centre) <- proj4string(xydata)
             xydata <- rbind(xydata, centre)
          } else {
-            xydata = rbind(xydata, "new_unit" = colMeans(xydata))
+            if (!is.null(coord) && coord == "i")
+                centre <- rep(Inf, NCOL(xydata))
+            else if (is.numeric(coord))
+                centre <- coord
+            else
+                centre <- colMeans(xydata)
+            xydata = rbind(xydata, "new_unit" = centre)
          }
       } # end !is.null(xydata)
       rL1$s = xydata
       distMat = rL1$distMat
       if (!is.null(distMat)){
          units1 = c(rownames(distMat), "new_unit")
-         rm=rowMeans(distMat)
-         focals = order(rm)[1:2]
-         newdist = colMeans(distMat[focals,])
+         ## user given coordinates not enables for distMat
+         if (!is.null(coord) && coord == "i") {
+             newdist <- rep(Inf, NCOL(distMat))
+         } else {
+             ## Gower double-centring to find the centroid for new_unit
+             newdist <- distMat^2/2
+             newdist <- sweep(newdist, 2L, colMeans(newdist), check.margin = FALSE)
+             newdist <- sweep(newdist, 1L, rowMeans(newdist), check.margin = FALSE)
+             ## newdist is double-centred and centroid (new_unit) is 0:
+             ## back-transform to get distances of points to the centroid
+             newdist <- sqrt(diag(-newdist))
+         }
          distMat1=cbind(distMat,newdist)
          distMat1=rbind(distMat1,c(newdist,0))
          rownames(distMat1) = units1
