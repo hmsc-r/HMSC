@@ -98,9 +98,8 @@ predictLatentFactor =
                                            seq_len(dim))))
                   }
                } else {
-                  ## s1, s2 are UNDEFINED: this will FAIL
-                  D11 = rL$distMat[s1,s1]
-                  D12 = rL$distMat[s1,s2]
+                  D11 = rL$distMat[units, units, drop=FALSE]
+                  D12 = rL$distMat[units, unitsPred[indNew], drop=FALSE]
                }
                for(h in 1:nf){
                   if(alphapw[alpha[h],1] > 0){
