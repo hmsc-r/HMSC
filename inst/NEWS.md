@@ -18,9 +18,7 @@ Version 3.0-12 (not released, only in github)
   but other platforms can profit from the use of fork clusters which
   may have lower memory use and are faster to set up, and also may be
   marginally faster. The choice can be made with new argument
-  `clusterType`. It is possible to use a pre-constructed socket
-  cluster in all platforms. This will avoid overhead of setting new
-  clusters and allows for a wider range of cluster configurations.
+  `useSocket` which `TRUE` in Windows.
 
 * Updaters in `sampleMcmc` can occasionally fail in extreme `Hmsc`
   models. This is no longer an error that stops analysis, but sampling
@@ -43,6 +41,13 @@ Version 3.0-12 (not released, only in github)
 * Implemented longitude-latitude coordinates and user-supplied
   distance matrices for NNGP spatial models. Sanity checks for spatial
   model input were improved.
+
+* Improved support for spatial models defined _via_ distance matrices
+  instead of spatial coordinates.
+
+* `constructGradient` provides wider choice of coordinates for
+  centroid, including user-set and infinite (meaning no spatial
+  dependence) coordinates.
 
 * Detect cases when user tries to analyse posterior samples of
   non-sampled `Hmsc` object to avoid confusing error messages such as
