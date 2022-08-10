@@ -268,7 +268,7 @@ get1prediction <- function(object, X, XRRR, Yc, rL, rLPar, sam, predPostEta, PiN
     ## species CV from computePredictedValues runs this innermost
     ## loop nfolds * nfolds.sp * predN * mcmcStep times
     for(sN in seq_len(mcmcStep)){
-      Eta = updateEta(Y=Yc, Z=Z, Beta=sam$Beta, iD=iD,
+      Eta = updateEta(Z=Z, Beta=sam$Beta, iD=iD,
                       Eta=Eta, Lambda=sam$Lambda, Alpha=sam$Alpha,
                       rLPar=rLPar, X=X, Pi=PiNew, dfPi=dfPiNew, rL=rL)
       tmpResList = updateZ(Y=Yc, Z=Z, Beta=sam$Beta, iSigma=1/sam$sigma, Eta=Eta,
