@@ -94,7 +94,7 @@ Hierarchical Modelling of Species Communities (Hmsc) is a
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://www.helsinki.fi/en/researchgroups/statistical-ecology/hmsc}
+  \item \url{https://www.helsinki.fi/en/researchgroups/statistical-ecology/software/hmsc}
   \item Report bugs at \url{https://github.com/hmsc-r/HMSC/issues/}
 }
 

@@ -1,6 +1,6 @@
 
-R version 4.1.2 (2021-11-01) -- "Bird Hippie"
-Copyright (C) 2021 The R Foundation for Statistical Computing
+R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid"
+Copyright (C) 2022 The R Foundation for Statistical Computing
 Platform: aarch64-apple-darwin20 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -173,7 +173,7 @@ Posterior MCMC sampling with 3 chains each with 100 samples, thin 1 and transien
 > 
 > ### Name: computePredictedValues
 > ### Title: computePredictedValues
-> ### Aliases: computePredictedValues
+> ### Aliases: computePredictedValues pcomputePredictedValues
 > 
 > ### ** Examples
 > 
@@ -549,7 +549,7 @@ Chain 1, iteration 10 of 10 (sampling)
 > cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  4.28 0.087 4.392 0.001 0.001 
+Time elapsed:  3.856 0.075 3.946 0.003 0.007 
 > grDevices::dev.off()
 null device 
           1 

@@ -27,7 +27,7 @@ Version 3.0-12 (not released, only in github)
   of failures, the sampling is safe to use. If there are updater
   errors only in some chains, these chains can be removed, but other
   chains can be used. See
-  [issue #123](https://github.com/hmsc-r/HMCS/issue/123).
+  [issue #123](https://github.com/hmsc-r/HMSC/issues/123).
 
 * New experimental function `pcomputePredictedValues` with more
   aggressive parallelization than `computePredictedValues`. In old
@@ -85,7 +85,7 @@ Version 3.0-12 (not released, only in github)
   `X` instead of model frame `XData` and model formula
   `XFormula`. Concerns functions `biPlot`,
   `computeVariancePartitioning` and `constructGradient`. Fixes
-  [issue #126](https://github.com/dshmsc-r/HMSC/issues/126).
+  [issue #126](https://github.com/hmsc-r/HMSC/issues/126).
 
 * `biPlot` has improved handling of colour scaling of continuous
   variables.
