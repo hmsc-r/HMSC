@@ -4,9 +4,8 @@
 #
 #' @importFrom stats rnorm
 #' @importFrom Matrix bdiag Diagonal sparseMatrix
-#' @importFrom tensorflow tf
 #'
-updateBetaLambda = function(Z,Gamma,iV,iD,Eta,Psi,Delta, iQ, X,Tr,Pi,dfPi,C,rL, tfCompFlag=FALSE){
+updateBetaLambda = function(Z,Gamma,iV,iD,Eta,Psi,Delta, iQ, X,Tr,Pi,dfPi,C,rL){
    ny = nrow(Z)
    ns = ncol(Z)
    nc = nrow(Gamma)
@@ -79,38 +78,23 @@ updateBetaLambda = function(Z,Gamma,iV,iD,Eta,Psi,Delta, iQ, X,Tr,Pi,dfPi,C,rL, 
    if(is.null(C)){ # no phylogeny information
       BetaLambda = matrix(NA, nc+nfSum, ns)
       randEps = matrix(rnorm((nc+nfSum)*ns), nc+nfSum, ns)
-      if(tfCompFlag==TRUE){
-         tfla = tf$linalg
-         ic = function(...) as.integer(c(...))
-         XEtaTiDXEta = tfla$einsum("ia,ij,ib->jab",XEta,iD,XEta)
-         iV_op = tfla$LinearOperatorFullMatrix(iV)
-         DiagPriorLambda_op = tfla$LinearOperatorDiag(t(priorLambda))
-         P = tfla$LinearOperatorBlockDiag(list(iV_op,DiagPriorLambda_op))$to_dense()
-         iU = P + XEtaTiDXEta
-         LiU = tfla$cholesky(iU)
-         m = tfla$cholesky_solve(LiU, tf$matmul(P,tf$expand_dims(t(Mu),ic(-1))) + tf$expand_dims(t(XTiDS),ic(-1)))
-         res = m + tfla$triangular_solve(LiU, tf$expand_dims(t(randEps),ic(-1)), adjoint=TRUE)
-         BetaLambda = t(tf$squeeze(res,ic(-1))$numpy())
-      } else{
-         diagiV = diag(iV)
-         P0 = matrix(0,nc+nfSum,nc+nfSum)
-         P0[1:nc,1:nc] = iV
-         for(j in 1:ns){
-            if(class(X)[1L]=="matrix"){
-               XEtaTiDXEta = crossprod(XEta,iD[,j]*XEta)
-            } else if(class(X)[1L]=="list"){
-               XEtaTiDXEta = crossprod(XEta[[j]],iD[,j]*XEta[[j]])
-            }
-            P = P0
-            diag(P) = c(diagiV, priorLambda[,j])
-            iU = P + XEtaTiDXEta
-            RiU = chol(iU)
-            U = chol2inv(RiU)
-            m = U %*% (P%*%Mu[,j] + XTiDS[,j]);
-            BetaLambda[,j] = m + backsolve(RiU, randEps[,j])
+      diagiV = diag(iV)
+      P0 = matrix(0,nc+nfSum,nc+nfSum)
+      P0[1:nc,1:nc] = iV
+      for(j in 1:ns){
+         if(class(X)[1L]=="matrix"){
+            XEtaTiDXEta = crossprod(XEta,iD[,j]*XEta)
+         } else if(class(X)[1L]=="list"){
+            XEtaTiDXEta = crossprod(XEta[[j]],iD[,j]*XEta[[j]])
          }
+         P = P0
+         diag(P) = c(diagiV, priorLambda[,j])
+         iU = P + XEtaTiDXEta
+         RiU = chol(iU)
+         U = chol2inv(RiU)
+         m = U %*% (P%*%Mu[,j] + XTiDS[,j]);
+         BetaLambda[,j] = m + backsolve(RiU, randEps[,j])
       }
-
    } else{ # available phylogeny information
       P = bdiag(kronecker(iV,iQ), Diagonal(x=t(priorLambda)))
       tmp = vector("list",ns)

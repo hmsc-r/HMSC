@@ -81,8 +81,7 @@ sampleMcmc =
              verbose, adaptNf=rep(transient,hM$nr),
              nChains=1, nParallel=1, clusterType = c("socket", "fork"),
              dataParList=NULL, updater=list(),
-             fromPrior = FALSE, alignPost = TRUE,
-             tfCompFlag=FALSE)
+             fromPrior = FALSE, alignPost = TRUE)
 {
    ## Select parallel processing strategy
    clusterType <- match.arg(clusterType)
@@ -152,7 +151,7 @@ sampleMcmc =
    hM$randSeed <- .Random.seed
    initSeed = sample.int(.Machine$integer.max, nChains)
 
-   ######## switching of the augmented updaters if the required conditions are not met
+   ######## switching off the augmented updaters if the required conditions are not met
    EPS = 1e-6
    updaterWarningFlag = TRUE
    # updater$GammaEta
@@ -175,6 +174,12 @@ sampleMcmc =
        if (updaterWarningFlag)
            message("setting updater$GammaEta=FALSE: not implemented for spatial methods 'GPP' and 'NNGP'")
    }
+   if(!identical(updater$GammaEta, FALSE) && any(is.na(Y))){
+      updater$GammaEta = FALSE
+      if(updaterWarningFlag)
+         message("setting updater$GammaEta=FALSE due to missing values in Y")
+   }
+
 
    ## latentLoadingOrderSwap: as of version 3.0.10 this is still an
    ## experimental feature and we do not advertise it by broadcasting
@@ -252,15 +257,15 @@ sampleMcmc =
       postList = vector("list", samples)
       for(iter in seq_len(transient+samples*thin)){
 
-         #TODO Zconditioning
+         #TODO Zconditioning - DONE
          if(!identical(updater$Gamma2, FALSE))
             Gamma = updateGamma2(Z=Z,Gamma=Gamma,iV=iV,rho=rho,iD=iD,
                Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,C=C,rL=hM$rL, iQ=iQg[,,rho],
-               mGamma=mGamma,iUGamma=iUGamma, tfCompFlag=tfCompFlag)
+               mGamma=mGamma,iUGamma=iUGamma)
 
-         #TODO Zconditioning - !!!!NOT DONE!!!!
+         #TODO Zconditioning - NOT DONE, but updater disabled if missing values in Y
          if(!identical(updater$GammaEta, FALSE)){
-            GammaEtaList = updateGammaEta(Z=Z,Gamma=Gamma,V=chol2inv(chol(iV)),iV=iV,iD=iD,
+            GammaEtaList = updateGammaEta(Z=Z,Gamma=Gamma,V=chol2inv(chol(iV)),iV=iV,id=iSigma,
                Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,rL=hM$rL, rLPar=rLPar,Q=Qg[,,rho],iQ=iQg[,,rho],RQ=RQg[,,rho],
                mGamma=mGamma,U=hM$UGamma,iU=iUGamma)
             Gamma = GammaEtaList$Gamma
@@ -270,7 +275,7 @@ sampleMcmc =
          #TODO Zconditioning - DONE
          if(!identical(updater$BetaLambda, FALSE)){
             BetaLambdaList = updateBetaLambda(Z=Z,Gamma=Gamma,iV=iV,iD=iD,Eta=Eta,Psi=Psi,Delta=Delta, iQ=iQg[,,rho],
-               X=X,Tr=Tr,Pi=Pi,dfPi=dfPi,C=C,rL=hM$rL, tfCompFlag=tfCompFlag)
+               X=X,Tr=Tr,Pi=Pi,dfPi=dfPi,C=C,rL=hM$rL)
             Beta = BetaLambdaList$Beta
             Lambda = BetaLambdaList$Lambda
          }
@@ -285,7 +290,7 @@ sampleMcmc =
          }
 
          #TODO Zconditioning - DONE
-         # This updater is potentially incompatible with marginalization trick for Poisson data augmentation
+         # This updater may be incompatible with intended marginalization trick for Poisson data augmentation
          if(!identical(updater$BetaSel, FALSE) &&  hM$ncsel>0){
             BetaSelXList = updateBetaSel(Z=Z,XSelect = hM$XSelect, BetaSel=BetaSel,Beta=Beta, iD=iD,
                                     Lambda=Lambda, Eta=Eta, X1=X1,Pi=Pi,dfPi=dfPi,rL=hM$rL)
@@ -398,7 +403,7 @@ sampleMcmc =
                               "adaptNf","initSeed","initPar","updater",
                               "X1", "Tr", "Y", "distr", "Pi", "C", "nr",
                               "mGamma", "iUGamma", "V0", "f0", "aSigma", "bSigma",
-                              "rhopw","Qg", "iQg", "RQg", "detQg", "rLPar", "tfCompFlag"),
+                              "rhopw","Qg", "iQg", "RQg", "detQg", "rLPar"),
                         envir=environment())
 
           clusterEvalQ(cl, {
@@ -407,8 +412,7 @@ sampleMcmc =
              library(truncnorm);
              library(Matrix);
              library(abind);
-             library(Hmsc);
-             library(tensorflow)})
+             library(Hmsc)})
           hM$postList = clusterApplyLB(cl, 1:nChains, fun=sampleChain)
           ## do not stop user-supplied cluster
           if (!hasCluster)

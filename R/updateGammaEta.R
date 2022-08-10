@@ -1,5 +1,3 @@
-### id = diagonal of inverse residual variations
-
 #' @importFrom methods as
 #' @importFrom stats rnorm
 #' @importFrom Matrix Diagonal sparseMatrix bdiag
@@ -39,7 +37,7 @@ updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,dfPi,rL, rLP
       }
    }
    unitDFlag = FALSE
-   if(identical(id,rep(1,ns)))
+   if(all(iD==1))
       unitDFlag = TRUE
 
    for(r in seq_len(nr)){

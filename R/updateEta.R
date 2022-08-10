@@ -1,8 +1,7 @@
 #' @importFrom stats rnorm
 #' @importFrom Matrix bdiag Diagonal sparseMatrix t Matrix
-#' @importFrom tensorflow tf
 #'
-updateEta = function(Z,Beta,iD,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL, tfCompFlag=FALSE){
+updateEta = function(Z,Beta,iD,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
    ny = nrow(Z)
    ns = ncol(Z)
    nr = ncol(Pi)
@@ -50,55 +49,34 @@ updateEta = function(Z,Beta,iD,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL, tfCompFlag
       ldfPi = dfPi[,r]
       randEps = matrix(rnorm(np[r]*nf),np[r],nf)
 
-      if(tfCompFlag==TRUE){
-         tfla = tf$linalg
-         ic = function(...) as.integer(c(...))
+      LamiDLam = array(0,c(np[r],nf,nf))
+      PiDSLambda = matrix(0,np[r],nf)
+      for(q in 1:np[r]){
+         rows = which(lPi==q)
          if(rL[[r]]$xDim == 0){
-            LamiDLam = tf$scatter_nd(matrix(ic(lPi)), tfla$einsum("hj,ij,gj->ihg",lambda,iD,lambda), tf$constant(ic(np[r],nf,nf)))
-            PiDSLambda = tf$matmul(tf$scatter_nd(matrix(ic(lPi)), iDS, tf$constant(ic(np[r],ns))), lambda, transpose_b=TRUE)
+            for(p in seq_len(length(rows)))
+               LamiDLam[q,,] = LamiDLam[q,,] + tcrossprod(lambda*matrix(sqrt(iD[rows[p],]),nf,ns,byrow=TRUE))
+            PiDSLambda[q,] = colSums(tcrossprod(iDS[rows,,drop=FALSE], lambda))
          } else{
-            lambdaLocal = tf$einsum("ik,hjk->ihj", rL[[r]]$x[unLdfPi,], lambda)
-            LamiDLam = tf$scatter_nd(matrix(ic(lPi)), tfla$einsum("ihj,ij,igj->ihg",lambdaLocal,iD,lambdaLocal),
-                                     tf$constant(ic(np[r],nf,nf)))
-            PiDSLambda = tf$scatter_nd(matrix(ic(lPi)), tf$matmul(iDS, lambdaLocal, transpose_b=TRUE), tf$constant(ic(np[r],ns)))
-         }
-      } else{
-         LamiDLam = array(0,c(np[r],nf,nf))
-         PiDSLambda = matrix(0,np[r],nf)
-         for(q in 1:np[r]){
-            rows = which(lPi==q)
-            if(rL[[r]]$xDim == 0){
-               for(p in seq_len(length(rows)))
-                  LamiDLam[q,,] = LamiDLam[q,,] + tcrossprod(lambda*matrix(sqrt(iD[rows[p],]),nf,ns,byrow=TRUE))
-               PiDSLambda[q,] = colSums(tcrossprod(iDS[rows,,drop=FALSE], lambda))
-            } else{
-               ncr = rL[[r]]$xDim
-               lambdaLocal = rowSums(lambda * array(unlist(rep(rL[[r]]$x[unLdfPi[q],],each=nf*ns)), c(nf,ns,ncr)), dims=2)
-               for(p in seq_len(length(rows)))
-                  LamiDLam[q,,] = LamiDLam[q,,] + tcrossprod(lambdaLocal*matrix(sqrt(iD[rows[p],]),nf,ns,byrow=TRUE))
-               PiDSLambda[q,] = colSums(tcrossprod(iDS[rows,,drop=FALSE], lambdaLocal))
-            }
+            ncr = rL[[r]]$xDim
+            lambdaLocal = rowSums(lambda * array(unlist(rep(rL[[r]]$x[unLdfPi[q],],each=nf*ns)), c(nf,ns,ncr)), dims=2)
+            for(p in seq_len(length(rows)))
+               LamiDLam[q,,] = LamiDLam[q,,] + tcrossprod(lambdaLocal*matrix(sqrt(iD[rows[p],]),nf,ns,byrow=TRUE))
+            PiDSLambda[q,] = colSums(tcrossprod(iDS[rows,,drop=FALSE], lambdaLocal))
          }
       }
 
       if(rL[[r]]$sDim == 0){
          eta = matrix(NA,np[r],nf)
-         if(tfCompFlag==TRUE){
-            iV = diag(nf) + LamiDLam
-            LiV = tfla$cholesky(iV)
-            m = tfla$cholesky_solve(LiV, tf$expand_dims(PiDSLambda, ic(-1)))
-            res = m + tfla$triangular_solve(LiV, tf$expand_dims(randEps,ic(-1)), adjoint=TRUE)
-            eta = tf$squeeze(res, ic(-1))$numpy()
-         } else{
-            for(q in 1:np[r]){
-               rows = which(lPi==q)
-               iV = diag(nf) + LamiDLam[q,,]
-               RiV = chol(iV)
-               V = chol2inv(RiV)
-               mu = PiDSLambda[q,] %*% V
-               eta[q,] = mu + backsolve(RiV,randEps[q,])
-            }
+         for(q in 1:np[r]){
+            rows = which(lPi==q)
+            iV = diag(nf) + LamiDLam[q,,]
+            RiV = chol(iV)
+            V = chol2inv(RiV)
+            mu = PiDSLambda[q,] %*% V
+            eta[q,] = mu + backsolve(RiV,randEps[q,])
          }
+
       } else{
          eta = matrix(0,np[r],nf)
          alpha = Alpha[[r]]
