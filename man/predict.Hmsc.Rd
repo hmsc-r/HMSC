@@ -19,6 +19,8 @@
   expected = FALSE,
   predictEtaMean = FALSE,
   predictEtaMeanField = FALSE,
+  nParallel = 1,
+  useSocket = .Platform$OS.type == "windows",
   ...
 )
 }
@@ -49,10 +51,14 @@ Each level must cover all units, specified in the correspondingly named column o
 argument. By default this argument is assigned the list of \code{HmscRandomLevel} objects
 specified for fitting Hmsc model.}
 
-\item{Gradient}{an object returned by \code{\link{constructGradient}}. Providing \code{Gradient} is
-an alternative for providing \code{XData}, \code{studyDesign} and \code{ranLevels}}
+\item{Gradient}{an object returned by
+\code{\link{constructGradient}}. Providing \code{Gradient} is
+an alternative for providing \code{XData}, \code{studyDesign}
+and \code{ranLevels}. Cannot be used together with \code{Yc}.}
 
-\item{Yc}{a matrix of the outcomes that are assumed to be known for conditional predictions.}
+\item{Yc}{a matrix of the outcomes that are assumed to be known for
+conditional predictions. Cannot be used together with
+\code{Gradient}.}
 
 \item{mcmcStep}{the number of extra mcmc steps used for updating the random effects}
 
@@ -64,6 +70,15 @@ predictive distribution for random effets corresponding for the new units.}
 
 \item{predictEtaMeanField}{boolean flag indicating whether to use draws from the mean-field of the
 posterior predictive distribution for random effets corresponding for the new units.}
+
+\item{nParallel}{Number of parallel processes. Parallel processing
+is only useful with new \code{Yc} data and extra
+\code{mcmcStep}.}
+
+\item{useSocket}{(logical) Use socket clusters in parallel
+proecessing; these are the only alternative in Windows, but in
+other systems this should be usually set \code{FALSE} for
+forking.}
 
 \item{\dots}{other arguments passed to functions.}
 }

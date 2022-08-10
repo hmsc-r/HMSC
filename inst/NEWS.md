@@ -18,13 +18,36 @@ Version 3.0-12 (not released, only in github)
   but other platforms can profit from the use of fork clusters which
   may have lower memory use and are faster to set up, and also may be
   marginally faster. The choice can be made with new argument
-  `clusterType`. It is possible to use a pre-constructed socket
-  cluster in all platforms. This will avoid overhead of setting new
-  clusters and allows for a wider range of cluster configurations.
+  `useSocket` which `TRUE` in Windows.
+
+* Updaters in `sampleMcmc` can occasionally fail in extreme `Hmsc`
+  models. This is no longer an error that stops analysis, but sampling
+  tries to recover from failures. The numbers of failures for each
+  updater is reported with the result. If there are only a low number
+  of failures, the sampling is safe to use. If there are updater
+  errors only in some chains, these chains can be removed, but other
+  chains can be used. See
+  [issue #123](https://github.com/hmsc-r/HMCS/issue/123).
+
+* New experimental function `pcomputePredictedValues` with more
+  aggressive parallelization than `computePredictedValues`. In old
+  code chains within each partition could be run in parallel, but
+  partitions were run serially. In the new function, all chains and
+  partitions can be run in parallel. The plan is to replace the old
+  function with this new alternative, but at the moment both functions
+  are available for testing. See
+  [issue #142](https://github.com/hmsc-r/HMSC/issues/142).
 
 * Implemented longitude-latitude coordinates and user-supplied
   distance matrices for NNGP spatial models. Sanity checks for spatial
   model input were improved.
+
+* Improved support for spatial models defined _via_ distance matrices
+  instead of spatial coordinates.
+
+* `constructGradient` provides wider choice of coordinates for
+  centroid, including user-set and infinite (meaning no spatial
+  dependence) coordinates.
 
 * Detect cases when user tries to analyse posterior samples of
   non-sampled `Hmsc` object to avoid confusing error messages such as

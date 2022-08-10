@@ -1,7 +1,8 @@
 ## ---------------------------------------------------------------------------------------
 context("setting environmental data")
 test_that("Hmsc returns error both XData and X are given", {
-   expect_error(Hmsc(Y=matrix(1:10),XData=data.frame(x1 = 1:10),X=matrix(1:10)),"only one of XData and X arguments must be specified")
+    expect_error(Hmsc(Y=matrix(1:10), XData=data.frame(x1 = 1:10),
+                      X=matrix(1:10)), NULL)
 })
 test_that("Hmsc returns error when XData is not a data frame or list of data frames", {
    expect_error(Hmsc(Y=matrix(1:10),XData=matrix(1:10)), NULL)

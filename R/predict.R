@@ -20,9 +20,16 @@
 #' Each level must cover all units, specified in the correspondingly named column of \code{studyDesign}
 #' argument. By default this argument is assigned the list of \code{HmscRandomLevel} objects
 #' specified for fitting Hmsc model.
-#' @param Gradient an object returned by \code{\link{constructGradient}}. Providing \code{Gradient} is
-#' an alternative for providing \code{XData}, \code{studyDesign} and \code{ranLevels}
-#' @param Yc a matrix of the outcomes that are assumed to be known for conditional predictions.
+#'
+#' @param Gradient an object returned by
+#'     \code{\link{constructGradient}}. Providing \code{Gradient} is
+#'     an alternative for providing \code{XData}, \code{studyDesign}
+#'     and \code{ranLevels}. Cannot be used together with \code{Yc}.
+#'
+#' @param Yc a matrix of the outcomes that are assumed to be known for
+#'     conditional predictions. Cannot be used together with
+#'     \code{Gradient}.
+#'
 #' @param mcmcStep the number of extra mcmc steps used for updating the random effects
 #' @param expected boolean flag indicating whether to return the location parameter of the observation
 #' models or sample the values from those.
@@ -30,6 +37,15 @@
 #' predictive distribution for random effets corresponding for the new units.
 #' @param predictEtaMeanField boolean flag indicating whether to use draws from the mean-field of the
 #' posterior predictive distribution for random effets corresponding for the new units.
+#'
+#' @param nParallel Number of parallel processes. Parallel processing
+#'     is only useful with new \code{Yc} data and extra
+#'     \code{mcmcStep}.
+#' @param useSocket (logical) Use socket clusters in parallel
+#'     proecessing; these are the only alternative in Windows, but in
+#'     other systems this should be usually set \code{FALSE} for
+#'     forking.
+#'
 #' @param \dots other arguments passed to functions.
 #'
 #' @details In \code{mcmcStep,the number of extra mcmc steps used for updating the random effects
@@ -49,6 +65,8 @@
 #'
 #'
 #' @importFrom stats model.matrix rnorm pnorm rpois
+#' @importFrom parallel detectCores mclapply makeCluster stopCluster
+#'     clusterExport clusterEvalQ parLapply
 #'
 #' @export
 
@@ -56,192 +74,252 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
                         X=NULL, XRRRData=NULL, XRRR=NULL, # this has to be updated to cov-dependent associations
                         studyDesign=object$studyDesign, ranLevels=object$ranLevels,
                         Gradient=NULL, Yc=NULL, mcmcStep=1, expected=FALSE,
-                        predictEtaMean=FALSE, predictEtaMeanField=FALSE, ...)
+                        predictEtaMean=FALSE, predictEtaMeanField=FALSE,
+                        nParallel = 1,
+                        useSocket = .Platform$OS.type == "windows", ...)
 {
+  ## check valid nParallel
+  nParallel <- min(nParallel, detectCores())
+  if (nParallel > 1) {
+    if (.Platform$OS.type == "windows" && !useSocket) {
+      useSocket <- TRUE
+      message("setting useSocket=TRUE; the only choice in Windows")
+    }
+  }
+  if(!is.null(Gradient)) {
+    ## don't know what to do if there is also Yc, and spatial models
+    ## will trigger an error in updateEta (github issue #135)
+    if (!is.null(Yc))
+      stop("predict with arguments 'Yc' and 'Gradient' jointly is not implemented (yet)")
+    XData=Gradient$XDataNew
+    studyDesign=Gradient$studyDesignNew
+    ranLevels=Gradient$rLNew
+  }
 
-   if(!is.null(Gradient)){
-      XData=Gradient$XDataNew
-      studyDesign=Gradient$studyDesignNew
-      ranLevels=Gradient$rLNew
-   }
-
-   if(!is.null(XData) && !is.null(X)){
-      stop("only one of XData and X arguments can be specified")
-   }
-   if(!is.null(XRRRData) && !is.null(XRRR)){
-      stop("only one of XRRRData and XRRR arguments can be specified")
-   }
-   if(predictEtaMean==TRUE && predictEtaMeanField==TRUE)
-      stop("predictEtaMean and predictEtaMeanField arguments cannot be TRUE simultaneously")
-   if(!is.null(XData)){
-      switch(class(XData)[1L],
-             list={
-                if (any(unlist(lapply(XData, is.na))))
-                    stop("NA values are not allowed in 'XData'")
-                xlev = lapply(Reduce(rbind,object$XData), levels)[unlist(lapply(Reduce(rbind,object$XData), is.factor))]
-                X = lapply(XData, function(a) model.matrix(object$XFormula, a, xlev=xlev))
-             },
-             data.frame={
-                if (any(is.na(XData)))
-                    stop("NA values are not allowed in 'XData'")
-                xlev = lapply(object$XData, levels)[unlist(lapply(object$XData, is.factor))]
-                X = model.matrix(object$XFormula, XData, xlev=xlev)
-             }
-      )
-   } else{
-      if(is.null(X))
-         X = object$X
-   }
-   if(!is.null(XRRRData)){
-      xlev = lapply(object$XRRRData, levels)[unlist(lapply(object$XRRRData, is.factor))]
-      XRRR = model.matrix(object$XRRRFormula, XRRRData, xlev=xlev)
-   } else{
-      if(is.null(object$ncRRR)) object$ncRRR=0
-      if(is.null(XRRR) && object$ncRRR>0)
-         XRRR=object$XRRR
-   }
-   switch(class(X)[1L],
-          list={
-             nyNew = nrow(X[[1]])
-          },
-          matrix={
-             nyNew = nrow(X)
-          }
-   )
-
-   if(!is.null(Yc)){
-      if(ncol(Yc) != object$ns){
-         stop("number of columns in Yc must be equal to ns")
-      }
-      if(nrow(Yc) != nyNew){
-         stop("number of rows in Yc and X must be equal")
-      }
-   }
-   if(!all(object$rLNames %in% colnames(studyDesign))){
-      stop("dfPiNew does not contain all the necessary named columns")
-   }
-   if(!all(object$rLNames %in% names(ranLevels))){
-      stop("rL does not contain all the necessary named levels")
-   }
-
-   if(!is.null(studyDesign)){
-      dfPiNew = studyDesign[,object$rLNames,drop=FALSE]
-   } else
-      dfPiNew = matrix(NA,nyNew,0)
-   rL = ranLevels[object$rLNames]
-   ## object can have pre-computed data parameters, but not
-   ## necessarily. These are needed only in updateEta(), but get it
-   ## here anyway...
-   rLPar <- if (is.null(object$rLPar)) {
-               computeDataParameters(object)$rLPar
-            } else {
-               object$rLPar
-            }
-
-   predN = length(post)
-   predPostEta = vector("list", object$nr)
-   PiNew = matrix(NA,nrow(dfPiNew),object$nr)
-   for(r in seq_len(object$nr)){
-      postEta = lapply(post, function(c) c$Eta[[r]])
-      postAlpha = lapply(post, function(c) c$Alpha[[r]])
-      predPostEta[[r]] = predictLatentFactor(unitsPred=levels(dfPiNew[,r]),units=levels(object$dfPi[,r]),
-                                             postEta=postEta,postAlpha=postAlpha,rL=rL[[r]],predictMean=predictEtaMean,predictMeanField=predictEtaMeanField)
-      rowNames = rownames(predPostEta[[r]][[1]])
-      PiNew[,r] = sapply(dfPiNew[,r], function(s) which(rowNames==s))
-   }
-   pred = vector("list",predN)
-   for(pN in 1:predN){
-      sam = post[[pN]]
-
-      if(object$ncRRR>0){
-         XB=XRRR%*%t(sam$wRRR)
-      }
-      switch(class(X)[1L],
-             matrix = {
-                X1=X
-                if(object$ncRRR>0){
-                   X1=cbind(X1,XB)
-                }
-                LFix = X1 %*% sam$Beta
-             },
-             list = {
-                LFix = matrix(NA,nyNew,object$ns)
-                for(j in 1:object$ns){
-                   X1=X[[j]]
-                   if(object$ncRRR>0){
-                      X1=cbind(X1,XB)
-                   }
-                   LFix[,j] = X1%*%sam$Beta[,j]
-                }
-
-             }
-      )
-      LRan = vector("list",object$nr)
-      Eta = vector("list",object$nr)
-      for(r in seq_len(object$nr)){
-         Eta[[r]] = predPostEta[[r]][[pN]]
-         if(rL[[r]]$xDim == 0){
-            LRan[[r]] = Eta[[r]][as.character(dfPiNew[,r]),] %*% sam$Lambda[[r]]
-         } else{
-            LRan[[r]] = matrix(0,object$ny,object$ns)
-            for(k in 1:rL[[r]]$xDim)
-               LRan[[r]] = LRan[[r]] + (Eta[[r]][as.character(dfPiNew[,r]),]*rL[[r]]$x[as.character(dfPiNew[,r]),k]) %*% sam$Lambda[[r]][,,k]
+  if(!is.null(XData) && !is.null(X)){
+    stop("only one of XData and X arguments can be specified")
+  }
+  if(!is.null(XRRRData) && !is.null(XRRR)){
+    stop("only one of XRRRData and XRRR arguments can be specified")
+  }
+  if(predictEtaMean==TRUE && predictEtaMeanField==TRUE)
+    stop("predictEtaMean and predictEtaMeanField arguments cannot be TRUE simultaneously")
+  if(!is.null(XData)){
+    switch(class(XData)[1L],
+           list={
+             if (any(unlist(lapply(XData, is.na))))
+               stop("NA values are not allowed in 'XData'")
+             xlev = lapply(Reduce(rbind,object$XData), levels)[unlist(lapply(Reduce(rbind,object$XData), is.factor))]
+             X = lapply(XData, function(a) model.matrix(object$XFormula, a, xlev=xlev))
+           },
+           data.frame={
+             if (any(is.na(XData)))
+               stop("NA values are not allowed in 'XData'")
+             xlev = lapply(object$XData, levels)[unlist(lapply(object$XData, is.factor))]
+             X = model.matrix(object$XFormula, XData, xlev=xlev)
+           }
+    )
+  } else{
+    if(is.null(X))
+      X = object$X
+  }
+  if(!is.null(XRRRData)){
+    xlev = lapply(object$XRRRData, levels)[unlist(lapply(object$XRRRData, is.factor))]
+    XRRR = model.matrix(object$XRRRFormula, XRRRData, xlev=xlev)
+  } else{
+    if(is.null(object$ncRRR)) object$ncRRR=0
+    if(is.null(XRRR) && object$ncRRR>0)
+      XRRR=object$XRRR
+  }
+  switch(class(X)[1L],
+         list={
+           nyNew = nrow(X[[1]])
+         },
+         matrix={
+           nyNew = nrow(X)
          }
-      }
-      if(object$nr > 0){L = LFix + Reduce("+", LRan)} else L = LFix
+  )
 
-      if(!is.null(Yc) && any(!is.na(Yc))){
-         Z = L
-         iD = (!is.na(Yc)) * matrix(sam$sigma^-1,nrow(Yc),ncol(Yc),byrow=TRUE)
-         Z = updateZ(Y=Yc,Z=Z,Beta=sam$Beta,iD=iD,Eta=Eta,Lambda=sam$Lambda, X=X,Pi=PiNew,dfPi=dfPiNew,distr=object$distr,rL=rL)
-         for(sN in seq_len(mcmcStep)){
-            Eta = updateEta(Z=Z,Beta=sam$Beta,iD=iD,Eta=Eta,Lambda=sam$Lambda,Alpha=sam$Alpha, rLPar=rLPar, X=X,Pi=PiNew,dfPi=dfPiNew,rL=rL)
-            tmpResList = updateZ(Y=Yc,Z=Z,Beta=sam$Beta,iSigma=1/sam$sigma,Eta=Eta,Lambda=sam$Lambda, X=X,Pi=PiNew,dfPi=dfPiNew,distr=object$distr,rL=rL)
-            Z = tmpResList$Z; iD = tmpResList$iD
-         }
-         for(r in seq_len(object$nr)){
-            if(rL[[r]]$xDim == 0){
-               LRan[[r]] = Eta[[r]][as.character(dfPiNew[,r]),] %*% sam$Lambda[[r]]
-            } else{
-               LRan[[r]] = matrix(0,object$ny,object$ns)
-               for(k in 1:rL[[r]]$xDim)
-                  LRan[[r]] = LRan[[r]] + (Eta[[r]][as.character(dfPiNew[,r]),]*rL[[r]]$x[as.character(dfPiNew[,r]),k]) %*% sam$Lambda[[r]][,,k]
-            }
-         }
-         if(object$nr > 0){L = LFix + Reduce("+", LRan)} else L = LFix
-      }
-      if(!expected){
-         Z = L + matrix(sqrt(sam$sigma),nrow(L),object$ns,byrow=TRUE) * matrix(rnorm(nrow(L)*object$ns),nrow(L),object$ns)
-      } else{
-         Z = L
-      }
-      for(j in 1:object$ns){
-         if(object$distr[j,"family"] == 2){ # probit
-            if(expected){
-               Z[,j] = pnorm(Z[,j])
-            } else{
-               Z[,j] = as.numeric(Z[,j]>0)
-            }
-         }
-         if(object$distr[j,"family"] == 3){ # poisson
-            if(expected){
-               Z[,j] = exp(Z[,j] + sam$sigma[j]/2)
-            } else{
-               Z[,j] = rpois(nrow(Z),exp(Z[,j]))
-            }
-         }
-      }
-      colnames(Z) = object$spNames
+  if(!is.null(Yc)){
+    if(ncol(Yc) != object$ns){
+      stop("number of columns in Yc must be equal to ns")
+    }
+    if(nrow(Yc) != nyNew){
+      stop("number of rows in Yc and X must be equal")
+    }
+  }
+  if(!all(object$rLNames %in% colnames(studyDesign))){
+    stop("dfPiNew does not contain all the necessary named columns")
+  }
+  if(!all(object$rLNames %in% names(ranLevels))){
+    stop("rL does not contain all the necessary named levels")
+  }
 
-      for(i in 1:object$ns){
-         m = object$YScalePar[1,i]
-         s = object$YScalePar[2,i]
-         if(m!=0 || s!=1){
-            Z[,i] = Z[,i]*s + m
-         }
-      }
-      pred[[pN]] = Z
-   }
-   return(pred)
+  if(!is.null(studyDesign)){
+    dfPiNew = studyDesign[,object$rLNames,drop=FALSE]
+  } else
+    dfPiNew = matrix(NA,nyNew,0)
+  rL = ranLevels[object$rLNames]
+  ## object can have pre-computed data parameters, but not
+  ## necessarily. These are needed only in updateEta(), but get it
+  ## here anyway...
+  rLPar <- if (is.null(object$rLPar)) {
+    computeDataParameters(object)$rLPar
+  } else {
+    object$rLPar
+  }
+
+  predN = length(post)
+  predPostEta = vector("list", object$nr)
+  PiNew = matrix(NA,nrow(dfPiNew),object$nr)
+  for(r in seq_len(object$nr)){
+    postEta = lapply(post, function(c) c$Eta[[r]])
+    postAlpha = lapply(post, function(c) c$Alpha[[r]])
+    predPostEta[[r]] = predictLatentFactor(unitsPred=levels(dfPiNew[,r]),units=levels(object$dfPi[,r]),
+                                           postEta=postEta,postAlpha=postAlpha,rL=rL[[r]],predictMean=predictEtaMean,predictMeanField=predictEtaMeanField)
+    rowNames = rownames(predPostEta[[r]][[1]])
+    PiNew[,r] = sapply(dfPiNew[,r], function(s) which(rowNames==s))
+  }
+  ## simplify2array(predPostEta)[pN,][[nr]] == predPostEta[[nr]][[pN]]
+  ppEta <- simplify2array(predPostEta)
+  if (nParallel == 1) {  # non-Parallel
+    pred <- lapply(seq_len(predN), function(pN, ...)
+      get1prediction(object, X, XRRR, Yc, rL, rLPar, post[[pN]],
+                     ppEta[pN,], PiNew, dfPiNew, nyNew, expected,
+                     mcmcStep))
+  } else if (useSocket) { # socket cluster (Windows, mac, Linux)
+    seed <- sample.int(.Machine$integer.max, predN)
+    cl <- makeCluster(nParallel)
+    clusterExport(cl, "get1prediction", envir = environment())
+    clusterEvalQ(cl, {
+      library(Hmsc)})
+    pred <- parLapply(cl, seq_len(predN), function(pN, ...)
+      get1prediction(object, X, XRRR, Yc, rL, rLPar, post[[pN]],
+                     ppEta[pN,], PiNew, dfPiNew, nyNew, expected,
+                     mcmcStep, seed = seed[pN]))
+    stopCluster(cl)
+  } else { # fork (mac, Linux)
+    seed <- sample.int(.Machine$integer.max, predN)
+    pred <- mclapply(seq_len(predN), function(pN, ...)
+      get1prediction(object, X, XRRR, Yc, rL, rLPar, post[[pN]],
+                     ppEta[pN,], PiNew, dfPiNew, nyNew, expected,
+                     mcmcStep, seed = seed[pN]),
+      mc.cores=nParallel)
+  }
+  pred
 }
 
+## internal function to get one prediction
+##
+##  Needs following variables or arguments that must be passsed:
+##  PiNew X XRRR Yc dfPiNew expected mcmcStep nyNew object pN post
+##  predPostEta rL rLPar
+
+get1prediction <- function(object, X, XRRR, Yc, rL, rLPar, sam, predPostEta, PiNew, dfPiNew,
+                           nyNew, expected, mcmcStep, seed = NULL)
+{
+  if (!is.null(seed))
+    set.seed(seed)
+  if(object$ncRRR>0){
+    XB=XRRR%*%t(sam$wRRR)
+  }
+  switch(class(X)[1L],
+         matrix = {
+           X1=X
+           if(object$ncRRR>0){
+             X1=cbind(X1,XB)
+           }
+           LFix = X1 %*% sam$Beta
+         },
+         list = {
+           LFix = matrix(NA, nyNew, object$ns)
+           for(j in 1:object$ns){
+             X1=X[[j]]
+             if(object$ncRRR>0){
+               X1=cbind(X1,XB)
+             }
+             LFix[,j] = X1%*%sam$Beta[,j]
+           }
+         }
+  )
+  LRan = vector("list",object$nr)
+  Eta = vector("list",object$nr)
+  for(r in seq_len(object$nr)){
+    Eta[[r]] = predPostEta[[r]]
+    if(rL[[r]]$xDim == 0){
+      LRan[[r]] = Eta[[r]][as.character(dfPiNew[,r]),] %*% sam$Lambda[[r]]
+    } else{
+      LRan[[r]] = matrix(0,object$ny,object$ns)
+      for(k in 1:rL[[r]]$xDim)
+        LRan[[r]] = LRan[[r]] + (Eta[[r]][as.character(dfPiNew[,r]),]*rL[[r]]$x[as.character(dfPiNew[,r]),k]) %*% sam$Lambda[[r]][,,k]
+    }
+  }
+  if(object$nr > 0){L = LFix + Reduce("+", LRan)} else L = LFix
+
+
+  ## predict can be slow with Yc and especially with high mcmcStep
+  if(!is.null(Yc) && any(!is.na(Yc))){
+    Z = L
+    iD = (!is.na(Yc)) * matrix(sam$sigma^-1,nrow(Yc),ncol(Yc),byrow=TRUE)
+    tmpResList = updateZ(Y=Yc, Z=Z, Beta=sam$Beta, iSigma=1/sam$sigma, Eta=Eta,
+                         Lambda=sam$Lambda, X=X, Pi=PiNew, dfPi=dfPiNew,
+                         distr=object$distr, rL=rL)
+    Z = tmpResList$Z; iD = tmpResList$iD
+    ## species CV from computePredictedValues runs this innermost
+    ## loop nfolds * nfolds.sp * predN * mcmcStep times
+    for(sN in seq_len(mcmcStep)){
+      Eta = updateEta(Y=Yc, Z=Z, Beta=sam$Beta, iD=iD,
+                      Eta=Eta, Lambda=sam$Lambda, Alpha=sam$Alpha,
+                      rLPar=rLPar, X=X, Pi=PiNew, dfPi=dfPiNew, rL=rL)
+      tmpResList = updateZ(Y=Yc, Z=Z, Beta=sam$Beta, iSigma=1/sam$sigma, Eta=Eta,
+                           Lambda=sam$Lambda, X=X, Pi=PiNew, dfPi=dfPiNew,
+                           distr=object$distr, rL=rL)
+      Z = tmpResList$Z; iD = tmpResList$iD
+    }
+    for(r in seq_len(object$nr)){
+      if(rL[[r]]$xDim == 0){
+        LRan[[r]] = Eta[[r]][as.character(dfPiNew[,r]),] %*%
+          sam$Lambda[[r]]
+      } else{
+        LRan[[r]] = matrix(0,object$ny,object$ns)
+        for(k in 1:rL[[r]]$xDim)
+          LRan[[r]] = LRan[[r]] +
+            (Eta[[r]][as.character(dfPiNew[,r]),] *
+               rL[[r]]$x[as.character(dfPiNew[,r]),k]) %*%
+            sam$Lambda[[r]][,,k]
+      }
+    }
+    if(object$nr > 0){L = LFix + Reduce("+", LRan)} else L = LFix
+  }
+  if(!expected){
+    Z = L + matrix(sqrt(sam$sigma),nrow(L),object$ns,byrow=TRUE) * matrix(rnorm(nrow(L)*object$ns),nrow(L),object$ns)
+  } else{
+    Z = L
+  }
+  for(j in 1:object$ns){
+    if(object$distr[j,"family"] == 2){ # probit
+      if(expected){
+        Z[,j] = pnorm(Z[,j])
+      } else{
+        Z[,j] = as.numeric(Z[,j]>0)
+      }
+    }
+    if(object$distr[j,"family"] == 3){ # poisson
+      if(expected){
+        Z[,j] = exp(Z[,j] + sam$sigma[j]/2)
+      } else{
+        Z[,j] = rpois(nrow(Z),exp(Z[,j]))
+      }
+    }
+  }
+  colnames(Z) = object$spNames
+
+  for(i in 1:object$ns){
+    m = object$YScalePar[1,i]
+    s = object$YScalePar[2,i]
+    if(m!=0 || s!=1){
+      Z[,i] = Z[,i]*s + m
+    }
+  }
+  return(Z)
+}

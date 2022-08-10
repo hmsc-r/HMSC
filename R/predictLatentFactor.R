@@ -98,9 +98,8 @@ predictLatentFactor =
                                            seq_len(dim))))
                   }
                } else {
-                  ## s1, s2 are UNDEFINED: this will FAIL
-                  D11 = rL$distMat[s1,s1]
-                  D12 = rL$distMat[s1,s2]
+                  D11 = rL$distMat[units, units, drop=FALSE]
+                  D12 = rL$distMat[units, unitsPred[indNew], drop=FALSE]
                }
                for(h in 1:nf){
                   if(alphapw[alpha[h],1] > 0){
@@ -143,8 +142,11 @@ predictLatentFactor =
                         K22 = K[np+(1:nn),np+(1:nn)]
                         m = crossprod(K12, solve(K11, eta[,h]))
                         W = K22 - crossprod(K12, solve(K11, K12))
-                        L = t(chol(W))
-                        etaPred[indNew,h] = m + L%*%rnorm(nn)
+                        L = try(t(chol(W)))
+                        if (inherits(L, "try-error")) # assume sd is zero
+                            etaPred[indNew,h] <- m
+                        else
+                            etaPred[indNew,h] = m + L%*%rnorm(nn)
                      } else{
                         etaPred[indNew,h] = rnorm(nn)
                      }
