@@ -15,15 +15,14 @@
 #' @return An \code{\link{Hmsc}} model with chains of posterior
 #'     samples.
 #' @examples
-#' ## Fitted model with two chains
-#' TD$m
-#' ## New chains: check carefully that these are sampled exactly like
-#' ## the previous model
-#' m2 <- sampleMcmc(TD$m, nChains=1, samples=100, thin=1, transient=50,
-#'     verbose=0)
-#' ## Now three chains
-#' mnew <- c(TD$m, m2)
-#' mnew
+#' ## Fit a toy model with two chains
+#' m1 <- sampleMcmc(TD$m, samples=10, transient=5, nChains=2, verbose=0)
+#' ## Need more data? Add chains: check carefully that these are
+#' ## sampled exactly like the previous model
+#' m2 <- sampleMcmc(TD$m, nChains=2, samples=10, transient=5, verbose=0)
+#' ## Now four chains
+#' m4 <- c(m1, m2)
+#' m4
 #'
 #' @export
 `c.Hmsc` <-
