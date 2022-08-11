@@ -18,7 +18,7 @@ Version 3.0-13
   but other platforms can profit from the use of fork clusters which
   may have lower memory use and are faster to set up, and also may be
   marginally faster. The choice can be made with new argument
-  `useSocket` which is `TRUE` in Windows.
+  `useSocket` (defaults `TRUE`).
 
 * Updaters in `sampleMcmc` can occasionally fail in extreme `Hmsc`
   models. This is no longer an error that stops analysis, but sampling
