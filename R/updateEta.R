@@ -59,7 +59,7 @@ updateEta = function(Z,Beta,iD,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
             PiDSLambda[q,] = colSums(tcrossprod(iDS[rows,,drop=FALSE], lambda))
          } else{
             ncr = rL[[r]]$xDim
-            lambdaLocal = rowSums(lambda * array(unlist(rep(rL[[r]]$x[unLdfPi[q],],each=nf*ns)), c(nf,ns,ncr)), dims=2)
+            lambdaLocal = rowSums(lambda * array(unlist(rep(rL[[r]]$x[ldfPi[rows[1]],],each=nf*ns)), c(nf,ns,ncr)), dims=2)
             for(p in seq_len(length(rows)))
                LamiDLam[q,,] = LamiDLam[q,,] + tcrossprod(lambdaLocal*matrix(sqrt(iD[rows[p],]),nf,ns,byrow=TRUE))
             PiDSLambda[q,] = colSums(tcrossprod(iDS[rows,,drop=FALSE], lambdaLocal))
@@ -113,15 +113,14 @@ updateEta = function(Z,Beta,iD,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                idD1W12[(h-1)*np[r]+(1:np[r]), (h-1)*nK+(1:nK)] = idDW12g[,,alpha[h]]
             }
 
-            iAst = LiAst = array(NA,c(np[r],nf,nf))
+            iAst = RAst = array(NA,c(np[r],nf,nf))
             for(i in 1:np[r]){
-               Ael = cholLamiDLam[i,,]+diag(idD[i,])
-               RAel = chol(Ael)
-               iAst[i,,] = chol2inv(RAel)
-               LiAst[i,,] = t(chol(iAst[i,,]))
+               Ael = LamiDLam[i,,]+diag(idD[i,])
+               RAst[i,,] = chol(Ael)
+               iAst[i,,] = chol2inv(RAst[i,,])
             }
-            iA = bandMatrix(B)
-            LiA = bandMatrix(LB)
+            iA = bandMatrix(iAst)
+            RA = bandMatrix(RAst)
             iAidD1W12 = iA %*% idD1W12
             H = Fmat - t(idD1W12)%*%iAidD1W12
             RH = chol(as.matrix(H))
@@ -131,7 +130,7 @@ updateEta = function(Z,Beta,iD,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
             tmp1 = iAidD1W12 %*% iRH
             mu2 = tmp1%*%(Matrix::t(tmp1)%*%as.vector(PiDSLambda))
 
-            etaR = LiA%*%rnorm(np[r]*nf) + tmp1%*%rnorm(nK*nf)
+            etaR = solve(RA, rnorm(np[r]*nf)) + tmp1%*%rnorm(nK*nf)
             eta = matrix(mu1+mu2+etaR,ncol=nf,nrow=np[r])
          }
       }
