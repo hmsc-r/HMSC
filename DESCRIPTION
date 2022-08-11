@@ -1,12 +1,13 @@
 Package: Hmsc
 Title: Hierarchical Model of Species Communities
 Type: Package
-Version: 3.0-12
+Version: 3.0-13
 Authors@R: c(person(given = "Gleb", family="Tikhonov", role="aut"),
    person(given="Otso", family="Ovaskainen",
       email="otso.ovaskainen@helsinki.fi",
-      comment = c(ORCID="0000-0001-9750-4421"), role=c("aut","cre")),
-   person(given="Jari", family="Oksanen", role="aut"),
+      comment = c(ORCID="0000-0001-9750-4421"), role=c("aut", "cre")),
+   person(given="Jari", family="Oksanen", role=c("aut"),
+   email="jhoksane@gmail.com"),
    person(given="Melinda", family=c("de", "Jonge"), role="aut"),
    person(given="Oystein", family="Opedal", role="aut"),
    person(given="Tad", family="Dallas", role="aut"))
@@ -16,11 +17,11 @@ Description: Hierarchical Modelling of Species Communities (HMSC) is
    Markov chain Monte Carlo (MCMC) sampling (Tikhonov et al. (2020)
    <doi:10.1111/2041-210X.13345>).
 License: GPL-3 | file LICENSE
-URL: https://www.helsinki.fi/en/researchgroups/statistical-ecology/hmsc
+URL: https://www.helsinki.fi/en/researchgroups/statistical-ecology/software/hmsc
 BugReports: https://github.com/hmsc-r/HMSC/issues/
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 Suggests: R.rsp,
    testthat,
    corrplot

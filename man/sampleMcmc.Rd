@@ -14,7 +14,7 @@ sampleMcmc(
   adaptNf = rep(transient, hM$nr),
   nChains = 1,
   nParallel = 1,
-  useSocket = .Platform$OS.type == "windows",
+  useSocket = TRUE,
   dataParList = NULL,
   updater = list(),
   fromPrior = FALSE,

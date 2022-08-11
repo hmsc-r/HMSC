@@ -1,6 +1,6 @@
 
-R version 4.1.2 (2021-11-01) -- "Bird Hippie"
-Copyright (C) 2021 The R Foundation for Statistical Computing
+R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid"
+Copyright (C) 2022 The R Foundation for Statistical Computing
 Platform: aarch64-apple-darwin20 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -129,20 +129,22 @@ Loading required package: coda
 > 
 > ### ** Examples
 > 
-> ## Fitted model with two chains
-> TD$m
-Hmsc object with 50 sampling units, 4 species, 3 covariates, 3 traits and 2 random levels
-Posterior MCMC sampling with 2 chains each with 100 samples, thin 1 and transient 50 
-> ## New chains: check carefully that these are sampled exactly like
-> ## the previous model
-> m2 <- sampleMcmc(TD$m, nChains=1, samples=100, thin=1, transient=50,
-+     verbose=0)
+> ## Fit a toy model with two chains
+> m1 <- sampleMcmc(TD$m, samples=10, transient=5, nChains=2, verbose=0)
 setting updater$Gamma2=FALSE due to specified phylogeny matrix
-> ## Now three chains
-> mnew <- c(TD$m, m2)
-> mnew
+Computing chain 1
+Computing chain 2
+> ## Need more data? Add chains: check carefully that these are
+> ## sampled exactly like the previous model
+> m2 <- sampleMcmc(TD$m, nChains=2, samples=10, transient=5, verbose=0)
+setting updater$Gamma2=FALSE due to specified phylogeny matrix
+Computing chain 1
+Computing chain 2
+> ## Now four chains
+> m4 <- c(m1, m2)
+> m4
 Hmsc object with 50 sampling units, 4 species, 3 covariates, 3 traits and 2 random levels
-Posterior MCMC sampling with 3 chains each with 100 samples, thin 1 and transient 50 
+Posterior MCMC sampling with 4 chains each with 10 samples, thin 1 and transient 5 
 > 
 > 
 > 
@@ -173,7 +175,7 @@ Posterior MCMC sampling with 3 chains each with 100 samples, thin 1 and transien
 > 
 > ### Name: computePredictedValues
 > ### Title: computePredictedValues
-> ### Aliases: computePredictedValues
+> ### Aliases: computePredictedValues pcomputePredictedValues
 > 
 > ### ** Examples
 > 
@@ -549,7 +551,7 @@ Chain 1, iteration 10 of 10 (sampling)
 > cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  4.28 0.087 4.392 0.001 0.001 
+Time elapsed:  2.824 0.061 2.9 0.004 0.007 
 > grDevices::dev.off()
 null device 
           1 

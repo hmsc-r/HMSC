@@ -76,7 +76,7 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
                         Gradient=NULL, Yc=NULL, mcmcStep=1, expected=FALSE,
                         predictEtaMean=FALSE, predictEtaMeanField=FALSE,
                         nParallel = 1,
-                        useSocket = .Platform$OS.type == "windows", ...)
+                        useSocket = TRUE, ...)
 {
    ## check valid nParallel
    nParallel <- min(nParallel, detectCores())

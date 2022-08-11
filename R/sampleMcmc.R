@@ -81,7 +81,7 @@ sampleMcmc =
     function(hM, samples, transient=0, thin=1, initPar=NULL,
              verbose, adaptNf=rep(transient,hM$nr),
              nChains=1, nParallel=1,
-             useSocket = .Platform$OS.type == "windows",
+             useSocket = TRUE,
              dataParList=NULL, updater=list(),
              fromPrior = FALSE, alignPost = TRUE)
 {

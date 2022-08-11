@@ -1,4 +1,4 @@
-Version 3.0-12 (not released, only in github)
+Version 3.0-13
 ==============
 
 ### New Features
@@ -18,7 +18,7 @@ Version 3.0-12 (not released, only in github)
   but other platforms can profit from the use of fork clusters which
   may have lower memory use and are faster to set up, and also may be
   marginally faster. The choice can be made with new argument
-  `useSocket` which `TRUE` in Windows.
+  `useSocket` (defaults `TRUE`).
 
 * Updaters in `sampleMcmc` can occasionally fail in extreme `Hmsc`
   models. This is no longer an error that stops analysis, but sampling
@@ -27,7 +27,7 @@ Version 3.0-12 (not released, only in github)
   of failures, the sampling is safe to use. If there are updater
   errors only in some chains, these chains can be removed, but other
   chains can be used. See
-  [issue #123](https://github.com/hmsc-r/HMCS/issue/123).
+  [issue #123](https://github.com/hmsc-r/HMSC/issues/123).
 
 * New experimental function `pcomputePredictedValues` with more
   aggressive parallelization than `computePredictedValues`. In old
@@ -46,8 +46,8 @@ Version 3.0-12 (not released, only in github)
   instead of spatial coordinates.
 
 * `constructGradient` provides wider choice of coordinates for
-  centroid, including user-set and infinite (meaning no spatial
-  dependence) coordinates.
+  centroid of `new_unit`, including user-set and infinite (meaning no
+  spatial dependence) coordinates.
 
 * Detect cases when user tries to analyse posterior samples of
   non-sampled `Hmsc` object to avoid confusing error messages such as
@@ -85,7 +85,7 @@ Version 3.0-12 (not released, only in github)
   `X` instead of model frame `XData` and model formula
   `XFormula`. Concerns functions `biPlot`,
   `computeVariancePartitioning` and `constructGradient`. Fixes
-  [issue #126](https://github.com/dshmsc-r/HMSC/issues/126).
+  [issue #126](https://github.com/hmsc-r/HMSC/issues/126).
 
 * `biPlot` has improved handling of colour scaling of continuous
   variables.

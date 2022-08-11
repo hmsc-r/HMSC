@@ -20,7 +20,7 @@
   predictEtaMean = FALSE,
   predictEtaMeanField = FALSE,
   nParallel = 1,
-  useSocket = .Platform$OS.type == "windows",
+  useSocket = TRUE,
   ...
 )
 }
