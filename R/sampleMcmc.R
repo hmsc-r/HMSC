@@ -267,11 +267,11 @@ sampleMcmc =
       }
 
       postList = vector("list", samples)
-      failed <- numeric(14) # counts of failed try(update*())s
+      failed <- numeric(15) # counts of failed try(update*())s
       names(failed) <- c("Gamma2", "GammaEta", "BetaLambda", "wRRR",
                          "BetaSel", "GammaV", "Rho", "LambdaPriors",
                          "wRRRPriors", "Eta", "Alpha",
-                         "invSigma", "Nf", "LatentLoadingOrder")
+                         "invSigma", "Z", "Nf", "LatentLoadingOrder")
       for(iter in seq_len(transient+samples*thin)){
 
          if(!identical(updater$Gamma2, FALSE)) {
@@ -280,7 +280,7 @@ sampleMcmc =
                mGamma=mGamma,iUGamma=iUGamma), silent = TRUE)
             if (!inherits(out, "try-error")) {
                 Gamma <- out
-            } else {
+            } else if (iter > transient) {
                 failed["Gamma2"] <- failed["Gamma2"] + 1
             }
          }
@@ -291,7 +291,7 @@ sampleMcmc =
             if (!inherits(GammaEtaList, "try-error")) {
                 Gamma = GammaEtaList$Gamma
                 Eta = GammaEtaList$Eta
-            } else {
+            } else if (iter > transient) {
                 failed["GammaEta"] <- failed["GammaEta"] + 1
             }
          }
@@ -303,7 +303,7 @@ sampleMcmc =
             if (!inherits(BetaLambdaList, "try-error")) {
                 Beta = BetaLambdaList$Beta
                 Lambda = BetaLambdaList$Lambda
-            } else {
+            } else if (iter > transient) {
                 failed["BetaLambda"] <- failed["BetaLambda"] + 1
             }
          }
@@ -315,7 +315,7 @@ sampleMcmc =
             if (!inherits(wRRRXList, "try-error")) {
                 wRRR = wRRRXList$wRRR
                 X = wRRRXList$X
-            } else {
+            } else if (iter > transient) {
                 failed["wRRR"] <- failed["wRRR"] + 1
             }
          }
@@ -326,7 +326,7 @@ sampleMcmc =
             if (!inherits(BetaSelXList, "try-error")) {
                 BetaSel = BetaSelXList$BetaSel
                 X = BetaSelXList$X
-            } else {
+            } else if (iter > transient) {
                 failed["BetaSel"] <- failed["BetaSel"] + 1
             }
          }
@@ -337,7 +337,7 @@ sampleMcmc =
             if (!inherits(GammaVList, "try-error")) {
                 Gamma = GammaVList$Gamma
                 iV = GammaVList$iV
-            } else {
+            } else if (iter > transient) {
                 failed["GammaV"] <- failed["GammaV"] + 1
             }
          }
@@ -347,7 +347,7 @@ sampleMcmc =
                                 detQg=detQg, Tr=Tr, rhopw=rhopw), silent = TRUE)
             if (!inherits(out, "try-error"))
                 rho <- out
-            else
+            else if (iter > transient)
                 failed["Rho"] <- failed["Rho"] + 1
          }
 
@@ -357,7 +357,7 @@ sampleMcmc =
             if (!inherits(PsiDeltaList, "try-error")) {
                 Psi = PsiDeltaList$Psi
                 Delta = PsiDeltaList$Delta
-            } else {
+            } else  if (iter > transient) {
                 failed["LambdaPriors"] <- failed["LambdaPriors"] + 1
             }
          }
@@ -369,7 +369,7 @@ sampleMcmc =
             if (!inherits(PsiDeltaList, "try-error")) {
                 PsiRRR = PsiDeltaList$Psi
                 DeltaRRR = PsiDeltaList$Delta
-            } else {
+            } else if (iter > transient) {
                 failed["wRRRPriors"] <- failed["wRRRPriors"] + 1
             }
          }
@@ -380,14 +380,14 @@ sampleMcmc =
                                 Pi=Pi,dfPi=dfPi,rL=hM$rL), silent = TRUE)
             if (!inherits(out, "try-error"))
                 Eta <- out
-            else
+            else if (iter > transient)
                 failed["Eta"] <- failed["Eta"] + 1
 
          if(!identical(updater$Alpha, FALSE))
             out = try(updateAlpha(Eta=Eta, rLPar=rLPar, rL=hM$rL), silent = TRUE)
             if (!inherits(out, "try-error"))
                 Alpha <- out
-            else
+            else if (iter > transient)
                 failed["Alpha"] <- failed["Alpha"] + 1
 
          if(!identical(updater$InvSigma, FALSE))
@@ -397,11 +397,17 @@ sampleMcmc =
                                     bSigma=bSigma), silent = TRUE)
             if (!inherits(out, "try-error"))
                 iSigma <- out
-            else
+            else if (iter > transient)
                 failed["invSigma"] <- failed["invSigma"] + 1
 
-         if(!identical(updater$Z, FALSE)){
-            Z = updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,distr=distr,rL=hM$rL)
+         if(!identical(updater$Z, FALSE)) {
+             out = try(updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
+                               Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,distr=distr,
+                               rL=hM$rL))
+             if (!inherits(out, "try-error"))
+                 Z = out
+             else if (iter > transient)
+                 failed["Z"] <- failed["Z"] + 1
          }
 
          for(r in seq_len(nr)){
@@ -414,7 +420,7 @@ sampleMcmc =
                    Alpha[[r]] = listPar$alpha
                    Psi[[r]] = listPar$psi
                    Delta[[r]] = listPar$delta
-               } else {
+               } else if (iter > transient) {
                    failed["Nf"] <- failed["Nf"] + 1
                }
             }
@@ -428,7 +434,7 @@ sampleMcmc =
                    Eta[[r]] = listPar$eta
                    Alpha[[r]] = listPar$alpha
                    Delta[[r]] = listPar$delta
-               } else {
+               } else if (iter > transient) {
                    failed["LatentLoadingOrder"] + failed["LatentLoadingOrder"] + 1
                }
             }
@@ -436,7 +442,7 @@ sampleMcmc =
             if (!inherits(PsiDeltaList, "try-error")) {
                 Psi = PsiDeltaList$Psi
                 Delta = PsiDeltaList$Delta
-            } else {
+            } else if (iter > transient) {
                 failed["PsiDelta"] <- failed["PsiDelta"] + 1
             }
          }
@@ -500,10 +506,10 @@ sampleMcmc =
    }
    ## warn on failed updaters
    for(chain in seq_len(nChains)) {
-       ntries <- transient + samples * thin
+       ntries <- samples * thin
        if (any(hM$postList[[chain]]$failedUpdates > 0)) {
-           cat("Failed updaters and their counts in chain", chain,
-               " (", ntries, " attempts):\n")
+           cat("Failed updaters and their counts in chain ", chain,
+               " (", ntries, " sampling iterations):\n", sep="")
            failures <- hM$postList[[chain]]$failedUpdates
            failures <- failures[failures > 0]
            print(failures)

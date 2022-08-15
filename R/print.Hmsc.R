@@ -19,8 +19,8 @@ print.Hmsc = function(x, ...)
             rownames(fails) <- paste0("Chain ",
                                       as.character(seq_len(nrow(fails))), ":")
             fails <- fails[rowSums(fails) > 0, colSums(fails) > 0, drop = FALSE]
-            cat("Updater failures in following chains with ",
-                x$samples * x$thin + x$transient, " attemps in each chain:\n")
+            cat("Updater failures in following chains with",
+                x$samples * x$thin, "sampling iterations in each chain:\n")
             print(fails)
         }
     } else {
