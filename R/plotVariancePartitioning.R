@@ -27,7 +27,7 @@ plotVariancePartitioning =
       cols = heat.colors(ng, alpha = 1)
    }
    leg = VP$groupnames
-   for (r in 1:hM$nr) {
+   for (r in seq_len(hM$nr)) {
       leg = c(leg, paste("Random: ", hM$rLNames[r], sep = ""))
    }
    means = round(100 * rowMeans(VP$vals), 1)
