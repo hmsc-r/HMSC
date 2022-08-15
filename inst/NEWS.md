@@ -1,3 +1,16 @@
+Version 3.0-14 (development version in github)
+===============
+
+### New Features
+
+* Failed updaters are only recorded during sampling. Failed updates
+  can be detected in more cases (`V`, `Z`).
+
+### Bug Fixes
+
+* Legend for `plotVariancePartitioning` had two entries for `Random`
+  when there were no random levels.
+
 Version 3.0-13
 ==============
 
