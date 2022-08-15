@@ -267,11 +267,11 @@ sampleMcmc =
       }
 
       postList = vector("list", samples)
-      failed <- numeric(14) # counts of failed try(update*())s
+      failed <- numeric(15) # counts of failed try(update*())s
       names(failed) <- c("Gamma2", "GammaEta", "BetaLambda", "wRRR",
                          "BetaSel", "GammaV", "Rho", "LambdaPriors",
                          "wRRRPriors", "Eta", "Alpha",
-                         "invSigma", "Nf", "LatentLoadingOrder")
+                         "invSigma", "Z", "Nf", "LatentLoadingOrder")
       for(iter in seq_len(transient+samples*thin)){
 
          if(!identical(updater$Gamma2, FALSE)) {
@@ -400,8 +400,14 @@ sampleMcmc =
             else
                 failed["invSigma"] <- failed["invSigma"] + 1
 
-         if(!identical(updater$Z, FALSE)){
-            Z = updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,distr=distr,rL=hM$rL)
+         if(!identical(updater$Z, FALSE)) {
+             out = try(updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
+                               Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,distr=distr,
+                               rL=hM$rL))
+             if (!inherits(out, "try-error"))
+                 Z = out
+             else
+                 failed["Z"] <- failed["Z"] + 1
          }
 
          for(r in seq_len(nr)){
