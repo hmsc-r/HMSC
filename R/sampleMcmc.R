@@ -266,7 +266,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
 
          #TODO Zconditioning - DONE
          if(!identical(updater$Gamma2, FALSE)) {
-            out = try(updateGamma2(Z=Z,Gamma=Gamma,iV=iV,rho=rho,iD=iD,
+            out = try(updateGamma2(Z=Z,iV=iV,rho=rho,iD=iD,
                                    Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,C=C,rL=hM$rL, iQ=iQg[,,rho],
                                    mGamma=mGamma,iUGamma=iUGamma), silent = TRUE)
             if (!inherits(out, "try-error")) {
@@ -291,7 +291,6 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
 
          #TODO Zconditioning - DONE
          if(!identical(updater$BetaLambda, FALSE)){
-
             BetaLambdaList = try(updateBetaLambda(Z=Z,Gamma=Gamma,iV=iV,iD=iD,Eta=Eta,Psi=Psi,Delta=Delta, iQ=iQg[,,rho],
                                                   X=X,Tr=Tr,Pi=Pi,dfPi=dfPi,C=C,rL=hM$rL), silent = TRUE)
             if (!inherits(BetaLambdaList, "try-error")) {

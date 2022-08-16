@@ -1,6 +1,6 @@
 #' @importFrom stats rnorm
 #'
-updateGamma2 = function(Z,Gamma,iV,rho,iD,Eta,Lambda, X,Pi,dfPi,Tr,C,rL, iQ, mGamma,iUGamma){
+updateGamma2 = function(Z,iV,rho,iD,Eta,Lambda, X,Pi,dfPi,Tr,C,rL, iQ, mGamma,iUGamma){
    ns = ncol(Z)
    ny = nrow(Z)
    nc = nrow(iV)
@@ -45,8 +45,6 @@ updateGamma2 = function(Z,Gamma,iV,rho,iD,Eta,Lambda, X,Pi,dfPi,Tr,C,rL, iQ, mGa
       iSigmaG = iUGamma + tmp1
       mG0 = as.vector(iUGamma%*%mGamma) + as.vector(XtiDS%*%Tr - XtiDXiBXtiDS%*%Tr)
       RiSigmaG = chol(iSigmaG)
-      mG1 = backsolve(RiSigmaG, mG0, transpose=TRUE)
-      Gamma = matrix(backsolve(RiSigmaG,mG1+rnorm(nc*nt)),nc,nt)
    } else{
       XtiDXbd = bdiag(lapply(split(XtiDX, rep(1:ns,nc^2)), matrix, nrow=nc))
       W = kronecker(iQ,iV) + XtiDXbd
@@ -61,10 +59,12 @@ updateGamma2 = function(Z,Gamma,iV,rho,iD,Eta,Lambda, X,Pi,dfPi,Tr,C,rL, iQ, mGa
       XtiDST = XtiDS %*% Tr
       iWXtiDS = solve(RW, solve(t(RW), as.vector(XtiDS)))
       TtkXt_iD_IkX_iWXtiDS = kronecker(t(Tr),Diagonal(nc)) %*% (XtiDXbd %*% iWXtiDS)
-      mG0 = as.vector(iUGamma%*%mGamma) + as.vector(XtiDST) - TtkXt_iD_IkX_iWXtiDS
-      mG1 = backsolve(RiSigmaG, mG0, transpose=TRUE)
-      Gamma = matrix(backsolve(RiSigmaG,mG1+rnorm(nc*nt)),nc,nt)
+      mG0 = as.vector(iUGamma%*%mGamma) + as.vector(XtiDST) - as.vector(TtkXt_iD_IkX_iWXtiDS)
    }
+   # print(mG0)
+   # print(Matrix::image(Matrix::Matrix(iSigmaG)))
+   mG1 = backsolve(RiSigmaG, mG0, transpose=TRUE)
+   Gamma = matrix(backsolve(RiSigmaG,mG1+rnorm(nc*nt)),nc,nt)
    return(Gamma)
 }
 

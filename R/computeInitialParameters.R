@@ -248,13 +248,18 @@ computeInitialParameters = function(hM, initPar){
             LRan[[r]] = LRan[[r]] + (Eta[[r]][hM$Pi[,r],,drop=FALSE]*hM$rL[[r]]$x[as.character(hM$dfPi[,r]),r]) %*% Lambda[[r]][,,k]
       }
    }
-   if(hM$nr > 0){
-      Z = LFix + Reduce("+", LRan)
-   } else
-      Z = LFix
 
-   resList = updateZ(Y=hM$YScaled,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=XScaled,Pi=hM$Pi,dfPi=hM$dfPi,distr=hM$distr,rL=hM$rL)
-   Z = resList$Z; iD = resList$iD
+   if(!is.null(initPar$rho)){
+      Z = initPar$Z
+      iD = matrix(sigma^-1,nrow(Z),ncol(Z),byrow=TRUE) * (!is.na(hM$YScaled))
+   } else{
+      if(hM$nr > 0){
+         Z = LFix + Reduce("+", LRan)
+      } else
+         Z = LFix
+      resList = updateZ(Y=hM$YScaled,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=XScaled,Pi=hM$Pi,dfPi=hM$dfPi,distr=hM$distr,rL=hM$rL)
+      Z = resList$Z; iD = resList$iD
+   }
 
    parList$Gamma = Gamma
    parList$V = V
