@@ -180,13 +180,18 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
       rowNames = rownames(predPostEta[[r]][[1]])
       PiNew[,r] = sapply(dfPiNew[,r], function(s) which(rowNames==s))
    }
-   ## simplify2array(predPostEta)[pN,][[nr]] == predPostEta[[nr]][[pN]]
-   ppEta <- simplify2array(predPostEta)
+   if(object$nr > 0){
+     ppEta <- simplify2array(predPostEta)
+   } else{
+     ppEta <- matrix(list(),predN,0)
+   }
    if (nParallel == 1) {  # non-Parallel
-       pred <- lapply(seq_len(predN), function(pN, ...)
-           get1prediction(object, X, XRRR, Yc, rL, rLPar, post[[pN]],
-                          ppEta[pN,], PiNew, dfPiNew, nyNew, expected,
-                          mcmcStep))
+       pred <- lapply(seq_len(predN), function(pN, ...){
+         # print(ppEta[pN,])
+         get1prediction(object, X, XRRR, Yc, rL, rLPar, post[[pN]],
+                        ppEta[pN,], PiNew, dfPiNew, nyNew, expected,
+                        mcmcStep)})
+
    } else if (useSocket) { # socket cluster (Windows, mac, Linux)
        seed <- sample.int(.Machine$integer.max, predN)
        cl <- makeCluster(nParallel)

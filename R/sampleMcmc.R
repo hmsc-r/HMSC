@@ -82,7 +82,7 @@ sampleMcmc =
              verbose, adaptNf=rep(transient,hM$nr),
              nChains=1, nParallel=1,
              useSocket = TRUE,
-             dataParList=NULL, updater=list(),
+             dataParList=NULL, updater=list(GammaEta=FALSE),
              fromPrior = FALSE, alignPost = TRUE)
 {
    ## use socket cluster if requested or in Windows

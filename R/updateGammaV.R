@@ -19,10 +19,6 @@ updateGammaV = function(Beta,Gamma,iV,rho, Tr,C, iQg,RQg, mGamma,iUGamma,V0,f0){
    A = E %*% tcrossprod(iQ, E)
    Vn = chol2inv(chol(A+V0))
    iV = rwish(f0+ns, Vn)
-   ## In rare and obscure cases iV may not be invertible to V and this
-   ## causes an error in combineParameters. Useless Cholesky
-   ## decomposition here to rather trigger an error that we can catch.
-   tmp <- chol(iV)
 
    # tmp = crossprod(Tr, iQ)
    # R = chol(iUGamma + kronecker(iV, tmp %*% Tr))
