@@ -181,13 +181,23 @@
       if(updaterWarningFlag)
          message("setting updater$Gamma2=FALSE due to non-kronecker structure of UGamma matrix")
    }
-   if(!identical(updater$Gamma2, FALSE) && (!is.null(C))){
-      updater$Gamma2 = FALSE
-      if(updaterWarningFlag)
-         message("setting updater$Gamma2=FALSE due to specified phylogeny matrix")
-   }
-   # updater$GammaEta
-   if(!identical(updater$GammaEta, FALSE) && any(abs(mGamma) > EPS)){
+    if(!identical(updater$Gamma2, FALSE) && (!is.null(hM$C))){
+        updater$Gamma2 = FALSE
+        if(updaterWarningFlag)
+            message("setting updater$Gamma2=FALSE due to specified phylogeny matrix")
+    }
+    if(!identical(updater$Gamma2, FALSE) && (!is.matrix(hM$X))){
+        updater$Gamma2 = FALSE
+        if(updaterWarningFlag)
+            message("setting updater$Gamma2=FALSE due to X is not a matrix")
+    }
+    ## updater$GammaEta
+    if(!identical(updater$GammaEta, FALSE) && (!is.matrix(hM$X))){
+        updater$GammaEta = FALSE
+        if(updaterWarningFlag)
+            message("setting updater$GammaEta=FALSE due to X is not a matrix")
+    }
+   if(!identical(updater$GammaEta, FALSE) && any(abs(hM$mGamma) > EPS)){
       updater$GammaEta = FALSE
       if(updaterWarningFlag)
          message("setting updater$GammaEta=FALSE due to non-zero mGamma")
@@ -314,17 +324,6 @@
                     X[[j]] = cbind(X[[j]],XB)
                 }
             }
-        }
-
-        if(!identical(updater$Gamma2, FALSE) && (!is.matrix(X))){
-            updater$Gamma2 = FALSE
-            if(updaterWarningFlag)
-                message("setting updater$Gamma2=FALSE due to X is not a matrix")
-        }
-        if(!identical(updater$GammaEta, FALSE) && (!is.matrix(X))){
-            updater$GammaEta = FALSE
-            if(updaterWarningFlag)
-                message("setting updater$GammaEta=FALSE due to X is not a matrix")
         }
 
         postList = vector("list", samples)
