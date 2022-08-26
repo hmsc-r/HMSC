@@ -158,6 +158,8 @@
       }
    }
 
+    if (is.null(dataParList))
+        dataParList <- computeDataParameters(hM)
 
    hM$postList = vector("list", nChains)
    hM$repList = vector("list", nChains)
