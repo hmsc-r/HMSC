@@ -119,9 +119,9 @@
     hM
 }
 
-`prepareSampling` <-
+`prepareSamplingObject` <-
     function(hM, samples, transient, thin, initPar, verbose, adaptNf, nChains,
-             nParallel, useSocket, dataParList, updater, fromPrior, alignpost)
+             nParallel, useSocket, dataParList, updater, alignPost)
 {
    ## use socket cluster if requested or in Windows
    if (nParallel > 1 && .Platform$OS.type == "windows" && !useSocket) {
@@ -158,39 +158,17 @@
       }
    }
 
-   Tr = hM$TrScaled
-   Y = hM$YScaled
-   distr = hM$distr
-   Pi = hM$Pi
-   dfPi = hM$dfPi
-   C = hM$C
-   nr = hM$nr
-
-   mGamma = hM$mGamma
-   iUGamma = chol2inv(chol(hM$UGamma))
-   V0 = hM$V0
-   f0 = hM$f0
-   aSigma = hM$aSigma
-   bSigma = hM$bSigma
-   rhopw = hM$rhopw
-
-   if(is.null(dataParList))
-      dataParList = computeDataParameters(hM)
-   Qg = dataParList$Qg
-   iQg = dataParList$iQg
-   RQg = dataParList$RQg
-   detQg = dataParList$detQg
-   rLPar = dataParList$rLPar
 
    hM$postList = vector("list", nChains)
    hM$repList = vector("list", nChains)
 
    ######## switching of the augmented updaters if the required
    ######## conditions are not met
-   EPS = 100 * sqrt(.Machine$double.eps) # was 1e-6: this is about equal
-   updaterWarningFlag = TRUE
+    EPS = 100 * sqrt(.Machine$double.eps) # was 1e-6: this is about equal
+    updaterWarningFlag = TRUE
+    iUGamma = chol2inv(chol(hM$UGamma))
    ## updater$Gamma2
-   if(!identical(updater$Gamma2, FALSE) && any(abs(mGamma) > EPS)){
+   if(!identical(updater$Gamma2, FALSE) && any(abs(hM$mGamma) > EPS)){
       updater$Gamma2 = FALSE
       if(updaterWarningFlag)
          message("setting updater$Gamma2=FALSE due to non-zero mGamma")
@@ -235,20 +213,27 @@
       if(FALSE && updaterWarningFlag) # do not advertise yet
          message("setting updater$latentLoadingOrderSwap=0 disabling full-conditional swapping of consecutive latent loadings")
    }
+    obj <- list(hM = hM, samples = samples, transient = transient,
+                nChains = nChains, verbsoe = verbose, nParallel = nParallel,
+                useSocket = useSocket, initPar = initPar,
+                dataParList = dataParList, X1 = X1, Rupdater = updater,
+                adaptNf = adaptNf, alignPost = alignPost)
+    obj
 }
 
 `RSampler` <-
     function(obj)
 {
+    hM <- obj$hM
     ## save random seed that is used to generate initSeed[s]
     if (!exists(".Random.seed")) # may not exist, so generate
         runif(1)
     hM$randSeed <- .Random.seed
-    initSeed = sample.int(.Machine$integer.max, nChains)
+    initSeed = sample.int(.Machine$integer.max, obj$nChains)
 
     if (obj$nParallel > 1) {
         if (obj$useSocket) {
-            cl = makeCluster(nParallel)
+            cl = makeCluster(obj$nParallel)
             clusterExport(cl, c("obj", "initSeed"), envir=environment())
             clusterEvalQ(cl, {
                 library(BayesLogit);
@@ -257,22 +242,23 @@
                 library(Matrix);
                 library(abind);
                 library(Hmsc)})
-            hM$postList = clusterApplyLB(cl, 1:nChains, fun=sampleChain)
+            hM$postList = clusterApplyLB(cl, seq_len(obj$nChains),
+                                         fun=sampleChain)
             stopCluster(cl)
         } else { # fork cluster
-            verbose <- 0
-            hM$postList <- mclapply(seq_len(nChains),
+            obj$verbose <- 0
+            hM$postList <- mclapply(seq_len(obj$nChains),
                                     function(i) sampleChain(i),
-                                    mc.cores = nParallel)
+                                    mc.cores = obj$nParallel)
         }
     } else {
-       for(chain in seq_len(nChains)) {
-               hM$postList[[chain]] = sampleChain(chain)
+       for(chain in seq_len(obj$nChains)) {
+               hM$postList[[chain]] = with(obj, sampleChain(chain))
        }
     }
     ## warn on failed updaters
-    for(chain in seq_len(nChains)) {
-        ntries <- samples * thin
+    for(chain in seq_len(obj$nChains)) {
+        ntries <- obj$samples * obj$thin
         if (any(hM$postList[[chain]]$failedUpdates > 0)) {
             cat("Failed updaters and their counts in chain ", chain,
                 " (", ntries, " sampling iterations):\n", sep="")
@@ -284,12 +270,12 @@
             hM$postList[[chain]]$failedUpdates     # save as an attribute
         hM$postList[[chain]]$failedUpdates <- NULL # remove from postList
     }
-    hM$samples = samples
-    hM$transient = transient
-    hM$thin = thin
-    hM$verbose = verbose
-    hM$adaptNf = adaptNf
-    if (alignPost){
+    hM$samples = obj$samples
+    hM$transient = obj$transient
+    hM$thin = obj$thin
+    hM$verbose = obj$verbose
+    hM$adaptNf = obj$adaptNf
+    if (obj$alignPost){
         for (i in 1:5){
             hM = alignPosterior(hM)
         }
@@ -301,6 +287,41 @@
 sampleChain <-
     function(chain)
 {
+    ## extract sampling parameters
+    hM = obj$hM
+    nChains = obj$nChains
+    samples = obj$samples
+    transient = obj$transient
+    thin = obj$thin
+    updater = obj$Rupdater
+    parList = obj$parList
+    verbose = obj$verbose
+    Tr = hM$TrScaled
+    Y = hM$YScaled
+    distr = hM$distr
+    Pi = hM$Pi
+    dfPi = hM$dfPi
+    C = hM$C
+    nr = hM$nr
+
+    mGamma = hM$mGamma
+    iUGamma = chol2inv(chol(hM$UGamma))
+    V0 = hM$V0
+    f0 = hM$f0
+    aSigma = hM$aSigma
+    bSigma = hM$bSigma
+    rhopw = hM$rhopw
+
+    Qg = obj$dataParList$Qg
+    iQg = obj$dataParList$iQg
+    RQg = obj$dataParList$RQg
+    detQg = obj$dataParList$detQg
+    rLPar = obj$dataParList$rLPar
+    X1 = obj$X1
+    verbose = obj$verbose
+    initPar = obj$initPar
+
+    ## start
     if(nChains>1)
         cat(sprintf("Computing chain %d\n", chain))
     set.seed(initSeed[chain])
