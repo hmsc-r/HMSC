@@ -29,6 +29,9 @@
 #' @param updater a named list, specifying which conditional updaters should be ommitted
 #' @param fromPrior whether prior (TRUE) or posterior (FALSE) is to be sampled
 #' @param alignPost boolean flag indicating whether the posterior of each chains should be aligned
+#' @param engine The toolset used in MCMC chain. Currently only
+#'     \code{"R"} is implemented (this argument is for developers
+#'     only: see source code).
 #'
 #' @return An \code{Hmsc}-class object with chains of posterior samples added to the \code{postList} field
 #'
@@ -76,14 +79,62 @@
 #' @importFrom parallel makeCluster clusterExport clusterEvalQ clusterApplyLB
 #'     stopCluster mclapply
 #' @export
-
-sampleMcmc =
+`sampleMcmc` =
     function(hM, samples, transient=0, thin=1, initPar=NULL,
              verbose, adaptNf=rep(transient,hM$nr),
              nChains=1, nParallel=1,
              useSocket = TRUE,
              dataParList=NULL, updater=list(GammaEta=FALSE),
-             fromPrior = FALSE, alignPost = TRUE)
+             fromPrior = FALSE, alignPost = TRUE, engine = "R")
+{
+    ## prior sampling can pass preparation and sampleChain, and
+    ## ignores most input arguments
+    if (fromPrior)
+        return(doSamplePrior(hM, samples, nChains, dataParList))
+    samplingObject <-
+        prepareSamplingObject(hM, samples, transient, thin, initPar, verbose,
+                              adaptNf, nChains, nParallel, useSocket,
+                              dataParList, updater, alignPost)
+    ## switch allows developing parallel sampling implementations
+    ## without disturbing users. The choices can be non-public during
+    ## development, or they can be made public alternatives. Currently
+    ## there is a non-public alternative "pass" that returns the
+    ## samplingObject for inspection or export.
+    switch(engine,
+           "r"=,
+           "R" = RSampler(samplingObject),
+           "pass" = samplingObject,
+           stop("unknown engine ", sQuote(engine)) # none of above: error
+           )
+}
+
+## wrapper to samplePrior
+
+`doSamplePrior` <-
+    function(hM, samples, nChains, dataParList)
+{
+    if (is.null(dataParList))
+        dataParList <- computeDataParameters(hM)
+    hM$postList <- vector("list", nChains)
+    ## do we really need multiple chains of samplePriors? We set
+    ## nParallel=1 anyway with fromPrior. To maintain the
+    ## user-interface, this could be called setting samples to
+    ## samples*nChains.
+    for (chain in seq_len(nChains)) {
+        postList <- vector("list", samples)
+        for (iter in seq_len(samples))
+            postList[[iter]] <- samplePrior(hM, dataParList)
+        hM$postList[[chain]] <- postList
+    }
+    hM$samples = samples
+    hM$transient = 0
+    hM$thin = 1
+    hM
+}
+
+`prepareSamplingObject` <-
+    function(hM, samples, transient, thin, initPar, verbose, adaptNf, nChains,
+             nParallel, useSocket, dataParList, updater, alignPost)
 {
    ## use socket cluster if requested or in Windows
    if (nParallel > 1 && .Platform$OS.type == "windows" && !useSocket) {
@@ -91,14 +142,12 @@ sampleMcmc =
        message("only socket clusters can be used in Windows: setting useSocket = TRUE")
    }
    if (missing(verbose)) {
-       if (samples*thin <= 50) # report every sampling
+       if (samples*thin + transient <= 50) # report every iteration
            verbose <- 1
-       else                    # report ~50 steps of sampling
-           verbose <- samples*thin/50
+       else                    # report ~50 steps of iteration
+           verbose <- (transient + samples*thin)/50
    }
    verbose <- as.integer(verbose) # truncate to integer
-   if(fromPrior)
-      nParallel = 1
    force(adaptNf)
 
    if(nParallel > nChains) {
@@ -106,12 +155,13 @@ sampleMcmc =
       message('using ', nParallel, ' cores for ', nChains, ' chains')
    }
    if(any(adaptNf > transient))
-      stop('transient parameter should be no less than any element of adaptNf parameter')
+      stop("'adaptNf' must be lower than or equal to 'transient'")
 
-   #X1 is the original X matrix (scaled version).
-   #X used in computations is modified from X1 by variable selection and dimension reduction.
+   ## X1 is the original X matrix (scaled version).  X used in
+   ## computations is modified from X1 by variable selection and
+   ## dimension reduction.
    X1 = hM$XScaled
-   if (hM$ncsel>0){
+   if (hM$ncsel > 0){
       if(is.matrix(X1)){
          X2=X1
          X1=list()
@@ -121,59 +171,46 @@ sampleMcmc =
       }
    }
 
-   Tr = hM$TrScaled
-   Y = hM$YScaled
-   distr = hM$distr
-   Pi = hM$Pi
-   dfPi = hM$dfPi
-   C = hM$C
-   nr = hM$nr
-
-   mGamma = hM$mGamma
-   iUGamma = chol2inv(chol(hM$UGamma))
-   V0 = hM$V0
-   f0 = hM$f0
-   aSigma = hM$aSigma
-   bSigma = hM$bSigma
-   rhopw = hM$rhopw
-
-   if(is.null(dataParList))
-      dataParList = computeDataParameters(hM)
-   Qg = dataParList$Qg
-   iQg = dataParList$iQg
-   RQg = dataParList$RQg
-   detQg = dataParList$detQg
-   rLPar = dataParList$rLPar
+   if (is.null(dataParList))
+        dataParList <- computeDataParameters(hM)
 
    hM$postList = vector("list", nChains)
    hM$repList = vector("list", nChains)
-   ## save random seed that is used to generate initSeed[s]
-   if (!exists(".Random.seed")) # may not exist, so generate
-      runif(1)
-   hM$randSeed <- .Random.seed
-   initSeed = sample.int(.Machine$integer.max, nChains)
 
-   ######## switching of the augmented updaters if the required conditions are not met
-   EPS = 1e-6
-   updaterWarningFlag = TRUE
-   # updater$Gamma2
-   if(!identical(updater$Gamma2, FALSE) && any(abs(mGamma) > EPS)){
+   ######## switching of the augmented updaters if the required
+   ######## conditions are not met
+    EPS = 100 * sqrt(.Machine$double.eps) # was 1e-6: this is about equal
+    updaterWarningFlag = TRUE
+    iUGamma = chol2inv(chol(hM$UGamma))
+   ## updater$Gamma2
+   if(!identical(updater$Gamma2, FALSE) && any(abs(hM$mGamma) > EPS)){
       updater$Gamma2 = FALSE
       if(updaterWarningFlag)
          message("setting updater$Gamma2=FALSE due to non-zero mGamma")
    }
-   if(!identical(updater$Gamma2, FALSE) && any(abs(iUGamma - kronecker(iUGamma[1:hM$nc,1:hM$nc], diag(hM$nt))) > EPS)){
+    if(!identical(updater$Gamma2, FALSE) &&
+       any(abs(iUGamma - kronecker(iUGamma[1:hM$nc,1:hM$nc], diag(hM$nt))) > EPS)){
       updater$Gamma2 = FALSE
       if(updaterWarningFlag)
          message("setting updater$Gamma2=FALSE due to non-kronecker structure of UGamma matrix")
    }
-   if(!identical(updater$Gamma2, FALSE) && (!is.null(C))){
-      updater$Gamma2 = FALSE
-      if(updaterWarningFlag)
-         message("setting updater$Gamma2=FALSE due to specified phylogeny matrix")
-   }
-   # updater$GammaEta
-   if(!identical(updater$GammaEta, FALSE) && any(abs(mGamma) > EPS)){
+    if(!identical(updater$Gamma2, FALSE) && (!is.null(hM$C))){
+        updater$Gamma2 = FALSE
+        if(updaterWarningFlag)
+            message("setting updater$Gamma2=FALSE due to specified phylogeny matrix")
+    }
+    if(!identical(updater$Gamma2, FALSE) && (!is.matrix(hM$X))){
+        updater$Gamma2 = FALSE
+        if(updaterWarningFlag)
+            message("setting updater$Gamma2=FALSE due to X is not a matrix")
+    }
+    ## updater$GammaEta
+    if(!identical(updater$GammaEta, FALSE) && (!is.matrix(hM$X))){
+        updater$GammaEta = FALSE
+        if(updaterWarningFlag)
+            message("setting updater$GammaEta=FALSE due to X is not a matrix")
+    }
+   if(!identical(updater$GammaEta, FALSE) && any(abs(hM$mGamma) > EPS)){
       updater$GammaEta = FALSE
       if(updaterWarningFlag)
          message("setting updater$GammaEta=FALSE due to non-zero mGamma")
@@ -201,281 +238,28 @@ sampleMcmc =
       if(FALSE && updaterWarningFlag) # do not advertise yet
          message("setting updater$latentLoadingOrderSwap=0 disabling full-conditional swapping of consecutive latent loadings")
    }
+    obj <- list(hM = hM, samples = samples, transient = transient, thin = thin,
+                nChains = nChains, verbose = verbose, nParallel = nParallel,
+                useSocket = useSocket, initPar = initPar,
+                dataParList = dataParList, X1 = X1, Rupdater = updater,
+                adaptNf = adaptNf, alignPost = alignPost)
+    obj
+}
 
+`RSampler` <-
+    function(obj)
+{
+    hM <- obj$hM
+    ## save random seed that is used to generate initSeed[s]
+    if (!exists(".Random.seed")) # may not exist, so generate
+        runif(1)
+    hM$randSeed <- .Random.seed
+    initSeed = sample.int(.Machine$integer.max, obj$nChains)
 
-   sampleChain = function(chain){
-      if(nChains>1)
-         cat(sprintf("Computing chain %d\n", chain))
-      set.seed(initSeed[chain])
-      parList = computeInitialParameters(hM,initPar)
-
-      Gamma = parList$Gamma
-      V = parList$V
-      iV = chol2inv(chol(V))
-      Beta = parList$Beta
-      BetaSel = parList$BetaSel
-      PsiRRR = parList$PsiRRR
-      DeltaRRR = parList$DeltaRRR
-      wRRR = parList$wRRR
-      sigma = parList$sigma
-      iSigma = 1 / sigma
-      Lambda = parList$Lambda
-      Eta = parList$Eta
-      Alpha = parList$Alpha
-      Psi = parList$Psi
-      Delta = parList$Delta
-      rho = parList$rho
-      Z = parList$Z
-
-      X1A = X1
-
-      if(hM$ncsel>0){
-         for (i in 1:hM$ncsel){
-            XSel = hM$XSelect[[i]]
-            for (spg in 1:length(XSel$q)){
-               if(!BetaSel[[i]][spg]){
-                  fsp = which(XSel$spGroup==spg)
-                  for (j in fsp){
-                     X1A[[j]][,XSel$covGroup]=0
-                  }
-               }
-            }
-         }
-      }
-
-      X = X1A
-      if(hM$ncRRR>0){
-         XB=hM$XRRRScaled%*%t(wRRR)
-         if(is.matrix(X)){
-            X=cbind(X,XB)
-         } else {
-            for (j in 1:hM$ns){
-               X[[j]] = cbind(X[[j]],XB)
-            }
-         }
-      }
-
-      if(!identical(updater$Gamma2, FALSE) && (!is.matrix(X))){
-         updater$Gamma2 = FALSE
-         if(updaterWarningFlag)
-            message("setting updater$Gamma2=FALSE due to X is not a matrix")
-      }
-      if(!identical(updater$GammaEta, FALSE) && (!is.matrix(X))){
-         updater$GammaEta = FALSE
-         if(updaterWarningFlag)
-            message("setting updater$GammaEta=FALSE due to X is not a matrix")
-      }
-
-      postList = vector("list", samples)
-      failed <- numeric(15) # counts of failed try(update*())s
-      names(failed) <- c("Gamma2", "GammaEta", "BetaLambda", "wRRR",
-                         "BetaSel", "GammaV", "Rho", "LambdaPriors",
-                         "wRRRPriors", "Eta", "Alpha",
-                         "invSigma", "Z", "Nf", "LatentLoadingOrder")
-      for(iter in seq_len(transient+samples*thin)){
-
-         if(!identical(updater$Gamma2, FALSE)) {
-            out = try(updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,
-               Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,C=C,rL=hM$rL, iQg=iQg,
-               mGamma=mGamma,iUGamma=iUGamma), silent = TRUE)
-            if (!inherits(out, "try-error")) {
-                Gamma <- out
-            } else if (iter > transient) {
-                failed["Gamma2"] <- failed["Gamma2"] + 1
-            }
-         }
-         if(!identical(updater$GammaEta, FALSE)){
-            GammaEtaList = try(updateGammaEta(Z=Z,Gamma=Gamma,V=chol2inv(chol(iV)),iV=iV,id=iSigma,
-               Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,rL=hM$rL, rLPar=rLPar,Q=Qg[,,rho],iQ=iQg[,,rho],RQ=RQg[,,rho],
-               mGamma=mGamma,U=hM$UGamma,iU=iUGamma), silent = TRUE)
-            if (!inherits(GammaEtaList, "try-error")) {
-                Gamma = GammaEtaList$Gamma
-                Eta = GammaEtaList$Eta
-            } else if (iter > transient) {
-                failed["GammaEta"] <- failed["GammaEta"] + 1
-            }
-         }
-
-         if(!identical(updater$BetaLambda, FALSE)){
-            BetaLambdaList = try(updateBetaLambda(Y=Y,Z=Z,Gamma=Gamma,iV=iV,
-               iSigma=iSigma,Eta=Eta,Psi=Psi,Delta=Delta, iQ=iQg[,,rho],
-               X=X,Tr=Tr,Pi=Pi,dfPi=dfPi,C=C,rL=hM$rL), silent = TRUE)
-            if (!inherits(BetaLambdaList, "try-error")) {
-                Beta = BetaLambdaList$Beta
-                Lambda = BetaLambdaList$Lambda
-            } else if (iter > transient) {
-                failed["BetaLambda"] <- failed["BetaLambda"] + 1
-            }
-         }
-
-         if(!identical(updater$wRRR, FALSE) &&  hM$ncRRR>0){
-            wRRRXList = try(updatewRRR(Z=Z, Beta=Beta, iSigma=iSigma,
-                                 Eta=Eta, Lambda=Lambda, X1A=X1A, XRRR=hM$XRRRScaled,
-                                 Pi=Pi, dfPi=dfPi,rL = hM$rL, PsiRRR=PsiRRR, DeltaRRR=DeltaRRR), silent = TRUE)
-            if (!inherits(wRRRXList, "try-error")) {
-                wRRR = wRRRXList$wRRR
-                X = wRRRXList$X
-            } else if (iter > transient) {
-                failed["wRRR"] <- failed["wRRR"] + 1
-            }
-         }
-
-         if(!identical(updater$BetaSel, FALSE) &&  hM$ncsel>0){
-            BetaSelXList = try(updateBetaSel(Z=Z,XSelect = hM$XSelect, BetaSel=BetaSel,Beta=Beta, iSigma=iSigma,
-                                             Lambda=Lambda, Eta=Eta, X1=X1,Pi=Pi,dfPi=dfPi,rL=hM$rL), silent = TRUE)
-            if (!inherits(BetaSelXList, "try-error")) {
-                BetaSel = BetaSelXList$BetaSel
-                X = BetaSelXList$X
-            } else if (iter > transient) {
-                failed["BetaSel"] <- failed["BetaSel"] + 1
-            }
-         }
-
-         if(!identical(updater$GammaV, FALSE)){
-            GammaVList = try(updateGammaV(Beta=Beta,Gamma=Gamma,iV=iV,rho=rho,
-                                          iQg=iQg,RQg=RQg, Tr=Tr,C=C, mGamma=mGamma,iUGamma=iUGamma,V0=V0,f0=f0), silent = TRUE)
-            if (!inherits(GammaVList, "try-error")) {
-                Gamma = GammaVList$Gamma
-                iV = GammaVList$iV
-            } else if (iter > transient) {
-                failed["GammaV"] <- failed["GammaV"] + 1
-            }
-         }
-
-         if(!is.null(hM$C) && !identical(updater$Rho, FALSE)){
-            out = try(updateRho(Beta=Beta,Gamma=Gamma,iV=iV, RQg=RQg,
-                                detQg=detQg, Tr=Tr, rhopw=rhopw), silent = TRUE)
-            if (!inherits(out, "try-error"))
-                rho <- out
-            else if (iter > transient)
-                failed["Rho"] <- failed["Rho"] + 1
-         }
-
-         if(!identical(updater$LambdaPriors, FALSE)){
-            PsiDeltaList = try(updateLambdaPriors(Lambda=Lambda,Delta=Delta,
-                                                  rL=hM$rL), silent = TRUE)
-            if (!inherits(PsiDeltaList, "try-error")) {
-                Psi = PsiDeltaList$Psi
-                Delta = PsiDeltaList$Delta
-            } else  if (iter > transient) {
-                failed["LambdaPriors"] <- failed["LambdaPriors"] + 1
-            }
-         }
-         if(!identical(updater$wRRRPriors, FALSE) &&  hM$ncRRR>0){
-            PsiDeltaList = try(updatewRRRPriors(wRRR=wRRR,Delta=DeltaRRR,
-                                           nu=hM$nuRRR,a1=hM$a1RRR,
-                                           b1=hM$b1RRR,a2=hM$a2RRR,b2=hM$b2RRR),
-                               silent = TRUE)
-            if (!inherits(PsiDeltaList, "try-error")) {
-                PsiRRR = PsiDeltaList$Psi
-                DeltaRRR = PsiDeltaList$Delta
-            } else if (iter > transient) {
-                failed["wRRRPriors"] <- failed["wRRRPriors"] + 1
-            }
-         }
-
-         if(!identical(updater$Eta, FALSE))
-            out = try(updateEta(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
-                                Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, X=X,
-                                Pi=Pi,dfPi=dfPi,rL=hM$rL), silent = TRUE)
-            if (!inherits(out, "try-error"))
-                Eta <- out
-            else if (iter > transient)
-                failed["Eta"] <- failed["Eta"] + 1
-
-         if(!identical(updater$Alpha, FALSE))
-            out = try(updateAlpha(Eta=Eta, rLPar=rLPar, rL=hM$rL), silent = TRUE)
-            if (!inherits(out, "try-error"))
-                Alpha <- out
-            else if (iter > transient)
-                failed["Alpha"] <- failed["Alpha"] + 1
-
-         if(!identical(updater$InvSigma, FALSE))
-            out = try(updateInvSigma(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,
-                                    Eta=Eta,Lambda=Lambda, distr=distr,X=X,
-                                    Pi=Pi,dfPi=dfPi,rL=hM$rL, aSigma=aSigma,
-                                    bSigma=bSigma), silent = TRUE)
-            if (!inherits(out, "try-error"))
-                iSigma <- out
-            else if (iter > transient)
-                failed["invSigma"] <- failed["invSigma"] + 1
-
-         if(!identical(updater$Z, FALSE)) {
-             out = try(updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
-                               Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,distr=distr,
-                               rL=hM$rL))
-             if (!inherits(out, "try-error"))
-                 Z = out
-             else if (iter > transient)
-                 failed["Z"] <- failed["Z"] + 1
-         }
-
-         for(r in seq_len(nr)){
-            if(iter <= adaptNf[r]){
-               listPar = try(updateNf(eta=Eta[[r]],lambda=Lambda[[r]],alpha=Alpha[[r]],psi=Psi[[r]],delta=Delta[[r]],
-                                      rL=hM$rL[[r]], iter=iter), silent = TRUE)
-               if (!inherits(listPar, "try-error")) {
-                   Lambda[[r]] = listPar$lambda
-                   Eta[[r]] = listPar$eta
-                   Alpha[[r]] = listPar$alpha
-                   Psi[[r]] = listPar$psi
-                   Delta[[r]] = listPar$delta
-               } else if (iter > transient) {
-                   failed["Nf"] <- failed["Nf"] + 1
-               }
-            }
-         }
-
-         if(updater$latentLoadingOrderSwap>0 && (iter %% updater$latentLoadingOrderSwap == 0)){
-            for(r in seq_len(nr)){
-               listPar = try(updateLatentLoadingOrder(eta=Eta[[r]],lambda=Lambda[[r]],alpha=Alpha[[r]],delta=Delta[[r]],rL=hM$rL[[r]]), silent = TRUE)
-               if (!inherits(listPar, "try-error")) {
-                   Lambda[[r]] = listPar$lambda
-                   Eta[[r]] = listPar$eta
-                   Alpha[[r]] = listPar$alpha
-                   Delta[[r]] = listPar$delta
-               } else if (iter > transient) {
-                   failed["LatentLoadingOrder"] + failed["LatentLoadingOrder"] + 1
-               }
-            }
-            PsiDeltaList = try(updateLambdaPriors(Lambda=Lambda,Delta=Delta, rL=hM$rL))
-            if (!inherits(PsiDeltaList, "try-error")) {
-                Psi = PsiDeltaList$Psi
-                Delta = PsiDeltaList$Delta
-            } else if (iter > transient) {
-                failed["PsiDelta"] <- failed["PsiDelta"] + 1
-            }
-         }
-
-         if((iter>transient) && ((iter-transient) %% thin == 0)){
-            postList[[(iter-transient)/thin]] = combineParameters(Beta=Beta,BetaSel=BetaSel,wRRR = wRRR, Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,
-               Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,Delta=Delta,
-               PsiRRR=PsiRRR,DeltaRRR=DeltaRRR,
-               ncNRRR=hM$ncNRRR, ncRRR=hM$ncRRR, ncsel = hM$ncsel, XSelect = hM$XSelect,
-               XScalePar=hM$XScalePar, XInterceptInd=hM$XInterceptInd, XRRRScalePar=hM$XRRRScalePar,
-               nt=hM$nt, TrScalePar=hM$TrScalePar, TrInterceptInd=hM$TrInterceptInd, rhopw=rhopw)
-         }
-         postList$failedUpdates <- failed
-         if((verbose > 0) && (iter%%verbose == 0)){
-            if(iter > transient){
-               samplingStatusString = "sampling"
-            } else{
-               samplingStatusString = "transient"
-            }
-            cat(sprintf("Chain %d, iteration %d of %d (%s)\n", chain, iter, transient+samples*thin, samplingStatusString) )
-         }
-      }
-      return(postList)
-   }
-
-    if (nParallel > 1) {
-        if (useSocket) {
-            cl = makeCluster(nParallel)
-            clusterExport(cl, c("hM","nChains","transient","samples","thin","verbose",
-                                "adaptNf","initSeed","initPar","updater",
-                                "X1", "Tr", "Y", "distr", "Pi", "C", "nr",
-                                "mGamma", "iUGamma", "V0", "f0", "aSigma", "bSigma",
-                                "rhopw","Qg", "iQg", "RQg", "detQg", "rLPar"),
+    if (obj$nParallel > 1) {
+        if (obj$useSocket) {
+            cl = makeCluster(obj$nParallel)
+            clusterExport(cl, c("obj", "initSeed", "sampleChain"),
                           envir=environment())
             clusterEvalQ(cl, {
                 library(BayesLogit);
@@ -484,50 +268,387 @@ sampleMcmc =
                 library(Matrix);
                 library(abind);
                 library(Hmsc)})
-            hM$postList = clusterApplyLB(cl, 1:nChains, fun=sampleChain)
+            hM$postList = clusterApplyLB(cl, seq_len(obj$nChains),
+                                         fun = function(i, ...)
+                sampleChain(i, obj = obj, initSeed = initSeed))
             stopCluster(cl)
         } else { # fork cluster
-            verbose <- 0
-            hM$postList <- mclapply(seq_len(nChains), function(i) sampleChain(i),
-                                    mc.cores = nParallel)
+            obj$verbose <- 0
+            hM$postList <- mclapply(seq_len(obj$nChains),
+                                    function(i, ...) sampleChain(i, obj=obj,
+                                                            initSeed = initSeed),
+                                    mc.cores = obj$nParallel)
         }
     } else {
-       for(chain in 1:nChains ){
-           if (fromPrior){
-               postList = vector("list", samples)
-               for (iter in 1:samples){
-                   postList[[iter]] = samplePrior(hM,dataParList = dataParList)
-               }
-               hM$postList[[chain]] = postList
-           } else {
-               hM$postList[[chain]] = sampleChain(chain)
-           }
+       for(chain in seq_len(obj$nChains)) {
+           hM$postList[[chain]] = sampleChain(chain, obj = obj,
+                                              initSeed = initSeed)
        }
-   }
-   ## warn on failed updaters
-   for(chain in seq_len(nChains)) {
-       ntries <- samples * thin
-       if (any(hM$postList[[chain]]$failedUpdates > 0)) {
-           cat("Failed updaters and their counts in chain ", chain,
-               " (", ntries, " sampling iterations):\n", sep="")
-           failures <- hM$postList[[chain]]$failedUpdates
-           failures <- failures[failures > 0]
-           print(failures)
-       }
-       attr(hM$postList[[chain]], "failedUpdates") <-
-           hM$postList[[chain]]$failedUpdates     # save as an attribute
-       hM$postList[[chain]]$failedUpdates <- NULL # remove from postList
-   }
-   hM$samples = samples
-   hM$transient = transient
-   hM$thin = thin
-   hM$verbose = verbose
-   hM$adaptNf = adaptNf
-   if (alignPost){
-      for (i in 1:5){
-         hM = alignPosterior(hM)
-      }
-   }
+    }
+    ## warn on failed updaters
+    for(chain in seq_len(obj$nChains)) {
+        ntries <- obj$samples * obj$thin
+        if (any(isTRUE(hM$postList[[chain]]$failedUpdates > 0))) {
+            cat("Failed updaters and their counts in chain ", chain,
+                " (", ntries, " sampling iterations):\n", sep="")
+            failures <- hM$postList[[chain]]$failedUpdates
+            failures <- failures[failures > 0]
+            print(failures)
+        }
+        attr(hM$postList[[chain]], "failedUpdates") <-
+            hM$postList[[chain]]$failedUpdates     # save as an attribute
+        hM$postList[[chain]]$failedUpdates <- NULL # remove from postList
+    }
+    hM$samples = obj$samples
+    hM$transient = obj$transient
+    hM$thin = obj$thin
+    hM$verbose = obj$verbose
+    hM$adaptNf = obj$adaptNf
+    if (obj$alignPost){
+        for (i in 1:5){
+            hM = alignPosterior(hM)
+        }
+    }
+    ## return hM with posterior samples
+    hM
+}
 
-   return(hM)
+### Real work is done here!
+
+`sampleChain` <-
+    function(chain, obj, initSeed)
+{
+    ## extract sampling parameters
+    hM = obj$hM
+    nChains = obj$nChains
+    samples = obj$samples
+    transient = obj$transient
+    thin = obj$thin
+    updater = obj$Rupdater
+    parList = obj$parList
+    verbose = obj$verbose
+    adaptNf = obj$adaptNf
+    Tr = hM$TrScaled
+    Y = hM$YScaled
+    distr = hM$distr
+    Pi = hM$Pi
+    dfPi = hM$dfPi
+    C = hM$C
+    nr = hM$nr
+
+    mGamma = hM$mGamma
+    iUGamma = chol2inv(chol(hM$UGamma))
+    V0 = hM$V0
+    f0 = hM$f0
+    aSigma = hM$aSigma
+    bSigma = hM$bSigma
+    rhopw = hM$rhopw
+
+    Qg = obj$dataParList$Qg
+    iQg = obj$dataParList$iQg
+    RQg = obj$dataParList$RQg
+    detQg = obj$dataParList$detQg
+    rLPar = obj$dataParList$rLPar
+    X1 = obj$X1
+    verbose = obj$verbose
+    initPar = obj$initPar
+
+    ## start
+    if(nChains>1)
+        cat(sprintf("Computing chain %d\n", chain))
+    set.seed(initSeed[chain])
+    parList = computeInitialParameters(hM,initPar)
+
+    Gamma = parList$Gamma
+    V = parList$V
+    iV = chol2inv(chol(V))
+    Beta = parList$Beta
+    BetaSel = parList$BetaSel
+    PsiRRR = parList$PsiRRR
+    DeltaRRR = parList$DeltaRRR
+    wRRR = parList$wRRR
+    sigma = parList$sigma
+    iSigma = 1 / sigma
+    Lambda = parList$Lambda
+    Eta = parList$Eta
+    Alpha = parList$Alpha
+    Psi = parList$Psi
+    Delta = parList$Delta
+    rho = parList$rho
+    Z = parList$Z
+
+    X1A = X1
+
+    if(hM$ncsel>0){
+        for (i in 1:hM$ncsel){
+            XSel = hM$XSelect[[i]]
+            for (spg in 1:length(XSel$q)){
+                if(!BetaSel[[i]][spg]){
+                    fsp = which(XSel$spGroup==spg)
+                    for (j in fsp){
+                        X1A[[j]][,XSel$covGroup]=0
+                    }
+                }
+            }
+        }
+    }
+
+    X = X1A
+    if(hM$ncRRR>0){
+        XB=hM$XRRRScaled%*%t(wRRR)
+        if(is.matrix(X)){
+            X=cbind(X,XB)
+        } else {
+            for (j in 1:hM$ns){
+                X[[j]] = cbind(X[[j]],XB)
+            }
+        }
+    }
+
+    postList = vector("list", samples)
+    failed <- numeric(15) # counts of failed try(update*())s
+    names(failed) <- c("Gamma2", "GammaEta", "BetaLambda", "wRRR",
+                       "BetaSel", "GammaV", "Rho", "LambdaPriors",
+                       "wRRRPriors", "Eta", "Alpha",
+                       "invSigma", "Z", "Nf", "LatentLoadingOrder")
+###--> Iterations starts here <--
+    for(iter in seq_len(transient + samples*thin)) {
+        if(!identical(updater$Gamma2, FALSE)) {
+            out = try(updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,
+                                   Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,
+                                   dfPi=dfPi,Tr=Tr,C=C,rL=hM$rL, iQg=iQg,
+                                   mGamma=mGamma,iUGamma=iUGamma),
+                      silent = TRUE)
+            if (!inherits(out, "try-error")) {
+                Gamma <- out
+            } else if (iter > transient) {
+                failed["Gamma2"] <- failed["Gamma2"] + 1
+            }
+        }
+        if(!identical(updater$GammaEta, FALSE)){
+            GammaEtaList = try(updateGammaEta(Z=Z,Gamma=Gamma,
+                                              V=chol2inv(chol(iV)),iV=iV,
+                                              id=iSigma, Eta=Eta,
+                                              Lambda=Lambda,Alpha=Alpha,
+                                              X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,
+                                              rL=hM$rL, rLPar=rLPar,
+                                              Q=Qg[,,rho],iQ=iQg[,,rho],
+                                              RQ=RQg[,,rho],
+                                              mGamma=mGamma,U=hM$UGamma,
+                                              iU=iUGamma),
+                               silent = TRUE)
+            if (!inherits(GammaEtaList, "try-error")) {
+                Gamma = GammaEtaList$Gamma
+                Eta = GammaEtaList$Eta
+            } else if (iter > transient) {
+                failed["GammaEta"] <- failed["GammaEta"] + 1
+            }
+        }
+
+        if(!identical(updater$BetaLambda, FALSE)){
+            BetaLambdaList = try(updateBetaLambda(Y=Y,Z=Z,Gamma=Gamma,iV=iV,
+                                                  iSigma=iSigma,Eta=Eta,
+                                                  Psi=Psi,Delta=Delta,
+                                                  iQ=iQg[,,rho],X=X,Tr=Tr,
+                                                  Pi=Pi,dfPi=dfPi,C=C,
+                                                  rL=hM$rL),
+                                 silent = TRUE)
+            if (!inherits(BetaLambdaList, "try-error")) {
+                Beta = BetaLambdaList$Beta
+                Lambda = BetaLambdaList$Lambda
+            } else if (iter > transient) {
+                failed["BetaLambda"] <- failed["BetaLambda"] + 1
+            }
+        }
+
+        if(!identical(updater$wRRR, FALSE) &&  hM$ncRRR>0){
+            wRRRXList = try(updatewRRR(Z=Z, Beta=Beta, iSigma=iSigma,
+                                       Eta=Eta, Lambda=Lambda, X1A=X1A,
+                                       XRRR=hM$XRRRScaled, Pi=Pi, dfPi=dfPi,
+                                       rL = hM$rL, PsiRRR=PsiRRR,
+                                       DeltaRRR=DeltaRRR),
+                            silent = TRUE)
+            if (!inherits(wRRRXList, "try-error")) {
+                wRRR = wRRRXList$wRRR
+                X = wRRRXList$X
+            } else if (iter > transient) {
+                failed["wRRR"] <- failed["wRRR"] + 1
+            }
+        }
+
+        if(!identical(updater$BetaSel, FALSE) &&  hM$ncsel>0){
+            BetaSelXList = try(updateBetaSel(Z=Z,XSelect = hM$XSelect,
+                                             BetaSel=BetaSel,Beta=Beta,
+                                             iSigma=iSigma, Lambda=Lambda,
+                                             Eta=Eta, X1=X1,Pi=Pi,dfPi=dfPi,
+                                             rL=hM$rL),
+                               silent = TRUE)
+            if (!inherits(BetaSelXList, "try-error")) {
+                BetaSel = BetaSelXList$BetaSel
+                X = BetaSelXList$X
+            } else if (iter > transient) {
+                failed["BetaSel"] <- failed["BetaSel"] + 1
+            }
+        }
+
+        if(!identical(updater$GammaV, FALSE)){
+            GammaVList = try(updateGammaV(Beta=Beta,Gamma=Gamma,iV=iV,
+                                          rho=rho,iQg=iQg,RQg=RQg, Tr=Tr,
+                                          C=C, mGamma=mGamma,iUGamma=iUGamma,
+                                          V0=V0,f0=f0),
+                             silent = TRUE)
+            if (!inherits(GammaVList, "try-error")) {
+                Gamma = GammaVList$Gamma
+                iV = GammaVList$iV
+            } else if (iter > transient) {
+                failed["GammaV"] <- failed["GammaV"] + 1
+            }
+        }
+
+        if(!is.null(hM$C) && !identical(updater$Rho, FALSE)){
+            out = try(updateRho(Beta=Beta,Gamma=Gamma,iV=iV, RQg=RQg,
+                                detQg=detQg, Tr=Tr, rhopw=rhopw),
+                      silent = TRUE)
+            if (!inherits(out, "try-error"))
+                rho <- out
+            else if (iter > transient)
+                failed["Rho"] <- failed["Rho"] + 1
+        }
+
+        if(!identical(updater$LambdaPriors, FALSE)){
+            PsiDeltaList = try(updateLambdaPriors(Lambda=Lambda,Delta=Delta,
+                                                  rL=hM$rL), silent = TRUE)
+            if (!inherits(PsiDeltaList, "try-error")) {
+                Psi = PsiDeltaList$Psi
+                Delta = PsiDeltaList$Delta
+            } else  if (iter > transient) {
+                failed["LambdaPriors"] <- failed["LambdaPriors"] + 1
+            }
+        }
+        if(!identical(updater$wRRRPriors, FALSE) &&  hM$ncRRR>0){
+            PsiDeltaList = try(updatewRRRPriors(wRRR=wRRR,Delta=DeltaRRR,
+                                                nu=hM$nuRRR,a1=hM$a1RRR,
+                                                b1=hM$b1RRR,a2=hM$a2RRR,
+                                                b2=hM$b2RRR),
+                               silent = TRUE)
+            if (!inherits(PsiDeltaList, "try-error")) {
+                PsiRRR = PsiDeltaList$Psi
+                DeltaRRR = PsiDeltaList$Delta
+            } else if (iter > transient) {
+                failed["wRRRPriors"] <- failed["wRRRPriors"] + 1
+            }
+        }
+
+        if(!identical(updater$Eta, FALSE))
+            out = try(updateEta(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
+                                Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, X=X,
+                                Pi=Pi,dfPi=dfPi,rL=hM$rL), silent = TRUE)
+        if (!inherits(out, "try-error"))
+            Eta <- out
+        else if (iter > transient)
+            failed["Eta"] <- failed["Eta"] + 1
+
+        if(!identical(updater$Alpha, FALSE))
+            out = try(updateAlpha(Eta=Eta, rLPar=rLPar, rL=hM$rL),
+                      silent = TRUE)
+        if (!inherits(out, "try-error"))
+            Alpha <- out
+        else if (iter > transient)
+            failed["Alpha"] <- failed["Alpha"] + 1
+
+        if(!identical(updater$InvSigma, FALSE))
+            out = try(updateInvSigma(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,
+                                     Eta=Eta,Lambda=Lambda, distr=distr,X=X,
+                                     Pi=Pi,dfPi=dfPi,rL=hM$rL, aSigma=aSigma,
+                                     bSigma=bSigma), silent = TRUE)
+        if (!inherits(out, "try-error"))
+            iSigma <- out
+        else if (iter > transient)
+            failed["invSigma"] <- failed["invSigma"] + 1
+
+        if(!identical(updater$Z, FALSE)) {
+            out = try(updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
+                              Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,distr=distr,
+                              rL=hM$rL))
+            if (!inherits(out, "try-error"))
+                Z = out
+            else if (iter > transient)
+                failed["Z"] <- failed["Z"] + 1
+        }
+
+        for(r in seq_len(nr)){
+            if(iter <= adaptNf[r]){
+                listPar = try(updateNf(eta=Eta[[r]],lambda=Lambda[[r]],
+                                       alpha=Alpha[[r]],psi=Psi[[r]],
+                                       delta=Delta[[r]],rL=hM$rL[[r]],
+                                       iter=iter), silent = TRUE)
+                if (!inherits(listPar, "try-error")) {
+                    Lambda[[r]] = listPar$lambda
+                    Eta[[r]] = listPar$eta
+                    Alpha[[r]] = listPar$alpha
+                    Psi[[r]] = listPar$psi
+                    Delta[[r]] = listPar$delta
+                } else if (iter > transient) {
+                    failed["Nf"] <- failed["Nf"] + 1
+                }
+            }
+        }
+
+        if(updater$latentLoadingOrderSwap>0 && (iter %% updater$latentLoadingOrderSwap == 0)){
+            for(r in seq_len(nr)){
+                listPar = try(updateLatentLoadingOrder(eta=Eta[[r]],
+                                                       lambda=Lambda[[r]],
+                                                       alpha=Alpha[[r]],
+                                                       delta=Delta[[r]],
+                                                       rL=hM$rL[[r]]),
+                              silent = TRUE)
+                if (!inherits(listPar, "try-error")) {
+                    Lambda[[r]] = listPar$lambda
+                    Eta[[r]] = listPar$eta
+                    Alpha[[r]] = listPar$alpha
+                    Delta[[r]] = listPar$delta
+                } else if (iter > transient) {
+                    failed["LatentLoadingOrder"] + failed["LatentLoadingOrder"] + 1
+                }
+            }
+            PsiDeltaList = try(updateLambdaPriors(Lambda=Lambda,Delta=Delta,
+                                                  rL=hM$rL))
+            if (!inherits(PsiDeltaList, "try-error")) {
+                Psi = PsiDeltaList$Psi
+                Delta = PsiDeltaList$Delta
+            } else if (iter > transient) {
+                failed["PsiDelta"] <- failed["PsiDelta"] + 1
+            }
+        }
+
+        if((iter > transient) && ((iter-transient) %% thin == 0)){
+            postList[[(iter-transient)/thin]] =
+                combineParameters(Beta=Beta,BetaSel=BetaSel,wRRR = wRRR,
+                                  Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,
+                                  Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,
+                                  Delta=Delta, PsiRRR=PsiRRR,
+                                  DeltaRRR=DeltaRRR,ncNRRR=hM$ncNRRR,
+                                  ncRRR=hM$ncRRR, ncsel = hM$ncsel,
+                                  XSelect = hM$XSelect,
+                                  XScalePar=hM$XScalePar,
+                                  XInterceptInd=hM$XInterceptInd,
+                                  XRRRScalePar=hM$XRRRScalePar,nt=hM$nt,
+                                  TrScalePar=hM$TrScalePar,
+                                  TrInterceptInd=hM$TrInterceptInd,
+                                  rhopw=rhopw)
+        }
+        postList$failedUpdates <- failed
+        if((verbose > 0) && (iter%%verbose == 0)){
+            if(iter > transient){
+                samplingStatusString = "sampling"
+            } else{
+                samplingStatusString = "transient"
+            }
+            cat(sprintf("Chain %d, iteration %d of %d (%s)\n",
+                        chain, iter, transient+samples*thin,
+                        samplingStatusString) )
+        }
+    }
+### Iterations stop here: return
+    postList
 }

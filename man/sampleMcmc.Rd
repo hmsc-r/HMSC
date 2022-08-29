@@ -18,7 +18,8 @@ sampleMcmc(
   dataParList = NULL,
   updater = list(GammaEta = FALSE),
   fromPrior = FALSE,
-  alignPost = TRUE
+  alignPost = TRUE,
+  engine = "R"
 )
 }
 \arguments{
@@ -60,6 +61,10 @@ parameters}
 \item{fromPrior}{whether prior (TRUE) or posterior (FALSE) is to be sampled}
 
 \item{alignPost}{boolean flag indicating whether the posterior of each chains should be aligned}
+
+\item{engine}{The toolset used in MCMC chain. Currently only
+\code{"R"} is implemented (this argument is for developers
+only: see source code).}
 }
 \value{
 An \code{Hmsc}-class object with chains of posterior samples added to the \code{postList} field
