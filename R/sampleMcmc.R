@@ -233,12 +233,10 @@
     obj
 }
 
-`RSampler` <-
-    function(obj)
-{
-    ## Real work is done here! Having sampleChain within RSampler
-    ## allows finding objects of RSampler.
-    sampleChain <- function(chain) {
+
+### Real work is done here!
+
+sampleChain <- function(chain, obj, initSeed) {
         ## extract sampling parameters
         hM = obj$hM
         nChains = obj$nChains
@@ -576,6 +574,9 @@
 ###### sampleChain ends: here we call that function. As it is an
 ###### internal function, we obj is in the same environment and will
 ###### be passed there.
+`RSampler` <-
+    function(obj)
+{
     hM <- obj$hM
     ## save random seed that is used to generate initSeed[s]
     if (!exists(".Random.seed")) # may not exist, so generate
@@ -586,7 +587,8 @@
     if (obj$nParallel > 1) {
         if (obj$useSocket) {
             cl = makeCluster(obj$nParallel)
-            clusterExport(cl, c("obj", "initSeed"), envir=environment())
+            clusterExport(cl, c("obj", "initSeed", "sampleChain"),
+                          envir=environment())
             clusterEvalQ(cl, {
                 library(BayesLogit);
                 library(MCMCpack);
@@ -595,17 +597,20 @@
                 library(abind);
                 library(Hmsc)})
             hM$postList = clusterApplyLB(cl, seq_len(obj$nChains),
-                                         fun=sampleChain)
+                                         fun = function(i, ...)
+                sampleChain(i, obj = obj, initSeed = initSeed))
             stopCluster(cl)
         } else { # fork cluster
             obj$verbose <- 0
             hM$postList <- mclapply(seq_len(obj$nChains),
-                                    function(i) sampleChain(i),
+                                    function(i, ...) sampleChain(i, obj=obj,
+                                                            initSeed = initSeed),
                                     mc.cores = obj$nParallel)
         }
     } else {
        for(chain in seq_len(obj$nChains)) {
-               hM$postList[[chain]] = sampleChain(chain)
+           hM$postList[[chain]] = sampleChain(chain, obj = obj,
+                                              initSeed = initSeed)
        }
     }
     ## warn on failed updaters
