@@ -29,6 +29,9 @@
 #' @param updater a named list, specifying which conditional updaters should be ommitted
 #' @param fromPrior whether prior (TRUE) or posterior (FALSE) is to be sampled
 #' @param alignPost boolean flag indicating whether the posterior of each chains should be aligned
+#' @param engine The toolset used in MCMC chain. Currently only
+#'     \code{"R"} is implemented (this argument is for developers
+#'     only: see source code).
 #'
 #' @return An \code{Hmsc}-class object with chains of posterior samples added to the \code{postList} field
 #'
@@ -82,7 +85,7 @@
              nChains=1, nParallel=1,
              useSocket = TRUE,
              dataParList=NULL, updater=list(GammaEta=FALSE),
-             fromPrior = FALSE, alignPost = TRUE)
+             fromPrior = FALSE, alignPost = TRUE, engine = "R")
 {
     ## prior sampling can pass preparation and sampleChain, and
     ## ignores most input arguments
@@ -92,7 +95,17 @@
         prepareSamplingObject(hM, samples, transient, thin, initPar, verbose,
                               adaptNf, nChains, nParallel, useSocket,
                               dataParList, updater, alignPost)
-    RSampler(samplingObject)
+    ## switch allows developing parallel sampling implementations
+    ## without disturbing users. The choices can be non-public during
+    ## development, or they can be made public alternatives. Currently
+    ## there is a non-public alternative "pass" that returns the
+    ## samplingObject for inspection or export.
+    switch(engine,
+           "r"=,
+           "R" = RSampler(samplingObject),
+           "pass" = samplingObject,
+           stop("unknown engine ", sQuote(engine)) # none of above: error
+           )
 }
 
 ## wrapper to samplePrior
