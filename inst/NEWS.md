@@ -11,6 +11,8 @@ Version 3.0-14 (development version in github)
 * Legend for `plotVariancePartitioning` had two entries for `Random`
   when there were no random levels.
 
+* `predict` could fail when there were no random levels. 
+
 Version 3.0-13
 ==============
 
