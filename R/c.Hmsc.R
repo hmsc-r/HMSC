@@ -91,6 +91,27 @@
     hMList[[1]]
 }
 
+
+### Add samples from MCMC chain y to MCMC chain x using
+### base::merge(). The call is dictated by merge defintion in base
+
+#' @param x,y Hmsc objects: posterior samples of \code{y} are added to
+#'     the samples of \code{x}.
+#' @export
+`merge.Hmsc` <-
+    function(x, y, ...)
+{
+    pl1 <- x$postList
+    pl2 <- y$postList
+    nl <- length(pl1)
+    if (nl != length(pl2))
+        stop("models have different numbers of chains")
+    for(i in seq_len(nl))
+        pl1[[i]] <- append(pl1[[i]], pl2[[i]])
+    x$postList <- pl1
+    x$samples <- x$samples + y$samples
+    x
+}
 ### get last posterior sample for use as initPar
 
 #' @param hM Sampled Hmsc object.
