@@ -2,20 +2,40 @@
 % Please edit documentation in R/c.Hmsc.R
 \name{c.Hmsc}
 \alias{c.Hmsc}
-\title{Combine Posterior Samples of Several Hmsc Models}
+\alias{merge.Hmsc}
+\alias{getLastPar}
+\title{c.Hmsc}
 \usage{
 \method{c}{Hmsc}(...)
+
+\method{merge}{Hmsc}(x, y, ...)
+
+getLastPar(hM)
 }
 \arguments{
 \item{...}{Sampled \code{Hmsc} models with posterior samples that
-will be added as new chaings in the first listed model.}
+will be added as new chaings in the first listed model, or
+ignored in \code{merge}.}
+
+\item{x, y}{Hmsc objects: posterior samples of \code{y} are added to
+the samples of \code{x}.}
+
+\item{hM}{Sampled Hmsc object.}
 }
 \value{
 An \code{\link{Hmsc}} model with chains of posterior
     samples.
 }
 \description{
-Function combines posterior samples of several sampled
+Combine Posterior Samples of Several Hmsc Models
+
+Functions can be used to add more samples to existing sampled
+\code{Hmsc} models. New chains can be added with \code{c} and old
+chains can be continued with \code{merge}. In general, adding new
+chains is less risky and continuing chains more prone to errors.
+}
+\details{
+Function \code{c} combines posterior samples of several sampled
 \code{\link{Hmsc}} models (see \code{\link{sampleMcmc}}) as new
 chains in the first fitted model. The combined models must be
 comparable, and there are some tests for detecting non-equal
@@ -24,6 +44,20 @@ deliberation to decide which models and which posterior samples can
 be combined.  You should be careful not start two models from the
 same random number seed, because these will only duplicate your
 data instead of providing new independent samples.
+
+Function \code{merge} adds posterior samples of second model
+(\code{y}) to the first one (\code{x}). If the second model was
+started from the last sampled values of the first one, this is the
+same as continuing the chain (and other use cases are
+dubious). Function \code{getLastPar} extracts the last parameters
+of a sampled model, and its output can be used as \code{initPar} in
+\code{sampleMcmc} to continue sampling. Users should be very
+careful that both models are defined and sampled in the same way,
+except that it makes no sense to have \code{transient} when
+sampling is started from the last values of the first model. Adding
+new samples really makes sense only when sampling is started from
+the end of the first model, and other cases should rather be
+handled as adding new chains with \code{c}.
 }
 \examples{
 ## Fit a toy model with two chains
