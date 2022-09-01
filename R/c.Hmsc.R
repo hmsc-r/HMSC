@@ -90,3 +90,19 @@
     hMList[[1]]$postList <- pLists
     hMList[[1]]
 }
+
+### get last posterior sample for use as initPar
+
+#' @param hM Sampled Hmsc object.
+#'
+#' @export
+`getLastPar` <-
+    function(hM)
+{
+    if (!inherits(hM, "Hmsc"))
+        stop("function can be applied only to sampled Hmsc objects")
+    lastone <- hM$samples
+    if (is.null(lastone) || is.null(hM$postList))
+        stop("object has no posterior samples")
+    lapply(hM$postList, function(z) z[[lastone]])
+}

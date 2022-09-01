@@ -352,6 +352,9 @@
     X1 = obj$X1
     verbose = obj$verbose
     initPar = obj$initPar
+    ## allow initPar to be a list of separate values for each chain
+    if (is.null(names(initPar)) && length(initPar == obj$nChains)
+        initPar <- initPar[[chain]]
 
     ## start
     if(nChains>1)
