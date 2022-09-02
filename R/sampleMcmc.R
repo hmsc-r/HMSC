@@ -288,16 +288,15 @@
     ## warn on failed updaters
     for(chain in seq_len(obj$nChains)) {
         ntries <- obj$samples * obj$thin
-        if (any(isTRUE(hM$postList[[chain]]$failedUpdates > 0))) {
+        failures <- attr(hM$postList[[chain]], "failedUpdates")
+        if (any(isTRUE(failures > 0)))
+        {
             cat("Failed updaters and their counts in chain ", chain,
                 " (", ntries, " sampling iterations):\n", sep="")
             failures <- hM$postList[[chain]]$failedUpdates
             failures <- failures[failures > 0]
             print(failures)
         }
-        attr(hM$postList[[chain]], "failedUpdates") <-
-            hM$postList[[chain]]$failedUpdates     # save as an attribute
-        hM$postList[[chain]]$failedUpdates <- NULL # remove from postList
     }
     hM$samples = obj$samples
     hM$transient = obj$transient
@@ -640,7 +639,6 @@
                                   TrInterceptInd=hM$TrInterceptInd,
                                   rhopw=rhopw)
         }
-        postList$failedUpdates <- failed
         if((verbose > 0) && (iter%%verbose == 0)){
             if(iter > transient){
                 samplingStatusString = "sampling"
@@ -653,5 +651,6 @@
         }
     }
 ### Iterations stop here: return
+    attr(postList, "failedUpdates") <- failed
     postList
 }
