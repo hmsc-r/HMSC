@@ -152,5 +152,7 @@
     lastone <- hM$samples
     if (is.null(lastone) || is.null(hM$postList))
         stop("object has no posterior samples")
-    lapply(hM$postList, function(z) z[[lastone]])
+    lapply(hM$postList, function(z) { zz <- z[[lastone]]
+        attr(zz, "RNGstate") <- attr(z, "RNGstate")
+        zz})
 }

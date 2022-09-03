@@ -356,9 +356,14 @@
         initPar <- initPar[[chain]]
 
     ## start
-    if(nChains>1)
+    if(nChains > 1)
         cat(sprintf("Computing chain %d\n", chain))
-    set.seed(initSeed[chain])
+    ## if continue from old chain use their RNGstate
+    if (!is.null(oldseed <- attr(initPar, "RNGstate")))
+        assign(".Random.seed", oldseed, envir = .GlobalEnv)
+    else
+        set.seed(initSeed[chain])
+
     parList = computeInitialParameters(hM,initPar)
 
     Gamma = parList$Gamma
@@ -650,7 +655,8 @@
                         samplingStatusString) )
         }
     }
-### Iterations stop here: return
+### Iterations stop here: set attributes & return
     attr(postList, "failedUpdates") <- failed
+    attr(postList, "RNGstate") <- get(".Random.seed")
     postList
 }
