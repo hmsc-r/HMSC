@@ -152,7 +152,41 @@
     lastone <- hM$samples
     if (is.null(lastone) || is.null(hM$postList))
         stop("object has no posterior samples")
-    lapply(hM$postList, function(z) { zz <- z[[lastone]]
+    lastpar <- lapply(hM$postList, function(z) { zz <- z[[lastone]]
         attr(zz, "RNGstate") <- attr(z, "RNGstate")
+        attr(zz, "Zstate") <- attr(z, "Zstate")
         zz})
+    ## Beta and Gamma should be scaled
+    TrScalePar <- hM$TrScalePar
+    if (!is.null(TrScalePar)) {
+        Gamma <- lastpar[[1]]$Gamma
+        if (!is.null(Intcpt <- hM$TrInterceptInd)) {
+            Gamma[, Intcpt] <- Gamma[, Intcpt] +
+                rowSums(Gamma %*%
+                        diag(TrScalePar[1,], ncol = ncol(TrScalePar)))
+                }
+            Gamma <- Gamma %*% diag(TrScalePar[2,], ncol = ncol(TrScalePar))
+    }
+    XScalePar <- hM$XScalePar
+    if (!is.null(XScalePar)) {
+        Beta <- lastpar[[1]]$Beta
+        if (!is.null(Intcpt <- hM$XInterceptInd)) {
+            Beta[Intcpt,] <- Beta[Intcpt,] + colSums(XScalePar[1,] * Beta)
+            Gamma[Intcpt,] <- Gamma[Intcpt,] + colSums(XScalePar[1,] * Gamma)
+        }
+        Beta <- XScalePar[2,] * Beta
+        Gamma <- XScalePar[2,] * Gamma
+        iV <- chol2inv(chol(lastpar[[1]]$V))
+        iV <- 1/XScalePar[2,] * iV %*%
+            diag(1/XScalePar[2,], ncol=ncol(XScalePar))
+        V <- chol2inv(chol(iV))
+    }
+    if (!is.null(Beta))
+        lastpar[[1]]$Beta <- Beta
+    if (!is.null(Gamma))
+        lastpar[[1]]$Gamma <- Gamma
+    if (!is.null(V))
+        lastpar[[1]]$V <- V
+    ## done
+    lastpar
 }

@@ -359,12 +359,15 @@
     if(nChains > 1)
         cat(sprintf("Computing chain %d\n", chain))
     ## if continue from old chain use their RNGstate
-    if (!is.null(oldseed <- attr(initPar, "RNGstate")))
-        assign(".Random.seed", oldseed, envir = .GlobalEnv)
+    if (!is.null(Zstate <- attr(initPar, "Zstate")))
+        assign(".Random.seed", Zstate, envir = .GlobalEnv)
     else
         set.seed(initSeed[chain])
 
     parList = computeInitialParameters(hM,initPar)
+
+    if (!is.null(RNGstate <- attr(initPar, "RNGstate")))
+        assign(".Random.seed", RNGstate, envir=.GlobalEnv)
 
     Gamma = parList$Gamma
     V = parList$V
@@ -419,7 +422,8 @@
                        "wRRRPriors", "Eta", "Alpha",
                        "invSigma", "Z", "Nf", "LatentLoadingOrder")
 ###--> Iterations starts here <--
-    for(iter in seq_len(transient + samples*thin)) {
+    Niterations <- transient + samples*thin
+    for(iter in seq_len(Niterations)) {
         if(!identical(updater$Gamma2, FALSE)) {
             out = try(updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,
                                    Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,
@@ -572,7 +576,8 @@
             iSigma <- out
         else if (iter > transient)
             failed["invSigma"] <- failed["invSigma"] + 1
-
+        if (iter == Niterations)
+            Zstate <- get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
         if(!identical(updater$Z, FALSE)) {
             out = try(updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
                               Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,distr=distr,
@@ -654,9 +659,13 @@
                         chain, iter, transient+samples*thin,
                         samplingStatusString) )
         }
+        if (iter == Niterations)
+            RNGstate <- get(".Random.seed", envir=.GlobalEnv,
+                            inherits = FALSE)
     }
 ### Iterations stop here: set attributes & return
     attr(postList, "failedUpdates") <- failed
-    attr(postList, "RNGstate") <- get(".Random.seed")
+    attr(postList, "RNGstate") <- RNGstate
+    attr(postList, "Zstate") <- Zstate
     postList
 }
