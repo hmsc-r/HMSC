@@ -79,7 +79,7 @@
           "rLNames", "XScalePar", "XRRRScalePar", "YScalePar",
           "TrScalePar", "V0", "f0", "mGamma", "UGamma", "aSigma",
           "bSigma", "nu", "a1", "b1", "a2", "b2", "rhopw", "nuRRR",
-          "a1RRR", "b1RRR", "a2RRR", "b2RRR",  "initPar", "repN")
+          "a1RRR", "b1RRR", "a2RRR", "b2RRR",  "initPar")
     tmp <- hMList[[1]]
     objCheck <- lapply(hMList[-1],
                        function(z) all.equal(tmp[checkItems], z[checkItems],

@@ -166,7 +166,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
 
       # sampling parameters
       samples=NULL, transient=NULL, thin=NULL, verbose=NULL, adaptNf=NULL,
-      initPar=NULL, repN=NULL,
+      initPar=NULL,
       randSeed=NULL,
 
       # posterior
