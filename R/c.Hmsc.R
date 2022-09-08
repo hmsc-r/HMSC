@@ -135,10 +135,15 @@
     if (any(y$adaptNf > 0))
         stop("you cannot set adaptNf > 0 in 'y'")
     if (x$thin != y$thin)
-        warning("thins should not differ: now x=",x$thin, " and y=",y$thin)
+        warning("thins should not differ: now x ",x$thin, " and y ",y$thin)
     if (y$transient > 0)
         warning("it makes no sense to have transient in 'y'")
-    ## should add here similar sanity check as in c.Hmsc
+    ## Check that y is continued from x
+    msg <- all.equal(getLastPar(x), y$initPar)
+    if (!isTRUE(msg)) {
+        warning("'y' should be continued from 'x':\n",
+                paste(msg, collapse="\n"))
+    }
     for(i in seq_len(nl))
         pl1[[i]] <- append(pl1[[i]], pl2[[i]])
     x$postList <- pl1

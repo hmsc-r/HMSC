@@ -303,6 +303,7 @@
     hM$thin = obj$thin
     hM$verbose = obj$verbose
     hM$adaptNf = obj$adaptNf
+    hM$initPar = obj$initPar
     if (obj$alignPost){
         for (i in 1:5){
             hM = alignPosterior(hM)
