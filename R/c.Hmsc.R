@@ -121,11 +121,12 @@
 
 #' @param x,y Hmsc objects: posterior samples of \code{y} are added to
 #'     the samples of \code{x}.
+#' @param alignPost Should posteriors of each chain be aligned.
 #'
 #' @rdname c.Hmsc
 #' @export
 `merge.Hmsc` <-
-    function(x, y, ...)
+    function(x, y, alignPost = TRUE, ...)
 {
     pl1 <- x$postList
     pl2 <- y$postList
@@ -148,6 +149,11 @@
         pl1[[i]] <- append(pl1[[i]], pl2[[i]])
     x$postList <- pl1
     x$samples <- x$samples + y$samples
+    ## alignment is different in x & y
+    attr(x$postList, "alignment") <- NULL
+    if (alignPost)  # similarly as in sampleMcmc
+        for(i in seq_len(5))
+            x <- alignPosterior(x)
     x
 }
 ### get last posterior sample for use as initPar

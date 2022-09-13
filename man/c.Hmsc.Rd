@@ -8,7 +8,7 @@
 \usage{
 \method{c}{Hmsc}(...)
 
-\method{merge}{Hmsc}(x, y, ...)
+\method{merge}{Hmsc}(x, y, alignPost = TRUE, ...)
 
 getLastPar(hM)
 }
@@ -19,6 +19,8 @@ ignored in \code{merge}.}
 
 \item{x, y}{Hmsc objects: posterior samples of \code{y} are added to
 the samples of \code{x}.}
+
+\item{alignPost}{Should posteriors of each chain be aligned.}
 
 \item{hM}{Sampled Hmsc object.}
 }
