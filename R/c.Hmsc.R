@@ -168,37 +168,39 @@
         attr(zz, "RNGstate") <- attr(z, "RNGstate")
         attr(zz, "Zstate") <- attr(z, "Zstate")
         zz})
-    ## Beta and Gamma should be scaled
+    ## Beta and Gamma should be scale
     TrScalePar <- hM$TrScalePar
-    if (!is.null(TrScalePar)) {
-        Gamma <- lastpar[[1]]$Gamma
-        if (!is.null(Intcpt <- hM$TrInterceptInd)) {
-            Gamma[, Intcpt] <- Gamma[, Intcpt] +
-                rowSums(Gamma %*%
-                        diag(TrScalePar[1,], ncol = ncol(TrScalePar)))
-                }
-            Gamma <- Gamma %*% diag(TrScalePar[2,], ncol = ncol(TrScalePar))
-    }
     XScalePar <- hM$XScalePar
-    if (!is.null(XScalePar)) {
-        Beta <- lastpar[[1]]$Beta
-        if (!is.null(Intcpt <- hM$XInterceptInd)) {
-            Beta[Intcpt,] <- Beta[Intcpt,] + colSums(XScalePar[1,] * Beta)
-            Gamma[Intcpt,] <- Gamma[Intcpt,] + colSums(XScalePar[1,] * Gamma)
+    for (chain in seq_len(length(lastpar))) {
+        if (!is.null(TrScalePar)) {
+            Gamma <- lastpar[[chain]]$Gamma
+            if (!is.null(Intcpt <- hM$TrInterceptInd)) {
+                Gamma[, Intcpt] <- Gamma[, Intcpt] +
+                    rowSums(Gamma %*%
+                            diag(TrScalePar[1,], ncol = ncol(TrScalePar)))
+            }
+            Gamma <- Gamma %*% diag(TrScalePar[2,], ncol = ncol(TrScalePar))
         }
-        Beta <- XScalePar[2,] * Beta
-        Gamma <- XScalePar[2,] * Gamma
-        iV <- chol2inv(chol(lastpar[[1]]$V))
-        iV <- 1/XScalePar[2,] * iV %*%
-            diag(1/XScalePar[2,], ncol=ncol(XScalePar))
-        V <- chol2inv(chol(iV))
+        if (!is.null(XScalePar)) {
+            Beta <- lastpar[[chain]]$Beta
+            if (!is.null(Intcpt <- hM$XInterceptInd)) {
+                Beta[Intcpt,] <- Beta[Intcpt,] + colSums(XScalePar[1,] * Beta)
+                Gamma[Intcpt,] <- Gamma[Intcpt,] + colSums(XScalePar[1,] * Gamma)
+            }
+            Beta <- XScalePar[2,] * Beta
+            Gamma <- XScalePar[2,] * Gamma
+            iV <- chol2inv(chol(lastpar[[chain]]$V))
+            iV <- 1/XScalePar[2,] * iV %*%
+                diag(1/XScalePar[2,], ncol=ncol(XScalePar))
+            V <- chol2inv(chol(iV))
+        }
+        if (!is.null(Beta))
+            lastpar[[chain]]$Beta <- Beta
+        if (!is.null(Gamma))
+            lastpar[[chain]]$Gamma <- Gamma
+        if (!is.null(V))
+            lastpar[[chain]]$V <- V
     }
-    if (!is.null(Beta))
-        lastpar[[1]]$Beta <- Beta
-    if (!is.null(Gamma))
-        lastpar[[1]]$Gamma <- Gamma
-    if (!is.null(V))
-        lastpar[[1]]$V <- V
     ## done
     lastpar
 }
