@@ -168,10 +168,26 @@
         attr(zz, "RNGstate") <- attr(z, "RNGstate")
         attr(zz, "Zstate") <- attr(z, "Zstate")
         zz})
-    ## Beta and Gamma should be scale
+    nchains <- length(lastpar)
+    ## alignment may have reversed signs of Eta and Lambda
+    mirror <- attr(hM$postList, "alignment")
+    if (!is.null(mirror)) {
+        mirror <- lapply(mirror, function(x) x[, ncol(x)])
+        for (i in seq_len(hM$nr)) {
+            if (any(mirror[[i]] < 0)) {
+                for (chain in seq_len(nchains)) {
+                    lastpar[[chain]]$Eta[[i]] <-
+                        sweep(lastpar[[chain]]$Eta[[i]], 2, mirror[[i]], "*")
+                    lastpar[[chain]]$Lambda[[i]] <-
+                        mirror[[i]] * lastpar[[chain]]$Lambda[[i]]
+                }
+            }
+        }
+    }
+    ## Beta, Gamma & V should be scaled from X to internal XScaled
     TrScalePar <- hM$TrScalePar
     XScalePar <- hM$XScalePar
-    for (chain in seq_len(length(lastpar))) {
+    for (chain in seq_len(nchains)) {
         if (!is.null(TrScalePar)) {
             Gamma <- lastpar[[chain]]$Gamma
             if (!is.null(Intcpt <- hM$TrInterceptInd)) {

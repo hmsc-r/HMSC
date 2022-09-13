@@ -22,7 +22,7 @@ alignPosterior=function(hM){
    ncRRR = hM$ncRRR
    ncNRRR = hM$ncNRRR
    nr = hM$nr
-
+   mirror <- vector("list", nr)
    for(r in seq_len(nr)){
       nfVec = unlist(lapply(hM$postList, function(postChain) dim(postChain[[1]][["Lambda"]][[r]])[1]))
       nfMax = max(nfVec)
@@ -82,6 +82,8 @@ alignPosterior=function(hM){
          }
          hM$postList[[cInd]] = cpL
       }
+      olds <- attr(hM$postList, "alignment")
+      mirror[[r]] <- if (is.null(olds)) s else s * olds[[r]]
    }
    if(ncRRR>0){
       for (i in 1:length(hM$postList)){
@@ -109,5 +111,6 @@ alignPosterior=function(hM){
          hM$postList[[i]] = cpL
       }
    }
+   attr(hM$postList, "alignment") <- mirror
    return(hM)
 }
