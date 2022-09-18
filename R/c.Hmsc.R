@@ -193,6 +193,8 @@
     ## Beta, Gamma & V should be scaled from X to internal XScaled
     TrScalePar <- hM$TrScalePar
     XScalePar <- hM$XScalePar
+    if (hM$ncRRR > 0)
+        XScalePar <- cbind(XScalePar, hM$XRRRScalePar[, seq_len(hM$ncRRR)])
     for (chain in seq_len(nchains)) {
         if (!is.null(TrScalePar)) {
             Gamma <- lastpar[[chain]]$Gamma
@@ -203,7 +205,7 @@
             }
             Gamma <- Gamma %*% diag(TrScalePar[2,], ncol = ncol(TrScalePar))
         }
-        if (!is.null(XScalePar)) {
+        if (hM$ncNRRR > 0 || hM$ncRRR > 0) {
             Beta <- lastpar[[chain]]$Beta
             if (!is.null(Intcpt <- hM$XInterceptInd)) {
                 Beta[Intcpt,] <- Beta[Intcpt,] + colSums(XScalePar[1,] * Beta)
