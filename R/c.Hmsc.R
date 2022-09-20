@@ -176,17 +176,18 @@
         zz})
     nchains <- length(lastpar)
     ## alignment may have reversed signs of Eta and Lambda
-    mirror <- attr(hM$postList, "alignment")
-    if (!is.null(mirror)) {
-        mirror <- lapply(mirror, function(x) x[, ncol(x)])
+    mirror <- lapply(hM$postList, attr, which = "alignment")
+    if (!is.null(mirror[[1]])) {
         for (i in seq_len(hM$nr)) {
-            if (any(mirror[[i]] < 0)) {
-                for (chain in seq_len(nchains)) {
-                    lastpar[[chain]]$Eta[[i]] <-
-                        sweep(lastpar[[chain]]$Eta[[i]], 2, mirror[[i]], "*")
-                    lastpar[[chain]]$Lambda[[i]] <-
-                        mirror[[i]] * lastpar[[chain]]$Lambda[[i]]
-                }
+            for (chain in seq_len(nchains)) {
+                sgn <- mirror[[chain]][[i]]
+                sgn <- sgn[, ncol(sgn)]
+                if (all(sgn > 0))
+                    next
+                lastpar[[chain]]$Eta[[i]] <-
+                    sweep(lastpar[[chain]]$Eta[[i]], 2, sgn, "*")
+                lastpar[[chain]]$Lambda[[i]] <-
+                    sgn * lastpar[[chain]]$Lambda[[i]]
             }
         }
     }
