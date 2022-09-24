@@ -17,14 +17,20 @@
 computeInitialParameters = function(hM, initPar){
    parList = list()
 
-   if(hM$ncRRR>0){
-      DeltaRRR = matrix(c(rgamma(1,hM$a1RRR,hM$b1RRR), rgamma(hM$ncRRR-1,hM$a2RRR,hM$b2RRR)))
-      PsiRRR = matrix(rgamma(hM$ncRRR*hM$ncORRR, hM$nuRRR/2, hM$nuRRR/2), hM$ncRRR, hM$ncORRR)
-      tauRRR = matrix(apply(DeltaRRR, 2, cumprod), hM$ncRRR, 1)
-      tauMatRRR = matrix(tauRRR,hM$ncRRR,hM$ncORRR)
-      multRRR = sqrt(PsiRRR*tauMatRRR)^-1
-      wRRR = matrix(rnorm(hM$ncRRR*hM$ncORRR)*multRRR, hM$ncRRR, hM$ncORRR)
-      XB=hM$XRRRScaled%*%t(wRRR)
+   if(hM$ncRRR>0) {
+       if (!is.null(initPar$wRRR)) {
+           wRRR <- initPar$wRRR
+           PsiRRR <- initPar$PsiRRR
+           DeltaRRR <- initPar$DeltaRRR
+       } else {
+           DeltaRRR = matrix(c(rgamma(1,hM$a1RRR,hM$b1RRR), rgamma(hM$ncRRR-1,hM$a2RRR,hM$b2RRR)))
+           PsiRRR = matrix(rgamma(hM$ncRRR*hM$ncORRR, hM$nuRRR/2, hM$nuRRR/2), hM$ncRRR, hM$ncORRR)
+           tauRRR = matrix(apply(DeltaRRR, 2, cumprod), hM$ncRRR, 1)
+           tauMatRRR = matrix(tauRRR,hM$ncRRR,hM$ncORRR)
+           multRRR = sqrt(PsiRRR*tauMatRRR)^-1
+           wRRR = matrix(rnorm(hM$ncRRR*hM$ncORRR)*multRRR, hM$ncRRR, hM$ncORRR)
+       }
+       XB=hM$XRRRScaled%*%t(wRRR)
    } else {
       wRRR = NULL
       PsiRRR = NULL
