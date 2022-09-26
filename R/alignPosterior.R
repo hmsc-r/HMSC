@@ -92,7 +92,7 @@ alignPosterior=function(hM){
       }
    }
    if(ncRRR>0){
-      for (i in 1:length(hM$postList)){
+     for (i in 1:length(hM$postList)){
          cpL= hM$postList[[i]]
          valList=lapply(cpL, function(a) a[["wRRR"]])
          if (i==1){
@@ -115,6 +115,9 @@ alignPosterior=function(hM){
             }
          }
          hM$postList[[i]] = cpL
+         RRRmirror <- attr(hM$postList, "RRRalignment")
+         attr(hM$postList[[i]], "RRRalignment") <-
+             if (is.null(RRRmirror)) s else s * RRRmirror
       }
    }
    for (i in seq_along(hM$postList))
