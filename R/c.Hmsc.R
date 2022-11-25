@@ -54,7 +54,7 @@
           "nf", "ncr", "ncs", "np", "spNames", "covNames", "trNames",
           "rLNames", "XScalePar", "XRRRScalePar", "YScalePar",
           "TrScalePar", "V0", "f0", "mGamma", "UGamma", "aSigma",
-          "bSigma", "nu", "a1", "b1", "a2", "b2", "rhopw", "nuRRR",
+          "bSigma", "rhopw", "nuRRR",
           "a1RRR", "b1RRR", "a2RRR", "b2RRR",  "initPar", "repN")
     tmp <- hMList[[1]]
     objCheck <- lapply(hMList[-1],

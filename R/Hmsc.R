@@ -160,7 +160,6 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       V0=NULL, f0=NULL,
       mGamma=NULL, UGamma=NULL,
       aSigma=NULL, bSigma=NULL,
-      nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL,
       rhopw=NULL,
       nuRRR=NULL, a1RRR=NULL, b1RRR=NULL, a2RRR=NULL, b2RRR=NULL,
 

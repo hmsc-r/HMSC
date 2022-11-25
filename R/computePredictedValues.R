@@ -123,8 +123,7 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
          hM1 = Hmsc(Y=hM$Y[train,,drop=FALSE], X=XTrain,
                     XRRR=XRRRTrain, ncRRR = hM$ncRRR, XSelect = hM$XSelect,
                     distr=hM$distr, studyDesign=dfPi, Tr=hM$Tr, C=hM$C, ranLevels=hM$rL)
-         setPriors(hM1, V0=hM$V0, f0=hM$f0, mGamma=hM$mGamma, UGamma=hM$UGamma, aSigma=hM$aSigma, bSigma=hM$bSigma,
-                   nu=hM$nu, a1=hM$a1, b1=hM$b1, a2=hM$a2, b2=hM$b2, rhopw=hM$rhowp)
+         setPriors(hM1, V0=hM$V0, f0=hM$f0, mGamma=hM$mGamma, UGamma=hM$UGamma, aSigma=hM$aSigma, bSigma=hM$bSigma, rhopw=hM$rhowp)
          hM1$YScalePar = hM$YScalePar
          hM1$YScaled = (hM1$Y - matrix(hM1$YScalePar[1,],hM1$ny,hM1$ns,byrow=TRUE)) / matrix(hM1$YScalePar[2,],hM1$ny,hM1$ns,byrow=TRUE)
          hM1$XInterceptInd = hM$XInterceptInd
