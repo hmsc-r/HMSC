@@ -4,9 +4,9 @@ test_that("updateGamma2 is correct", {
    set.seed(200)
    parList = computeInitialParameters(TD$m,initPar=NULL)
    dataParList = computeDataParameters(TD$m)
-   Gamma = updateGamma2(Z=parList$Z,Gamma=parList$Gamma,iV=chol2inv(chol(parList$V)),iSigma=sqrt(parList$sigma),
+   Gamma = updateGamma2(Z=parList$Z,iV=chol2inv(chol(parList$V)),iQ=parList$iQg[,,parList$rho],iD=sqrt(parList$iD),
                         Eta=parList$Eta,Lambda=parList$Lambda, X=TD$m$X,Pi=TD$m$Pi,dfPi=TD$m$dfPi,Tr=TD$m$Tr,
-                        C=TD$m$C,rL=TD$m$rL, iQg=dataParList$iQg, mGamma=TD$m$mGamma,iUGamma=chol2inv(chol(TD$m$UGamma)))
+                        C=TD$m$C,rL=TD$m$rL, mGamma=TD$m$mGamma,iUGamma=chol2inv(chol(TD$m$UGamma)))
    expect_equal(ncol(Gamma),3)
    expect_equal(nrow(Gamma),3)
    expect_equal(round(sum(Gamma)),0)

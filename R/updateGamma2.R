@@ -1,6 +1,6 @@
 #' @importFrom stats rnorm
 #'
-updateGamma2 = function(Z,iV,rho,iD,Eta,Lambda, X,Pi,dfPi,Tr,C,rL, iQ, mGamma,iUGamma){
+updateGamma2 = function(Z,iV,iQ,iD,Eta,Lambda, X,Pi,dfPi,Tr,C,rL, mGamma,iUGamma){
    ns = ncol(Z)
    ny = nrow(Z)
    nc = nrow(iV)
@@ -31,33 +31,33 @@ updateGamma2 = function(Z,iV,rho,iD,Eta,Lambda, X,Pi,dfPi,Tr,C,rL, iQ, mGamma,iU
 
    if(is.null(C)){
       Bst = RBst = iLBstXtiDX = XtiDXiBstXtiDX = array(NA, c(ns,nc,nc))
-      tmp1 = matrix(0,nc*nt,nc*nt)
+      tmpList = vector("list", ns)
       iBXtiDS = XtiDXiBXtiDS = matrix(NA,nc,ns)
       for(j in 1:ns){
          Bst[j,,] = iV + XtiDX[j,,]
          RBst[j,,] = chol(Bst[j,,])
          iLBstXtiDX[j,,] = backsolve(RBst[j,,],XtiDX[j,,],transpose=TRUE)
          XtiDXiBstXtiDX[j,,] = crossprod(iLBstXtiDX[j,,])
-         tmp1 = tmp1 + kronecker(crossprod(Tr[j,,drop=FALSE]), XtiDX[j,,]-XtiDXiBstXtiDX[j,,])
+         tmpList[[j]] = kronecker(crossprod(Tr[j,,drop=FALSE]), XtiDX[j,,]-XtiDXiBstXtiDX[j,,])
          iBXtiDS[,j] = backsolve(RBst[j,,],backsolve(RBst[j,,],XtiDS[,j],transpose=TRUE))
          XtiDXiBXtiDS[,j] = XtiDX[j,,] %*% iBXtiDS[,j]
       }
-      iSigmaG = iUGamma + tmp1
+      iSigmaG = iUGamma + Reduce(sum, tmpList)
       mG0 = as.vector(iUGamma%*%mGamma) + as.vector(XtiDS%*%Tr - XtiDXiBXtiDS%*%Tr)
       RiSigmaG = chol(iSigmaG)
    } else{
       XtiDXbd = bdiag(lapply(split(XtiDX, rep(1:ns,nc^2)), matrix, nrow=nc))
       W = kronecker(iQ,iV) + XtiDXbd
       RW = chol(W)
-      RiW_XtiDX_TkI = solve(t(RW), XtiDXbd) %*% kronecker(Tr,Diagonal(nc))
-      TtkXt_iD_TkX = matrix(0,nc*nt,nc*nt)
+      iLW_XtiDX_TkI = backsolve(RW, XtiDXbd, transpose=TRUE) %*% kronecker(Tr,Diagonal(nc))
+      TtkXt_iD_TkX_List = vector("list", ns)
       for(j in 1:ns){
-         TtkXt_iD_TkX = TtkXt_iD_TkX + kronecker(crossprod(Tr[j,,drop=FALSE]), XtiDX[j,,])
+         TtkXt_iD_TkX_List[[j]] = kronecker(crossprod(Tr[j,,drop=FALSE]), XtiDX[j,,])
       }
-      iSigmaG = iUGamma + TtkXt_iD_TkX - Matrix::crossprod(RiW_XtiDX_TkI)
+      iSigmaG = iUGamma + Reduce(sum, TtkXt_iD_TkX_List) - Matrix::crossprod(iLW_XtiDX_TkI)
       RiSigmaG = chol(iSigmaG)
       XtiDST = XtiDS %*% Tr
-      iWXtiDS = solve(RW, solve(t(RW), as.vector(XtiDS)))
+      iWXtiDS = backsolve(RW, backsolve(RW, as.vector(XtiDS), transpose=TRUE))
       TtkXt_iD_IkX_iWXtiDS = kronecker(t(Tr),Diagonal(nc)) %*% (XtiDXbd %*% iWXtiDS)
       mG0 = as.vector(iUGamma%*%mGamma) + as.vector(XtiDST) - as.vector(TtkXt_iD_IkX_iWXtiDS)
    }

@@ -42,6 +42,9 @@ getPostEstimate = function(hM, parName, r=1, x=NULL, q=c(), chainIndex=1:length(
       valList = lapply(postList, function(a) a[[parName]][[r]])
    }
    if(parName %in% c("Alpha")){
+      if(hM$rL[[1]]$sDim==0){
+         stop(sprintf("requesting posterior of spatial lengthscale parameter for non-spatial random level %d", r))
+      }
       valList = lapply(postList, function(a) hM$rL[[r]]$alphapw[a[[parName]][[r]],1])
    }
    if(parName %in% c("Omega", "OmegaCor")){

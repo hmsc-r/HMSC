@@ -46,9 +46,10 @@ updatewRRR = function(Z,Beta,iD,Eta,Lambda,X1A,XRRR,Pi,dfPi,rL,PsiRRR,DeltaRRR){
       S = Z - LFix
    }
 
-   A1 = tcrossprod(BetaRRR*sqrt(iD))
-   A2 = crossprod(XRRR)
-   QtiDQ = kronecker(A2,A1)
+   # A1 = tcrossprod(BetaRRR*sqrt(iD))
+   # A2 = crossprod(XRRR)
+   # QtiDQ = kronecker(A2,A1)
+   QtiDQ = crossprod(kronecker(XRRR,t(BetaRRR)) * sqrt(as.vector(t(iD))))
    tauRRR = matrix(apply(DeltaRRR, 2, cumprod), ncRRR, 1)
    tauMatRRR = matrix(tauRRR,ncRRR,ncORRR)
    iU=diag(as.vector(PsiRRR*tauMatRRR))+QtiDQ

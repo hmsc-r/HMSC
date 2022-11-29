@@ -31,14 +31,11 @@ updateBetaLambda = function(Z,Gamma,iV,iD,Eta,Psi,Delta, iQ, X,Tr,Pi,dfPi,C,rL){
       }
       nfSum = sum(nf*ncr)
       EtaSt = matrix(unlist(EtaFull),ny,nfSum)
-      switch(class(X)[1L],
-         matrix = {
-            XEta = cbind(X,EtaSt)
-         },
-         list = {
-            XEta = lapply(X, cbind, EtaSt)
-         }
-      )
+      if(class(X)[1L] == "matrix"){
+         XEta = cbind(X, EtaSt)
+      } else if(class(X)[1L] == "list"){
+         XEta = lapply(X, cbind, EtaSt)
+      }
       PsiT = vector("list",nr)
       for(r in 1:nr){
          if(rL[[r]]$xDim == 0){
@@ -62,55 +59,37 @@ updateBetaLambda = function(Z,Gamma,iV,iD,Eta,Psi,Delta, iQ, X,Tr,Pi,dfPi,C,rL){
    Mu = rbind(tcrossprod(Gamma,Tr), matrix(0,nfSum,ns))
    iDS = iD*S
    iDS[is.na(Z)] = 0
-   switch(class(X)[1L],
-      matrix = {
-         XEtaTXEta = crossprod(XEta)
-         XTiDS = crossprod(XEta,iDS)
-      },
-      list = {
-         XEtaTXEta = lapply(XEta, crossprod)
-         XTiDS = matrix(NA,nc+nfSum,ns)
-         for(j in 1:ns)
-            XTiDS[,j] = crossprod(XEta[[j]],iDS[,j])
+   XEtaTiDXEtaList = vector("list", ns)
+   if(class(X)[1L] == "matrix"){
+      XTiDS = crossprod(XEta,iDS)
+      for(j in 1:ns){
+         XEtaTiDXEtaList[[j]] = crossprod(sqrt(iD[,j])*XEta)
       }
-   )
+   } else if(class(X)[1L] == "list"){
+      XTiDS = matrix(NA,nc+nfSum,ns)
+      for(j in 1:ns){
+         XTiDS[,j] = crossprod(XEta[[j]],iDS[,j])
+         XEtaTiDXEtaList[[j]] = crossprod(sqrt(iD[,j])*XEta[[j]])
+      }
+   }
 
    if(is.null(C)){ # no phylogeny information
       BetaLambda = matrix(NA, nc+nfSum, ns)
       randEps = matrix(rnorm((nc+nfSum)*ns), nc+nfSum, ns)
-      diagiV = diag(iV)
-      P0 = matrix(0,nc+nfSum,nc+nfSum)
-      P0[1:nc,1:nc] = iV
       for(j in 1:ns){
-         if(class(X)[1L]=="matrix"){
-            XEtaTiDXEta = crossprod(XEta,iD[,j]*XEta)
-         } else if(class(X)[1L]=="list"){
-            XEtaTiDXEta = crossprod(XEta[[j]],iD[,j]*XEta[[j]])
-         }
-         P = P0
-         diag(P) = c(diagiV, priorLambda[,j])
-         iU = P + XEtaTiDXEta
+         P = bdiag(iV, diag(priorLambda[,j]))
+         iU = P + XEtaTiDXEtaList[[j]]
          RiU = chol(iU)
-         U = chol2inv(RiU)
-         m = U %*% (P%*%Mu[,j] + XTiDS[,j]);
-         BetaLambda[,j] = m + backsolve(RiU, randEps[,j])
+         m1 = backsolve(RiU, P%*%Mu[,j] + XTiDS[,j], transpose=TRUE)
+         BetaLambda[,j] = backsolve(RiU, m1 + randEps[,j])
       }
    } else{ # available phylogeny information
       P = bdiag(kronecker(iV,iQ), Diagonal(x=t(priorLambda)))
-      tmp = vector("list",ns)
-      for(j in 1:ns){
-         if(class(X)[1L]=="matrix"){
-            XEtaTiDXEta = crossprod(XEta,iD[,j]*XEta)
-         } else if(class(X)[1L]=="list"){
-            XEtaTiDXEta = crossprod(XEta[[j]],iD[,j]*XEta[[j]])
-         }
-         tmp[[j]] = XEtaTiDXEta
-      }
-      tmpMat = Reduce(rbind, tmp)
+      tmpMat = Reduce(rbind, XEtaTiDXEtaList)
       ind1 = rep(rep(1:ns,each=nc+nfSum)+ns*rep(0:(nc+nfSum-1),ns), nc+nfSum)
       ind2 = rep(1:((nc+nfSum)*ns), each=nc+nfSum)
-      mat = sparseMatrix(ind1, ind2, x=as.vector(tmpMat))
-      RiU = chol(as.matrix(mat) + P)
+      XEtaTiDXEtaMat = sparseMatrix(ind1, ind2, x=as.vector(tmpMat))
+      RiU = chol(as.matrix(XEtaTiDXEtaMat) + P)
       m1 = backsolve(RiU, P%*%as.vector(t(Mu)) + as.vector(t(XTiDS)), transpose=TRUE)
       BetaLambda = matrix(backsolve(RiU, m1 + rnorm(ns*(nc+nfSum))), nc+nfSum, ns, byrow=TRUE)
    }

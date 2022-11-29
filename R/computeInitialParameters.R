@@ -249,7 +249,7 @@ computeInitialParameters = function(hM, initPar){
       }
    }
 
-   if(!is.null(initPar$rho)){
+   if(!is.null(initPar$Z)){
       Z = initPar$Z
       iD = matrix(sigma^-1,nrow(Z),ncol(Z),byrow=TRUE) * (!is.na(hM$YScaled))
    } else{

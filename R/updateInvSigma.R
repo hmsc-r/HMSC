@@ -35,8 +35,7 @@ updateInvSigma = function(Z,Beta,iSigma,Eta,Lambda, distr,X,Pi,dfPi,rL, aSigma,b
 
       nyObs = colSums(Yobs)
       shape = aSigma + nyObs/2
-      rate = bSigma + apply((Eps*Yobs)^2, 2, sum, na.rm=TRUE)/2
-
+      rate = bSigma + colSums((Eps*Yobs)^2, na.rm=TRUE)/2
       iSigma[indVarSigma] = rgamma(sum(indVarSigma), shape[indVarSigma], rate[indVarSigma])
    }
    iD = Yobs*matrix(iSigma,ny,ns,byrow=TRUE)

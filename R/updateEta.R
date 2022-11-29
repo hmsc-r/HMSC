@@ -66,8 +66,8 @@ updateEta = function(Z,Beta,iD,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
          }
       }
 
+      eta = matrix(NA,np[r],nf)
       if(rL[[r]]$sDim == 0){
-         eta = matrix(NA,np[r],nf)
          for(q in 1:np[r]){
             rows = which(lPi==q)
             iV = diag(nf) + LamiDLam[q,,]
@@ -76,9 +76,7 @@ updateEta = function(Z,Beta,iD,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
             mu = PiDSLambda[q,] %*% V
             eta[q,] = mu + backsolve(RiV,randEps[q,])
          }
-
       } else{
-         eta = matrix(0,np[r],nf)
          alpha = Alpha[[r]]
          iWg = rLPar[[r]]$iWg
          if(rL[[r]]$spatialMethod == "Full"){
@@ -90,10 +88,11 @@ updateEta = function(Z,Beta,iD,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
             feta = backsolve(R, tmp2);
             eta = matrix(feta,np[r],nf);
          } else if(rL[[r]]$spatialMethod == "NNGP"){
-            iWs = sparseMatrix(c(),c(),dims=c(np[r]*nf,np[r]*nf))
+            iWsElemList = vector("list", nf)
             for(h in seq_len(nf))
-               iWs = iWs + kronecker(iWg[[alpha[h]]], Diagonal(x=c(rep(0,h-1),1,rep(0,nf-h))))
-            LamiDLamBlockMat = bdiag(lapply(split(LamiDLam, 1:np[r]), function(x) matrix(x,nf,nf)))
+               iWsElemList[[h]] = kronecker(iWg[[alpha[h]]], Diagonal(x=c(rep(0,h-1),1,rep(0,nf-h))))
+            iWs = Reduce(sum, iWsElemList)
+            LamiDLamBlockMat = bdiag(lapply(split(LamiDLam, rep(1:np[r], nf^2)), function(x) matrix(x,nf,nf)))
             iUEta = iWs + LamiDLamBlockMat
             R = chol(iUEta)
             tmp2 = backsolve(R, as.vector(t(PiDSLambda)), transpose=TRUE) + as.vector(t(randEps))

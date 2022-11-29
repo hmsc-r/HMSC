@@ -81,7 +81,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
                       verbose, adaptNf=rep(transient,hM$nr),
                       nChains=1, nParallel=1,
                       useSocket = .Platform$OS.type == "windows",
-                      dataParList=NULL, updater=list(),
+                      dataParList=NULL, updater=list(GammaEta=FALSE),
                       fromPrior = FALSE, alignPost = TRUE)
 {
    ## use socket cluster if requested or in Windows
@@ -202,7 +202,6 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
       V = parList$V
       iV = chol2inv(chol(V))
       Beta = parList$Beta
-      BetaSel = parList$BetaSel
       PsiRRR = parList$PsiRRR
       DeltaRRR = parList$DeltaRRR
       wRRR = parList$wRRR
@@ -263,11 +262,9 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
                          "invSigma", "Nf", "LatentLoadingOrder")
       for(iter in seq_len(transient+samples*thin)){
 
-
-         #TODO Zconditioning - DONE
          if(!identical(updater$Gamma2, FALSE)) {
-            out = try(updateGamma2(Z=Z,iV=iV,rho=rho,iD=iD,
-                                   Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,C=C,rL=hM$rL, iQ=iQg[,,rho],
+            out = try(updateGamma2(Z=Z,iV=iV,iQ=iQg[,,rho],iD=iD,
+                                   Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,C=C,rL=hM$rL,
                                    mGamma=mGamma,iUGamma=iUGamma), silent = TRUE)
             if (!inherits(out, "try-error")) {
                Gamma <- out
@@ -276,7 +273,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
             }
          }
 
-         #TODO Zconditioning - NOT DONE, but updater disabled if missing values in Y
+         #TODO proper Z and iD conditioning - NOT DONE, but updater disabled by default value and forcefully disabled if missing values in Y
          if(!identical(updater$GammaEta, FALSE)){
             GammaEtaList = try(updateGammaEta(Z=Z,Gamma=Gamma,V=chol2inv(chol(iV)),iV=iV,id=iSigma,
                                               Eta=Eta,Lambda=Lambda,Alpha=Alpha, X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,rL=hM$rL, rLPar=rLPar,Q=Qg[,,rho],iQ=iQg[,,rho],RQ=RQg[,,rho],
@@ -289,7 +286,6 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
             }
          }
 
-         #TODO Zconditioning - DONE
          if(!identical(updater$BetaLambda, FALSE)){
             BetaLambdaList = try(updateBetaLambda(Z=Z,Gamma=Gamma,iV=iV,iD=iD,Eta=Eta,Psi=Psi,Delta=Delta, iQ=iQg[,,rho],
                                                   X=X,Tr=Tr,Pi=Pi,dfPi=dfPi,C=C,rL=hM$rL), silent = TRUE)
@@ -301,9 +297,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
             }
          }
 
-         #TODO Zconditioning - DONE
          if(!identical(updater$wRRR, FALSE) &&  hM$ncRRR>0){
-
             wRRRXList = try(updatewRRR(Z=Z, Beta=Beta, iD=iD,
                                        Eta=Eta, Lambda=Lambda, X1A=X1A, XRRR=hM$XRRRScaled,
                                        Pi=Pi, dfPi=dfPi,rL = hM$rL, PsiRRR=PsiRRR, DeltaRRR=DeltaRRR), silent = TRUE)
@@ -315,10 +309,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
             }
          }
 
-         #TODO Zconditioning - DONE
-         # This updater may be incompatible with intended marginalization trick for Poisson data augmentation
          if(!identical(updater$BetaSel, FALSE) &&  hM$ncsel>0){
-
             BetaSelXList = try(updateBetaSel(Z=Z,XSelect = hM$XSelect, BetaSel=BetaSel,Beta=Beta, iD=iD,
                                              Lambda=Lambda, Eta=Eta, X1=X1,Pi=Pi,dfPi=dfPi,rL=hM$rL), silent = TRUE)
             if (!inherits(BetaSelXList, "try-error")) {
@@ -372,9 +363,7 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
             }
          }
 
-         #TODO Zconditioning - DONE
          if(!identical(updater$Eta, FALSE))
-
             out = try(updateEta(Z=Z,Beta=Beta,iD=iD,Eta=Eta,
                                 Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, X=X,Pi=Pi,dfPi=dfPi,rL=hM$rL), silent = TRUE)
          if (!inherits(out, "try-error"))
@@ -389,8 +378,6 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
          else
             failed["Alpha"] <- failed["Alpha"] + 1
 
-
-         #TODO Zconditioning - DONE
          if(!identical(updater$InvSigma, FALSE))
             out = try(updateInvSigma(Z=Z,Beta=Beta,iSigma=iSigma,
                                      Eta=Eta,Lambda=Lambda, distr=distr,X=X,Pi=Pi,dfPi=dfPi,rL=hM$rL, aSigma=aSigma,bSigma=bSigma), silent = TRUE)
@@ -401,7 +388,6 @@ sampleMcmc = function(hM, samples, transient=0, thin=1, initPar=NULL,
          else
             failed["invSigma"] <- failed["invSigma"] + 1
 
-         #TODO Zconditioning - DONE
          if(!identical(updater$Z, FALSE)){
             resList = updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,distr=distr,rL=hM$rL)
             Z = resList$Z; iD = resList$iD
