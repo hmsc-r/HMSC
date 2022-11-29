@@ -83,12 +83,8 @@ updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,dfPi,rL, rLP
                      iBSHat = iB%*%SHat
                   } else{
                      Bst = array(rep(iV,each=ns),c(ns,nc,nc)) + array(id,c(ns,nc,nc))*array(rep(XtX,each=ns),c(ns,nc,nc))
-                     RBst = array(NA, c(ns,nc,nc))
-                     iBst = array(NA, c(ns,nc,nc))
+                     RBst = iBst = iLBstXtX = iBstXtX = XtXiBstXtX = array(NA, c(ns,nc,nc))
                      LamiDiBiDLamt = matrix(0,nf*nc,nf*nc)
-                     iLBstXtX = array(NA, c(ns,nc,nc))
-                     iBstXtX = array(NA, c(ns,nc,nc))
-                     XtXiBstXtX = array(NA, c(ns,nc,nc))
                      C = matrix(0,nf*nc,nt*nc)
                      E = matrix(0,nt*nc,nt*nc)
                      iBSHat = matrix(NA,nc,ns)
@@ -187,17 +183,14 @@ updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,dfPi,rL, rLP
                PtX = Matrix::crossprod(P, X)
                colSumP = Matrix::colSums(P)
                PtP = Diagonal(x=colSumP)
-               LamiDLam_PtP = kronecker(LamiDLam, PtP)
                LamiD_PtX = kronecker(LamiD, PtX)
 
+               # LamiDLam_PtP = kronecker(LamiDLam, PtP)
                # W = Diagonal(nf*np[r]) + LamiDLam_PtP
                # RW = chol(W)
                # iW = Matrix::chol2inv(RW)
 
-               WList = vector("list",np[r])
-               RWList = vector("list",np[r])
-               iWList = vector("list",np[r])
-               LiWList = vector("list",np[r])
+               WList = RWList = iWList = LiWList = vector("list",np[r])
                for(p in 1:np[r]){
                   WList[[p]] = diag(nf) + colSumP[p]*LamiDLam
                   RWList[[p]] = chol(WList[[p]])
@@ -215,7 +208,7 @@ updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,dfPi,rL, rLP
                # iLW.LamiD_PtX = backsolve(RW,LamiD_PtX,transpose=TRUE)
                iLW.LamiD_PtX = as.matrix(Matrix::crossprod(LiW, LamiD_PtX))
                iDLamt_XtP.iW.LamiD_PtX = crossprod(iLW.LamiD_PtX)
-               tmp1 = kronecker(diag(id,ns),XtX) - iDLamt_XtP.iW.LamiD_PtX
+               tmp1 = kronecker(diag(id),XtX) - iDLamt_XtP.iW.LamiD_PtX
                M = iSb + tmp1
                RM = chol(M)
 
@@ -242,7 +235,7 @@ updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,dfPi,rL, rLP
                me21 = as.vector(iW %*% me10)
                me20 = as.vector(PtP %*% matrix(me21,np[r],nf) %*% LamiDLam)
                me = me10 - me20
-               # Eta[[r]] = matrix(me + backsolve(RW,rnorm(np[r]*nf)), np[r],nf)
+               # EtaNew[[r]] = matrix(me + backsolve(RW,rnorm(np[r]*nf)), np[r],nf)
                EtaNew[[r]] = matrix(me + LiW %*% rnorm(np[r]*nf), np[r],nf)
             }
          } else{ # spatial level
@@ -254,18 +247,14 @@ updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,dfPi,rL, rLP
             LamiDLam_PtP = kronecker(LamiDLam, PtP)
             LamiD_PtX = kronecker(LamiD, PtX)
             LamiDT_PtX = kronecker(LamiD%*%Tr,PtX)
-            switch(rL[[r]]$spatialMethod,
-                   "Full" = {
-                      K = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$Wg[,,Alpha[[r]][x]]))
-                      iK = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$iWg[,,Alpha[[r]][x]]))
-                   },
-                   "NNGP" = {
-                      stop("no method implemented yet for nearest neighbour Gaussian process with GammaEta updater")
-                   },
-                   "GPP" = {
-                      stop("no method implemented yet for Gaussian predictive process with GammaEta updater")
-                   }
-            )
+            if(rL[[r]]$spatialMethod == "Full"){
+               K = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$Wg[,,Alpha[[r]][x]]))
+               iK = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$iWg[,,Alpha[[r]][x]]))
+            } else if(rL[[r]]$spatialMethod == "NNGP"){
+               stop("no method implemented yet for nearest neighbour Gaussian process with GammaEta updater")
+            } else if(rL[[r]]$spatialMethod == "GPP"){
+               stop("no method implemented yet for Gaussian predictive process with GammaEta updater")
+            }
             W = iK + LamiDLam_PtP
             RW = chol(W)
 
