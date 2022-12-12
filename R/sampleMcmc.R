@@ -170,9 +170,11 @@
          }
       }
    }
-
+   ## get data parameters & initial parameters
    if (is.null(dataParList))
         dataParList <- computeDataParameters(hM)
+   initParList <- replicate(nChains, computeInitialParameters(hM, initPar),
+                            simplify = FALSE)
 
    hM$postList = vector("list", nChains)
    hM$repList = vector("list", nChains)
@@ -241,8 +243,8 @@
     obj <- list(hM = hM, samples = samples, transient = transient, thin = thin,
                 nChains = nChains, verbose = verbose, nParallel = nParallel,
                 useSocket = useSocket, initPar = initPar,
-                dataParList = dataParList, X1 = X1, Rupdater = updater,
-                adaptNf = adaptNf, alignPost = alignPost)
+                initParList = initParList, dataParList = dataParList, X1 = X1,
+                Rupdater = updater, adaptNf = adaptNf, alignPost = alignPost)
     obj
 }
 
@@ -357,7 +359,7 @@
     if(nChains>1)
         cat(sprintf("Computing chain %d\n", chain))
     set.seed(initSeed[chain])
-    parList = computeInitialParameters(hM,initPar)
+    parList = obj$initParList[[chain]]
 
     Gamma = parList$Gamma
     V = parList$V
