@@ -150,8 +150,8 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                    }
                    iUEta = iWs + tmp1
                    R = Matrix::chol(iUEta)
-                   tmp2 = backsolve(R, as.vector(t(fS)), transpose=TRUE) + rnorm(nf*np[r])
-                   feta = backsolve(R, tmp2)
+                   tmp2 = Matrix::solve(t(R), as.vector(t(fS))) + rnorm(nf*np[r])
+                   feta = Matrix::solve(R, tmp2)
                    eta = matrix(feta,np[r],nf,byrow=TRUE)
                 },
                 "GPP" = {
