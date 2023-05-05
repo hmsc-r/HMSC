@@ -1,4 +1,4 @@
-#' @importFrom stats pnorm runif
+#' @importFrom stats dnorm runif
 #' 
 updateBetaSel = function(Z=Z,XSelect, BetaSel, Beta, iSigma,
                          Lambda, Eta, X1,Pi,dfPi,rL){
@@ -76,7 +76,7 @@ updateBetaSel = function(Z=Z,XSelect, BetaSel, Beta, iSigma,
 
          llNew = ll
          for (j in fsp){
-            llNew[,j]= pnorm(q = Z[,j], mean = ENew[,j], sd = std[j],log.p = TRUE)
+            llNew[,j]= dnorm(Z[,j], mean=ENew[,j], sd=std[j], log=TRUE)
          }
          lldif = sum(llNew[,fsp])-sum(ll[,fsp])
          q = XSel$q[spg]
