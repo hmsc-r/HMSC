@@ -50,7 +50,7 @@ updateBetaSel = function(Z=Z,XSelect, BetaSel, Beta, iSigma,
 
    ll = matrix(NA,ny,ns)
    for (j in 1:ns){
-      ll[,j]= pnorm(q = Z[,j], mean = E[,j], sd = std[j],log.p = TRUE)
+      ll[,j]= dnorm(Z[,j], mean=E[,j], sd=std[j], log=TRUE)
    }
 
    BetaSelNew = BetaSel
