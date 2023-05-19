@@ -149,9 +149,9 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
                       fS = Matrix::tcrossprod(Matrix::crossprod(P,S), lambda*matrix(iSigma,nf,ns,byrow=TRUE))
                    }
                    iUEta = iWs + tmp1
-                   R = chol(iUEta)
-                   tmp2 = backsolve(R, as.vector(t(fS)), transpose=TRUE) + rnorm(nf*np[r])
-                   feta = backsolve(R, tmp2)
+                   R = Matrix::chol(iUEta)
+                   tmp2 = Matrix::solve(t(R), as.vector(t(fS))) + rnorm(nf*np[r])
+                   feta = Matrix::solve(R, tmp2)
                    eta = matrix(feta,np[r],nf,byrow=TRUE)
                 },
                 "GPP" = {

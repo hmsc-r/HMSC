@@ -135,8 +135,8 @@ computeVariancePartitioning =
    }
    lbeta=lapply(postList, gebeta)
 
-
-   for (i in 1:hM$samples){
+   poolN <- length(postList) # pooled chains
+   for (i in seq_len(poolN)){
       for (k in 1:nc){
          R2T.Beta[k] = R2T.Beta[k] + cor(lbeta[[i]][k,],lmu[[i]][k,])^2
       }
@@ -186,11 +186,11 @@ computeVariancePartitioning =
          fixedsplit[,k] =  fixedsplit[,k] + fixedsplit1[,k]/rowSums(fixedsplit1)
       }
    }
-   fixed = fixed/hM$samples
-   random = random/hM$samples
-   fixedsplit = fixedsplit/hM$samples
-   R2T.Y = R2T.Y/hM$samples
-   R2T.Beta = R2T.Beta/hM$samples
+   fixed = fixed/poolN
+   random = random/poolN
+   fixedsplit = fixedsplit/poolN
+   R2T.Y = R2T.Y/poolN
+   R2T.Beta = R2T.Beta/poolN
 
    vals = matrix(0,nrow=ngroups+nr,ncol=ns)
    for (i in 1:ngroups){
