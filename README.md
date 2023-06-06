@@ -1,8 +1,6 @@
 # Hmsc
 
-[![R build
-status](https://github.com/hmsc-r/HMSC/workflows/R-CMD-check/badge.svg)](https://github.com/hmsc-r/Hmsc/actions)
-[![Test coverage](https://codecov.io/gh/hmsc-r/HMSC/branch/master/graph/badge.svg](https://app.codecov.io/gh/hmsc-r/Hmsc?branch=master)
+[![Build Status](https://travis-ci.org/hmsc-r/HMSC.svg?branch=master)](https://travis-ci.org/hmsc-r/HMSC)
 [![CRAN version](https://www.r-pkg.org/badges/version/Hmsc)](https://cran.rstudio.com/web/packages/Hmsc/index.html) [![](https://cranlogs.r-pkg.org/badges/grand-total/Hmsc)](https://cran.rstudio.com/web/packages/Hmsc/index.html)
 
 ## Description
