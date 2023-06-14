@@ -40,7 +40,7 @@ prepareGradient = function(hM, XDataNew, sDataNew){
    for (r in seq_len(hM$nr)){
       rL1 = hM$rL[[r]]
       if (rL1$sDim==0){
-         dfPiNew[,r] = sprintf('new_unit',1:(nyNew))
+         dfPiNew[,r] = sprintf('new_unit%.6d', seq_len(nyNew))
          unitsAll = c(rL1$pi,dfPiNew[,r])
          rL1$pi = unitsAll
          rL1$N = rL1$N+1 # '+1' - shouldn't this be length(unitsAll)?
