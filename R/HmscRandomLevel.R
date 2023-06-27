@@ -62,7 +62,8 @@
 #' rL = HmscRandomLevel(xData=data.frame(x1=rep(1,length(TD$X$x1)),x2=TD$X$x2))
 #'
 #' @importFrom methods is
-#' @importFrom sp coordinates `coordinates<-` CRS is.projected
+## @importFrom sp coordinates `coordinates<-` CRS is.projected
+#' @importFrom sf st_as_sf st_crs st_coordinates
 #'
 #' @export
 
@@ -77,33 +78,33 @@ HmscRandomLevel =
    if(!is.null(distMat) && !is.null(sData)){
       stop("sData and distMat cannot both be specified")
    }
-   if(!is.null(sData)){
-      ## longitude & latitude data?
+   if(!is.null(sData)) {
+      ## we no longer support sp package: try conversion to simple features
+      if (is(sData, "Spatial"))
+         sData <- st_as_sf(sData) # FIXME: does not set correct row names
+      ## longitude & latitude dat
       if (longlat) {
          sData <- as.data.frame(sData)
-         coordinates(sData) <- colnames(sData)
-         proj4string(sData) <- CRS("+proj=longlat")
+         sData <- st_as_sf(sData, coords = colnames(sData),
+                           row.names=rownames(sData))
+         st_crs(sData) <- "+proj=longlat"
       }
       ## Retain Spatial data if they are non-projected (longlat),
       ## otherwise extract only coordinates
-      if (is(sData, "Spatial") && is.projected(sData)) {
-         sData <- coordinates(sData) # no longer "Spatial"
+      if (inherits(sData, "sf") && !st_is_longlat(sData)) {
+         sData <- as.data.frame(st_coordinates(sData)) # no longer sf spatial data
       }
       rL$s = sData
-      ## several standard functions do not work with Spatial (sp) data
-      if (is(sData, "Spatial")) {
-         if (any(duplicated(coordinates(sData))))
-            stop("sData locations must be unique")
-         rL$N <- nrow(coordinates(sData))
-         rL$pi <- as.factor(sort(row.names(sData)))
-         rL$sDim <- ncol(coordinates(sData))
-      } else {
-         if (any(duplicated(sData)))
-            stop("sData locations must be unique")
-         rL$N = nrow(sData)
-         rL$pi = as.factor(sort(rownames(sData)))
+      ## standard functions should work with spatial (sf) data
+      if (any(duplicated(sData)))
+         stop("sData locations must be unique")
+      rL$N = nrow(sData)
+      rL$pi = as.factor(sort(rownames(sData)))
+      if (inherits(sData, "sf"))
+         rL$sDim <- ncol(st_coordinates(sData))
+      else
          rL$sDim = ncol(sData)
-      }
+
       rL$spatialMethod = sMethod
       rL$nNeighbours = nNeighbours
       rL$sKnot = sKnot
