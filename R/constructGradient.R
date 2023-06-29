@@ -46,7 +46,8 @@
 #'
 #' @importFrom stats lm predict
 #' @importFrom methods is
-#' @importFrom sp coordinates `coordinates<-` proj4string `proj4string<-`
+## @importFrom sp coordinates `coordinates<-` proj4string `proj4string<-`
+#' @importFrom sf st_as_sf st_coordinates st_crs `st_crs<-`
 #' @importFrom nnet multinom
 #'
 #' @export
@@ -232,16 +233,16 @@ constructGradient =
       rL1 = hM$rL[[r]]
       xydata = rL1$s
       if (!is.null(xydata)) {
-         if (is(xydata, "Spatial")) {
+         if (inherits(xydata, "sf")) {
             if(!is.null(coord) && coord == "i")
-                centre <- rep(Inf, NCOL(coordinates(xydata)))
+                centre <- rep(Inf, NCOL(st_coordinates(xydata)))
             else if(is.numeric(coord))
                 centre <- coord
             else
-                centre <- as.data.frame(t(colMeans(coordinates(xydata))))
+                centre <- as.data.frame(t(colMeans(st_coordinates(xydata))))
             rownames(centre) <- "new_unit"
-            coordinates(centre) <- colnames(centre)
-            proj4string(centre) <- proj4string(xydata)
+            centre <- st_as_sf(centre, coords = colnames(centre))
+            st_crs(centre) <- st_crs(xydata)
             xydata <- rbind(xydata, centre)
          } else {
             if (!is.null(coord) && coord == "i")
