@@ -80,8 +80,11 @@ HmscRandomLevel =
    }
    if(!is.null(sData)) {
       ## we no longer support sp package: try conversion to simple features
-      if (is(sData, "Spatial"))
-         sData <- st_as_sf(sData) # FIXME: does not set correct row names
+      if (is(sData, "Spatial")) {
+         nm <- row.names(sData)
+         sData <- st_as_sf(sData) # does not preserve correct row names
+         row.names(sData) <- nm
+      }
       ## longitude & latitude dat
       if (longlat) {
          sData <- as.data.frame(sData)
