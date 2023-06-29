@@ -18,13 +18,13 @@ HmscRandomLevel(
 }
 \arguments{
 \item{sData}{a matrix or a dataframe containing spatial or temporal
-coordinates of units of the random level, or a similar
-\code{SpatialPoints} structure of the \CRANpkg{sp} package. If
-spatial coordinates are unprojected longitude and latitude,
-great circle distances will be calculated internally. All
-spatial locations should be unique. If you have several
-observations in the same point, they should be identified by
-the random levels.}
+coordinates of units of the random level either as a matrix or
+data frame, or a similar spatial structure of the \CRANpkg{sf}
+package. If spatial coordinates are unprojected longitude and
+latitude, great circle distances will be calculated
+internally. All spatial locations should be unique. If you have
+several observations in the same point, they should be
+identified by the random levels.}
 
 \item{sMethod}{a string specifying which spatial method to be
 used. Possible values are \code{"Full"}, \code{"GPP"} and

@@ -27,7 +27,7 @@ This is a helper function for spatial Hmsc models with the
     locations. Knot locations with a distance greater than
     \code{minKnotDist} to the nearest data point are dropped from
     the grid. If the input locations are
-    \code{\link[sp]{SpatialPoints}} data, these are treated like
+    spatial data of \CRANpkg{sf} package, these are treated like
     Euclidean coordinates, and if the points are not projected, a
     warning is issued.
 

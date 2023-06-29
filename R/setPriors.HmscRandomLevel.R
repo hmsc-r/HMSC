@@ -13,9 +13,9 @@
 #' @return Modified HmscRandomLevel object
 #'
 #' @importFrom methods is
-##' @importFrom sp bbox coordinates `coordinates<-` proj4string
-##'     `proj4string<-` spDists
-#' @importFrom sf st_as_sf st_crs st_bbox st_distance
+## @importFrom sp bbox coordinates `coordinates<-` proj4string
+##     `proj4string<-` spDists
+#' @importFrom sf st_as_sf st_crs `st_crs<-` st_bbox st_distance
 #' @export
 
 setPriors.HmscRandomLevel = function(rL, nu=NULL, a1=NULL, a2=NULL, b1=NULL, b2=NULL, alphapw=NULL, nfMax=NULL, nfMin=NULL, setDefault=FALSE, ...)

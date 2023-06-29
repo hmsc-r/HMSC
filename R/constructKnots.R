@@ -7,7 +7,7 @@
 #'     locations. Knot locations with a distance greater than
 #'     \code{minKnotDist} to the nearest data point are dropped from
 #'     the grid. If the input locations are
-#'     \code{\link[sp]{SpatialPoints}} data, these are treated like
+#'     spatial data of \CRANpkg{sf} package, these are treated like
 #'     Euclidean coordinates, and if the points are not projected, a
 #'     warning is issued.
 #'
@@ -29,8 +29,9 @@
 #'
 #' @importFrom methods is
 #' @importFrom FNN knnx.dist
-#' @importFrom sp coordinates `coordinates<-` is.projected
-#'     proj4string `proj4string<-`
+## @importFrom sp coordinates `coordinates<-` is.projected
+##     proj4string `proj4string<-`
+#' @importFrom sf st_as_sf st_is_longlat st_crs `st_crs<-`
 #' @export
 
 constructKnots =
@@ -41,10 +42,10 @@ constructKnots =
       stop("nKnots and knotDist cannot both be specified")
    }
    ## get coordinates of spatial points, but warn if these are not projected
-   if (is(sData, "Spatial")) {
-      if (!is.projected(sData)) {
+   if (inheirts(sData, "sf")) {
+      if (st_is_longlat(sData)) {
          warning("producing regular grid, but spatial points are not projected")
-         proj4 <- proj4string(sData)
+         proj4 <- st_crs(sData)
       }
       sData <- coordinates(sData)
    }
@@ -71,8 +72,8 @@ constructKnots =
    sKnot = sKnot[Dist < minKnotDist,]
    ## set original proj4string for non-projected Spatial data
    if (exists("proj4", inherits = FALSE)) {
-      coordinates(sKnot) <- colnames(sKnot)
-      proj4string(sKnot) <- proj4
+      sKnot <- st_as_sf(sKnot, coords = colnames(sKnot))
+      st_crs(sKnot) <- proj4
    }
    sKnot
 }

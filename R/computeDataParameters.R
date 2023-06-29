@@ -8,7 +8,7 @@
 #'
 #' @importFrom stats dist
 #' @importFrom methods is
-##' @importFrom sp spDists
+## @importFrom sp spDists
 #' @importFrom sf st_distance
 #' @importFrom FNN get.knn
 #' @importFrom Matrix .sparseDiagonal t solve
