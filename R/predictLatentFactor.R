@@ -48,7 +48,8 @@
 #' @importFrom stats rnorm dist
 #' @importFrom methods is
 #' @importFrom FNN knnx.index
-#' @importFrom sp spDists
+## @importFrom sp spDists
+#' @importFrom sf st_distance
 #'
 #' @export
 
@@ -86,9 +87,9 @@ predictLatentFactor =
                if(!is.null(rL$s)){
                   s1 = rL$s[units,, drop=FALSE]
                   s2 = rL$s[unitsPred[indNew],,drop=FALSE]
-                  if (is(s1, "Spatial")) {
-                     D11 <- spDists(s1)
-                     D12 <- spDists(s1, s2)
+                  if (inherits(s1, "sf")) {
+                     D11 <- st_distance(s1)
+                     D12 <- st_distance(s1, s2)
                   } else {
                      dim = NCOL(s1)
                      D11 = as.matrix(dist(s1))
@@ -127,8 +128,8 @@ predictLatentFactor =
                   unitsAll = c(units,unitsPred[indNew])
                   if(!is.null(rL$s)){
                      s = rL$s[unitsAll,,drop=FALSE]
-                     if (is(s, "Spatial"))
-                        D <- spDists(s)
+                     if (inherits(s, "sf"))
+                        D <- st_distance(s)
                      else
                         D = as.matrix(dist(s))
                   } else {
@@ -174,7 +175,7 @@ predictLatentFactor =
                       ## In Euclidean coordinates we use fast
                       ## FNN::knnx.index, but for Spatial coordinates we
                       ## need to first calculate spatial distances
-                      if (is(sOld, "Spatial")) {
+                      if (inherits(sOld, "sf")) {
                           ## if we use NNGP, full distance matrix can be
                           ## too big, and we loop over sOld rows: this is
                           ## slow but needs less memory
@@ -182,7 +183,7 @@ predictLatentFactor =
                           indNN <- matrix(0, nn, nnabo)
                           for (i in seq_len(nn)) {
                               indNN[i,] <-
-                                  order(spDists(sOld,
+                                  order(st_distance(sOld,
                                                 sNew[i,, drop=FALSE]))[seq_len(nnabo)]
                           }
                       } else {
@@ -192,9 +193,9 @@ predictLatentFactor =
                       for(i in 1:nn){
                           ind = indNN[i,]
                           indices[[i]] = rbind(i*rep(1,length(ind)),ind)
-                          if (is(sOld, "Spatial")) {
-                              dist12[,i] <- spDists(sOld[ind,,drop=FALSE], sNew[i,])
-                              dist11[,,i] = spDists(sOld[ind,, drop=FALSE])
+                          if (inherits(sOld, "sf")) {
+                              dist12[,i] <- st_distance(sOld[ind,,drop=FALSE], sNew[i,])
+                              dist11[,,i] = st_distance(sOld[ind,, drop=FALSE])
                           } else {
                               das <- 0
                               for (dim in seq_len(rL$sDim))
@@ -231,9 +232,9 @@ predictLatentFactor =
                   sKnot = rL$sKnot
                   unitsAll = c(units,unitsPred[indNew])
                   s = rL$s[unitsAll,,drop=FALSE]
-                  if (is(s, "Spatial")) {
-                     das <- spDists(s, sKnot)
-                     dss <- spDists(sKnot)
+                  if (inherits(s, "sf")) {
+                     das <- st_distance(s, sKnot)
+                     dss <- st_distance(sKnot)
                   } else {
                      dim = NCOL(s)
                      dss = as.matrix(dist(sKnot))
