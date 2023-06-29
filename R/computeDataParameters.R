@@ -8,7 +8,8 @@
 #'
 #' @importFrom stats dist
 #' @importFrom methods is
-#' @importFrom sp spDists
+##' @importFrom sp spDists
+#' @importFrom sf st_distance
 #' @importFrom FNN get.knn
 #' @importFrom Matrix .sparseDiagonal t solve
 #'
@@ -61,8 +62,8 @@ computeDataParameters = function(hM){
                 "Full" = {
                    if(is.null(hM$rL[[r]]$distMat)){
                       s = hM$rL[[r]]$s[levels(hM$dfPi[,r]),]
-                      if (is(s, "Spatial"))
-                         distance <- spDists(s)
+                      if (inherits(s, "sf"))
+                         distance <- st_distance(s)
                       else
                          distance = as.matrix(dist(s))
                    } else{
