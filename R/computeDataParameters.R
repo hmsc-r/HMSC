@@ -9,7 +9,7 @@
 #' @importFrom stats dist
 #' @importFrom methods is
 ## @importFrom sp spDists
-#' @importFrom sf st_distance
+#' @importFrom sf st_distance st_coordinates
 #' @importFrom FNN get.knn
 #' @importFrom Matrix .sparseDiagonal t solve
 #'
@@ -102,8 +102,8 @@ computeDataParameters = function(hM){
                    }
                    ## SpatialPoints are non-Euclidean, and we need
                    ## distances to get the nearest neighbours
-                   if(is(hM$rL[[r]]$s, "Spatial"))
-                      distMat <- spDists(hM$rL[[r]]$s[levels(hM$dfPi[,r]),])
+                   if(inherits(hM$rL[[r]]$s, "sf"))
+                      distMat <- st_distance(hM$rL[[r]]$s[levels(hM$dfPi[,r]),])
                    iWg = list()
                    RiWg = list()
                    detWg = rep(NA,alphaN)
@@ -174,11 +174,11 @@ computeDataParameters = function(hM){
                    }
                    s = hM$rL[[r]]$s[levels(hM$dfPi[,r]),]
                    sKnot = hM$rL[[r]]$sKnot
-                   if (is(s, "Spatial")) {
-                      dim <- ncol(coordinates(s))
-                      nKnots <- nrow(coordinates(sKnot))
-                      di12 <- spDists(s, sKnot)
-                      di22 <- spDists(sKnot)
+                   if (inherits(s, "sf")) {
+                      dim <- ncol(st_coordinates(s))
+                      nKnots <- nrow(st_coordinates(sKnot))
+                      di12 <- st_distance(s, sKnot)
+                      di22 <- st_distance(sKnot)
                    } else {
                       dim <- ncol(s)
                       nKnots <- nrow(sKnot)

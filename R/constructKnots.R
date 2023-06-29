@@ -31,7 +31,7 @@
 #' @importFrom FNN knnx.dist
 ## @importFrom sp coordinates `coordinates<-` is.projected
 ##     proj4string `proj4string<-`
-#' @importFrom sf st_as_sf st_is_longlat st_crs `st_crs<-`
+#' @importFrom sf st_as_sf st_is_longlat st_crs `st_crs<-` st_coordinates
 #' @export
 
 constructKnots =
@@ -42,12 +42,12 @@ constructKnots =
       stop("nKnots and knotDist cannot both be specified")
    }
    ## get coordinates of spatial points, but warn if these are not projected
-   if (inheirts(sData, "sf")) {
+   if (inherits(sData, "sf")) {
       if (st_is_longlat(sData)) {
          warning("producing regular grid, but spatial points are not projected")
          proj4 <- st_crs(sData)
       }
-      sData <- coordinates(sData)
+      sData <- st_coordinates(sData)
    }
    mins = apply(sData,2,min)
    maxs = apply(sData,2,max)

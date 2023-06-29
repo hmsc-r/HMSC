@@ -47,6 +47,5 @@ Imports:
    pracma,
    pROC,
    sf,
-   sp,
    statmod,
    truncnorm
