@@ -70,7 +70,7 @@ HmscRandomLevel =
     function(sData=NULL, sMethod = "Full", distMat=NULL, xData=NULL, units=NULL,
              N=NULL, nNeighbours=10, sKnot=NULL, longlat = FALSE)
 {
-   rL = structure(list(pi=NULL, s=NULL, sDim=NULL, spatialMethod=NULL, x=NULL, xDim=NULL, N=NULL, distMat=NULL, #
+   rL = structure(list(pi=NULL, s=NULL, sDim=NULL, spatialMethod=NULL, x=NULL, xDim=NULL, N=NULL, distMat=NULL, xMat=NULL, #
       nfMax=NULL, nfMin=NULL, nNeighbours=NULL, nu=NULL, a1=NULL, b1=NULL, a2=NULL, b2=NULL, alphapw=NULL), class="HmscRandomLevel")
    if(nargs()==0)
       stop("at least one argument must be specified")
@@ -134,7 +134,7 @@ HmscRandomLevel =
    if(!is.null(xData)){
       if(!is.null(rL$pi)){
          if(any(!(rownames(xData)%in%rL$pi)))
-            stop("duplicated specification of unit names")
+            stop("mismatching specification of unit names in xData")
       } else{
          rL$pi = sort(as.factor(rownames(xData)))
          rL$N = nrow(xData)

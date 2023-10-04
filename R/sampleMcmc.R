@@ -94,7 +94,7 @@
     samplingObject <-
         prepareSamplingObject(hM, samples, transient, thin, initPar, verbose,
                               adaptNf, nChains, nParallel, useSocket,
-                              dataParList, updater, alignPost)
+                              dataParList, updater, alignPost, compactDataParListFormat=(engine=="passCompact"))
     ## switch allows developing parallel sampling implementations
     ## without disturbing users. The choices can be non-public during
     ## development, or they can be made public alternatives. Currently
@@ -104,6 +104,7 @@
            "r"=,
            "R" = RSampler(samplingObject),
            "pass" = samplingObject,
+           "passCompact" = samplingObject,
            stop("unknown engine ", sQuote(engine)) # none of above: error
            )
 }
@@ -134,7 +135,7 @@
 
 `prepareSamplingObject` <-
     function(hM, samples, transient, thin, initPar, verbose, adaptNf, nChains,
-             nParallel, useSocket, dataParList, updater, alignPost)
+             nParallel, useSocket, dataParList, updater, alignPost, compactDataParListFormat=FALSE)
 {
    ## use socket cluster if requested or in Windows
    if (nParallel > 1 && .Platform$OS.type == "windows" && !useSocket) {
@@ -172,7 +173,7 @@
    }
    ## get data parameters & initial parameters
    if (is.null(dataParList))
-        dataParList <- computeDataParameters(hM)
+        dataParList <- computeDataParameters(hM, compactFormat=compactDataParListFormat)
    initParList <- replicate(nChains, computeInitialParameters(hM, initPar),
                             simplify = FALSE)
 
