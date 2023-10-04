@@ -37,7 +37,7 @@ updatewRRR = function(Z,Beta,iSigma,Eta,Lambda,X1A,XRRR,Pi,dfPi,rL,PsiRRR,DeltaR
       } else{
          LRan[[r]] = matrix(0,ny,ns)
          for(k in 1:rL[[r]]$xDim)
-            LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),r]) %*% Lambda[[r]][,,r]
+            LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),r]) %*% Lambda[[r]][,,k]
       }
    }
    if(nr > 1){
