@@ -138,7 +138,8 @@ test_that("computeDataParameters gives right number of parameters",{
    parList = computeDataParameters(TD$m)
    expect_equal(length(parList),5)
    expect_equal(length(parList$rLPar[[1]]),0)
-   expect_equal(length(parList$rLPar[[2]]),4)
+   expect_true(all(c("Wg","iWg","RiWg","detWg","distMat") %in%
+                   names(parList$rLPar[[2]])))
 })
 
 test_that("phylogenetic parameters when phylogeny is provided",{
