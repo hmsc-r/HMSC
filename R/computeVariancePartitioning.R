@@ -103,7 +103,7 @@ computeVariancePartitioning =
             matrix = {res = hM$X%*%(t(hM$Tr%*%t(a$Gamma)))},
             list = {
               res = matrix(NA,hM$ny,hM$ns)
-              for(j in 1:hM$ns) res[,j] =  hM$X[[j]]%*%(t(hM$Tr[j,]%*%t(postList[[1]]$Gamma)))
+              for(j in 1:hM$ns) res[,j] =  hM$X[[j]]%*%(t(hM$Tr[j,]%*%t(a$Gamma)))
             }
      )
      return(res)
