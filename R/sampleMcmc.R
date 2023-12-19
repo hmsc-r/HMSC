@@ -83,9 +83,9 @@
     function(hM, samples, transient=0, thin=1, initPar=NULL,
              verbose, adaptNf=rep(transient,hM$nr),
              nChains=1, nParallel=1,
-             useSocket = TRUE,
-             dataParList=NULL, updater=list(GammaEta=FALSE),
-             fromPrior = FALSE, alignPost = TRUE, engine = "R")
+             useSocket=TRUE,
+             dataParList=NULL, updater=list(Gamma2=FALSE, GammaEta=FALSE),
+             fromPrior=FALSE, alignPost=TRUE, engine="R")
 {
     ## prior sampling can pass preparation and sampleChain, and
     ## ignores most input arguments
@@ -94,17 +94,19 @@
     samplingObject <-
         prepareSamplingObject(hM, samples, transient, thin, initPar, verbose,
                               adaptNf, nChains, nParallel, useSocket,
-                              dataParList, updater, alignPost, compactDataParListFormat=(engine=="passCompact"))
+                              dataParList, updater, alignPost, hpcFormat=(engine=="HPC"))
+
     ## switch allows developing parallel sampling implementations
     ## without disturbing users. The choices can be non-public during
     ## development, or they can be made public alternatives. Currently
     ## there is a non-public alternative "pass" that returns the
-    ## samplingObject for inspection or export.
+    ## samplingObject for inspection or "HPC" that prepares the export
+    ## object for Hmsc-HPC.
     switch(engine,
            "r"=,
            "R" = RSampler(samplingObject),
-           "pass" = samplingObject,
-           "passCompact" = samplingObject,
+           "pass"=,
+           "HPC" = samplingObject,
            stop("unknown engine ", sQuote(engine)) # none of above: error
            )
 }
@@ -135,7 +137,7 @@
 
 `prepareSamplingObject` <-
     function(hM, samples, transient, thin, initPar, verbose, adaptNf, nChains,
-             nParallel, useSocket, dataParList, updater, alignPost, compactDataParListFormat=FALSE)
+             nParallel, useSocket, dataParList, updater, alignPost, hpcFormatFlag=FALSE)
 {
    ## use socket cluster if requested or in Windows
    if (nParallel > 1 && .Platform$OS.type == "windows" && !useSocket) {
@@ -149,12 +151,13 @@
            verbose <- (transient + samples*thin)/50
    }
    verbose <- as.integer(verbose) # truncate to integer
-   force(adaptNf)
 
    if(nParallel > nChains) {
       nParallel <- nChains
       message('using ', nParallel, ' cores for ', nChains, ' chains')
    }
+
+   force(adaptNf)
    if(any(adaptNf > transient))
       stop("'adaptNf' must be lower than or equal to 'transient'")
 
@@ -172,10 +175,9 @@
       }
    }
    ## get data parameters & initial parameters
-   if (is.null(dataParList))
-        dataParList <- computeDataParameters(hM, compactFormat=compactDataParListFormat)
-   initParList <- replicate(nChains, computeInitialParameters(hM, initPar),
-                            simplify = FALSE)
+   if(is.null(dataParList))
+        dataParList <- computeDataParameters(hM, compactFormat=hpcFormatFlag)
+   initParList <- replicate(nChains, computeInitialParameters(hM, initPar, computeZ=!hpcFormatFlag), simplify=FALSE)
 
    hM$postList = vector("list", nChains)
    hM$repList = vector("list", nChains)
@@ -246,6 +248,15 @@
                 useSocket = useSocket, initPar = initPar,
                 initParList = initParList, dataParList = dataParList, X1 = X1,
                 Rupdater = updater, adaptNf = adaptNf, alignPost = alignPost)
+
+    ## once preparing the export for Hmsc-HPC, we need to get rid of complex R-specific
+    ## content of Hmsc object, such as spatial S4
+    if(hpcFormatFlag){
+      obj$hM$ranLevels = NULL
+      for(r in 1:hM$nr){
+         obj$hM$rL[[r]]$s = NULL
+      }
+    }
     obj
 }
 

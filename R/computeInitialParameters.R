@@ -14,7 +14,7 @@
 #' @importFrom MCMCpack riwish
 
 
-computeInitialParameters = function(hM, initPar){
+computeInitialParameters = function(hM, initPar, computeZ=TRUE){
    parList = list()
 
    if(hM$ncRRR>0){
@@ -71,6 +71,7 @@ computeInitialParameters = function(hM, initPar){
             fm = glm.fit(XEff[kk,, drop=FALSE], hM$Y[kk,j], family=poisson())
          Beta[,j] = coef(fm)
       }
+      Beta[is.na(Beta)] = 0
       Gamma = matrix(NA,hM$nc,hM$nt)
       for(k in 1:hM$nc){
          fm = lm.fit(hM$Tr, Beta[k,])
@@ -253,7 +254,11 @@ computeInitialParameters = function(hM, initPar){
    } else
       Z = LFix
 
-   Z = updateZ(Y=hM$Y,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=XScaled,Pi=hM$Pi,dfPi=hM$dfPi,distr=hM$distr,rL=hM$rL)
+   if(computeZ){
+      Z = updateZ(Y=hM$Y,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=XScaled,Pi=hM$Pi,dfPi=hM$dfPi,distr=hM$distr,rL=hM$rL)
+   } else{
+      Z = NULL
+   }
 
    parList$Gamma = Gamma
    parList$V = V

@@ -247,6 +247,27 @@ computeDataParameters = function(hM, compactFormat=FALSE){
                idDg = idDW12g = Fg = iFg = detDg = NULL
             }
             rLPar[[r]] = list(nKnots=nKnots, distMat12=di12, distMat22=di22, idDg=idDg, idDW12g=idDW12g, Fg=Fg, iFg=iFg, detDg=detDg)
+         } else if(hM$rL[[r]]$spatialMethod == "TCGP"){
+            s = hM$rL[[r]]$s[levels(hM$dfPi[,r]),]
+            part = as.vector(hM$rL[[r]]$conPart[levels(hM$dfPi[,r]),])
+            conMat = hM$rL[[r]]$conMat
+            partN = nrow(conMat)
+            distList = vector("list", partN)
+            for(i in 1:partN){
+               ind = which(part == i)
+               d22 = as.matrix(dist(s[ind,]))
+               conPart = which(conMat[i,] == 1)
+               depPart = which(conMat[,i] == 1)
+               if(length(conPart==0)){
+                  d11 = matrix(NA,0,0)
+                  d12 = matrix(NA,0,length(ind))
+               } else{
+                  conInd = which(part %in% conPart)
+                  subPart = part[conInd]
+                  d11 = as.matrix(dist(s[conInd,]))
+                  d12 = sqrt(Reduce("+", Map(function(i) outer(s[conInd,i], s[,i], "-")^2, seq_len(dim))))
+               }
+            }
          }
       } else{
          rLPar[[r]] = list()

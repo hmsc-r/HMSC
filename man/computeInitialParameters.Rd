@@ -4,7 +4,7 @@
 \alias{computeInitialParameters}
 \title{computeInitialParameters}
 \usage{
-computeInitialParameters(hM, initPar)
+computeInitialParameters(hM, initPar, computeZ = TRUE)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}

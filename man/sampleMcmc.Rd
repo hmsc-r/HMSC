@@ -16,7 +16,7 @@ sampleMcmc(
   nParallel = 1,
   useSocket = TRUE,
   dataParList = NULL,
-  updater = list(GammaEta = FALSE),
+  updater = list(Gamma2 = FALSE, GammaEta = FALSE),
   fromPrior = FALSE,
   alignPost = TRUE,
   engine = "R"

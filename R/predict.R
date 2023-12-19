@@ -160,14 +160,18 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
    } else
       dfPiNew = matrix(NA,nyNew,0)
    rL = ranLevels[object$rLNames]
-   ## object can have pre-computed data parameters, but not
-   ## necessarily. These are needed only in updateEta(), but get it
-   ## here anyway...
-   rLPar <- if (is.null(object$rLPar)) {
-               computeDataParameters(object)$rLPar
-            } else {
-               object$rLPar
-            }
+   if(!is.null(Yc)){
+      ## object can have pre-computed data parameters, but not
+      ## necessarily. These are needed only in updateEta(), but get it
+      ## here anyway...
+      if (is.null(object$rLPar)) {
+         rLPar = computeDataParameters(object)$rLPar
+      } else {
+         rLPar = object$rLPar
+      }
+   } else{
+      rLPar = NULL
+   }
 
    predN = length(post)
    predPostEta = vector("list", object$nr)
