@@ -253,7 +253,7 @@
     ## content of Hmsc object, such as spatial S4
     if(hpcFormatFlag){
       obj$hM$ranLevels = NULL
-      for(r in 1:hM$nr){
+      for(r in seq_len(hM$nr)){
          obj$hM$rL[[r]]$s = NULL
       }
     }
