@@ -20,7 +20,7 @@ importPosteriorFromHPC = function(m, postList, nSamples, thin, transient, alignP
       for(sInd in 1:length(postList[[cInd]])){
          s = postList[[cInd]][[sInd]]
          m$postList[[cInd]][[sInd]] =
-            combineParameters(s$Beta, s$BetaSel, s$wRRR, s$Gamma, chol2inv(chol(s$iV)), s$rho, s$sigma**-2,
+            combineParameters(s$Beta, s$BetaSel, s$wRRR, s$Gamma, s$iV, s$rho, s$sigma**-2,
                               s$Eta, s$Lambda, s$Alpha, s$Psi, s$Delta, s$PsiRRR, s$DeltaRRR,
                               m$ncNRRR, m$ncRRR, m$ncsel, m$XSelect, m$XScalePar, m$XInterceptInd,
                               m$XRRRScalePar, m$nt, m$TrScalePar, m$TrInterceptInd, m$rhopw)
