@@ -3,11 +3,12 @@
 #' @description Computes the shared and idiosyncratic responses to measured and latent predictors
 #'
 #' @param hM a fitted \code{Hmsc} model object
-#'
+#' @param X a design matrix to be used in the computations (as defaul hM$X)
+#' 
 #' @return
 #' returns the posterior distribution of the parameters mu.X2,V.XX,mu.Omega2,V.OmegaOmega,mu.tot,V.tot,s
-#' described Ovaskainen and Abrego (nmanuscript):
-#' How to synthesize a joint species distribution model into four numbers: shared and idiosyncratic responses of the species to measured and latent predictors
+#' described Ovaskainen and Abrego (manuscript):
+#' Measuring niche overlap with joint species distribution models: shared and idiosyncratic responses of the species to measured and latent predictors
 #' 
 #' @details
 #' The shared and idiosyncratic responses are computed only for models without traits.
@@ -33,16 +34,18 @@
 #' @export
 
 
-computeSAIR = function(hM){
+computeSAIR = function(hM, X = NULL){
   
+  if(is.null(X)) X=hM$X
+
   if(hM$nt>1) return(NULL)
   
   if(hM$ncRRR==0){
-    switch(class(hM$X)[1L],
+    switch(class(X)[1L],
            matrix = {
-             CX = cov(hM$X)
+             CX = cov(X)
            }, list = {
-             CX = lapply(hM$X, cov)
+             CX = lapply(X, cov)
            }
     )
   }
@@ -57,11 +60,11 @@ computeSAIR = function(hM){
     
     if(hM$ncRRR>0){
       XB=hM$XRRR%*%t(post$wRRR)
-      switch(class(hM$X)[1L],
+      switch(class(X)[1L],
              matrix = {
-               CX = cov(cbind(hM$X,XB))
+               CX = cov(cbind(X,XB))
              }, list = {
-               XX = hM$X
+               XX = X
                for(j in 1:length(XX)){
                  XX[[j]] = cbind(XX[[j]],XB)
                }
@@ -72,7 +75,7 @@ computeSAIR = function(hM){
     
     mu = post$Gamma
     V = post$V
-    switch(class(hM$X)[1L], matrix = {
+    switch(class(X)[1L], matrix = {
       mu.X2 = t(mu)%*%CX%*%mu
       V.XX = sum(V*CX)
     }, list = {
