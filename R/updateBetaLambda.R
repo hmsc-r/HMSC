@@ -5,14 +5,14 @@
 #' @importFrom stats rnorm
 #' @importFrom Matrix bdiag Diagonal sparseMatrix
 #'
-updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, X,Tr,Pi,dfPi,C,rL){
+updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, Loff,X,Tr,Pi,dfPi,C,rL){
    ny = nrow(Z)
    ns = ncol(Z)
    nc = nrow(Gamma)
    nt = ncol(Tr)
    nr = ncol(Pi)
 
-   S = Z
+   if(is.null(Loff)) S = Z else S = Z - Loff
    Lambda = vector("list", nr)
    if(nr > 0){
       EtaFull = vector("list", nr)

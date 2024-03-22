@@ -1,6 +1,6 @@
 #' @importFrom stats rgamma
 #'
-updateInvSigma = function(Y,Z,Beta,iSigma,Eta,Lambda, distr,X,Pi,dfPi,rL, aSigma,bSigma){
+updateInvSigma = function(Y,Z,Beta,iSigma,Eta,Lambda, distr,Loff,X,Pi,dfPi,rL, aSigma,bSigma){
    indVarSigma = (distr[,2]==1)
    if(any(indVarSigma)){
       ny = nrow(Z)
@@ -27,10 +27,8 @@ updateInvSigma = function(Y,Z,Beta,iSigma,Eta,Lambda, distr,X,Pi,dfPi,rL, aSigma
                LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),k]) %*% Lambda[[r]][,,k]
          }
       }
-      if(nr > 0){
-         Eps = Z - (LFix + Reduce("+", LRan))
-      } else
-         Eps = Z - LFix
+      Eps = Z - Reduce("+", c(LFix,LRan))
+      if(!is.null(Loff)) Eps = Eps - Loff
 
       Yx = !is.na(Y)
       nyx = colSums(Yx)

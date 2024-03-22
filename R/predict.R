@@ -70,8 +70,8 @@
 #'
 #' @export
 
-predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL,
-                        X=NULL, XRRRData=NULL, XRRR=NULL, # this has to be updated to cov-dependent associations
+predict.Hmsc = function(object, post=poolMcmcChains(object$postList), Loff=NULL,
+                        XData=NULL, X=NULL, XRRRData=NULL, XRRR=NULL, # this has to be updated to cov-dependent associations
                         studyDesign=object$studyDesign, ranLevels=object$ranLevels,
                         Gradient=NULL, Yc=NULL, mcmcStep=1, expected=FALSE,
                         predictEtaMean=FALSE, predictEtaMeanField=FALSE,
@@ -89,8 +89,7 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
    if(!is.null(Gradient)) {
       ## don't know what to do if there is also Yc, and spatial models
       ## will trigger an error in updateEta (github issue #135)
-      if (!is.null(Yc))
-          stop("predict with arguments 'Yc' and 'Gradient' jointly is not implemented (yet)")
+      if(!is.null(Yc)) stop("predict with arguments 'Yc' and 'Gradient' jointly is not implemented (yet)")
       XData=Gradient$XDataNew
       studyDesign=Gradient$studyDesignNew
       ranLevels=Gradient$rLNew
@@ -107,14 +106,12 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
    if(!is.null(XData)){
       switch(class(XData)[1L],
              list={
-                if (any(unlist(lapply(XData, is.na))))
-                    stop("NA values are not allowed in 'XData'")
+                if(any(unlist(lapply(XData, is.na)))) stop("NA values are not allowed in 'XData'")
                 xlev = lapply(Reduce(rbind,object$XData), levels)[unlist(lapply(Reduce(rbind,object$XData), is.factor))]
                 X = lapply(XData, function(a) model.matrix(object$XFormula, a, xlev=xlev))
              },
              data.frame={
-                if (any(is.na(XData)))
-                    stop("NA values are not allowed in 'XData'")
+                if(any(is.na(XData))) stop("NA values are not allowed in 'XData'")
                 xlev = lapply(object$XData, levels)[unlist(lapply(object$XData, is.factor))]
                 X = model.matrix(object$XFormula, XData, xlev=xlev)
              }
@@ -141,12 +138,12 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
    )
 
    if(!is.null(Yc)){
-      if(ncol(Yc) != object$ns){
-         stop("number of columns in Yc must be equal to ns")
-      }
-      if(nrow(Yc) != nyNew){
-         stop("number of rows in Yc and X must be equal")
-      }
+      if(ncol(Yc) != object$ns) stop("number of columns in Yc must be equal to ns")
+      if(nrow(Yc) != nyNew) stop("number of rows in Yc and X must be equal")
+   }
+   if(!is.null(Loff)){
+      if(ncol(Loff) != object$ns) stop("number of columns in Loff must be equal to ns")
+      if(nrow(Loff) != nyNew) stop("number of rows in Loff and X must be equal")
    }
    if(!all(object$rLNames %in% colnames(studyDesign))){
       stop("dfPiNew does not contain all the necessary named columns")
@@ -192,7 +189,7 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
    if (nParallel == 1) {  # non-Parallel
        pred <- lapply(seq_len(predN), function(pN, ...){
          # print(ppEta[pN,])
-         get1prediction(object, X, XRRR, Yc, rL, rLPar, post[[pN]],
+         get1prediction(object, X, XRRR, Yc, Loff, rL, rLPar, post[[pN]],
                         ppEta[pN,], PiNew, dfPiNew, nyNew, expected,
                         mcmcStep)})
 
@@ -203,14 +200,14 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
        clusterEvalQ(cl, {
            library(Hmsc)})
        pred <- parLapply(cl, seq_len(predN), function(pN, ...)
-           get1prediction(object, X, XRRR, Yc, rL, rLPar, post[[pN]],
+           get1prediction(object, X, XRRR, Yc, Loff, rL, rLPar, post[[pN]],
                           ppEta[pN,], PiNew, dfPiNew, nyNew, expected,
                           mcmcStep, seed = seed[pN]))
        stopCluster(cl)
    } else { # fork (mac, Linux)
        seed <- sample.int(.Machine$integer.max, predN)
        pred <- mclapply(seq_len(predN), function(pN, ...)
-           get1prediction(object, X, XRRR, Yc, rL, rLPar, post[[pN]],
+           get1prediction(object, X, XRRR, Yc, Loff, rL, rLPar, post[[pN]],
                           ppEta[pN,], PiNew, dfPiNew, nyNew, expected,
                           mcmcStep, seed = seed[pN]),
            mc.cores=nParallel)
@@ -225,7 +222,7 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), XData=NULL
 ##  predPostEta rL rLPar
 
 get1prediction <-
-    function(object, X, XRRR, Yc, rL, rLPar, sam, predPostEta, PiNew, dfPiNew,
+    function(object, X, XRRR, Yc, Loff, rL, rLPar, sam, predPostEta, PiNew, dfPiNew,
              nyNew, expected, mcmcStep, seed = NULL)
 {
     if (!is.null(seed))
@@ -265,22 +262,23 @@ get1prediction <-
                 LRan[[r]] = LRan[[r]] + (Eta[[r]][as.character(dfPiNew[,r]),]*rL[[r]]$x[as.character(dfPiNew[,r]),k]) %*% sam$Lambda[[r]][,,k]
         }
     }
-    if(object$nr > 0){L = LFix + Reduce("+", LRan)} else L = LFix
+    L = Reduce("+", c(LFix, LRan))
+    if(!is.null(Loff)) L = L + Loff
 
     ## predict can be slow with Yc and especially with high mcmcStep
     if(!is.null(Yc) && any(!is.na(Yc))){
         Z = L
         Z = updateZ(Y=Yc, Z=Z, Beta=sam$Beta, iSigma=1/sam$sigma, Eta=Eta,
-                    Lambda=sam$Lambda, X=X, Pi=PiNew, dfPi=dfPiNew,
+                    Lambda=sam$Lambda, Loff=Loff, X=X, Pi=PiNew, dfPi=dfPiNew,
                     distr=object$distr, rL=rL)
         ## species CV from computePredictedValues runs this innermost
         ## loop nfolds * nfolds.sp * predN * mcmcStep times
         for(sN in seq_len(mcmcStep)){
             Eta = updateEta(Y=Yc, Z=Z, Beta=sam$Beta, iSigma=1/sam$sigma,
                             Eta=Eta, Lambda=sam$Lambda, Alpha=sam$Alpha,
-                            rLPar=rLPar, X=X, Pi=PiNew, dfPi=dfPiNew, rL=rL)
+                            rLPar=rLPar, Loff=Loff, X=X, Pi=PiNew, dfPi=dfPiNew, rL=rL)
             Z = updateZ(Y=Yc, Z=Z, Beta=sam$Beta, iSigma=1/sam$sigma, Eta=Eta,
-                        Lambda=sam$Lambda, X=X, Pi=PiNew, dfPi=dfPiNew,
+                        Lambda=sam$Lambda, Loff=Loff, X=X, Pi=PiNew, dfPi=dfPiNew,
                         distr=object$distr, rL=rL)
         }
         for(r in seq_len(object$nr)){

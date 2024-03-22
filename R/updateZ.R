@@ -1,7 +1,7 @@
 #' @importFrom stats dnorm pnorm rnorm
 #' @importFrom truncnorm rtruncnorm
 #' @importFrom BayesLogit rpg
-updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind){
+updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, Loff,X,Pi,dfPi,distr,rL, ind){
    ZPrev = Z
    ny = nrow(Y)
    ns = ncol(Y)
@@ -28,10 +28,8 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, X,Pi,dfPi,distr,rL, ind){
             LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),k]) %*% Lambda[[r]][,,k]
       }
    }
-   if(nr > 0){
-      E = LFix + Reduce("+", LRan)
-   } else
-      E = LFix
+   E = Reduce("+", c(LFix,LRan))
+   if(!is.null(Loff)) E = E + Loff
 
    Z = matrix(NA,ny,ns)
    indNA = is.na(Y)

@@ -22,7 +22,7 @@
 #' # Construct an ordination biplot using two chosen latent factors from a previously fitted HMSC model
 #' etaPost = getPostEstimate(TD$m, "Eta")
 #' lambdaPost=getPostEstimate(TD$m, "Lambda")
-#' biPlot(TD$m, etaPost = etaPost, lambdaPost=lambdaPost, factors=c(1,2))
+#' biPlot(TD$m, etaPost=etaPost, lambdaPost=lambdaPost, factors=c(1,2))
 #'
 #'
 #' @importFrom graphics plot points text
@@ -30,7 +30,7 @@
 #'
 #' @export
 
-biPlot=function(hM, etaPost, lambdaPost, factors=c(1,2), colVar=NULL, colors = NULL, spNames=hM$spNames, ...){
+biPlot=function(hM, etaPost, lambdaPost, factors=c(1,2), colVar=NULL, colors=NULL, spNames=hM$spNames, ...){
    if(!is.null(colVar)){
       if (!is.null(hM$XData))
           col = hM$XData[,colVar]

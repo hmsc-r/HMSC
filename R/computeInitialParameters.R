@@ -255,7 +255,7 @@ computeInitialParameters = function(hM, initPar, computeZ=TRUE){
       Z = LFix
 
    if(computeZ){
-      Z = updateZ(Y=hM$Y,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, X=XScaled,Pi=hM$Pi,dfPi=hM$dfPi,distr=hM$distr,rL=hM$rL)
+      Z = updateZ(Y=hM$Y,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, Loff=hM$Loff,X=XScaled,Pi=hM$Pi,dfPi=hM$dfPi,distr=hM$distr,rL=hM$rL)
    } else{
       Z = NULL
    }

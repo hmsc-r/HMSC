@@ -4,7 +4,7 @@
 #' @importFrom stats rnorm
 #' @importFrom Matrix Diagonal sparseMatrix bdiag
 #'
-updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,dfPi,rL, rLPar,Q,iQ,RQ,mGamma,U,iU){
+updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, Loff,X,Tr,Pi,dfPi,rL, rLPar,Q,iQ,RQ,mGamma,U,iU){
    ny = nrow(Z)
    ns = ncol(Z)
    nr = ncol(Pi)
@@ -44,11 +44,9 @@ updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,Alpha, X,Tr,Pi,dfPi,rL, rLP
 
    for(r in seq_len(nr)){
       if(rL[[r]]$xDim == 0){
-         if(nr > 1){
-            S = Z - Reduce("+", LRan[setdiff(1:nr,r)])
-         } else{
-            S = Z
-         }
+         if(nr > 1) S = Z - Reduce("+", LRan[setdiff(1:nr,r)]) else S = Z
+         if(!is.null(Loff)) S = S - Loff
+
          Lam = Lambda[[r]]
          nf = nrow(Lam)
          lPi = Pi[,r]

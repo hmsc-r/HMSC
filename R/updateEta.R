@@ -1,7 +1,7 @@
 #' @importFrom stats rnorm
 #' @importFrom Matrix bdiag Diagonal sparseMatrix t Matrix
 #'
-updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
+updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, Loff,X,Pi,dfPi,rL){
    ny = nrow(Z)
    ns = ncol(Z)
    nr = ncol(Pi)
@@ -30,11 +30,9 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, X,Pi,dfPi,rL){
    }
    for(r in seq_len(nr)){
       rnames=rownames(Eta[[r]])
-      if(nr > 1){
-         S = Z - (LFix + Reduce("+", LRan[setdiff(1:nr, r)]))
-      } else{
-         S = Z - LFix
-      }
+      S = Z - Reduce("+", c(LFix,LRan[setdiff(1:nr, r)]))
+      if(!is.null(Loff)) S = S - Loff
+
       lambda = Lambda[[r]]
       nf = dim(lambda)[1]
       lPi = Pi[,r]

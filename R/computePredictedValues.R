@@ -97,6 +97,7 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
          for(r in seq_len(hM$nr)){
             dfPi[,r] = factor(hM$dfPi[train,r])
          }
+         LoffVal = hM$LoffVal[val,,drop=FALSE]
          switch(class(hM$X)[1L],
                 matrix = {
                    XTrain = hM$X[train,,drop=FALSE]
@@ -120,7 +121,7 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
          ## below. If this disturbs, it should probably be fixed in
          ## Hmsc(), but currently ranLevels=character(0) seems to
          ## work.
-         hM1 = Hmsc(Y=hM$Y[train,,drop=FALSE], X=XTrain,
+         hM1 = Hmsc(Y=hM$Y[train,,drop=FALSE], Loff=hM$Loff[train,,drop=FALSE], X=XTrain,
                     XRRR=XRRRTrain, ncRRR = hM$ncRRR, XSelect = hM$XSelect,
                     distr=hM$distr, studyDesign=dfPi, Tr=hM$Tr, C=hM$C, ranLevels=hM$rL)
          setPriors(hM1, V0=hM$V0, f0=hM$f0, mGamma=hM$mGamma, UGamma=hM$UGamma, aSigma=hM$aSigma, bSigma=hM$bSigma, rhopw=hM$rhowp)
@@ -157,7 +158,7 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
             dfPi[,r] = factor(hM$dfPi[val,r])
          }
          if(is.null(partition.sp)){
-            pred1 = predict(hM1, post=postList, X=XVal, XRRR=XRRRVal, studyDesign=dfPi, Yc=Yc[val,,drop=FALSE], mcmcStep=mcmcStep, expected=expected)
+            pred1 = predict(hM1, post=postList, Loff=LoffVal, X=XVal, XRRR=XRRRVal, studyDesign=dfPi, Yc=Yc[val,,drop=FALSE], mcmcStep=mcmcStep, expected=expected)
             pred1Array = abind(pred1,along=3)
          } else {
             hM2 = duplicate(hM)
@@ -182,7 +183,7 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
                val.sp = (partition.sp==i)
                YcFull = hM$Y
                YcFull[val,val.sp] = NA
-               pred2 = predict(hM2, post=postList2, X=hM2$X, XRRR=hM2$XRRR,studyDesign=hM2$studyDesign, Yc=YcFull, mcmcStep=mcmcStep, expected=expected)
+               pred2 = predict(hM2, post=postList2, Loff=hM2$Loff, X=hM2$X, XRRR=hM2$XRRR, studyDesign=hM2$studyDesign, Yc=YcFull, mcmcStep=mcmcStep, expected=expected)
                pred2Array = abind(pred2,along=3)
                pred1Array[,val.sp,] = pred2Array[val,val.sp,]
             }

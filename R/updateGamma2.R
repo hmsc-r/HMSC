@@ -3,7 +3,7 @@
 
 #' @importFrom stats rnorm
 #'
-updateGamma2 = function(Z,Gamma=Gamma,iV,iSigma,Eta,Lambda, X,Pi,dfPi,Tr,C,rL, iQg, mGamma,iUGamma){
+updateGamma2 = function(Z,Gamma=Gamma,iV,iSigma,Eta,Lambda, Loff,X,Pi,dfPi,Tr,C,rL, iQg, mGamma,iUGamma){
    ns = ncol(Z)
    ny = nrow(Z)
    nc = nrow(iV)
@@ -27,10 +27,8 @@ updateGamma2 = function(Z,Gamma=Gamma,iV,iSigma,Eta,Lambda, X,Pi,dfPi,Tr,C,rL, i
             LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),k]) %*% Lambda[[r]][,,k]
       }
    }
-   if(nr > 0){
-      S = Z - Reduce("+", LRan)
-   } else
-      S = Z
+   if(nr > 0) S = Z - Reduce("+", LRan) else S = Z
+   if(!is.null(Loff)) S = S - Loff
 
    if(is.null(C)){
       # if(all(iSigma==1)){

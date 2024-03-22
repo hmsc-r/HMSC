@@ -255,6 +255,7 @@
       obj$hM$ranLevels = NULL
       for(r in seq_len(hM$nr)){
          obj$hM$rL[[r]]$s = NULL
+         obj$hM$rL[[r]]$sKnot = NULL
       }
     }
     obj
@@ -344,6 +345,7 @@
     adaptNf = obj$adaptNf
     Tr = hM$TrScaled
     Y = hM$YScaled
+    Loff = hM$Loff
     distr = hM$distr
     Pi = hM$Pi
     dfPi = hM$dfPi
@@ -429,7 +431,7 @@
     for(iter in seq_len(transient + samples*thin)) {
         if(!identical(updater$Gamma2, FALSE)) {
             out = try(updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,
-                                   Eta=Eta,Lambda=Lambda, X=X,Pi=Pi,
+                                   Eta=Eta,Lambda=Lambda, Loff=Loff,X=X,Pi=Pi,
                                    dfPi=dfPi,Tr=Tr,C=C,rL=hM$rL, iQg=iQg,
                                    mGamma=mGamma,iUGamma=iUGamma),
                       silent = TRUE)
@@ -444,7 +446,7 @@
                                               V=chol2inv(chol(iV)),iV=iV,
                                               id=iSigma, Eta=Eta,
                                               Lambda=Lambda,Alpha=Alpha,
-                                              X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,
+                                              Loff=Loff,X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,
                                               rL=hM$rL, rLPar=rLPar,
                                               Q=Qg[,,rho],iQ=iQg[,,rho],
                                               RQ=RQg[,,rho],
@@ -462,8 +464,8 @@
         if(!identical(updater$BetaLambda, FALSE)){
             BetaLambdaList = try(updateBetaLambda(Y=Y,Z=Z,Gamma=Gamma,iV=iV,
                                                   iSigma=iSigma,Eta=Eta,
-                                                  Psi=Psi,Delta=Delta,
-                                                  iQ=iQg[,,rho],X=X,Tr=Tr,
+                                                  Psi=Psi,Delta=Delta,iQ=iQg[,,rho],
+                                                  Loff=Loff,X=X,Tr=Tr,
                                                   Pi=Pi,dfPi=dfPi,C=C,
                                                   rL=hM$rL),
                                  silent = TRUE)
@@ -477,7 +479,7 @@
 
         if(!identical(updater$wRRR, FALSE) &&  hM$ncRRR>0){
             wRRRXList = try(updatewRRR(Z=Z, Beta=Beta, iSigma=iSigma,
-                                       Eta=Eta, Lambda=Lambda, X1A=X1A,
+                                       Eta=Eta, Lambda=Lambda, Loff=Loff, X1A=X1A,
                                        XRRR=hM$XRRRScaled, Pi=Pi, dfPi=dfPi,
                                        rL = hM$rL, PsiRRR=PsiRRR,
                                        DeltaRRR=DeltaRRR),
@@ -491,10 +493,10 @@
         }
 
         if(!identical(updater$BetaSel, FALSE) &&  hM$ncsel>0){
-            BetaSelXList = try(updateBetaSel(Z=Z,XSelect = hM$XSelect,
+            BetaSelXList = try(updateBetaSel(Z=Z, XSelect=hM$XSelect,
                                              BetaSel=BetaSel,Beta=Beta,
-                                             iSigma=iSigma, Lambda=Lambda,
-                                             Eta=Eta, X1=X1,Pi=Pi,dfPi=dfPi,
+                                             iSigma=iSigma, Lambda=Lambda, Eta=Eta,
+                                             Loff=Loff, X1=X1, Pi=Pi, dfPi=dfPi,
                                              rL=hM$rL),
                                silent = TRUE)
             if (!inherits(BetaSelXList, "try-error")) {
@@ -555,7 +557,7 @@
 
         if(!identical(updater$Eta, FALSE))
             out = try(updateEta(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
-                                Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, X=X,
+                                Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, Loff=Loff,X=X,
                                 Pi=Pi,dfPi=dfPi,rL=hM$rL), silent = TRUE)
         if (!inherits(out, "try-error"))
             Eta <- out
@@ -572,7 +574,7 @@
 
         if(!identical(updater$InvSigma, FALSE))
             out = try(updateInvSigma(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,
-                                     Eta=Eta,Lambda=Lambda, distr=distr,X=X,
+                                     Eta=Eta,Lambda=Lambda, distr=distr,Loff=Loff,X=X,
                                      Pi=Pi,dfPi=dfPi,rL=hM$rL, aSigma=aSigma,
                                      bSigma=bSigma), silent = TRUE)
         if (!inherits(out, "try-error"))
@@ -582,7 +584,7 @@
 
         if(!identical(updater$Z, FALSE)) {
             out = try(updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
-                              Lambda=Lambda, X=X,Pi=Pi,dfPi=dfPi,distr=distr,
+                              Lambda=Lambda, Loff=Loff,X=X,Pi=Pi,dfPi=dfPi,distr=distr,
                               rL=hM$rL))
             if (!inherits(out, "try-error"))
                 Z = out

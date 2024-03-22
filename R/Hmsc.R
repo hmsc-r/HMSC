@@ -115,14 +115,14 @@
 Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
                 XSelect=NULL,
                 XRRRData=NULL, XRRRFormula=~.-1, XRRR=NULL, ncRRR=2, XRRRScale=TRUE,
-                YScale = FALSE,
+                YScale = FALSE, Loff=NULL,
                 studyDesign=NULL, ranLevels=NULL, ranLevelsUsed=names(ranLevels),
                 TrFormula=NULL, TrData=NULL, Tr=NULL, TrScale=TRUE,
                 phyloTree=NULL, C=NULL,
                 distr="normal", truncateNumberOfFactors=TRUE){
 
    hM = structure(list(
-      Y = NULL,
+      Y = NULL, Loff=NULL,
       XData=NULL, XFormula=NULL, X=NULL, XScaled=NULL, XSelect=NULL,
       XRRRData=NULL, XRRRFormula=NULL, XRRR=NULL, XRRRScaled=NULL,
       YScaled=NULL, XInterceptInd=NULL,
@@ -699,6 +699,16 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       }
       hM$YScalePar = YScalePar
       hM$YScaled = YScaled
+   }
+
+   #offset to the latent predictor
+   if(!is.null(Loff)){
+      if(!is.matrix(Loff)) stop("Loff argument must be NULL or a numeric matrix")
+      if(nrow(Loff) != hM$ny) stop("number of rows in Loff argument must be equal to ny")
+      if(ncol(Loff) != hM$ns) stop("number of columns in Loff argument must be equal to ns")
+      hM$Loff = Loff
+   } else{
+      hM$Loff = NULL
    }
 
    hM = setPriors(hM, setDefault=TRUE)

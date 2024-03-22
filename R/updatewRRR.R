@@ -4,7 +4,7 @@
 #
 #' @importFrom stats rnorm
 #
-updatewRRR = function(Z,Beta,iSigma,Eta,Lambda,X1A,XRRR,Pi,dfPi,rL,PsiRRR,DeltaRRR){
+updatewRRR = function(Z,Beta,iSigma,Eta,Lambda, Loff,X1A,XRRR,Pi,dfPi,rL,PsiRRR,DeltaRRR){
    ny = nrow(Z)
    ns = ncol(Z)
    nr = ncol(Pi)
@@ -40,11 +40,8 @@ updatewRRR = function(Z,Beta,iSigma,Eta,Lambda,X1A,XRRR,Pi,dfPi,rL,PsiRRR,DeltaR
             LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),r]) %*% Lambda[[r]][,,k]
       }
    }
-   if(nr > 1){
-      S = Z - (LFix + Reduce("+", LRan))
-   } else{
-      S = Z - LFix
-   }
+   S = Z - Reduce("+", c(LFix,LRan))
+   if(!is.null(Loff)) S = S - Loff
 
    A1 = BetaRRR%*%diag(iSigma,nrow = length(iSigma))%*%t(BetaRRR)
    A2 = t(XRRR)%*%XRRR
@@ -60,7 +57,6 @@ updatewRRR = function(Z,Beta,iSigma,Eta,Lambda,X1A,XRRR,Pi,dfPi,rL,PsiRRR,DeltaR
    wRRR = matrix(we,nrow = ncRRR)
 
    X = X1A
-
    if(ncRRR>0){
       XB=XRRR%*%t(wRRR)
       if(is.matrix(X)){
@@ -75,6 +71,5 @@ updatewRRR = function(Z,Beta,iSigma,Eta,Lambda,X1A,XRRR,Pi,dfPi,rL,PsiRRR,DeltaR
    wRRRXList=list()
    wRRRXList$wRRR = wRRR
    wRRRXList$X = X
-
    return(wRRRXList)
 }

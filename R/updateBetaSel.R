@@ -1,7 +1,7 @@
 #' @importFrom stats dnorm runif
-#' 
-updateBetaSel = function(Z=Z,XSelect, BetaSel, Beta, iSigma,
-                         Lambda, Eta, X1,Pi,dfPi,rL){
+#'
+updateBetaSel = function(Z,XSelect, BetaSel, Beta, iSigma,
+                         Lambda, Eta, Loff,X1,Pi,dfPi,rL){
 
    ny = nrow(Z)
    ns = ncol(Z)
@@ -42,11 +42,8 @@ updateBetaSel = function(Z=Z,XSelect, BetaSel, Beta, iSigma,
    LFix = matrix(NA,ny,ns)
    for(j in 1:ns)
       LFix[,j] = X[[j]]%*%Beta[,j]
-
-   if(nr > 0){
-      E = LFix + Reduce("+", LRan)
-   } else
-      E = LFix
+   E = Reduce("+", c(LFix,LRan))
+   if(!is.null(Loff)) E = E + Loff
 
    ll = matrix(NA,ny,ns)
    for (j in 1:ns){
@@ -58,7 +55,6 @@ updateBetaSel = function(Z=Z,XSelect, BetaSel, Beta, iSigma,
       XSel = XSelect[[i]]
       for (spg in 1:length(XSel$q)){
          BetaSelNew[[i]][spg] = !(BetaSel[[i]][spg])
-
          fsp = which(XSel$spGroup==spg)
 
          X2 = X0

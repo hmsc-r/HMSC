@@ -5,7 +5,7 @@ test_that("updateGamma2 is correct", {
    parList = computeInitialParameters(TD$m,initPar=NULL)
    dataParList = computeDataParameters(TD$m)
    Gamma = updateGamma2(Z=parList$Z,Gamma=parList$Gamma,iV=chol2inv(chol(parList$V)),iSigma=sqrt(parList$sigma),
-                        Eta=parList$Eta,Lambda=parList$Lambda, X=TD$m$X,Pi=TD$m$Pi,dfPi=TD$m$dfPi,Tr=TD$m$Tr,
+                        Eta=parList$Eta,Lambda=parList$Lambda, Loff=TD$m$Loff,X=TD$m$X,Pi=TD$m$Pi,dfPi=TD$m$dfPi,Tr=TD$m$Tr,
                         C=TD$m$C,rL=TD$m$rL, iQg=dataParList$iQg, mGamma=TD$m$mGamma,iUGamma=chol2inv(chol(TD$m$UGamma)))
    expect_equal(ncol(Gamma),3)
    expect_equal(nrow(Gamma),3)
@@ -17,7 +17,7 @@ test_that("UpdateGammaEta is correct",{
    parList = computeInitialParameters(TD$m,initPar=NULL)
    dataParList = computeDataParameters(TD$m)
    GammaEtaList = updateGammaEta(Z=parList$Z,Gamma=parList$Gamma,V=parList$V,iV=chol2inv(chol(parList$V)),id=sqrt(parList$sigma),
-                                 Eta=parList$Eta,Lambda=parList$Lambda,Alpha=parList$Alpha, X=TD$m$X,Pi=TD$m$Pi,
+                                 Eta=parList$Eta,Lambda=parList$Lambda,Alpha=parList$Alpha, Loff=TD$m$Loff,X=TD$m$X,Pi=TD$m$Pi,
                                  dfPi=TD$m$dfPi,Tr=TD$m$Tr,rL=TD$m$rL, rLPar=dataParList$rLPar,Q=dataParList$Qg[,,parList$rho],
                                  iQ=dataParList$iQg[,,parList$rho],RQ=dataParList$RQg[,,parList$rho],
                                  mGamma=TD$m$mGamma,U=TD$m$UGamma,iU=chol2inv(chol(TD$m$UGamma)))
@@ -38,7 +38,7 @@ test_that("updateBetaLambda is correct",{
    dataParList = computeDataParameters(TD$m)
    BetaLambdaList = updateBetaLambda(Y=TD$Y,Z=parList$Z,Gamma=parList$Gamma,iV=chol2inv(chol(parList$V)),
                                      iSigma=sqrt(parList$sigma),Eta=parList$Eta,Psi=parList$Psi,Delta=parList$Delta,
-                                     iQ=dataParList$iQg[,,parList$rho],X=TD$m$X,Tr=TD$m$Tr,Pi=TD$m$Pi,dfPi=TD$m$dfPi,C=TD$m$C,rL=TD$m$rL)
+                                     iQ=dataParList$iQg[,,parList$rho],Loff=TD$m$Loff,X=TD$m$X,Tr=TD$m$Tr,Pi=TD$m$Pi,dfPi=TD$m$dfPi,C=TD$m$C,rL=TD$m$rL)
    Beta = BetaLambdaList$Beta
    Lambda = BetaLambdaList$Lambda
    expect_equal(length(Lambda),2)
@@ -97,9 +97,9 @@ test_that("updateEta is correct", {
    set.seed(200)
    parList = computeInitialParameters(TD$m,initPar=NULL)
    dataParList = computeDataParameters(TD$m)
-   eta = updateEta(Y = TD$m$Y, Z=parList$Z,Beta=parList$Beta,iSigma=sqrt(parList$sigma),Eta=parList$Eta,
-             Lambda=parList$Lambda, Alpha = parList$Alpha, rLPar = dataParList$rLPar, X = TD$m$X, Pi = TD$m$Pi,
-             dfPi = TD$m$dfPi,rL=TD$m$rL)
+   eta = updateEta(Y=TD$m$Y, Z=parList$Z, Beta=parList$Beta,iSigma=sqrt(parList$sigma),Eta=parList$Eta,
+             Lambda=parList$Lambda, Alpha=parList$Alpha, rLPar=dataParList$rLPar, Loff=TD$m$Loff, X=TD$m$X, Pi=TD$m$Pi,
+             dfPi=TD$m$dfPi,rL=TD$m$rL)
    expect_equal(length(eta),2)
    expect_equal(length(eta[[1]]),100)
    expect_equal(length(eta[[2]]),20)
@@ -126,7 +126,7 @@ test_that("updateInvSigma is correct",{
    parList = computeInitialParameters(m,initPar='fixed effects')
    dataParList = computeDataParameters(m)
    iSigma = updateInvSigma(Y=m$Y,Z=parList$Z,Beta=parList$Beta,iSigma=sqrt(parList$sigma),
-                           Eta=parList$Eta,Lambda=parList$Lambda, distr=m$distr,X=m$X,Pi=m$Pi,
+                           Eta=parList$Eta,Lambda=parList$Lambda, distr=m$distr,Loff=m$Loff,X=m$X,Pi=m$Pi,
                            dfPi=m$dfPi,rL=m$rL, aSigma=m$aSigma,bSigma=m$bSigma)
    expect_equal(round(iSigma),c(0,1,0,7)) # 1 and 4 are arbitrary & depend on set.seed()
 })

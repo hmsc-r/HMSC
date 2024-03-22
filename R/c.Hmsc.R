@@ -46,7 +46,7 @@
     ## phyloTree (but only C); call. What about *Names, data.frames
     ## (built to model.matrix)?
     checkItems <-
-        c("Y", "XData", "X", "XScaled", "XRRRData", "XRRRScaled",
+        c("Y", "Loff", "XData", "X", "XScaled", "XRRRData", "XRRRScaled",
           "YScaled", "XInterceptInd", "studyDesign", "ranLevels",
           "ranLevelsUsed", "dfPi", "rL", "Pi", "TrData","Tr",
           "TrScaled", "TrInterceptInd", "C", "distr", "ny", "ns",
