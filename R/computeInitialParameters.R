@@ -249,10 +249,7 @@ computeInitialParameters = function(hM, initPar, computeZ=TRUE){
             LRan[[r]] = LRan[[r]] + (Eta[[r]][hM$Pi[,r],,drop=FALSE]*hM$rL[[r]]$x[as.character(hM$dfPi[,r]),r]) %*% Lambda[[r]][,,k]
       }
    }
-   if(hM$nr > 0){
-      Z = LFix + Reduce("+", LRan)
-   } else
-      Z = LFix
+   Z = Reduce("+", c(list(LFix), LRan))
 
    if(computeZ){
       Z = updateZ(Y=hM$Y,Z=Z,Beta=Beta,iSigma=sigma^-1,Eta=Eta,Lambda=Lambda, Loff=hM$Loff,X=XScaled,Pi=hM$Pi,dfPi=hM$dfPi,distr=hM$distr,rL=hM$rL)

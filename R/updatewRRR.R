@@ -40,7 +40,7 @@ updatewRRR = function(Z,Beta,iSigma,Eta,Lambda, Loff,X1A,XRRR,Pi,dfPi,rL,PsiRRR,
             LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),r]) %*% Lambda[[r]][,,k]
       }
    }
-   S = Z - Reduce("+", c(LFix,LRan))
+   S = Z - Reduce("+", c(list(LFix), LRan))
    if(!is.null(Loff)) S = S - Loff
 
    A1 = BetaRRR%*%diag(iSigma,nrow = length(iSigma))%*%t(BetaRRR)

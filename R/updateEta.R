@@ -30,7 +30,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, Loff,X,Pi,dfPi,rL)
    }
    for(r in seq_len(nr)){
       rnames=rownames(Eta[[r]])
-      S = Z - Reduce("+", c(LFix,LRan[setdiff(1:nr, r)]))
+      S = Z - Reduce("+", c(list(LFix), LRan[setdiff(1:nr,r)]))
       if(!is.null(Loff)) S = S - Loff
 
       lambda = Lambda[[r]]

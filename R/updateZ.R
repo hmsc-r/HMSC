@@ -28,7 +28,7 @@ updateZ = function(Y,Z,Beta,iSigma,Eta,Lambda, Loff,X,Pi,dfPi,distr,rL, ind){
             LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),k]) %*% Lambda[[r]][,,k]
       }
    }
-   E = Reduce("+", c(LFix,LRan))
+   E = Reduce("+", c(list(LFix), LRan))
    if(!is.null(Loff)) E = E + Loff
 
    Z = matrix(NA,ny,ns)

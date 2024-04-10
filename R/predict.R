@@ -262,7 +262,7 @@ get1prediction <-
                 LRan[[r]] = LRan[[r]] + (Eta[[r]][as.character(dfPiNew[,r]),]*rL[[r]]$x[as.character(dfPiNew[,r]),k]) %*% sam$Lambda[[r]][,,k]
         }
     }
-    L = Reduce("+", c(LFix, LRan))
+    L = Reduce("+", c(list(LFix), LRan))
     if(!is.null(Loff)) L = L + Loff
 
     ## predict can be slow with Yc and especially with high mcmcStep
@@ -294,7 +294,7 @@ get1prediction <-
                         sam$Lambda[[r]][,,k]
             }
         }
-        if(object$nr > 0){L = LFix + Reduce("+", LRan)} else L = LFix
+        L = Reduce("+", c(list(LFix), LRan))
     }
     if(!expected){
         Z = L + matrix(sqrt(sam$sigma),nrow(L),object$ns,byrow=TRUE) * matrix(rnorm(nrow(L)*object$ns),nrow(L),object$ns)

@@ -27,7 +27,7 @@ updateInvSigma = function(Y,Z,Beta,iSigma,Eta,Lambda, distr,Loff,X,Pi,dfPi,rL, a
                LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),k]) %*% Lambda[[r]][,,k]
          }
       }
-      Eps = Z - Reduce("+", c(LFix,LRan))
+      Eps = Z - Reduce("+", c(list(LFix), LRan))
       if(!is.null(Loff)) Eps = Eps - Loff
 
       Yx = !is.na(Y)

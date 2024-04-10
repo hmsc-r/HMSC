@@ -72,10 +72,7 @@ computeWAIC = function(hM, ghN=11, byColumn=FALSE){
                LRan[[r]] = LRan[[r]] + (Eta[[r]][Pi[,r],]*rL[[r]]$x[as.character(dfPi[,r]),k]) %*% Lambda[[r]][,,k]
          }
       }
-      if(nr > 0){
-         E = LFix + Reduce("+", LRan)
-      } else
-         E = LFix
+      E = Reduce("+", c(list(LFix), LRan))
 
       indNA = is.na(Y)
       std = matrix(sigma^-0.5,ny,ns,byrow=TRUE)

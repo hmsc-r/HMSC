@@ -42,7 +42,7 @@ updateBetaSel = function(Z,XSelect, BetaSel, Beta, iSigma,
    LFix = matrix(NA,ny,ns)
    for(j in 1:ns)
       LFix[,j] = X[[j]]%*%Beta[,j]
-   E = Reduce("+", c(LFix,LRan))
+   E = Reduce("+", c(list(LFix), LRan))
    if(!is.null(Loff)) E = E + Loff
 
    ll = matrix(NA,ny,ns)
