@@ -112,9 +112,10 @@
 #' @export
 
 
-Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
-                XSelect=NULL,
-                XRRRData=NULL, XRRRFormula=~.-1, XRRR=NULL, ncRRR=2, XRRRScale=TRUE,
+Hmsc = function(Y, XFormula=as.formula("~.", env=globalenv()),
+                XData=NULL, X=NULL, XScale=TRUE, XSelect=NULL,
+                XRRRData=NULL, XRRRFormula=as.formula("~.-1", env=globalenv()),
+                XRRR=NULL, ncRRR=2, XRRRScale=TRUE,
                 YScale = FALSE, Loff=NULL,
                 studyDesign=NULL, ranLevels=NULL, ranLevelsUsed=names(ranLevels),
                 TrFormula=NULL, TrData=NULL, Tr=NULL, TrScale=TRUE,
