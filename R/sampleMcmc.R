@@ -94,7 +94,7 @@
     samplingObject <-
         prepareSamplingObject(hM, samples, transient, thin, initPar, verbose,
                               adaptNf, nChains, nParallel, useSocket,
-                              dataParList, updater, alignPost, hpcFormat=(engine=="HPC"))
+                              dataParList, updater, alignPost, hpcFormatFlag=(engine=="HPC"))
 
     ## switch allows developing parallel sampling implementations
     ## without disturbing users. The choices can be non-public during

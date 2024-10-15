@@ -8,6 +8,8 @@ computeDataParameters(hM, compactFormat = FALSE)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}
+
+\item{compactFormat}{bool flag whether to get reduced set of parameters - as used in export to Hmsc-HPC}
 }
 \value{
 a list including pre-computed matrix inverses and determinants (for phylogenetic and spatial random effects) needed in MCMC sampling

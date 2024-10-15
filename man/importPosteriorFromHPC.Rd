@@ -14,10 +14,18 @@ importPosteriorFromHPC(
 )
 }
 \arguments{
-\item{m}{a \code{Hmsc} model object}
+\item{m}{the \code{Hmsc} model object used for creating export to Hmsc-HPC fitting}
 
-\item{initPar}{a list of initial parameter values}
+\item{postList}{list of MCMC chains, containing the recorded samples from the MCMC sampling}
+
+\item{nSamples}{the number of recorded MCMC samples per chain, as was used for Hmsc-HPC fitting}
+
+\item{thin}{the MCMC thinning value, as was used for Hmsc-HPC fitting}
+
+\item{transient}{the MCMC transient value, as was used for Hmsc-HPC fitting}
+
+\item{alignPost}{bool flag whether to attempt to align the latent factors and loadings from different chains}
 }
 \description{
-Computes initial parameter values before the sampling starts
+Imports the posterior object after running MCMC using the Hmsc-HPC add-on
 }

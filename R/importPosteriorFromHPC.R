@@ -1,9 +1,13 @@
 #' @title importPosteriorFromHPC
 #'
-#' @description Computes initial parameter values before the sampling starts
+#' @description Imports the posterior calculated with \code{Hmsc-HPC} add-on to the corresponding Hmsc object
 #'
-#' @param m a \code{Hmsc} model object
-#' @param initPar a list of initial parameter values
+#' @param m the \code{Hmsc} model object used for creating export to Hmsc-HPC fitting
+#' @param postList list of MCMC chains, containing the recorded samples from the MCMC sampling
+#' @param nSamples the number of recorded MCMC samples per chain, as was used for Hmsc-HPC fitting
+#' @param thin the MCMC thinning value, as was used for Hmsc-HPC fitting
+#' @param transient the MCMC transient value, as was used for Hmsc-HPC fitting
+#' @param alignPost bool flag whether to attempt to align the latent factors and loadings from different chains
 #' @export
 
 

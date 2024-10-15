@@ -10,6 +10,8 @@ computeInitialParameters(hM, initPar, computeZ = TRUE)
 \item{hM}{a fitted \code{Hmsc} model object}
 
 \item{initPar}{a list of initial parameter values}
+
+\item{computeZ}{bool flag whether to compute Z or leave it \code{NULL}}
 }
 \value{
 a list of Hmsc model parameters

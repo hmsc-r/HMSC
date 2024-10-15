@@ -7,6 +7,7 @@
 \method{predict}{Hmsc}(
   object,
   post = poolMcmcChains(object$postList),
+  Loff = NULL,
   XData = NULL,
   X = NULL,
   XRRRData = NULL,
@@ -29,6 +30,8 @@
 
 \item{post}{a list of posterior samples of the HMSC model. By default uses all samples from the pooled
 posterior of the hM object.}
+
+\item{Loff}{a matrix with observation-specific offsets for predictions. Default \code{NULL} means matrix of zeros.}
 
 \item{XData}{a dataframe specifying the unpreprocessed covariates for the predictions to be made.
 Works only if the \code{XFormula} argument was specified in the \code{Hmsc()} model constructor call.

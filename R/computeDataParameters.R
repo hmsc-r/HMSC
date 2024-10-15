@@ -3,6 +3,7 @@
 #' @description Computes initial values before the sampling starts
 #'
 #' @param hM a fitted \code{Hmsc} model object
+#' @param compactFormat bool flag whether to get reduced set of parameters - as used in export to Hmsc-HPC
 #'
 #' @return a list including pre-computed matrix inverses and determinants (for phylogenetic and spatial random effects) needed in MCMC sampling
 #'

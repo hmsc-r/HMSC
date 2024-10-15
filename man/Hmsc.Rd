@@ -17,6 +17,7 @@ Hmsc(
   ncRRR = 2,
   XRRRScale = TRUE,
   YScale = FALSE,
+  Loff = NULL,
   studyDesign = NULL,
   ranLevels = NULL,
   ranLevelsUsed = names(ranLevels),
@@ -56,6 +57,8 @@ Hmsc(
 \item{XRRRScale}{a boolean flag indicating whether to scale covariates for reduced-rank regression}
 
 \item{YScale}{a boolean flag whether to scale responses for which normal distribution is assumed}
+
+\item{Loff}{a matrix of observation-specific offsets (same size as Y)}
 
 \item{studyDesign}{a data frame of correspondence between sampling units and units on different levels of latent
 factors}

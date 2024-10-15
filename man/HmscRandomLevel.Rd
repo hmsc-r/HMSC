@@ -13,8 +13,6 @@ HmscRandomLevel(
   N = NULL,
   nNeighbours = 10,
   sKnot = NULL,
-  conPart = NULL,
-  conMat = NULL,
   longlat = FALSE
 )
 }
