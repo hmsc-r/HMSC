@@ -47,10 +47,9 @@ computeDataParameters = function(hM, compactFormat=FALSE){
             detQg[rg] = 2*sum(log(diag(RQ)))
          }
       } else{
-         Qg = array(diag(hM$ns), c(hM$ns,hM$ns,1))
-         iQg = array(diag(hM$ns), c(hM$ns,hM$ns,1))
-         detQg = 0
-         RQg = array(diag(hM$ns), c(hM$ns,hM$ns,1))
+         Qg = iQg = detQg = RQg = NULL
+      }
+      if(!is.null(hM$C)){
       }
    } else{
       Qg = iQg = detQg = RQg = NULL

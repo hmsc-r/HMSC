@@ -15,6 +15,7 @@ sampleMcmc(
   nChains = 1,
   nParallel = 1,
   useSocket = TRUE,
+  tolerateError = TRUE,
   dataParList = NULL,
   updater = list(Gamma2 = FALSE, GammaEta = FALSE),
   fromPrior = FALSE,

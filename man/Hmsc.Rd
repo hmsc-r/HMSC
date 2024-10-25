@@ -27,6 +27,8 @@ Hmsc(
   TrScale = TRUE,
   phyloTree = NULL,
   C = NULL,
+  covRhoInd = NULL,
+  phyloFast = FALSE,
   distr = "normal",
   truncateNumberOfFactors = TRUE
 )

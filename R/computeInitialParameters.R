@@ -224,10 +224,13 @@ computeInitialParameters = function(hM, initPar, computeZ=TRUE){
       }
    }
 
-   if(!is.null(initPar$rho)){
-      rho = which.min(abs(initPar$rho-hM$rhopw[,1]))
+   if(!is.null(initPar$rhoInd)){
+      rhoInd = rep(NA, hM$rhoLen)
+      for(i in seq_len(hM$rhoLen)){
+         rhoInd[i] = which.min(abs(initPar$rho[i] - hM$rhopw[,1]))
+      }
    } else{
-      rho = 1
+      rhoInd = rep(1, hM$rhoLen)
    }
 
    switch(class(XScaled)[1L],
@@ -271,7 +274,7 @@ computeInitialParameters = function(hM, initPar, computeZ=TRUE){
    parList$Psi = Psi
    parList$Delta = Delta
    parList$Alpha = Alpha
-   parList$rho = rho
+   parList$rhoInd = rhoInd
    parList$Z = Z
 
    return(parList)

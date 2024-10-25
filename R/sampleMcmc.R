@@ -83,7 +83,7 @@
     function(hM, samples, transient=0, thin=1, initPar=NULL,
              verbose, adaptNf=rep(transient,hM$nr),
              nChains=1, nParallel=1,
-             useSocket=TRUE,
+             useSocket=TRUE, tolerateError=TRUE,
              dataParList=NULL, updater=list(Gamma2=FALSE, GammaEta=FALSE),
              fromPrior=FALSE, alignPost=TRUE, engine="R")
 {
@@ -104,7 +104,7 @@
     ## object for Hmsc-HPC.
     switch(engine,
            "r"=,
-           "R" = RSampler(samplingObject),
+           "R" = RSampler(samplingObject, tolerateError),
            "pass"=,
            "HPC" = samplingObject,
            stop("unknown engine ", sQuote(engine)) # none of above: error
@@ -112,6 +112,14 @@
 }
 
 ## wrapper to samplePrior
+
+ctry <- function(expr, tryFlag=TRUE){
+   if(tryFlag){
+      try(expr, silent=TRUE)
+   } else{
+      expr
+   }
+}
 
 `doSamplePrior` <-
     function(hM, samples, nChains, dataParList)
@@ -262,7 +270,7 @@
 }
 
 `RSampler` <-
-    function(obj)
+    function(obj, tolerateError)
 {
     hM <- obj$hM
     ## save random seed that is used to generate initSeed[s]
@@ -274,7 +282,7 @@
     if (obj$nParallel > 1) {
         if (obj$useSocket) {
             cl = makeCluster(obj$nParallel)
-            clusterExport(cl, c("obj", "initSeed", "sampleChain"),
+            clusterExport(cl, c("obj", "initSeed", "sampleChain", "tolerateError"),
                           envir=environment())
             clusterEvalQ(cl, {
                 library(BayesLogit);
@@ -285,19 +293,17 @@
                 library(Hmsc)})
             hM$postList = clusterApplyLB(cl, seq_len(obj$nChains),
                                          fun = function(i, ...)
-                sampleChain(i, obj = obj, initSeed = initSeed))
+                sampleChain(i, obj=obj, initSeed=initSeed, tolerateError=tolerateError))
             stopCluster(cl)
         } else { # fork cluster
             obj$verbose <- 0
             hM$postList <- mclapply(seq_len(obj$nChains),
-                                    function(i, ...) sampleChain(i, obj=obj,
-                                                            initSeed = initSeed),
+                                    function(i, ...) sampleChain(i, obj=obj, initSeed=initSeed, tolerateError=tolerateError),
                                     mc.cores = obj$nParallel)
         }
     } else {
        for(chain in seq_len(obj$nChains)) {
-           hM$postList[[chain]] = sampleChain(chain, obj = obj,
-                                              initSeed = initSeed)
+           hM$postList[[chain]] = sampleChain(chain, obj=obj, initSeed=initSeed, tolerateError=tolerateError)
        }
     }
     ## warn on failed updaters
@@ -331,7 +337,7 @@
 ### Real work is done here!
 
 `sampleChain` <-
-    function(chain, obj, initSeed)
+    function(chain, obj, initSeed, tolerateError)
 {
     ## extract sampling parameters
     hM = obj$hM
@@ -351,6 +357,11 @@
     dfPi = hM$dfPi
     C = hM$C
     nr = hM$nr
+    phyloFlag = hM$phyloFlag
+    phyloFast = hM$phyloFast
+    phyloTreeList = hM$phyloTreeList
+    phyloTreeRoot = hM$phyloTreeRoot
+    covRhoGroup = hM$covRhoGroup
 
     mGamma = hM$mGamma
     iUGamma = chol2inv(chol(hM$UGamma))
@@ -390,11 +401,10 @@
     Alpha = parList$Alpha
     Psi = parList$Psi
     Delta = parList$Delta
-    rho = parList$rho
+    rhoInd = parList$rhoInd
     Z = parList$Z
 
     X1A = X1
-
     if(hM$ncsel>0){
         for (i in 1:hM$ncsel){
             XSel = hM$XSelect[[i]]
@@ -424,17 +434,17 @@
     postList = vector("list", samples)
     failed <- numeric(15) # counts of failed try(update*())s
     names(failed) <- c("Gamma2", "GammaEta", "BetaLambda", "wRRR",
-                       "BetaSel", "GammaV", "Rho", "LambdaPriors",
+                       "BetaSel", "GammaV", "rhoInd", "LambdaPriors",
                        "wRRRPriors", "Eta", "Alpha",
                        "invSigma", "Z", "Nf", "LatentLoadingOrder")
 ###--> Iterations starts here <--
     for(iter in seq_len(transient + samples*thin)) {
         if(!identical(updater$Gamma2, FALSE)) {
-            out = try(updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,
+            out = ctry(updateGamma2(Z=Z,Gamma=Gamma,iV=iV,iSigma=iSigma,
                                    Eta=Eta,Lambda=Lambda, Loff=Loff,X=X,Pi=Pi,
                                    dfPi=dfPi,Tr=Tr,C=C,rL=hM$rL, iQg=iQg,
                                    mGamma=mGamma,iUGamma=iUGamma),
-                      silent = TRUE)
+                      tryFlag=tolerateError)
             if (!inherits(out, "try-error")) {
                 Gamma <- out
             } else if (iter > transient) {
@@ -442,17 +452,17 @@
             }
         }
         if(!identical(updater$GammaEta, FALSE)){
-            GammaEtaList = try(updateGammaEta(Z=Z,Gamma=Gamma,
+            GammaEtaList = ctry(updateGammaEta(Z=Z,Gamma=Gamma,
                                               V=chol2inv(chol(iV)),iV=iV,
                                               id=iSigma, Eta=Eta,
                                               Lambda=Lambda,Alpha=Alpha,
                                               Loff=Loff,X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,
                                               rL=hM$rL, rLPar=rLPar,
-                                              Q=Qg[,,rho],iQ=iQg[,,rho],
-                                              RQ=RQg[,,rho],
+                                              Q=Qg[,,rhoInd],iQ=iQg[,,rhoInd],
+                                              RQ=RQg[,,rhoInd],
                                               mGamma=mGamma,U=hM$UGamma,
                                               iU=iUGamma),
-                               silent = TRUE)
+                                tryFlag=tolerateError)
             if (!inherits(GammaEtaList, "try-error")) {
                 Gamma = GammaEtaList$Gamma
                 Eta = GammaEtaList$Eta
@@ -462,28 +472,33 @@
         }
 
         if(!identical(updater$BetaLambda, FALSE)){
-            BetaLambdaList = try(updateBetaLambda(Y=Y,Z=Z,Gamma=Gamma,iV=iV,
+            BetaLambdaList = ctry(updateBetaLambda(Y=Y,Z=Z,Gamma=Gamma,iV=iV,
                                                   iSigma=iSigma,Eta=Eta,
-                                                  Psi=Psi,Delta=Delta,iQ=iQg[,,rho],
+                                                  Psi=Psi,Delta=Delta,rhoInd=rhoInd,
                                                   Loff=Loff,X=X,Tr=Tr,
-                                                  Pi=Pi,dfPi=dfPi,C=C,
-                                                  rL=hM$rL),
-                                 silent = TRUE)
+                                                  Pi=Pi,dfPi=dfPi,
+                                                  phyloFlag=phyloFlag,phyloFast=phyloFast,
+                                                  phyloTreeList=phyloTreeList,phyloTreeRoot=phyloTreeRoot,
+                                                  covRhoGroup=covRhoGroup,iQg=iQg,rhopw=rhopw,rL=hM$rL),
+                                  tryFlag=tolerateError)
             if (!inherits(BetaLambdaList, "try-error")) {
                 Beta = BetaLambdaList$Beta
                 Lambda = BetaLambdaList$Lambda
+                # print(Beta)
+                # print(Lambda)
             } else if (iter > transient) {
                 failed["BetaLambda"] <- failed["BetaLambda"] + 1
+                print("failed BetaLambda")
             }
         }
 
         if(!identical(updater$wRRR, FALSE) &&  hM$ncRRR>0){
-            wRRRXList = try(updatewRRR(Z=Z, Beta=Beta, iSigma=iSigma,
+            wRRRXList = ctry(updatewRRR(Z=Z, Beta=Beta, iSigma=iSigma,
                                        Eta=Eta, Lambda=Lambda, Loff=Loff, X1A=X1A,
                                        XRRR=hM$XRRRScaled, Pi=Pi, dfPi=dfPi,
                                        rL = hM$rL, PsiRRR=PsiRRR,
                                        DeltaRRR=DeltaRRR),
-                            silent = TRUE)
+                             tryFlag=tolerateError)
             if (!inherits(wRRRXList, "try-error")) {
                 wRRR = wRRRXList$wRRR
                 X = wRRRXList$X
@@ -493,12 +508,12 @@
         }
 
         if(!identical(updater$BetaSel, FALSE) &&  hM$ncsel>0){
-            BetaSelXList = try(updateBetaSel(Z=Z, XSelect=hM$XSelect,
+            BetaSelXList = ctry(updateBetaSel(Z=Z, XSelect=hM$XSelect,
                                              BetaSel=BetaSel,Beta=Beta,
                                              iSigma=iSigma, Lambda=Lambda, Eta=Eta,
                                              Loff=Loff, X1=X1, Pi=Pi, dfPi=dfPi,
                                              rL=hM$rL),
-                               silent = TRUE)
+                                tryFlag=tolerateError)
             if (!inherits(BetaSelXList, "try-error")) {
                 BetaSel = BetaSelXList$BetaSel
                 X = BetaSelXList$X
@@ -508,32 +523,42 @@
         }
 
         if(!identical(updater$GammaV, FALSE)){
-            GammaVList = try(updateGammaV(Beta=Beta,Gamma=Gamma,iV=iV,
-                                          rho=rho,iQg=iQg,RQg=RQg, Tr=Tr,
-                                          C=C, mGamma=mGamma,iUGamma=iUGamma,
-                                          V0=V0,f0=f0),
-                             silent = TRUE)
+            GammaVList = ctry(updateGammaV(Beta=Beta,Gamma=Gamma,iV=iV,rhoInd=rhoInd,
+                                          Tr=Tr,phyloFlag=phyloFlag,phyloFast=phyloFast,
+                                          phyloTreeList=phyloTreeList,phyloTreeRoot=phyloTreeRoot,
+                                          iQg=iQg,RQg=RQg,
+                                          mGamma=mGamma,iUGamma=iUGamma,
+                                          V0=V0,f0=f0,rhopw=rhopw),
+                              tryFlag=tolerateError)
             if (!inherits(GammaVList, "try-error")) {
                 Gamma = GammaVList$Gamma
                 iV = GammaVList$iV
+                # print(Gamma)
+                # print(iV)
             } else if (iter > transient) {
                 failed["GammaV"] <- failed["GammaV"] + 1
+                print("failed GammaV")
             }
         }
 
-        if(!is.null(hM$C) && !identical(updater$Rho, FALSE)){
-            out = try(updateRho(Beta=Beta,Gamma=Gamma,iV=iV, RQg=RQg,
-                                detQg=detQg, Tr=Tr, rhopw=rhopw),
-                      silent = TRUE)
-            if (!inherits(out, "try-error"))
-                rho <- out
-            else if (iter > transient)
-                failed["Rho"] <- failed["Rho"] + 1
+        if(hM$phyloFlag && !identical(updater$Rho, FALSE)){
+           out = ctry(updateRho(Beta=Beta,Gamma=Gamma,iV=iV,rhoInd=rhoInd,Tr=Tr,
+                                 phyloFast=phyloFast,phyloTreeList=phyloTreeList,phyloTreeRoot=phyloTreeRoot,
+                                 RQg=RQg,detQg=detQg, rhopw=rhopw),
+                       tryFlag=tolerateError)
+            if (!inherits(out, "try-error")){
+               rhoInd = out
+               # print(rhoInd)
+            }
+            else if (iter > transient){
+               failed["rhoInd"] <- failed["rhoInd"] + 1
+               print("failed rhoInd")
+            }
         }
 
         if(!identical(updater$LambdaPriors, FALSE)){
-            PsiDeltaList = try(updateLambdaPriors(Lambda=Lambda,Delta=Delta,
-                                                  rL=hM$rL), silent = TRUE)
+            PsiDeltaList = ctry(updateLambdaPriors(Lambda=Lambda,Delta=Delta,
+                                                  rL=hM$rL), tryFlag=tolerateError)
             if (!inherits(PsiDeltaList, "try-error")) {
                 Psi = PsiDeltaList$Psi
                 Delta = PsiDeltaList$Delta
@@ -542,11 +567,11 @@
             }
         }
         if(!identical(updater$wRRRPriors, FALSE) &&  hM$ncRRR>0){
-            PsiDeltaList = try(updatewRRRPriors(wRRR=wRRR,Delta=DeltaRRR,
+            PsiDeltaList = ctry(updatewRRRPriors(wRRR=wRRR,Delta=DeltaRRR,
                                                 nu=hM$nuRRR,a1=hM$a1RRR,
                                                 b1=hM$b1RRR,a2=hM$a2RRR,
                                                 b2=hM$b2RRR),
-                               silent = TRUE)
+                                tryFlag=tolerateError)
             if (!inherits(PsiDeltaList, "try-error")) {
                 PsiRRR = PsiDeltaList$Psi
                 DeltaRRR = PsiDeltaList$Delta
@@ -556,36 +581,36 @@
         }
 
         if(!identical(updater$Eta, FALSE))
-            out = try(updateEta(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
+            out = ctry(updateEta(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
                                 Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, Loff=Loff,X=X,
-                                Pi=Pi,dfPi=dfPi,rL=hM$rL), silent = TRUE)
+                                Pi=Pi,dfPi=dfPi,rL=hM$rL), tryFlag=tolerateError)
         if (!inherits(out, "try-error"))
             Eta <- out
         else if (iter > transient)
             failed["Eta"] <- failed["Eta"] + 1
 
         if(!identical(updater$Alpha, FALSE))
-            out = try(updateAlpha(Eta=Eta, rLPar=rLPar, rL=hM$rL),
-                      silent = TRUE)
+            out = ctry(updateAlpha(Eta=Eta, rLPar=rLPar, rL=hM$rL),
+                       tryFlag=tolerateError)
         if (!inherits(out, "try-error"))
             Alpha <- out
         else if (iter > transient)
             failed["Alpha"] <- failed["Alpha"] + 1
 
         if(!identical(updater$InvSigma, FALSE))
-            out = try(updateInvSigma(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,
+            out = ctry(updateInvSigma(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,
                                      Eta=Eta,Lambda=Lambda, distr=distr,Loff=Loff,X=X,
                                      Pi=Pi,dfPi=dfPi,rL=hM$rL, aSigma=aSigma,
-                                     bSigma=bSigma), silent = TRUE)
+                                     bSigma=bSigma), tryFlag=tolerateError)
         if (!inherits(out, "try-error"))
             iSigma <- out
         else if (iter > transient)
             failed["invSigma"] <- failed["invSigma"] + 1
 
         if(!identical(updater$Z, FALSE)) {
-            out = try(updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
+            out = ctry(updateZ(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
                               Lambda=Lambda, Loff=Loff,X=X,Pi=Pi,dfPi=dfPi,distr=distr,
-                              rL=hM$rL))
+                              rL=hM$rL), tryFlag=tolerateError)
             if (!inherits(out, "try-error"))
                 Z = out
             else if (iter > transient)
@@ -594,10 +619,10 @@
 
         for(r in seq_len(nr)){
             if(iter <= adaptNf[r]){
-                listPar = try(updateNf(eta=Eta[[r]],lambda=Lambda[[r]],
+                listPar = ctry(updateNf(eta=Eta[[r]],lambda=Lambda[[r]],
                                        alpha=Alpha[[r]],psi=Psi[[r]],
                                        delta=Delta[[r]],rL=hM$rL[[r]],
-                                       iter=iter), silent = TRUE)
+                                       iter=iter), tryFlag=tolerateError)
                 if (!inherits(listPar, "try-error")) {
                     Lambda[[r]] = listPar$lambda
                     Eta[[r]] = listPar$eta
@@ -612,12 +637,12 @@
 
         if(updater$latentLoadingOrderSwap>0 && (iter %% updater$latentLoadingOrderSwap == 0)){
             for(r in seq_len(nr)){
-                listPar = try(updateLatentLoadingOrder(eta=Eta[[r]],
+                listPar = ctry(updateLatentLoadingOrder(eta=Eta[[r]],
                                                        lambda=Lambda[[r]],
                                                        alpha=Alpha[[r]],
                                                        delta=Delta[[r]],
                                                        rL=hM$rL[[r]]),
-                              silent = TRUE)
+                               tryFlag=tolerateError)
                 if (!inherits(listPar, "try-error")) {
                     Lambda[[r]] = listPar$lambda
                     Eta[[r]] = listPar$eta
@@ -627,8 +652,8 @@
                     failed["LatentLoadingOrder"] + failed["LatentLoadingOrder"] + 1
                 }
             }
-            PsiDeltaList = try(updateLambdaPriors(Lambda=Lambda,Delta=Delta,
-                                                  rL=hM$rL))
+            PsiDeltaList = ctry(updateLambdaPriors(Lambda=Lambda,Delta=Delta,
+                                                  rL=hM$rL), tryFlag=tolerateError)
             if (!inherits(PsiDeltaList, "try-error")) {
                 Psi = PsiDeltaList$Psi
                 Delta = PsiDeltaList$Delta
@@ -640,7 +665,7 @@
         if((iter > transient) && ((iter-transient) %% thin == 0)){
             postList[[(iter-transient)/thin]] =
                 combineParameters(Beta=Beta,BetaSel=BetaSel,wRRR = wRRR,
-                                  Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,
+                                  Gamma=Gamma,iV=iV,rhoInd=rhoInd,iSigma=iSigma,
                                   Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,
                                   Delta=Delta, PsiRRR=PsiRRR,
                                   DeltaRRR=DeltaRRR,ncNRRR=hM$ncNRRR,

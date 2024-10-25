@@ -27,5 +27,5 @@ importPosteriorFromHPC(
 \item{alignPost}{bool flag whether to attempt to align the latent factors and loadings from different chains}
 }
 \description{
-Imports the posterior object after running MCMC using the Hmsc-HPC add-on
+Imports the posterior calculated with \code{Hmsc-HPC} add-on to the corresponding Hmsc object
 }

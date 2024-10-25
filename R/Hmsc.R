@@ -30,6 +30,8 @@
 #' @param TrScale a boolean flag whether to scale values of species traits
 #' @param phyloTree a phylogenetic tree (object of class \code{phylo} or \code{corPhyl}) for species in \code{Y}
 #' @param C a phylogenic correlation matrix for species in \code{Y}
+#' @param covRhoGroup
+#' @param phyloFast
 #' @param distr a string shortcut or \eqn{n_s \times 2} matrix specifying the observation models
 #' @param truncateNumberOfFactors logical, reduces the maximal number of latent factor to be at most the number of species
 #'
@@ -119,7 +121,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
                 YScale = FALSE, Loff=NULL,
                 studyDesign=NULL, ranLevels=NULL, ranLevelsUsed=names(ranLevels),
                 TrFormula=NULL, TrData=NULL, Tr=NULL, TrScale=TRUE,
-                phyloTree=NULL, C=NULL,
+                phyloTree=NULL, C=NULL, covRhoGroup=NULL, phyloFast=FALSE,
                 distr="normal", truncateNumberOfFactors=TRUE){
 
    hM = structure(list(
@@ -130,7 +132,8 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       studyDesign=NULL, ranLevels=NULL, ranLevelsUsed=NULL,
       dfPi = NULL, rL=NULL, Pi=NULL,
       TrData=NULL, TrFormula=NULL, Tr=NULL, TrScaled=NULL, TrInterceptInd=NULL,
-      C=NULL, phyloTree=NULL,
+      phyloFlag=NULL, C=NULL, phyloTree=NULL, covRhoGroup=NULL,
+      phyloFast=FALSE, phyloTreeList=NULL, phyloTreeRoot=NULL,
       distr = NULL,
 
       # dimensions
@@ -161,7 +164,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       V0=NULL, f0=NULL,
       mGamma=NULL, UGamma=NULL,
       aSigma=NULL, bSigma=NULL,
-      rhopw=NULL,
+      rhopw=NULL, rhoLen=NULL,
       nuRRR=NULL, a1RRR=NULL, b1RRR=NULL, a2RRR=NULL, b2RRR=NULL,
 
       # sampling parameters
@@ -186,75 +189,75 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    hM$spNames = colnames(hM$Y)
 
    ## User supplied model matrix instead of XData & XFormula
-    if(!is.null(X)) {
-        ## should be no model frame XData with model matrix X
-        if (!is.null(XData))
-            stop("only one of XData and X arguments can be specified")
-        ## XFormula should be NULL if there is no XData
-        if (!is.null(XFormula))
-            XFormula <- NULL
-    }
-    if(!is.null(XData)) {
-        ## function to check that all variables are numeric or factors
-        ## (sometimes they are character strings which is OK for most
-        ## analyses but can fail in predict.Hmsc): DF is a data.frame
-        BADvars <- function(DF) {
-            cl <- vapply(DF, .MFclass, "")
-            ## accepted types; character and matrix vars are baddies
-            ok <- cl %in% c("numeric", "factor", "ordered", "logical")
-            cl <- cl[!ok]
-            if (length(cl) > 0)
-                paste(names(cl), cl, sep=":", collapse=", ")
-            else
-                invisible(NULL)
-        }
-        if (inherits(XData, "list")) {
-            if(length(XData) != hM$ns){
-                stop("the length of XData list argument must be equal to the number of species")
-            }
-            if(any(!unlist(lapply(XData, is.data.frame)))){
-                stop("each element of X list must be a data.frame")
-            }
-            ## check against derived classes of data.frame (such as tibble)
-            if (any(sapply(XData, function(a) class(a)[1L] != "data.frame"))) {
-                for(i in seq_len(length(XData)))
-                    XData[[i]] <- as.data.frame(XData, stringsAsFactors = TRUE)
-            }
-            if(any(unlist(lapply(XData, function(a) nrow(a) != hM$ny)))){
-                stop("for each element of XData list the number of rows must be equal to the number of sampling units")
-            }
-            if(any(!sapply(lapply(XData, BADvars), is.null)))
-                stop("XData variables had bad types (e.g., matrix, non-numeric)")
-            if(any(unlist(lapply(XData, function(a) any(is.na(a)))))){
-                stop("NA values are not allowed in XData")
-            }
-            hM$XData = XData
-            hM$XFormula = XFormula
-            hM$X = lapply(XData, function(a) model.matrix(XFormula, a))
-            hM$nc = ncol(hM$X[[1]])
-        }
-        else if (is.data.frame(XData)) {
-            if(nrow(XData) != hM$ny){
-                stop("the number of rows in XData must be equal to the number of sampling units")
-            }
-            if(any(is.na(XData))){
-                stop("NA values are not allowed in XData")
-            }
-            ## check that all vars are numeric or factors (not, e.g.,
-            ## characters)
-            if (!is.null(baddie <- BADvars(XData)))
-                stop("XData variables had bad types: ", baddie)
-            ## check against derived classes of data.frame (such as tibble)
-            if (class(XData)[1L] != "data.frame")
-                XData <- as.data.frame(XData, stringsAsFactors = TRUE)
-            hM$XData = XData
-            hM$XFormula = XFormula
-            hM$X = model.matrix(XFormula, XData)
-            hM$nc = ncol(hM$X)
-        } else {
-            stop("XData must be either a data.frame or a list of data.frame objects")
-        }
-    }
+   if(!is.null(X)) {
+      ## should be no model frame XData with model matrix X
+      if (!is.null(XData))
+         stop("only one of XData and X arguments can be specified")
+      ## XFormula should be NULL if there is no XData
+      if (!is.null(XFormula))
+         XFormula <- NULL
+   }
+   if(!is.null(XData)) {
+      ## function to check that all variables are numeric or factors
+      ## (sometimes they are character strings which is OK for most
+      ## analyses but can fail in predict.Hmsc): DF is a data.frame
+      BADvars <- function(DF) {
+         cl <- vapply(DF, .MFclass, "")
+         ## accepted types; character and matrix vars are baddies
+         ok <- cl %in% c("numeric", "factor", "ordered", "logical")
+         cl <- cl[!ok]
+         if (length(cl) > 0)
+            paste(names(cl), cl, sep=":", collapse=", ")
+         else
+            invisible(NULL)
+      }
+      if (inherits(XData, "list")) {
+         if(length(XData) != hM$ns){
+            stop("the length of XData list argument must be equal to the number of species")
+         }
+         if(any(!unlist(lapply(XData, is.data.frame)))){
+            stop("each element of X list must be a data.frame")
+         }
+         ## check against derived classes of data.frame (such as tibble)
+         if (any(sapply(XData, function(a) class(a)[1L] != "data.frame"))) {
+            for(i in seq_len(length(XData)))
+               XData[[i]] <- as.data.frame(XData, stringsAsFactors = TRUE)
+         }
+         if(any(unlist(lapply(XData, function(a) nrow(a) != hM$ny)))){
+            stop("for each element of XData list the number of rows must be equal to the number of sampling units")
+         }
+         if(any(!sapply(lapply(XData, BADvars), is.null)))
+            stop("XData variables had bad types (e.g., matrix, non-numeric)")
+         if(any(unlist(lapply(XData, function(a) any(is.na(a)))))){
+            stop("NA values are not allowed in XData")
+         }
+         hM$XData = XData
+         hM$XFormula = XFormula
+         hM$X = lapply(XData, function(a) model.matrix(XFormula, a))
+         hM$nc = ncol(hM$X[[1]])
+      }
+      else if (is.data.frame(XData)) {
+         if(nrow(XData) != hM$ny){
+            stop("the number of rows in XData must be equal to the number of sampling units")
+         }
+         if(any(is.na(XData))){
+            stop("NA values are not allowed in XData")
+         }
+         ## check that all vars are numeric or factors (not, e.g.,
+         ## characters)
+         if (!is.null(baddie <- BADvars(XData)))
+            stop("XData variables had bad types: ", baddie)
+         ## check against derived classes of data.frame (such as tibble)
+         if (class(XData)[1L] != "data.frame")
+            XData <- as.data.frame(XData, stringsAsFactors = TRUE)
+         hM$XData = XData
+         hM$XFormula = XFormula
+         hM$X = model.matrix(XFormula, XData)
+         hM$nc = ncol(hM$X)
+      } else {
+         stop("XData must be either a data.frame or a list of data.frame objects")
+      }
+   }
    if(!is.null(X)){
       switch(class(X)[1L],
              list={
@@ -398,8 +401,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       hM$ncRRR = ncRRR
    }
    if(!is.null(XRRR)){
-      if(!is.matrix(XRRR))
-      {
+      if(!is.matrix(XRRR)){
          stop("XRRR must be a matrix")
       }
       if(nrow(XRRR) != hM$ny){
@@ -468,10 +470,10 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    }
    if(!is.null(TrData)){
       if(nrow(TrData) != hM$ns){
-          stop("the number of rows in TrData should be equal to number of columns in Y")
+         stop("the number of rows in TrData should be equal to number of columns in Y")
       }
       if (!all(rownames(TrData) == colnames(Y))) {
-          stop("rownames of TrData must match species names in Y")
+         stop("rownames of TrData must match species names in Y")
       }
       if(any(is.na(TrData))){
          stop("TrData parameter must not contain any NA values")
@@ -488,7 +490,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
          stop("the number of rows in Tr should be equal to number of columns in Y")
       }
       if (!all(rownames(Tr) == colnames(Y))) {
-          stop("rownames of Tr must match species names in Y")
+         stop("rownames of Tr must match species names in Y")
       }
       if(any(is.na(Tr))){
          stop("Tr parameter must not contain any NA values")
@@ -542,20 +544,57 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    }
 
    ### phylogeny ###
-   if(!is.null(C) && !is.null(phyloTree)){
+   hM$phyloFlag = !is.null(C) || !is.null(phyloTree)
+   if(!is.null(C) && !is.null(phyloTree))
       stop("only one of phyloTree and C arguments can be specified")
-   }
    if(!is.null(phyloTree)){
-      corM = vcv.phylo(phyloTree, model="Brownian", corr=TRUE)
-      corM = corM[hM$spNames,hM$spNames]
+      # phyloTree = keep.tip(phyloTree, hM$spNames, trim.internal=FALSE)
+      if(phyloFast==TRUE){
+         tree = chronos(phyloTree, lambda=0, quiet=TRUE)
+         treeList = vector("list", hM$ns+tree$Nnode)
+         for(i in 1:length(treeList)){
+            treeList[[i]] = list(n=0, child=NULL, edgeLen=NULL, parent=0, parentEdgeLen=0)
+         }
+         for(i in 1:nrow(tree$edge)){
+            parentNode = tree$edge[i,1]
+            childNodeOrig = tree$edge[i,2]
+            if(childNodeOrig <= hM$ns){
+               childNode = match(tree$tip.label[childNodeOrig], hM$spNames)
+            } else childNode = childNodeOrig
+            treeList[[parentNode]]$n = treeList[[parentNode]]$n + 1
+            treeList[[parentNode]]$child = c(treeList[[parentNode]]$child, childNode)
+            treeList[[parentNode]]$edgeLen = c(treeList[[parentNode]]$edgeLen, tree$edge.length[i])
+            treeList[[childNode]]$parent = parentNode
+            treeList[[childNode]]$parentEdgeLen = tree$edge.length[i]
+         }
+         hM$phyloTreeList = treeList
+         hM$phyloTreeRoot = setdiff(1:(hM$ns+tree$Nnode), tree$edge[,2])
+      } else{
+         corM = vcv.phylo(phyloTree, model="Brownian", corr=TRUE)
+         corM = corM[hM$spNames,hM$spNames]
+         hM$C = corM
+      }
       hM$phyloTree = phyloTree
-      hM$C = corM
+      hM$phyloFast = phyloFast
+   } else{
+      if(phyloFast==TRUE)
+         stop("fast phylogeny method can be enabled only once the phyloTree argument is given")
    }
-   if(!is.null(C)) {
+   if(!is.null(C)){
       if(any(dim(C) != hM$ns)){
          stop("the size of square matrix C must be equal to number of species")
       }
       hM$C = C
+   }
+   if(!is.null(covRhoGroup)){
+      rhoLen = max(covRhoGroup)
+      if(any(sort(unique(covRhoGroup)) != c(1:rhoLen)))
+         stop("covRhoGroup must be a projection vector from covariates' indices to rhos' indices")
+      hM$rhoLen = rhoLen
+      hM$covRhoGroup = covRhoGroup
+   } else{
+      hM$rhoLen = 1
+      hM$covRhoGroup = rep(1, hM$nc)
    }
 
    ### latent factors ###
@@ -571,26 +610,23 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
          }
       }
    } else {
-      if(nrow(studyDesign) != hM$ny){
+      if(nrow(studyDesign) != hM$ny)
          stop("the number of rows in studyDesign must be equal to number of rows in Y")
-      }
-      if (!all(sapply(studyDesign, is.factor)))
-          stop("studyDesign columns must be factors")
-      if(!all(ranLevelsUsed %in% names(ranLevels))){
+      if(!all(sapply(studyDesign, is.factor)))
+         stop("studyDesign columns must be factors")
+      if(!all(ranLevelsUsed %in% names(ranLevels)))
          stop("ranLevels must contain named elements corresponding to all levels listed in ranLevelsUsed")
-      }
-      if(!all(ranLevelsUsed %in% colnames(studyDesign))){
+      if(!all(ranLevelsUsed %in% colnames(studyDesign)))
          stop("studyDesign must contain named columns corresponding to all levels listed in ranLevelsUsed")
-      }
       hM$studyDesign = studyDesign
       ## check than ranLevels is a list of HmscRandomLevel
       ## objects. NB, !is.null(ranLevels) may fail for NULL ranLevels:
       ## see comment in computePredictedValues
       if (length(ranLevels) && !is.list(ranLevels))
-          stop("'ranLevels' must be a list of 'HmscRandomLevel' objects")
+         stop("'ranLevels' must be a list of 'HmscRandomLevel' objects")
       ## curiously, the following is FALSE if ranLevels is NULL
       if (!all(sapply(ranLevels, inherits, what = "HmscRandomLevel")))
-          stop("'ranLevels' must be 'HmscRandomLevel' objects")
+         stop("'ranLevels' must be 'HmscRandomLevel' objects")
       ## if ranLevels is NULL, it will be removed from hM (and
       ## hM$rLNames will be character(0)). - CLEAN UP!
       hM$ranLevels = ranLevels
