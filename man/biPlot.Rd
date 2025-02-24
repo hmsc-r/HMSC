@@ -46,7 +46,7 @@ Constructs an ordination biplot based on the fitted model
 # Construct an ordination biplot using two chosen latent factors from a previously fitted HMSC model
 etaPost = getPostEstimate(TD$m, "Eta")
 lambdaPost=getPostEstimate(TD$m, "Lambda")
-biPlot(TD$m, etaPost = etaPost, lambdaPost=lambdaPost, factors=c(1,2))
+biPlot(TD$m, etaPost=etaPost, lambdaPost=lambdaPost, factors=c(1,2))
 
 
 }

@@ -57,7 +57,7 @@
 #'
 #'   Some of the available conditional updaters partially duplicate each other. In certain cases, the usage of all
 #'   of them may lead to suboptimal performance, compared to some subset of those. Then, it is possible to manually
-#'   disable some of them, by adding a \code{$UPDATER_NAME=FALSE} pair to the {updater} argument. Another usage of
+#'   disable some of them, by adding a \code{$UPDATER_NAME=FALSE} pair to the \code{updater} argument. Another usage of
 #'   this argument involves cases when some of the model parameters are known and have to be fixed. However, such
 #'   tweaks of the sampling scheme should be done with caution, as if compromized they would lead to erroneuos
 #'   results.
@@ -137,7 +137,7 @@
 
 `prepareSamplingObject` <-
     function(hM, samples, transient, thin, initPar, verbose, adaptNf, nChains,
-             nParallel, useSocket, dataParList, updater, alignPost, hpcFormatFlag=FALSE)
+             nParallel, useSocket, dataParList, updater, alignPost, hpcFormat=FALSE)
 {
    ## use socket cluster if requested or in Windows
    if (nParallel > 1 && .Platform$OS.type == "windows" && !useSocket) {
@@ -176,8 +176,8 @@
    }
    ## get data parameters & initial parameters
    if(is.null(dataParList))
-        dataParList <- computeDataParameters(hM, compactFormat=hpcFormatFlag)
-   initParList <- replicate(nChains, computeInitialParameters(hM, initPar, computeZ=!hpcFormatFlag), simplify=FALSE)
+        dataParList <- computeDataParameters(hM, compactFormat=hpcFormat)
+   initParList <- replicate(nChains, computeInitialParameters(hM, initPar, computeZ=!hpcFormat), simplify=FALSE)
 
    hM$postList = vector("list", nChains)
    hM$repList = vector("list", nChains)
@@ -251,7 +251,7 @@
 
     ## once preparing the export for Hmsc-HPC, we need to get rid of complex R-specific
     ## content of Hmsc object, such as spatial S4
-    if(hpcFormatFlag){
+    if(hpcFormat){
       obj$hM$ranLevels = NULL
       for(r in seq_len(hM$nr)){
          obj$hM$rL[[r]]$s = NULL

@@ -17,6 +17,7 @@ Hmsc(
   ncRRR = 2,
   XRRRScale = TRUE,
   YScale = FALSE,
+  Loff = NULL,
   studyDesign = NULL,
   ranLevels = NULL,
   ranLevelsUsed = names(ranLevels),

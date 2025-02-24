@@ -1,7 +1,7 @@
 Package: Hmsc
 Title: Hierarchical Model of Species Communities
 Type: Package
-Version: 3.1-3
+Version: 3.3-1
 Authors@R: c(person(given = "Gleb", family="Tikhonov", role="aut"),
    person(given="Otso", family="Ovaskainen",
       email="otso.ovaskainen@helsinki.fi",
@@ -21,7 +21,7 @@ URL: https://www.helsinki.fi/en/researchgroups/statistical-ecology/software/hmsc
 BugReports: https://github.com/hmsc-r/HMSC/issues/
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Suggests: R.rsp,
    testthat,
    corrplot

@@ -7,6 +7,7 @@
 \method{predict}{Hmsc}(
   object,
   post = poolMcmcChains(object$postList),
+  Loff = NULL,
   XData = NULL,
   X = NULL,
   XRRRData = NULL,
