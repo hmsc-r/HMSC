@@ -20,7 +20,7 @@
 #' @export
 
 coralTrain = function(Y, XData, XFormula, prior.mu, prior.V, transient, samples, thin){
-   formula.coral = as.formula(paste("y", deparse(as.formula(XFormula)), sep=""))
+   formula.coral = as.formula(paste("y", deparse1(as.formula(XFormula)), sep=""))
    beta.mean = matrix(NA, nrow(prior.mu), ncol(prior.mu))
    beta.var = matrix(NA, nrow(prior.V), ncol(prior.V))
    for(j in 1:nrow(prior.mu)){
