@@ -59,7 +59,7 @@ and \code{ranLevels}. Cannot be used together with \code{Yc}.}
 
 \item{Yc}{a matrix of the outcomes that are assumed to be known for
 conditional predictions. Cannot be used together with
-\code{Gradient}.}
+\code{Gradient} and use with caution for spatial models (see details).}
 
 \item{mcmcStep}{the number of extra mcmc steps used for updating the random effects}
 
@@ -92,14 +92,21 @@ the \code{post} argument)
 Calculates predicted values from a fitted \code{Hmsc} model.
 }
 \details{
-In \code{mcmcStep,the number of extra mcmc steps used for updating the random effects
+In case of conditional predictions (once non null \code{Yc} is provided)
+\code{mcmcStep},the number of extra mcmc steps used for updating the random effects
 for the Eta parameters, starting from the samples of the fitted Hmsc model in order to
 account for the conditional infromation provided in the Yc argument. The higher this number is,
 the more the obtained updated samples are unaffected by the posterior estimates of latent factors
 in the model fitted to the training data and more resembles the true conditional posterior. However,
 the elapsed time for conditional prediction grows approximately linearly as this parameter increases.
 The exact number for sufficient is problem-dependent and should be assessed by e.g. gradually
-increasing this parameter till the stationarity of the produced predictions.}
+increasing this parameter till the stationarity of the produced predictions.
+
+Note that the currently implemented conditional predictions behavior is well-formulated once the sampling units in
+\code{Yc} are either the same as in the originally fitted model \code{Y}, or are considered independent of those.
+Thus, if seeking such conditional predictions at new loacations for a spatial \code{Hmsc} model,
+or the case once some units of \code{HmscRandomLevel} belong both to the training and predictions sets of sampling units,
+the current implementations is not guaranteed to correctly operate in intended way.
 }
 \seealso{
 \code{\link{predictLatentFactor}}
