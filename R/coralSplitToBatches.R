@@ -1,14 +1,15 @@
 #' @title coralSplitToBatches
 #'
-#' @description Splits Hmsc data into common and rare parts for CORAL analysis
+#' @description Splits CORAL data objects that contain all rare species into smaller batches for distributed computation
 #'
-#' @param Y fitted \code{Hmsc}-class object
-#' @param TrData arg2
-#' @param C.common.rare arg3
-#' @param batchN arg4
+#' @param Y community matrix of rare species
+#' @param TrData trait matrix (dataframe) for rare species
+#' @param C.common.rare phylogeny similarity matrix between common and rare species
+#' @param batchN target number of batches
 #'
 #' @return
-#' A list containing three lists with splits of the input arguments
+#' A named list of three elements \code{Y}, \code{TrData} and \code{C.common.rare},
+#' each of which is a list of length \code{batchN} with splits of the corresponding input argument
 #'#'
 #' @export
 

@@ -33,6 +33,6 @@ coralTrain = function(Y, XData, XFormula, prior.mu, prior.V, transient, samples,
       beta.mean[j,] = colMeans(probit.coral)
       beta.var[j,] = as.vector(var(probit.coral))
    }
-   rownames(beta.mean) = colnames(Y)
+   rownames(beta.var) = rownames(beta.mean) = colnames(Y)
    return(list(beta.mean=beta.mean, beta.var=beta.var))
 }

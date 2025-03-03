@@ -1,31 +1,32 @@
 #' @title coralGetXDataExt
 #'
-#' @description Splits Hmsc data into common and rare parts for CORAL analysis
+#' @description constructs extended \code{XData} and \code{XFormula} from fitted \code{Hmsc} for consequent CORAL analysis
 #'
 #' @param m fitted \code{Hmsc}-class object
-#' @param nf arg2
-#' @param varProp arg3
+#' @param nf upper number of leading latent factors to be used in CORAL analysis per \code{HmscRandomLevel}
+#' @param varProp proportion of explanatory variance for selection of the number of leading latent factors
 #'
 #' @return
-#' A named list of extended XData data.frame and extended XFormula
+#' A named list of extended \code{XDataExt} dataframe and corresponding extended \code{XFormulaExt}
+#'
+#' @details
+#' This functions finds a point estimate of latent factors from fitted \code{m} \code{Hmsc}-class object
+#' and stacks \code{m$XData} and \code{m$XFormula} with this point estimate.
+#' Such point estimate of latent factors is selected among the posterior MCMC samples of the \code{m}, specifically the one with top explanatory power.
+#' The selected posterior sample is potentially truncated to a smaller number of leading latent factors, based on \code{nf} or \code{varProp} arguments.
+#'
+#' Only one of \code{nf} and \code{varProp} can be specified.
+#' Each of these arguments can be provided as vector of length \code{m$nr} or scalar value that is broadcasted to such vector.
+#' By default the \code{nf} is set to infinity, resulting in selection of all estimated latent factors.
+#'
+#' For example, if \code{Hmsc} model has \code{XFormula="~X1+X2"} and 2 random levels \code{LF1, LF2}, with 3 and 4 latent factors extracted correspondingly,
+#' then the extended \code{XDataExt="~X1+X2 + LF1.1+LF1.2+LF1.3 + LF2.1+LF2.2+LF2.3+LF2.4}"
 #'
 #' @importFrom stats as.formula
 #'
 #' @export
 
 coralGetXDataExt = function(m, nf=NULL, varProp=NULL){
-   # finds a point estimate of latent factors from fitted m.backbone.0 Hmsc object
-   # takes either a vector of number of factors per random level to extract (can be a single value, broadcasted to all levels),
-   # or a vector of values within [0,1], representing how big proportion of variance to ensure including per random level
-   # (can be a single value, broadcasted to all levels)
-   # by default takes all estimated factors?
-   # returns a lsit of two objexts
-   # XDataExt - a new XData by stacking the original XData and extracted LF estimates with appropriate
-   # row projection of random level units to sampling units and column naming
-   # XFormula - a new XFormula, e.g. in string format, which is cocnatenating the original XFormula with extra part of
-   # all added latent factors
-   # For example if Hmsc model has XFormula="~X1+X2" and 2 random levels, out of which 3 and 4 latent factors were extracted,
-   # then the extended XFormula will be XFormula="~X1+X2 + LF1.1+LF1.2+LF1.3 + LF2.1+LF2.2+LF2.3+LF2.4"
    if(!is.null(nf) && !is.null(varProp)) stop("only one of ny and varProp arguments can be specified")
    if(is.null(nf) && is.null(varProp)) nf = Inf
    post = poolMcmcChains(m$postList)

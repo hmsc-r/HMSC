@@ -1,16 +1,24 @@
 #' @title coralPreprocess
 #'
-#' @description Splits Hmsc data into common and rare parts for CORAL analysis
+#' @description Splits typical Hmsc data into common and rare partitions for CORAL analysis
 #'
-#' @param Y arg1
-#' @param spNames.common arg2
-#' @param TrData arg3
-#' @param phyloTree arg4
-#' @param Taxa arg5
-#' @param TaxaFormula arg6
+#' @param Y community matrix of both common and rare species
+#' @param spNames.common vector of species that are considered common in CORAL analysis
+#' @param TrData trait matrix for both common and rare species
+#' @param phyloTree phylogeny tree covering both common and rare species
+#' @param Taxa dataframe with
+#' @param TaxaFormula formula for calculating phylogeny from taxonomy, as in \code{as.phylo.formula(...)}
 #'
 #' @return
-#' A named list of splitted parts
+#' A named list containing \code{Y.xyz} and \code{TrData.xyz} parts for common and rare partitions,
+#' phylogeny tree \code{phyloTree.common} for common part and
+#' phylogeny similarity matrix \code{C.common.rare} between common and rare species
+#'
+#' @details
+#' This functions implies that all column names of \code{Y} that are not listed in \code{spNames.common} argument
+#' are considered rare species in the context of CORAL analysis.
+#'
+#' Exactly one argument of phyloTree and Taxa must be specified.
 #'
 #' @importFrom ape as.phylo.formula bind.tree rtree keep.tip vcv
 #' @importFrom stats as.formula

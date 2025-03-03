@@ -78,5 +78,6 @@ coralGetRareSpeciesPriors = function(m, spNames.rare, TrData.rare=NULL, phyloTre
       VArray[,indIntercept,] = sqrt(interceptVarInflation) * VArray[,indIntercept,]
       V.coral = matrix(VArray, ns.rare, m$nc^2)
    }
+   rownames(mu.coral) = rownames(V.coral) = spNames.rare
    return(list(mu=mu.coral, V=V.coral))
 }

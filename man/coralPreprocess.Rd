@@ -14,21 +14,29 @@ coralPreprocess(
 )
 }
 \arguments{
-\item{Y}{arg1}
+\item{Y}{community matrix of both common and rare species}
 
-\item{spNames.common}{arg2}
+\item{spNames.common}{vector of species that are considered common in CORAL analysis}
 
-\item{TrData}{arg3}
+\item{TrData}{trait matrix for both common and rare species}
 
-\item{phyloTree}{arg4}
+\item{phyloTree}{phylogeny tree covering both common and rare species}
 
-\item{Taxa}{arg5}
+\item{Taxa}{dataframe with}
 
-\item{TaxaFormula}{arg6}
+\item{TaxaFormula}{formula for calculating phylogeny from taxonomy, as in \code{as.phylo.formula(...)}}
 }
 \value{
-A named list of splitted parts
+A named list containing \code{Y.xyz} and \code{TrData.xyz} parts for common and rare partitions,
+phylogeny tree \code{phyloTree.common} for common part and
+phylogeny similarity matrix \code{C.common.rare} between common and rare species
 }
 \description{
-Splits Hmsc data into common and rare parts for CORAL analysis
+Splits typical Hmsc data into common and rare partitions for CORAL analysis
+}
+\details{
+This functions implies that all column names of \code{Y} that are not listed in \code{spNames.common} argument
+are considered rare species in the context of CORAL analysis.
+
+Exactly one argument of phyloTree and Taxa must be specified.
 }

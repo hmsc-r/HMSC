@@ -28,5 +28,7 @@ coralPredict = function(XData, XFormula, mu, V, prob=TRUE){
    } else{
       P = L
    }
+   rownames(P) = rownames(XData)
+   colnames(P) = rownames(mu)
    return(P)
 }
