@@ -9,7 +9,7 @@ updateRho = function(Beta,Gamma,iV,rhoInd, Tr, phyloFast,phyloTreeList,phyloTree
    E = Beta - Mu
    if(rhoLen == 1){
       RiV = chol(iV)
-      RiV_E =RiV %*% E
+      RiV_E = RiV %*% E
       vg = rep(NA, rhoGridN)
       if(phyloFast == FALSE){
          RiV_E_trans = t(RiV_E)
@@ -21,7 +21,7 @@ updateRho = function(Beta,Gamma,iV,rhoInd, Tr, phyloFast,phyloTreeList,phyloTree
          logDetg = rep(NA, rhoGridN)
          RiV_E_arr = array(RiV_E, c(nc,ns,1))
          for(rN in 1:rhoGridN){
-            res = fastPhyloBilinearDet(phyloTreeList, RiV_E_arr, RiV_E_arr, phyloTreeRoot, 1, rhopw[rhoInd,1])
+            res = fastPhyloBilinearDet(phyloTreeList, RiV_E_arr, RiV_E_arr, phyloTreeRoot, 1, rhopw[rN,1])
             vg[rN] = sum(diag(res$XiSY))
             logDetg[rN] = nc*res$logDet
          }
