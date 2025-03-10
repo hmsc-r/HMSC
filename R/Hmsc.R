@@ -111,6 +111,7 @@
 #' @importFrom stats model.matrix .MFclass
 #' @importFrom ape vcv.phylo
 #' @importFrom utils packageVersion
+#' @importFrom adephylo distRoot
 #'
 #' @export
 
@@ -550,29 +551,43 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    if(!is.null(phyloTree)){
       # phyloTree = keep.tip(phyloTree, hM$spNames, trim.internal=FALSE)
       if(phyloFast==TRUE){
-         tree = chronos(phyloTree, lambda=0, quiet=TRUE)
+         #TODO figure out how to normalize branch length!!!
+         # tree = chronos(phyloTree, lambda=0, quiet=TRUE)
+         if(any(abs(distRoot(phyloTree, method="patristic") - 1) > 1e-6))
+            stop("fast phylogeny method (phyloFast=TRUE) requires that all tips of phylogeny tree have patristic distance of 1 from the root")
+         tree = phyloTree
          treeList = vector("list", hM$ns+tree$Nnode)
          for(i in 1:length(treeList)){
             treeList[[i]] = list(n=0, child=NULL, edgeLen=NULL, parent=0, parentEdgeLen=0)
          }
+         print("Processing tree edges")
+         pb = txtProgressBar(max=nrow(tree$edge), style=3)
          for(i in 1:nrow(tree$edge)){
             parentNode = tree$edge[i,1]
             childNodeOrig = tree$edge[i,2]
             if(childNodeOrig <= hM$ns){
                childNode = match(tree$tip.label[childNodeOrig], hM$spNames)
             } else childNode = childNodeOrig
-            treeList[[parentNode]]$n = treeList[[parentNode]]$n + 1
-            treeList[[parentNode]]$child = c(treeList[[parentNode]]$child, childNode)
-            treeList[[parentNode]]$edgeLen = c(treeList[[parentNode]]$edgeLen, tree$edge.length[i])
-            treeList[[childNode]]$parent = parentNode
-            treeList[[childNode]]$parentEdgeLen = tree$edge.length[i]
+            nodeObj = treeList[[parentNode]]
+            nodeObj$n = nodeObj$n + 1
+            nodeObj$child = c(nodeObj$child, childNode)
+            nodeObj$edgeLen = c(nodeObj$edgeLen, tree$edge.length[i])
+            treeList[[parentNode]] = nodeObj
+            nodeObj = treeList[[childNode]]
+            nodeObj$parent = parentNode
+            nodeObj$parentEdgeLen = tree$edge.length[i]
+            treeList[[childNode]] = nodeObj
+            setTxtProgressBar(pb, i)
          }
+         close(pb)
          hM$phyloTreeList = treeList
          hM$phyloTreeRoot = setdiff(1:(hM$ns+tree$Nnode), tree$edge[,2])
+         #TODO Used for debugging TF code. Remove after finalizing developent
+         # corM = vcv.phylo(phyloTree, model="Brownian", corr=TRUE)
+         # hM$C = corM[hM$spNames,hM$spNames]
       } else{
          corM = vcv.phylo(phyloTree, model="Brownian", corr=TRUE)
-         corM = corM[hM$spNames,hM$spNames]
-         hM$C = corM
+         hM$C = corM[hM$spNames,hM$spNames]
       }
       hM$phyloTree = phyloTree
       hM$phyloFast = phyloFast
