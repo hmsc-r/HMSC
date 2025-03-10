@@ -26,11 +26,6 @@ coralGetRareSpeciesPriors = function(m, spNames.rare, TrData.rare=NULL, phyloTre
    # Alternatively, we need to disentangle the phylogeny tree structure manually to get these common-rare correlations.
    # Can be done by searching the tip-closest common ancestor for each common-rare pair,
    # but perhaps some vectorised solution is possible.
-   keepTipRoot = function(phyloTree, tipNames, tmpTipName="_extra_tip_at_root_"){
-      tmpTree1 = bind.tree(phyloTree, rtree(1, tip.label=tmpTipName))
-      tmpTree2 = keep.tip(tmpTree1, c(tmpTipName,tipNames), trim.internal=TRUE)
-      return(tmpTree2)
-   }
 
    ns.rare = length(spNames.rare)
    if(is.null(TrData.rare)){

@@ -20,19 +20,13 @@
 #'
 #' Exactly one argument of phyloTree and Taxa must be specified.
 #'
-#' @importFrom ape as.phylo.formula bind.tree rtree keep.tip vcv
+#' @importFrom ape as.phylo.formula rtree vcv
 #' @importFrom stats as.formula
 #'
 #' @export
 
 
 coralPreprocess = function(Y, spNames.common, TrData=NULL, phyloTree=NULL, Taxa=NULL, TaxaFormula=NULL){
-   keepTipRoot = function(phyloTree, tipNames, tmpTipName="_extra_tip_at_root_"){
-      tmpTree1 = bind.tree(phyloTree, rtree(1, tip.label=tmpTipName))
-      tmpTree2 = keep.tip(tmpTree1, c(tmpTipName,tipNames), trim.internal=TRUE)
-      return(tmpTree2)
-   }
-
    if(!is.null(phyloTree) && !is.null(Taxa)){
       stop("only one of phyloTree and Taxa arguments can be specified")
    }

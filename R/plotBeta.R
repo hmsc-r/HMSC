@@ -51,7 +51,7 @@
 #'
 #' @importFrom graphics par plot plot.new axis text title
 #' @importFrom grDevices colorRampPalette
-#' @importFrom ape keep.tip read.tree write.tree
+#' @importFrom ape read.tree write.tree
 #' @importFrom fields image.plot
 #' @export
 
@@ -95,8 +95,8 @@ plotBeta = function(hM, post, param = "Support", plotTree = FALSE,
          ii <- !names(obj) %in% names(attributes(tree))
          attributes(tree)<-c(attributes(tree),obj[ii])
          tree
-       }
-      tree = keep.tip(hM$phyloTree,hM$spNames)
+      }
+      tree = keepTipRoot(hM$phyloTree, hM$spNames)
       tree = untangle(tree)
    }
 
