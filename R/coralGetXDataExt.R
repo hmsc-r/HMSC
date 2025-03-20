@@ -50,7 +50,7 @@ coralGetXDataExt = function(m, nf=NULL, varProp=NULL){
    }
    if(length(nf) == 1) nf = rep(nf, m$nr)
 
-   mR2 = rowMeans(R2)
+   mR2 = rowMeans(R2, na.rm=TRUE)
    # plot(mR2, ylim=c(0,1))
    i = which.max(mR2) # isolate latent factor with highest explanatory power
    p = post[[i]]
