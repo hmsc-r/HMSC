@@ -123,7 +123,13 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
    for (chain in 1:nChains){
       postList = postListAll[[chain]][start:length(postListAll[[chain]])]
       for(r in seq_len(nr)){
-         nfMat[chain,r] = max(unlist(lapply(lapply(postList, getEta, r=r), ncol)))
+         if(Eta){
+            nfMat[chain,r] = max(unlist(lapply(lapply(postList, getEta, r=r), ncol)))
+         } else if(Lambda){
+            nfMat[chain,r] = max(unlist(lapply(lapply(postList, getLambda, r=r), nrow)))
+         } else{
+            stop("At least Eta or Lambda must be TRUE to assess number of factors")
+         }
       }
    }
    nfMax = apply(nfMat,2,max)
@@ -167,7 +173,13 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
       postDelta1 = vector("list", nr)
 
       for(r in seq_len(nr)){
-         postNf = unlist(lapply(lapply(postList, getEta, r=r), ncol))
+         if(Eta){
+            postNf = unlist(lapply(lapply(postList, getEta, r=r), ncol))
+         } else if(Lambda){
+            postNf = unlist(lapply(lapply(postList, getLambda, r=r), nrow))
+         } else{
+            stop("At least Eta or Lambda must be TRUE to assess number of factors")
+         }
          if(length(unique(postNf))!=1)
             stop("HMSC: number of latent factors was changing in selected sequence of samples")
          nf = unique(postNf)
