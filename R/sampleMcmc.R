@@ -161,19 +161,6 @@
    if(any(adaptNf > transient))
       stop("'adaptNf' must be lower than or equal to 'transient'")
 
-   ## X1 is the original X matrix (scaled version).  X used in
-   ## computations is modified from X1 by variable selection and
-   ## dimension reduction.
-   X1 = hM$XScaled
-   if (hM$ncsel > 0){
-      if(is.matrix(X1)){
-         X2=X1
-         X1=list()
-         for (j in 1:hM$ns){
-            X1[[j]] = X2
-         }
-      }
-   }
    ## get data parameters & initial parameters
    if(is.null(dataParList))
         dataParList <- computeDataParameters(hM, compactFormat=hpcFormat)
@@ -246,7 +233,7 @@
     obj <- list(hM = hM, samples = samples, transient = transient, thin = thin,
                 nChains = nChains, verbose = verbose, nParallel = nParallel,
                 useSocket = useSocket, initPar = initPar,
-                initParList = initParList, dataParList = dataParList, X1 = X1,
+                initParList = initParList, dataParList = dataParList,
                 Rupdater = updater, adaptNf = adaptNf, alignPost = alignPost)
 
     ## once preparing the export for Hmsc-HPC, we need to get rid of complex R-specific
@@ -352,6 +339,20 @@
     C = hM$C
     nr = hM$nr
 
+    ## X1 is the original X matrix (scaled version).  X used in
+    ## computations is modified from X1 by variable selection and
+    ## dimension reduction.
+    X1 = hM$XScaled
+    if(hM$ncsel > 0){
+       if(is.matrix(X1)){
+          X2=X1
+          X1=list()
+          for(j in 1:hM$ns){
+             X1[[j]] = X2
+          }
+       }
+    }
+
     mGamma = hM$mGamma
     iUGamma = chol2inv(chol(hM$UGamma))
     V0 = hM$V0
@@ -365,7 +366,6 @@
     RQg = obj$dataParList$RQg
     detQg = obj$dataParList$detQg
     rLPar = obj$dataParList$rLPar
-    X1 = obj$X1
     verbose = obj$verbose
     initPar = obj$initPar
 
