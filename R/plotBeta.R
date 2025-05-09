@@ -158,7 +158,9 @@ plotBeta = function(hM, post, param = "Support", plotTree = FALSE,
    }
 
    rownames(betaMat) = covNames
-   if(plotTree){colnames(betaMat) = gsub(" ", "_", hM$spNames)}
+   # ape::writting.tree() line 94 remove whitespace commas, colons, semicolons other parentheses.
+   # Make sure that species names match tree tip labels.
+   if(plotTree){colnames(betaMat) = gsub("[,:;()]", "-", gsub(" ", "_", hM$spNames))}
    if(!plotTree){colnames(betaMat) = spNames}
 
    X = t(betaMat[covorder,order])
@@ -180,7 +182,7 @@ plotBeta = function(hM, post, param = "Support", plotTree = FALSE,
       }
 
       if(sum(!spNamesNumbers)==2){plot(tree, show.tip.label=FALSE)}
-      else{tree$tip.label[match(gsub(" ", "_", hM$spNames),tree$tip.label)]=spNames
+      else{tree$tip.label[match(gsub("[,:;()]", "-", gsub(" ", "_", hM$spNames)),tree$tip.label)]=spNames
       plot(tree, show.tip.label=TRUE, adj=1, align.tip.label=TRUE, cex=cex[2])}
 
       if(newplot){
