@@ -7,11 +7,13 @@
 #' @export
 
 
-importPosteriorFromHPC = function(m, postList, nSamples, thin, transient, alignPost=TRUE){
+importPosteriorFromHPC = function(m, postList, nSamples, thin, transient, adaptNf=rep(transient,m$nr), verbose=0, alignPost=TRUE){
    m$samples = nSamples
    m$thin = thin
    m$transient = transient
    m$postList = vector("list", length(postList))
+   m$adaptNf = adaptNf
+   m$verbose = verbose
    for(cInd in 1:length(postList)){
       if(m$samples != length(postList[[cInd]])){
          stop("Hmsc:importPosteriorFromHPC = each chain length miust be equalt to nSamples")
