@@ -97,7 +97,7 @@
 #'
 #' # Creating a Hmsc object with phylogeny and traits
 #' m = Hmsc(Y=TD$Y, XData=TD$X, XFormula=~x1+x2,
-#' TrData=TD$Tr, TrFormula=~T1+T2, phyloTree=TD$phylo)
+#' TrData=TD$Tr, TrFormula=~T1+T2, phyloTree=TD$phy)
 #'
 #' # Creating a Hmsc object with 2 nested random levels (50 sampling units in 20 plots)
 #' studyDesign = data.frame(sample = as.factor(1:50), plot = as.factor(sample(1:20,50,replace=TRUE)))
