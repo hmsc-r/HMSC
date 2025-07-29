@@ -5,6 +5,7 @@
 #' @param object a fitted \code{Hmsc} model object
 #' @param post a list of posterior samples of the HMSC model. By default uses all samples from the pooled
 #' posterior of the hM object.
+#' @param Loff offset
 #' @param XData a dataframe specifying the unpreprocessed covariates for the predictions to be made.
 #' Works only if the \code{XFormula} argument was specified in the \code{Hmsc()} model constructor call.
 #' Requirements are similar to those in the \code{Hmsc} model constructor.

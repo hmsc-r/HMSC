@@ -27,11 +27,23 @@ coralPlotBeta(
 )
 }
 \arguments{
-\item{m}{fitted \code{Hmsc}-class object}
+\item{mu, V}{coral plot arguments, probably}
 
-\item{muList.coral}{arg2}
+\item{phyloTree}{phylogenetic tree}
 
-\item{VList.coral}{arg3}
+\item{spNames.common}{species names}
+
+\item{plotColumns, quantile.support, plotTree}{arguments to plot}
+
+\item{seed}{seed}
+
+\item{col.common, alpha.common, jitter.common, cex.common, pch.common}{arguments
+for common species}
+
+\item{col.rare, alpha.rare, jitter.rare, cex.rare, pch.rare}{arguments for rare
+species}
+
+\item{showCovNames}{show covariate names}
 }
 \value{
 list with combined means and covariance matrices

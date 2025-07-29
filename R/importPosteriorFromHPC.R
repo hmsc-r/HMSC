@@ -3,7 +3,9 @@
 #' @description Computes initial parameter values before the sampling starts
 #'
 #' @param m a \code{Hmsc} model object
-#' @param initPar a list of initial parameter values
+## @param initPar a list of initial parameter values # not in usage
+#' @param postList,nSamples,thin,transient,adaptNf,verbose,alignPost
+#'    arguments for imported elements
 #' @export
 
 

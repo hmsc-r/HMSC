@@ -57,6 +57,9 @@ for the Gaussian predictive process if \code{sMethod} is set to
 \code{\link{constructKnots}}. The knot locations shall not
 duplicate \code{sData}.}
 
+\item{conPart, conMat}{undisclosed arguments that are supposed to improve
+Hmsc-HPC integration.}
+
 \item{longlat}{Interpret coordinate data \code{sData} as longitude
 and latitude in decimal degrees. If this is \code{TRUE}, great
 circle distances will be used instead of Euclidean distances.}

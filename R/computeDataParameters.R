@@ -3,6 +3,8 @@
 #' @description Computes initial values before the sampling starts
 #'
 #' @param hM a fitted \code{Hmsc} model object
+#' @param compactFormat reduce significantly the size of spatial model
+#'    exported to HMSC-HPC
 #'
 #' @return a list including pre-computed matrix inverses and determinants (for phylogenetic and spatial random effects) needed in MCMC sampling
 #'

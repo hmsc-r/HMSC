@@ -58,6 +58,8 @@ Hmsc(
 
 \item{YScale}{a boolean flag whether to scale responses for which normal distribution is assumed}
 
+\item{Loff}{offset argument}
+
 \item{studyDesign}{a data frame of correspondence between sampling units and units on different levels of latent
 factors}
 
