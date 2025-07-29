@@ -29,8 +29,8 @@
 #' @param colors controls the colors of the heatmap, default value \code{colorRampPalette(c("blue","white","red"))}
 #' @param colorLevels number of color levels used in the heatmap
 #' @param mar plotting margins
-#' @param smallplot passed to \code{\link{image.plot}}
-#' @param bigplot passed to \code{\link{image.plot}}
+#' @param smallplot passed to \code{\link[fields]{image.plot}}
+#' @param bigplot passed to \code{\link[fields]{image.plot}}
 #' @param newplot set to  false if the plot will be part of multi-panel plot
 #'
 #' @examples

@@ -81,9 +81,9 @@ and color legend axis labels}
 
 \item{main}{main title for the plot.}
 
-\item{smallplot}{passed to \code{\link{image.plot}}}
+\item{smallplot}{passed to \code{\link[fields]{image.plot}}}
 
-\item{bigplot}{passed to \code{\link{image.plot}}}
+\item{bigplot}{passed to \code{\link[fields]{image.plot}}}
 
 \item{newplot}{set to  false if the plot will be part of multi-panel plot initialized with par(mfrow)}
 }
