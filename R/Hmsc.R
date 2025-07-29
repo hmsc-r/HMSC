@@ -16,6 +16,7 @@
 #' @param ncRRR number of covariates (linear combinations) for reduced-rank regression
 #' @param XRRRScale a boolean flag indicating whether to scale covariates for reduced-rank regression
 #' @param YScale a boolean flag whether to scale responses for which normal distribution is assumed
+#' @param Loff offset argument
 #' @param studyDesign a data frame of correspondence between sampling units and units on different levels of latent
 #'   factors
 #' @param ranLevels a named list of \code{HmscRandomLevel}-class objects, specifying the structure and data for random

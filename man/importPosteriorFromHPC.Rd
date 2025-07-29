@@ -10,13 +10,15 @@ importPosteriorFromHPC(
   nSamples,
   thin,
   transient,
+  adaptNf = rep(transient, m$nr),
+  verbose = 0,
   alignPost = TRUE
 )
 }
 \arguments{
 \item{m}{a \code{Hmsc} model object}
 
-\item{initPar}{a list of initial parameter values}
+\item{postList, nSamples, thin, transient, adaptNf, verbose, alignPost}{arguments for imported elements}
 }
 \description{
 Computes initial parameter values before the sampling starts

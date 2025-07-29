@@ -8,6 +8,9 @@ computeDataParameters(hM, compactFormat = FALSE)
 }
 \arguments{
 \item{hM}{a fitted \code{Hmsc} model object}
+
+\item{compactFormat}{reduce significantly the size of spatial model
+exported to HMSC-HPC}
 }
 \value{
 a list including pre-computed matrix inverses and determinants (for phylogenetic and spatial random effects) needed in MCMC sampling

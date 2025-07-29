@@ -2,10 +2,24 @@
 #'
 #' @description Plots summary of Beta coefficents fitted with CORAL approach
 #'
-#' @param m fitted \code{Hmsc}-class object
-#' @param muList.coral arg2
-#' @param VList.coral arg3
+### These arguments were described but not used
+### NB. Fitted Hmsc object is not among used arguments!
+## @param m fitted \code{Hmsc}-class object
+## @param muList.coral arg2
+## @param VList.coral arg3
+### End of unused arguments
 #'
+#' @param mu,V coral plot arguments, probably
+#' @param phyloTree phylogenetic tree
+#' @param spNames.common species names
+#' @param plotColumns,quantile.support,plotTree arguments to plot
+#' @param seed seed
+#' @param col.common,alpha.common,jitter.common,cex.common,pch.common arguments
+#'    for common species
+#' @param col.rare,alpha.rare,jitter.rare,cex.rare,pch.rare arguments for rare
+#'    species
+#' @param showCovNames show covariate names
+
 #' @return
 #' list with combined means and covariance matrices
 #'

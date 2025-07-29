@@ -10,6 +10,8 @@ computeInitialParameters(hM, initPar, computeZ = TRUE)
 \item{hM}{a fitted \code{Hmsc} model object}
 
 \item{initPar}{a list of initial parameter values}
+
+\item{computeZ}{undisclosed argument to improve Hmsc-HPC integration}
 }
 \value{
 a list of Hmsc model parameters
