@@ -34,8 +34,8 @@
 #' @param marTree plotting margins for phylogenetic tree
 #' @param mgp can be used to set the location of the scale bar
 #' @param main main title for the plot.
-#' @param smallplot passed to \code{\link{image.plot}}
-#' @param bigplot passed to \code{\link{image.plot}}
+#' @param smallplot passed to \code{\link[fields]{image.plot}}
+#' @param bigplot passed to \code{\link[fields]{image.plot}}
 #' @param newplot set to  false if the plot will be part of multi-panel plot initialized with par(mfrow)
 #'
 #'
