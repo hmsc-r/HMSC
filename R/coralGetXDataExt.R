@@ -20,7 +20,7 @@
 #' By default the \code{nf} is set to infinity, resulting in selection of all estimated latent factors.
 #'
 #' For example, if \code{Hmsc} model has \code{XFormula="~X1+X2"} and 2 random levels \code{LF1, LF2}, with 3 and 4 latent factors extracted correspondingly,
-#' then the extended \code{XDataExt="~X1+X2 + LF1.1+LF1.2+LF1.3 + LF2.1+LF2.2+LF2.3+LF2.4}"
+#' then the extended \code{XDataExt="~X1+X2 + LF1.1+LF1.2+LF1.3 + LF2.1+LF2.2+LF2.3+LF2.4"}.
 #'
 #' @importFrom stats as.formula
 #'
