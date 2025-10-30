@@ -20,8 +20,8 @@ plotGamma(
   colors = colorRampPalette(c("blue", "white", "red")),
   colorLevels = NULL,
   mar = c(6, 9, 2, 0),
-  smallplot = NULL,
   bigplot = NULL,
+  smallplot = NULL,
   newplot = TRUE
 )
 }
@@ -66,9 +66,9 @@ trait names, and color legend axis labels}
 
 \item{mar}{plotting margins}
 
-\item{smallplot}{passed to \code{\link{image.plot}}}
+\item{bigplot}{argument passed to \code{\link[fields]{image.plot}}, designates position of the heatmap}
 
-\item{bigplot}{passed to \code{\link{image.plot}}}
+\item{smallplot}{argument passed to \code{\link[fields]{image.plot}}, designates position of the colorbar}
 
 \item{newplot}{set to  false if the plot will be part of multi-panel plot}
 }

@@ -29,8 +29,8 @@
 #' @param colors controls the colors of the heatmap, default value \code{colorRampPalette(c("blue","white","red"))}
 #' @param colorLevels number of color levels used in the heatmap
 #' @param mar plotting margins
-#' @param smallplot passed to \code{\link{image.plot}}
-#' @param bigplot passed to \code{\link{image.plot}}
+#' @param bigplot argument passed to \code{\link[fields]{image.plot}}, designates position of the heatmap
+#' @param smallplot argument passed to \code{\link[fields]{image.plot}}, designates position of the colorbar
 #' @param newplot set to  false if the plot will be part of multi-panel plot
 #'
 #' @examples
@@ -53,7 +53,7 @@ plotGamma=function(hM, post, param = "Support", trOrder="Original",
   covNamesNumbers=c(TRUE,TRUE), supportLevel=.9, main = NULL, cex=c(.8,.8,.8),
   colors=colorRampPalette(c("blue","white","red")), colorLevels = NULL,
   mar=c(6,9,2,0),
-  smallplot=NULL, bigplot=NULL, newplot=TRUE){
+  bigplot=NULL, smallplot=NULL, newplot=TRUE){
 
    if(is.null(colorLevels)){
       if(param=="Sign"){

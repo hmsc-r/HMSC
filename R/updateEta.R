@@ -84,8 +84,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, Loff,X,Pi,dfPi,rL)
                      V = chol2inv(RiV)
                      mu = colSums(tcrossprod(S[rows,,drop=FALSE]*matrix(iSigma,length(rows),ns,byrow=TRUE)*Yx[rows,], lambda)) %*% V
                   }
-
-                  eta[unLPi[q],] = mu + t(backsolve(RiV,rnorm(ny)))
+                  eta[unLPi[q],] = mu + t(backsolve(RiV,rnorm(nf)))
                }
             }
          } else{
@@ -102,7 +101,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, Loff,X,Pi,dfPi,rL)
                RiV = chol(iV)
                V = chol2inv(RiV)
                mu = colSums(tcrossprod(S[rows,,drop=FALSE]*matrix(iSigma,length(rows),ns,byrow=TRUE)*Yx[rows,], lambdaLocal)) %*% V
-               eta[unLPi[q],] = mu + t(backsolve(RiV,rnorm(ny)))
+               eta[unLPi[q],] = mu + t(backsolve(RiV,rnorm(nf)))
             }
          }
       } else{

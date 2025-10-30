@@ -10,22 +10,62 @@ importPosteriorFromHPC(
   nSamples,
   thin,
   transient,
+  adaptNf = rep(transient, m$nr),
+  verbose = 0,
   alignPost = TRUE
 )
 }
 \arguments{
-\item{m}{the \code{Hmsc} model object used for creating export to Hmsc-HPC fitting}
+\item{m}{a \code{Hmsc} model object for which the posterior will be imported}
 
-\item{postList}{list of MCMC chains, containing the recorded samples from the MCMC sampling}
+\item{postList}{list of MCMC chains, where each chain is a list of posterior samples.}
 
-\item{nSamples}{the number of recorded MCMC samples per chain, as was used for Hmsc-HPC fitting}
+\item{nSamples}{number of posterior MCMC samples per chain used in Hmsc-HPC}
 
-\item{thin}{the MCMC thinning value, as was used for Hmsc-HPC fitting}
+\item{thin}{thinning interval used in Hmsc-HPC}
 
-\item{transient}{the MCMC transient value, as was used for Hmsc-HPC fitting}
+\item{transient}{number of transient MCMC steps used in Hmsc-HPC}
 
-\item{alignPost}{bool flag whether to attempt to align the latent factors and loadings from different chains}
+\item{adaptNf}{number of MCMC steps for adjustung number of factors used in Hmsc-HPC}
+
+\item{verbose}{level of verbose to fake}
+
+\item{alignPost}{boolean flag indicating whether the posterior of each chains should be aligned}
+}
+\value{
+a fitted Hmsc model object
 }
 \description{
-Imports the posterior calculated with \code{Hmsc-HPC} add-on to the corresponding Hmsc object
+Integrates Hmsc model with a list of chains containing posterior MCMC samples generated with Hmsc-HPC
+}
+\details{
+Naturally, the model object \code{m} must be compatible with the posterior samples imported from Hmsc-HPC.
+If \code{m} already contains posterior samples, these will be overwritten.
+
+Parameters \code{nSamples}, \code{thin}, \code{transient}, \code{adaptNf} and especially \code{verbose} are required
+to guarantee that the resulted Hmsc object works interchangeably with post-processing functions in the Hmsc package
+as if the sampling was done in the \code{Hmsc} R package. These values shall mirror the corresponding values
+that would be used in the \code{sampleMcmc(...)} call.
+
+Parameter \code{alignPost} has an identical effect to its counterpart from \code{sampleMcmc(...)}.
+}
+\examples{
+if(FALSE){
+# If all chains were run with a single Hmsc-HPC call
+post_file_path = ... # path to the file where the posterior samples are stored
+importFromHPC = from_json(readRDS(file = post_file_path)[[1]])
+postList = importFromHPC[1:nChains]
+cat(sprintf("fitting time \%.1f sec\n", importFromHPC[[nChains+1]]))
+fm = importPosteriorFromHPC(m, postList, nSamples, thin, transient)
+
+# If Hmsc-HPC calls were configured to run one chain per call
+post_file_path = ... # directory with Hmsc-HPC export files stored as post_chainXX_file.rds
+chainList = vector("list", nChains)
+for(cInd in 1:nChains){
+   chain_file_path = file.path(post_file_path, sprintf("post_chain\%.2d_file.rds", cInd-1))
+   chainList[[cInd]] = from_json(readRDS(file = chain_file_path)[[1]])[[1]]
+}
+fm = importPosteriorFromHPC(m, postList, nSamples, thin, transient)
+}
+
 }

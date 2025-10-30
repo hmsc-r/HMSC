@@ -41,9 +41,9 @@ samplePrior = function(hM, dataParList=NULL){
    }
 
    if(is.null(hM$C)){
-      rho = 1
+      rhoInd = 1
    } else {
-      rho = sample(x = 1:dim(hM$rhopw)[1], size = 1, prob = hM$rhopw[,2])
+      rhoInd = sample(x = 1:dim(hM$rhopw)[1], size = 1, prob = hM$rhopw[,2])
    }
 
    #PRIMARY PARAMETERS FOR RANDOM EFFECTS
@@ -108,7 +108,7 @@ samplePrior = function(hM, dataParList=NULL){
          Beta[,j] = mvrnorm(1, Mu[,j], V)
    }
    else {
-      Beta = t(matrix(mvrnorm(mu=as.vector(t(Mu)),Sigma = kronecker(V,Qg[,,rho])), hM$ns, hM$nc))
+      Beta = t(matrix(mvrnorm(mu=as.vector(t(Mu)),Sigma = kronecker(V,Qg[,,rhoInd])), hM$ns, hM$nc))
    }
 
    switch(class(hM$XScaled)[1L],
@@ -135,7 +135,7 @@ samplePrior = function(hM, dataParList=NULL){
    iSigma = 1 / sigma
    iV = chol2inv(chol(V))
 
-   sample = combineParameters(Beta=Beta,BetaSel=NULL,wRRR=NULL,Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,
+   sample = combineParameters(Beta=Beta,BetaSel=NULL,wRRR=NULL,Gamma=Gamma,iV=iV,rhoInd=rhoInd,iSigma=iSigma,
                      Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,Delta=Delta,
                      PsiRRR=NULL, DeltaRRR=NULL,ncNRRR=hM$ncNRRR, ncRRR=hM$ncRRR, ncsel=hM$ncsel, XSelect=NULL,
                      XScalePar=hM$XScalePar, XInterceptInd=hM$XInterceptInd, nt=hM$nt, TrScalePar=hM$TrScalePar,

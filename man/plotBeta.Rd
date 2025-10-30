@@ -24,8 +24,8 @@ plotBeta(
   marTree = c(6, 0, 2, 0),
   mgp = c(3, 2, 0),
   main = NULL,
-  smallplot = NULL,
   bigplot = NULL,
+  smallplot = NULL,
   newplot = TRUE
 )
 }
@@ -81,9 +81,9 @@ and color legend axis labels}
 
 \item{main}{main title for the plot.}
 
-\item{smallplot}{passed to \code{\link{image.plot}}}
+\item{bigplot}{argument passed to \code{\link[fields]{image.plot}}, designates position of the heatmap}
 
-\item{bigplot}{passed to \code{\link{image.plot}}}
+\item{smallplot}{argument passed to \code{\link[fields]{image.plot}}, designates position of the colorbar}
 
 \item{newplot}{set to  false if the plot will be part of multi-panel plot initialized with par(mfrow)}
 }

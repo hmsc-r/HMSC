@@ -1,7 +1,16 @@
-Version 3.0-14 (development version in github)
-===============
+Version 3.3-7
+=============
 
 ### New Features
+
+* Added a set of utilities to facilitate Common to Rare Transfer
+  Learning (CORAL).
+
+* Added integration with Hmsc-HPC add-on for delegating MCMC to
+  TensorFlow.
+
+* Added function `computeSAIR` for shared and idiosyncratic responses
+  to measured and latent predictors.
 
 * Failed updaters are only recorded during sampling. Failed updates
   can be detected in more cases (`V`, `Z`).

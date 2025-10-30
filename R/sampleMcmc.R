@@ -23,7 +23,8 @@
 #'     processing; in Windows this is the only option, but in other
 #'     operating systems fork clusters are a better alternative, and
 #'     this should be set \code{FALSE}.
-#'
+#' @param tolerateError (logical) whether numerical errors in conditional updaters run during MCMC sampling
+#'     are tolerated and counted or lead to an error stopping the sampling.
 #' @param dataParList a named list with pre-computed \code{Qg}, \code{iQg}, \code{RQg}, \code{detQg}, \code{rLPar}
 #'   parameters
 #' @param updater a named list, specifying which conditional updaters should be ommitted
@@ -57,7 +58,7 @@
 #'
 #'   Some of the available conditional updaters partially duplicate each other. In certain cases, the usage of all
 #'   of them may lead to suboptimal performance, compared to some subset of those. Then, it is possible to manually
-#'   disable some of them, by adding a \code{$UPDATER_NAME=FALSE} pair to the {updater} argument. Another usage of
+#'   disable some of them, by adding a \code{$UPDATER_NAME=FALSE} pair to the \code{updater} argument. Another usage of
 #'   this argument involves cases when some of the model parameters are known and have to be fixed. However, such
 #'   tweaks of the sampling scheme should be done with caution, as if compromized they would lead to erroneuos
 #'   results.
@@ -94,7 +95,7 @@
     samplingObject <-
         prepareSamplingObject(hM, samples, transient, thin, initPar, verbose,
                               adaptNf, nChains, nParallel, useSocket,
-                              dataParList, updater, alignPost, hpcFormatFlag=(engine=="HPC"))
+                              dataParList, updater, alignPost, hpcFormat=(engine=="HPC"))
 
     ## switch allows developing parallel sampling implementations
     ## without disturbing users. The choices can be non-public during
@@ -145,7 +146,7 @@ ctry <- function(expr, tryFlag=TRUE){
 
 `prepareSamplingObject` <-
     function(hM, samples, transient, thin, initPar, verbose, adaptNf, nChains,
-             nParallel, useSocket, dataParList, updater, alignPost, hpcFormatFlag=FALSE)
+             nParallel, useSocket, dataParList, updater, alignPost, hpcFormat=FALSE)
 {
    ## use socket cluster if requested or in Windows
    if (nParallel > 1 && .Platform$OS.type == "windows" && !useSocket) {
@@ -169,23 +170,10 @@ ctry <- function(expr, tryFlag=TRUE){
    if(any(adaptNf > transient))
       stop("'adaptNf' must be lower than or equal to 'transient'")
 
-   ## X1 is the original X matrix (scaled version).  X used in
-   ## computations is modified from X1 by variable selection and
-   ## dimension reduction.
-   X1 = hM$XScaled
-   if (hM$ncsel > 0){
-      if(is.matrix(X1)){
-         X2=X1
-         X1=list()
-         for (j in 1:hM$ns){
-            X1[[j]] = X2
-         }
-      }
-   }
    ## get data parameters & initial parameters
    if(is.null(dataParList))
-        dataParList <- computeDataParameters(hM, compactFormat=hpcFormatFlag)
-   initParList <- replicate(nChains, computeInitialParameters(hM, initPar, computeZ=!hpcFormatFlag), simplify=FALSE)
+        dataParList <- computeDataParameters(hM, compactFormat=hpcFormat)
+   initParList <- replicate(nChains, computeInitialParameters(hM, initPar, computeZ=!hpcFormat), simplify=FALSE)
 
    hM$postList = vector("list", nChains)
    hM$repList = vector("list", nChains)
@@ -254,12 +242,12 @@ ctry <- function(expr, tryFlag=TRUE){
     obj <- list(hM = hM, samples = samples, transient = transient, thin = thin,
                 nChains = nChains, verbose = verbose, nParallel = nParallel,
                 useSocket = useSocket, initPar = initPar,
-                initParList = initParList, dataParList = dataParList, X1 = X1,
+                initParList = initParList, dataParList = dataParList,
                 Rupdater = updater, adaptNf = adaptNf, alignPost = alignPost)
 
     ## once preparing the export for Hmsc-HPC, we need to get rid of complex R-specific
     ## content of Hmsc object, such as spatial S4
-    if(hpcFormatFlag){
+    if(hpcFormat){
       obj$hM$ranLevels = NULL
       for(r in seq_len(hM$nr)){
          obj$hM$rL[[r]]$s = NULL
@@ -363,6 +351,20 @@ ctry <- function(expr, tryFlag=TRUE){
     phyloTreeRoot = hM$phyloTreeRoot
     covRhoGroup = hM$covRhoGroup
 
+    ## X1 is the original X matrix (scaled version).  X used in
+    ## computations is modified from X1 by variable selection and
+    ## dimension reduction.
+    X1 = hM$XScaled
+    if(hM$ncsel > 0){
+       if(is.matrix(X1)){
+          X2=X1
+          X1=list()
+          for(j in 1:hM$ns){
+             X1[[j]] = X2
+          }
+       }
+    }
+
     mGamma = hM$mGamma
     iUGamma = chol2inv(chol(hM$UGamma))
     V0 = hM$V0
@@ -376,7 +378,6 @@ ctry <- function(expr, tryFlag=TRUE){
     RQg = obj$dataParList$RQg
     detQg = obj$dataParList$detQg
     rLPar = obj$dataParList$rLPar
-    X1 = obj$X1
     verbose = obj$verbose
     initPar = obj$initPar
 

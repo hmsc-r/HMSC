@@ -1,7 +1,7 @@
 
-R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid"
-Copyright (C) 2022 The R Foundation for Statistical Computing
-Platform: aarch64-apple-darwin20 (64-bit)
+R version 4.5.0 Patched (2025-04-21 r88173) -- "How About a Twenty-Six"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: aarch64-apple-darwin20
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -111,7 +111,7 @@ Loading required package: coda
 > # Construct an ordination biplot using two chosen latent factors from a previously fitted HMSC model
 > etaPost = getPostEstimate(TD$m, "Eta")
 > lambdaPost=getPostEstimate(TD$m, "Lambda")
-> biPlot(TD$m, etaPost = etaPost, lambdaPost=lambdaPost, factors=c(1,2))
+> biPlot(TD$m, etaPost=etaPost, lambdaPost=lambdaPost, factors=c(1,2))
 > 
 > 
 > 
@@ -131,13 +131,11 @@ Loading required package: coda
 > 
 > ## Fit a toy model with two chains
 > m1 <- sampleMcmc(TD$m, samples=10, transient=5, nChains=2, verbose=0)
-setting updater$Gamma2=FALSE due to specified phylogeny matrix
 Computing chain 1
 Computing chain 2
 > ## Need more data? Add chains: check carefully that these are
 > ## sampled exactly like the previous model
 > m2 <- sampleMcmc(TD$m, nChains=2, samples=10, transient=5, verbose=0)
-setting updater$Gamma2=FALSE due to specified phylogeny matrix
 Computing chain 1
 Computing chain 2
 > ## Now four chains
@@ -192,6 +190,41 @@ Posterior MCMC sampling with 4 chains each with 10 samples, thin 1 and transient
 > ##D predsCV2 = computePredictedValues(TD$m, partition = partition,
 > ##D partition.sp = 1:TD$m$ns, mcmcStep = 100)
 > ## End(Not run)
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("computeSAIR")
+> ### * computeSAIR
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: computeSAIR
+> ### Title: computeSAIR
+> ### Aliases: computeSAIR
+> 
+> ### ** Examples
+> 
+> # Simulate a small dataset, fit Hmsc model to it, compute SAIR, and show posterior means 
+> 
+> nc = 2
+> ns = 5
+> ny = 10
+> mu = rnorm(n = nc)
+> X = matrix(rnorm(n=nc*ny),nrow=ny)
+> X[,1] = 1
+> eps = matrix(rnorm(nc*ns),nrow=nc)
+> L = matrix(rep(X%*%mu,ns),nrow=ny)  + X%*%eps
+> Y = pnorm(L)
+> m = Hmsc(Y = Y, XData = data.frame(env = X[,2]), distr = "probit")
+> m = sampleMcmc(m,samples=100,transient=50,verbose = 0)
+> SI = computeSAIR(m)
+> colMeans(SI)
+       mu.X2         V.XX    mu.Omega2 V.OmegaOmega       mu.tot        V.tot 
+   0.1815349    0.4080878    0.0000000    0.0000000    0.1815349    0.4080878 
+           s 
+   0.2779399 
 > 
 > 
 > 
@@ -369,6 +402,39 @@ converged
 > 
 > 
 > cleanEx()
+> nameEx("importPosteriorFromHPC")
+> ### * importPosteriorFromHPC
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: importPosteriorFromHPC
+> ### Title: importPosteriorFromHPC
+> ### Aliases: importPosteriorFromHPC
+> 
+> ### ** Examples
+> 
+> if(FALSE){
++ # If all chains were run with a single Hmsc-HPC call
++ post_file_path = ... # path to the file where the posterior samples are stored
++ importFromHPC = from_json(readRDS(file = post_file_path)[[1]])
++ postList = importFromHPC[1:nChains]
++ cat(sprintf("fitting time %.1f sec\n", importFromHPC[[nChains+1]]))
++ fm = importPosteriorFromHPC(m, postList, nSamples, thin, transient)
++ 
++ # If Hmsc-HPC calls were configured to run one chain per call
++ post_file_path = ... # directory with Hmsc-HPC export files stored as post_chainXX_file.rds
++ chainList = vector("list", nChains)
++ for(cInd in 1:nChains){
++    chain_file_path = file.path(post_file_path, sprintf("post_chain%.2d_file.rds", cInd-1))
++    chainList[[cInd]] = from_json(readRDS(file = chain_file_path)[[1]])[[1]]
++ }
++ fm = importPosteriorFromHPC(m, postList, nSamples, thin, transient)
++ }
+> 
+> 
+> 
+> 
+> cleanEx()
 > nameEx("plotBeta")
 > ### * plotBeta
 > 
@@ -502,7 +568,6 @@ converged
 > ## you need 1000 or more samples, but that will take too long
 > ## in an example
 > m = sampleMcmc(TD$m, samples=10)
-setting updater$Gamma2=FALSE due to specified phylogeny matrix
 Chain 1, iteration 1 of 10 (sampling)
 Chain 1, iteration 2 of 10 (sampling)
 Chain 1, iteration 3 of 10 (sampling)
@@ -551,7 +616,7 @@ Chain 1, iteration 10 of 10 (sampling)
 > cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  2.824 0.061 2.9 0.004 0.007 
+Time elapsed:  1.653 0.077 1.759 0.007 0.008 
 > grDevices::dev.off()
 null device 
           1 

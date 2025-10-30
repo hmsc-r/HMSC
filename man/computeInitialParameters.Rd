@@ -7,11 +7,11 @@
 computeInitialParameters(hM, initPar, computeZ = TRUE)
 }
 \arguments{
-\item{hM}{a fitted \code{Hmsc} model object}
+\item{hM}{a \code{Hmsc} model object}
 
 \item{initPar}{a list of initial parameter values}
 
-\item{computeZ}{bool flag whether to compute Z or leave it \code{NULL}}
+\item{computeZ}{whether to compute the latent predictor Z. Disable only for the purpose of Hmsc-HPC initialization.}
 }
 \value{
 a list of Hmsc model parameters

@@ -2,9 +2,9 @@
 #'
 #' @description Computes initial parameter values before the sampling starts
 #'
-#' @param hM a fitted \code{Hmsc} model object
+#' @param hM a \code{Hmsc} model object
 #' @param initPar a list of initial parameter values
-#' @param computeZ bool flag whether to compute Z or leave it \code{NULL}
+#' @param computeZ whether to compute the latent predictor Z. Disable only for the purpose of Hmsc-HPC initialization.
 #'
 #' @return a list of Hmsc model parameters
 #'

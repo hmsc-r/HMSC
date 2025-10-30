@@ -35,6 +35,7 @@
 #'     \code{\link{constructKnots}}. The knot locations shall not
 #'     duplicate \code{sData}.
 #'
+#'
 #' @param longlat Interpret coordinate data \code{sData} as longitude
 #'     and latitude in decimal degrees. If this is \code{TRUE}, great
 #'     circle distances will be used instead of Euclidean distances.

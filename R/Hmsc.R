@@ -5,7 +5,7 @@
 #' @param Y a matrix of species occurences or abundances
 #' @param XFormula a \code{\link{formula}}-class object for fixed effects
 #'    (linear regression)
-#' @param XData a data frame of measured covariates for fixed effects with
+#' @param XData a data frame or list of data frames of measured covariates for fixed effects with
 #'    \code{\link{formula}}-based specification
 #' @param X a matrix of measured covariates for fixed effects with direct specification
 #' @param XScale a boolean flag indicating whether to scale covariates for the fixed effects
@@ -16,7 +16,7 @@
 #' @param ncRRR number of covariates (linear combinations) for reduced-rank regression
 #' @param XRRRScale a boolean flag indicating whether to scale covariates for reduced-rank regression
 #' @param YScale a boolean flag whether to scale responses for which normal distribution is assumed
-#' @param Loff a matrix of observation-specific offsets (same size as Y)
+#' @param Loff an offset additive term that is added to the linear predictor, same shape as \code{Y}
 #' @param studyDesign a data frame of correspondence between sampling units and units on different levels of latent
 #'   factors
 #' @param ranLevels a named list of \code{HmscRandomLevel}-class objects, specifying the structure and data for random
@@ -30,8 +30,8 @@
 #' @param TrScale a boolean flag whether to scale values of species traits
 #' @param phyloTree a phylogenetic tree (object of class \code{phylo} or \code{corPhyl}) for species in \code{Y}
 #' @param C a phylogenic correlation matrix for species in \code{Y}
-#' @param covRhoGroup
-#' @param phyloFast
+#' @param covRhoGroup a vector defining mapping of covariates to unique phylogenetic strength parameters
+#' @param phyloFast a flag indicating whether to use fast phylogenetic computations
 #' @param distr a string shortcut or \eqn{n_s \times 2} matrix specifying the observation models
 #' @param truncateNumberOfFactors logical, reduces the maximal number of latent factor to be at most the number of species
 #'
@@ -43,6 +43,9 @@
 #'   Only one of \code{XFormula}-\code{XData} and \code{X} arguments can be specified. Similar requirement applies to
 #'   \code{TrFormula}-\code{TrData} and \code{Tr}. It is recommended to use the specification with \code{\link{formula}},
 #'   since that information enables additional features for postprocessing of the fitted model.
+#'
+#'   Besides specifying identical covariates for all species with \code{XData} being a dataframe, it is possible to provide
+#'   species-specific sets of covariates by passing a list of dataframes of similar shape and structure.
 #'
 #'   As default, scaling is applied for \code{X} and \code{Tr} matrices, but not for \code{Y} matrix. If the \code{X} and/or \code{Tr} matrices are
 #'   scaled, the estimated parameters are back-transformed so that the estimated parameters correspond to the original
@@ -82,9 +85,12 @@
 #'   observation models for all species. The available shortcuts are \code{"normal"}, \code{"probit"}, \code{"poisson"},
 #'   \code{"lognormal poisson"}. If \code{distr} is a vector of string literals, each element corresponds to one species,
 #'   should be either \code{"normal"}, \code{"probit"}, \code{"poisson"}, \code{"lognormal poisson"},
-#' and these can be abbreviated as long as they are unique strings.
+#'   and these can be abbreviated as long as they are unique strings.
 #'   The matrix argument and the vector of string literals allows specifying different observation
 #'   models for different species.
+#'
+#'   The offset term \code{Loff} enables to add a pre-defined quantity to the linear predictor.
+#'   This can be used to account for variable sampling effort across sampling units and species.
 #'
 #'   By default this constructor assigns default priors to the latent factors. Those priors are designed to be
 #'   reasonably flat assuming that the covariates, species traits and normally distributed responses are scaled.
@@ -112,6 +118,7 @@
 #' @importFrom ape vcv.phylo
 #' @importFrom utils packageVersion
 #' @importFrom adephylo distRoot
+#' @importFrom utils setTxtProgressBar txtProgressBar
 #'
 #' @export
 
@@ -560,7 +567,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
          for(i in 1:length(treeList)){
             treeList[[i]] = list(n=0, child=NULL, edgeLen=NULL, parent=0, parentEdgeLen=0)
          }
-         print("Processing tree edges")
+         print("Processing tree edges as phyloFast=TRUE")
          pb = txtProgressBar(max=nrow(tree$edge), style=3)
          for(i in 1:nrow(tree$edge)){
             parentNode = tree$edge[i,1]

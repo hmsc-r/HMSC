@@ -54,6 +54,9 @@ processing; in Windows this is the only option, but in other
 operating systems fork clusters are a better alternative, and
 this should be set \code{FALSE}.}
 
+\item{tolerateError}{(logical) whether numerical errors in conditional updaters run during MCMC sampling
+are tolerated and counted or lead to an error stopping the sampling.}
+
 \item{dataParList}{a named list with pre-computed \code{Qg}, \code{iQg}, \code{RQg}, \code{detQg}, \code{rLPar}
 parameters}
 
@@ -96,7 +99,7 @@ The exact number of samples to be recorded in order to get a proper estimate of 
 
   Some of the available conditional updaters partially duplicate each other. In certain cases, the usage of all
   of them may lead to suboptimal performance, compared to some subset of those. Then, it is possible to manually
-  disable some of them, by adding a \code{$UPDATER_NAME=FALSE} pair to the {updater} argument. Another usage of
+  disable some of them, by adding a \code{$UPDATER_NAME=FALSE} pair to the \code{updater} argument. Another usage of
   this argument involves cases when some of the model parameters are known and have to be fixed. However, such
   tweaks of the sampling scheme should be done with caution, as if compromized they would lead to erroneuos
   results.
