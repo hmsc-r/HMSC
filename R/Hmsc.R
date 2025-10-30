@@ -560,14 +560,15 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
       if(phyloFast==TRUE){
          #TODO figure out how to normalize branch length!!!
          # tree = chronos(phyloTree, lambda=0, quiet=TRUE)
-         if(any(abs(distRoot(phyloTree, method="patristic") - 1) > 1e-6))
-            stop("fast phylogeny method (phyloFast=TRUE) requires that all tips of phylogeny tree have patristic distance of 1 from the root")
+         # cat("Checking root distances as phyloFast=TRUE\n")
+         # if(any(abs(distRoot(phyloTree, method="patristic") - 1) > 1e-6)) #TODO rework as this is super slow
+         #    stop("fast phylogeny method (phyloFast=TRUE) requires that all tips of phylogeny tree have patristic distance of 1 from the root")
          tree = phyloTree
          treeList = vector("list", hM$ns+tree$Nnode)
          for(i in 1:length(treeList)){
             treeList[[i]] = list(n=0, child=NULL, edgeLen=NULL, parent=0, parentEdgeLen=0)
          }
-         print("Processing tree edges as phyloFast=TRUE")
+         cat("Processing tree edges as phyloFast=TRUE\n")
          pb = txtProgressBar(max=nrow(tree$edge), style=3)
          for(i in 1:nrow(tree$edge)){
             parentNode = tree$edge[i,1]
@@ -589,7 +590,7 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
          close(pb)
          hM$phyloTreeList = treeList
          hM$phyloTreeRoot = setdiff(1:(hM$ns+tree$Nnode), tree$edge[,2])
-         #TODO Used for debugging TF code. Remove after finalizing developent
+         #TODO Used for debugging TF code. Remove after finalizing development
          # corM = vcv.phylo(phyloTree, model="Brownian", corr=TRUE)
          # hM$C = corM[hM$spNames,hM$spNames]
       } else{
