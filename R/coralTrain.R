@@ -10,6 +10,7 @@
 #' @param transient number of transient MCMC steps
 #' @param samples number of posterior MCMC samples
 #' @param thin thinning interval for MCMC samples
+#' @param showProgressBar whether to show txtProgressBar(...) line
 #'
 #' @return
 #' list with means and covariance matrices of CORAL posteriors
@@ -24,10 +25,11 @@
 #'
 #' @export
 
-coralTrain = function(Y, XData, XFormula, prior.mu, prior.V, transient, samples, thin){
+coralTrain = function(Y, XData, XFormula, prior.mu, prior.V, transient, samples, thin, showProgressBar=FALSE){
    formula.coral = as.formula(paste("y", deparse1(as.formula(XFormula)), sep=""))
    beta.mean = matrix(NA, nrow(prior.mu), ncol(prior.mu))
    beta.var = matrix(NA, nrow(prior.V), ncol(prior.V))
+   if(showProgressBar) pb = txtProgressBar(max=nrow(prior.mu), style=3)
    for(j in 1:nrow(prior.mu)){
       data.coral = cbind(data.frame(y=Y[,j]), XData)
       V = matrix(prior.V[j,], ncol(prior.mu), ncol(prior.mu))
@@ -37,7 +39,9 @@ coralTrain = function(Y, XData, XFormula, prior.mu, prior.V, transient, samples,
                                 b0=prior.mu[j,], B0=Q)
       beta.mean[j,] = colMeans(probit.coral)
       beta.var[j,] = as.vector(var(probit.coral))
+      if(showProgressBar) setTxtProgressBar(pb, j)
    }
+   if(showProgressBar) close(pb)
    rownames(beta.var) = rownames(beta.mean) = colnames(Y)
    return(list(beta.mean=beta.mean, beta.var=beta.var))
 }
