@@ -40,7 +40,7 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
 {
    if (is.null(hM$postList))
       stop("Hmsc object ", sQuote(substitute(hM)), " has no posterior samples")
-   if (is.null(hM$C)){
+   if (hM$phyloFlag == FALSE){
       Rho = FALSE
    }
 
@@ -162,7 +162,9 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
       }
 
       if (Rho){
-         postRho[[chain]] = mcmc(unlist(lapply(postList, function(a) a$rho)), thin=thin, start=start1, end=end1)
+         tmp = do.call(rbind, lapply(postList, function(a) a$rho ))
+         colnames(tmp) = sprintf("rho[%d]",1:hM$rhoLen)
+         postRho[[chain]] = mcmc(tmp, thin=thin, start=start1, end=end1)
       }
 
       postEta1 = vector("list", nr)
