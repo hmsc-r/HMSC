@@ -117,7 +117,6 @@
 #' @importFrom stats model.matrix .MFclass
 #' @importFrom ape vcv.phylo
 #' @importFrom utils packageVersion
-#' @importFrom adephylo distRoot
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #'
 #' @export
@@ -565,12 +564,12 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
          #    stop("fast phylogeny method (phyloFast=TRUE) requires that all tips of phylogeny tree have patristic distance of 1 from the root")
          tree = phyloTree
          treeList = vector("list", hM$ns+tree$Nnode)
-         for(i in 1:length(treeList)){
+         for(i in seq_along(treeList)){
             treeList[[i]] = list(n=0, child=NULL, edgeLen=NULL, parent=0, parentEdgeLen=0)
          }
          cat("Processing tree edges as phyloFast=TRUE\n")
          pb = txtProgressBar(max=nrow(tree$edge), style=3)
-         for(i in 1:nrow(tree$edge)){
+         for(i in seq_len(nrow(tree$edge))){
             parentNode = tree$edge[i,1]
             childNodeOrig = tree$edge[i,2]
             if(childNodeOrig <= hM$ns){

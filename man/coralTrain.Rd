@@ -4,7 +4,17 @@
 \alias{coralTrain}
 \title{coralTrain}
 \usage{
-coralTrain(Y, XData, XFormula, prior.mu, prior.V, transient, samples, thin)
+coralTrain(
+  Y,
+  XData,
+  XFormula,
+  prior.mu,
+  prior.V,
+  transient,
+  samples,
+  thin,
+  showProgressBar = FALSE
+)
 }
 \arguments{
 \item{Y}{covariates data.frame}
@@ -22,6 +32,8 @@ coralTrain(Y, XData, XFormula, prior.mu, prior.V, transient, samples, thin)
 \item{samples}{number of posterior MCMC samples}
 
 \item{thin}{thinning interval for MCMC samples}
+
+\item{showProgressBar}{whether to show txtProgressBar(...) line}
 }
 \value{
 list with means and covariance matrices of CORAL posteriors
