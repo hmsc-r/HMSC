@@ -10,7 +10,8 @@ coralGetRareSpeciesPriors(
   TrData.rare = NULL,
   phyloTree = NULL,
   C.common.rare = NULL,
-  interceptVarInflation = 5
+  interceptVarInflation = 5,
+  phyloFast = FALSE
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ coralGetRareSpeciesPriors(
 
 \item{interceptVarInflation}{multiplier for conditional variance prior of intercept term in the CORAL prior,
 compared to phylogeny-induced conditional prior}
+
+\item{phyloFast}{logical, if TRUE use fast tree traversal for phylogeny-induced priors}
 }
 \value{
 A list containing CORAL prior as matrix of means and matrix of flattened covariances
