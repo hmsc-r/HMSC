@@ -54,10 +54,12 @@ combineParameters = function(Beta, BetaSel, wRRR, Gamma, iV, rhoInd, iSigma, Eta
 
    Alpha = vector("list", length(AlphaInd))
    for(r in seq_along(AlphaInd)){
-      Alpha[[r]] = lapply(L[[r]]$alphapw[AlphaInd[[r]], 1])
+      Alpha[[r]] = rL[[r]]$alphapw[AlphaInd[[r]], 1]
    }
 
    V = chol2inv(chol(iV))
    sigma = 1/iSigma
    par = list(Beta=Beta, wRRR=wRRR, Gamma=Gamma, V=V, rho=rhopw[rhoInd,1], sigma=sigma, Eta=Eta, Lambda=Lambda, Alpha=Alpha, AlphaInd=AlphaInd, Psi=Psi, Delta=Delta, PsiRRR=PsiRRR, DeltaRRR=DeltaRRR)
-}
+   return(par)
+   }
+

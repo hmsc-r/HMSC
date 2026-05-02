@@ -139,7 +139,7 @@ samplePrior = function(hM, dataParList=NULL){
                      Eta=Eta,Lambda=Lambda,AlphaInd=AlphaInd,Psi=Psi,Delta=Delta,
                      PsiRRR=NULL, DeltaRRR=NULL,ncNRRR=hM$ncNRRR, ncRRR=hM$ncRRR, ncsel=hM$ncsel, XSelect=NULL,
                      XScalePar=hM$XScalePar, XInterceptInd=hM$XInterceptInd, nt=hM$nt, TrScalePar=hM$TrScalePar,
-                     TrInterceptInd=hM$TrInterceptInd, rhopw=hM$rhopw)
+                     TrInterceptInd=hM$TrInterceptInd, rhopw=hM$rhopw, rL=hM$rL)
    return(sample)
 }
 

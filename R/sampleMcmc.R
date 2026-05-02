@@ -651,7 +651,7 @@
                                   XRRRScalePar=hM$XRRRScalePar,nt=hM$nt,
                                   TrScalePar=hM$TrScalePar,
                                   TrInterceptInd=hM$TrInterceptInd,
-                                  rhopw=rhopw)
+                                  rhopw=rhopw, rL=hM$rL)
         }
         postList$failedUpdates <- failed
         if((verbose > 0) && (iter%%verbose == 0)){
