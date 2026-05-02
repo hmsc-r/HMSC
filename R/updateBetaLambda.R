@@ -5,7 +5,7 @@
 #' @importFrom stats rnorm
 #' @importFrom Matrix bdiag Diagonal sparseMatrix
 #'
-updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rho, iQ, Loff,X,Tr,Pi,dfPi,C,rL){
+updateBetaLambda = function(Y,Z,Gamma,iV,iSigma,Eta,Psi,Delta,rhoInd, iQ, Loff,X,Tr,Pi,dfPi,C,rL){
    ny = nrow(Z)
    ns = ncol(Z)
    nc = nrow(Gamma)

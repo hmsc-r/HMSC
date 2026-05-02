@@ -13,7 +13,7 @@
 #' @param Gamma logical indicating whether posterior of Gamma is included
 #' @param V logical indicating whether posterior of V is included
 #' @param Sigma logical indicating whether posterior of Sigma is included
-#' @param Rho logical indicating whether posterior of Rho is included
+#' @param rho logical indicating whether posterior of rho is included
 #' @param Eta logical indicating whether posterior of Eta is included
 #' @param Lambda logical indicating whether posterior of Lambda is included
 #' @param Alpha logical indicating whether posterior of Alpha is included
@@ -35,13 +35,13 @@
 
 convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
   covNamesNumbers=c(TRUE,TRUE), trNamesNumbers=c(TRUE,TRUE),
-  Beta=TRUE, Gamma=TRUE, V=TRUE, Sigma=TRUE, Rho=TRUE, Eta=TRUE, Lambda=TRUE,
+  Beta=TRUE, Gamma=TRUE, V=TRUE, Sigma=TRUE, rho=TRUE, Eta=TRUE, Lambda=TRUE,
   Alpha=TRUE, Omega=TRUE, Psi=TRUE, Delta=TRUE)
 {
    if (is.null(hM$postList))
       stop("Hmsc object ", sQuote(substitute(hM)), " has no posterior samples")
    if (is.null(hM$C)){
-      Rho = FALSE
+      rho = FALSE
    }
 
    nChains = length(hM$postList)
@@ -155,7 +155,7 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
          postSigma[[chain]] = mcmc(tmp, thin=thin, start=start1, end=end1)
       }
 
-      if (Rho){
+      if (rho){
          postRho[[chain]] = mcmc(unlist(lapply(postList, function(a) a$rho)), thin=thin, start=start1, end=end1)
       }
 
@@ -192,7 +192,7 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
             postOmega1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
          }
          if (Alpha)      {
-            tmp1 = lapply(lapply(postList, getAlpha, r=r), function(a) hM$rL[[r]]$alphapw[a,1])
+            tmp1 = lapply(postList, getAlpha, r=r)
             tmp2 = lapply(tmp1, function(a) c(a,rep(0,nfMax[r]-length(a))))
             tmp = do.call(rbind, tmp2)
             colnames(tmp) = sprintf("Alpha%d[factor%s]",r,as.character(1:nfMax[r]) )
@@ -237,8 +237,8 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
    if (Sigma){
       mpost$Sigma = mcmc.list(postSigma)
    }
-   if (Rho){
-      mpost$Rho = mcmc.list(postRho)
+   if (rho){
+      mpost$rho = mcmc.list(postRho)
    }
 
    for(r in seq_len(nr)){

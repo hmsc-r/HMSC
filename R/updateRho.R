@@ -18,10 +18,8 @@ updateRho = function(Beta,Gamma,iV, RQg,detQg, Tr, rhopw){
    logLike = log(rhopw[,2]) - 0.5*logdetg - 0.5*v;
    logLike = logLike - max(logLike)
    like = exp(logLike)
-   # indPos = which(like>0)
-   # rho = indPos[sample(c(1:rhoN)[indPos], prob=like[indPos])]
-   rho = sample.int(rhoN, 1, prob=like)
-   return(rho)
+   rhoInd = sample.int(rhoN, 1, prob=like)
+   return(rhoInd)
 }
 
 

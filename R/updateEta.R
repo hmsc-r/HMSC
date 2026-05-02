@@ -1,7 +1,7 @@
 #' @importFrom stats rnorm
 #' @importFrom Matrix bdiag Diagonal sparseMatrix t Matrix
 #'
-updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, Loff,X,Pi,dfPi,rL){
+updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,AlphaInd, rLPar, Loff,X,Pi,dfPi,rL){
    ny = nrow(Z)
    ns = ncol(Z)
    nr = ncol(Pi)
@@ -106,11 +106,11 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, Loff,X,Pi,dfPi,rL)
          }
       } else{
          eta = matrix(0,np[r],nf)
-         alpha = Alpha[[r]]
+         alphaInd = AlphaInd[[r]]
          iWg = rLPar[[r]]$iWg
          switch(rL[[r]]$spatialMethod,
                 "Full" = {
-                   iWs = bdiag(lapply(seq_len(nf), function(x) iWg[,,alpha[x]]))
+                   iWs = bdiag(lapply(seq_len(nf), function(x) iWg[,,alphaInd[x]]))
                    LamInvSigLam = tcrossprod(lambda*matrix(sqrt(iSigma),nf,ns,byrow=TRUE))
                    if(np[r] == ny){
                       tmp1 = kronecker(LamInvSigLam, Diagonal(ny))
@@ -134,7 +134,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, Loff,X,Pi,dfPi,rL)
                 "NNGP" = {
                    iWs = sparseMatrix(c(),c(),dims=c(np[r]*nf,np[r]*nf))
                    for(h in seq_len(nf))
-                      iWs = iWs + kronecker(iWg[[alpha[h]]], Diagonal(x=c(rep(0,h-1),1,rep(0,nf-h))))
+                      iWs = iWs + kronecker(iWg[[alphaInd[h]]], Diagonal(x=c(rep(0,h-1),1,rep(0,nf-h))))
                    LamInvSigLam = tcrossprod(lambda*matrix(sqrt(iSigma),nf,ns,byrow=TRUE))
                    # TODO it is possible here to eliminate dependence on missing data at minor cost by using row-specific iSigma
                    if(np[r] == ny){
@@ -157,12 +157,12 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, Loff,X,Pi,dfPi,rL)
                       idDW12g = rLPar[[r]]$idDW12g
                       Fg = rLPar[[r]]$Fg
                       nK = nrow(Fg)
-                      idD = idDg[,alpha]
+                      idD = idDg[,alphaInd]
                       Fmat = matrix(0,nrow=(nK*nf),ncol=(nK*nf))
                       idD1W12 = matrix(0,nrow=(np[r]*nf),ncol=(nK*nf))
                       for(h in 1:nf){
-                         Fmat[(h-1)*nK+(1:nK), (h-1)*nK+(1:nK)] = Fg[,,alpha[h]]
-                         idD1W12[(h-1)*np[r]+(1:np[r]), (h-1)*nK+(1:nK)] = idDW12g[,,alpha[h]]
+                         Fmat[(h-1)*nK+(1:nK), (h-1)*nK+(1:nK)] = Fg[,,alphaInd[h]]
+                         idD1W12[(h-1)*np[r]+(1:np[r]), (h-1)*nK+(1:nK)] = idDW12g[,,alphaInd[h]]
                       }
                       tmp = diag(iSigma,length(iSigma))%*%t(lambda)
                       fS = S[order(lPi),,drop=FALSE]%*%tmp
@@ -204,12 +204,12 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,Alpha, rLPar, Loff,X,Pi,dfPi,rL)
                       idDW12g = rLPar[[r]]$idDW12g
                       Fg = rLPar[[r]]$Fg
                       nK = nrow(Fg)
-                      idD = idDg[,alpha]
+                      idD = idDg[,alphaInd]
                       Fmat = matrix(0,nrow=(nK*nf),ncol=(nK*nf))
                       idD1W12 = matrix(0,nrow=(np[r]*nf),ncol=(nK*nf))
                       for(h in 1:nf){
-                         Fmat[(h-1)*nK+(1:nK), (h-1)*nK+(1:nK)] = Fg[,,alpha[h]]
-                         idD1W12[(h-1)*np[r]+(1:np[r]), (h-1)*nK+(1:nK)] = idDW12g[,,alpha[h]]
+                         Fmat[(h-1)*nK+(1:nK), (h-1)*nK+(1:nK)] = Fg[,,alphaInd[h]]
+                         idD1W12[(h-1)*np[r]+(1:np[r]), (h-1)*nK+(1:nK)] = idDW12g[,,alphaInd[h]]
                       }
                       tmp = diag(iSigma,length(iSigma))%*%t(lambda)
                       LamSigLamT = lambda%*%tmp

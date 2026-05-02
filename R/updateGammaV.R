@@ -1,7 +1,7 @@
 #' @importFrom stats rnorm
 #' @importFrom MCMCpack rwish
 #'
-updateGammaV = function(Beta,Gamma,iV,rho, Tr,C, iQg,RQg, mGamma,iUGamma,V0,f0){
+updateGammaV = function(Beta,Gamma,iV,rhoInd, Tr,C, iQg,RQg, mGamma,iUGamma,V0,f0){
    ns = ncol(Beta)
    nc = nrow(Beta)
    nt = ncol(Tr)
@@ -10,8 +10,8 @@ updateGammaV = function(Beta,Gamma,iV,rho, Tr,C, iQg,RQg, mGamma,iUGamma,V0,f0){
       iQ = diag(ns)
       RQ = diag(ns)
    } else{
-      iQ = iQg[,,rho]
-      RQ = RQg[,,rho]
+      iQ = iQg[,,rhoInd]
+      RQ = RQg[,,rhoInd]
    }
 
    Mu = tcrossprod(Gamma, Tr)

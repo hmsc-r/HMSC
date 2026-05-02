@@ -353,8 +353,8 @@ for (case in cases){
   es.gamma = effectiveSize(mpost$Gamma)
   ge.gamma = gelman.diag(mpost$Gamma,multivariate=FALSE)$psrf
   
-  es.rho = effectiveSize(mpost$Rho)
-  ge.rho = gelman.diag(mpost$Rho,multivariate=FALSE)$psrf
+  es.rho = effectiveSize(mpost$rho)
+  ge.rho = gelman.diag(mpost$rho,multivariate=FALSE)$psrf
   
   es.V = effectiveSize(mpost$V)
   ge.V = gelman.diag(mpost$V,multivariate=FALSE)$psrf

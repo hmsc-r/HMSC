@@ -8,7 +8,7 @@ predictLatentFactor(
   unitsPred,
   units,
   postEta,
-  postAlpha,
+  postAlphaInd,
   rL,
   predictMean = FALSE,
   predictMeanField = FALSE
@@ -24,7 +24,7 @@ conditioned on}
 \item{postEta}{a list containing samples of random factors at
 conditioned units}
 
-\item{postAlpha}{a list containing samples of range (lengthscale)
+\item{postAlphaInd}{a list containing grid indices samples of range (lengthscale)
 parameters for latent factors}
 
 \item{rL}{a \code{HmscRandomLevel}-class object that describes the

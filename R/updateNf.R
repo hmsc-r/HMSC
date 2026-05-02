@@ -1,6 +1,6 @@
 #' @importFrom stats runif rnorm rgamma
 #' @importFrom abind abind
-updateNf = function(eta,lambda,alpha,psi,delta, rL, iter){
+updateNf = function(eta,lambda,alphaInd,psi,delta, rL, iter){
    nu = rL$nu
    a1 = rL$a1
    b1 = rL$b1
@@ -28,7 +28,7 @@ updateNf = function(eta,lambda,alpha,psi,delta, rL, iter){
          etaNew = matrix(NA,np,nf)
          etaNew[,1:(nf-1)] = eta
          etaNew[,nf] = rnorm(np)
-         alphaNew = c(alpha,1)
+         alphaIndNew = c(alphaInd,1)
          if(is.matrix(lambda)){
             lambdaNew = rbind(lambda, matrix(0,1,ns))
             psiNew = matrix(NA,nf,ns)
@@ -49,14 +49,14 @@ updateNf = function(eta,lambda,alpha,psi,delta, rL, iter){
          }
          eta = etaNew
          lambda = lambdaNew
-         alpha = alphaNew
+         alphaInd = alphaIndNew
          psi = psiNew
          delta = deltaNew
       } else if(numRedundant>0 && nf>rL$nfMin){
          indNotRed = setdiff(1:nf, indRedundant)
          nf = length(indNotRed)
          eta = eta[,indNotRed,drop=FALSE]
-         alpha = alpha[indNotRed]
+         alphaInd = alphaInd[indNotRed]
          if(is.matrix(lambda)){
             lambda = lambda[indNotRed,,drop=FALSE]
             psi = psi[indNotRed,,drop=FALSE]
@@ -67,5 +67,5 @@ updateNf = function(eta,lambda,alpha,psi,delta, rL, iter){
          delta = delta[indNotRed,,drop=FALSE]
       }
    }
-   return(list(eta=eta, lambda=lambda, alpha=alpha, psi=psi, delta=delta))
+   return(list(eta=eta, lambda=lambda, alphaInd=alphaInd, psi=psi, delta=delta))
 }

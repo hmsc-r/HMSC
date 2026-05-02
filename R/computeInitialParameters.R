@@ -212,22 +212,22 @@ computeInitialParameters = function(hM, initPar, computeZ=TRUE){
       }
    }
    if(!is.null(initPar$Eta)){
-      Alpha = initPar$Alpha
+      AlphaInd = initPar$AlphaInd
    } else{
-      Alpha = vector("list", hM$nr)
+      AlphaInd = vector("list", hM$nr)
    }
    for(r in seq_len(hM$nr)){
-      if(!is.null(initPar$Alpha[[r]])){
-         Alpha[[r]] = initPar$Alpha[[r]]
+      if(!is.null(initPar$AlphaInd[[r]])){
+         AlphaInd[[r]] = initPar$AlphaInd[[r]]
       } else{
-         Alpha[[r]] = rep(1,nf[r])
+         AlphaInd[[r]] = rep(1,nf[r])
       }
    }
 
    if(!is.null(initPar$rho)){
-      rho = which.min(abs(initPar$rho-hM$rhopw[,1]))
+      rhoInd = which.min(abs(initPar$rho - hM$rhopw[,1]))
    } else{
-      rho = 1
+      rhoInd = 1
    }
 
    switch(class(XScaled)[1L],
@@ -270,8 +270,8 @@ computeInitialParameters = function(hM, initPar, computeZ=TRUE){
    parList$Lambda = Lambda
    parList$Psi = Psi
    parList$Delta = Delta
-   parList$Alpha = Alpha
-   parList$rho = rho
+   parList$AlphaInd = AlphaInd
+   parList$rhoInd = rhoInd
    parList$Z = Z
 
    return(parList)

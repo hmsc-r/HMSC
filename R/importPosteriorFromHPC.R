@@ -59,11 +59,31 @@ importPosteriorFromHPC = function(m, postList, nSamples, thin, transient, adaptN
       m$postList[[cInd]] = vector("list", m$samples)
       for(sInd in 1:length(postList[[cInd]])){
          s = postList[[cInd]][[sInd]]
+         if(!is.null(s$AlphaInd)){
+            AlphaInd = s$AlphaInd
+         } else{
+            if(!is.null(s$Alpha)){
+               AlphaInd = s$Alpha
+            } else{
+               warning("Posterior sample does not contain AlphaInd or Alpha, replacing with default AlphaInd = NULL, this will likely cause errors later")
+               AlphaInd = NULL
+            }
+         }
+         if(!is.null(s$rhoInd)){
+            rhoInd = s$rhoInd
+         } else{
+            if(!is.null(s$rho)){
+               rhoInd = s$rho
+            } else{
+               warning("Posterior sample does not contain rhoInd or rho, replacing with default rhoInd = 1")
+               rhoInd = 1
+            }
+         }
          m$postList[[cInd]][[sInd]] =
-            combineParameters(s$Beta, s$BetaSel, s$wRRR, s$Gamma, s$iV, s$rho, s$sigma**-2,
-                              s$Eta, s$Lambda, s$Alpha, s$Psi, s$Delta, s$PsiRRR, s$DeltaRRR,
+            combineParameters(s$Beta, s$BetaSel, s$wRRR, s$Gamma, s$iV, rhoInd, s$sigma**-2,
+                              s$Eta, s$Lambda, AlphaInd, s$Psi, s$Delta, s$PsiRRR, s$DeltaRRR,
                               m$ncNRRR, m$ncRRR, m$ncsel, m$XSelect, m$XScalePar, m$XInterceptInd,
-                              m$XRRRScalePar, m$nt, m$TrScalePar, m$TrInterceptInd, m$rhopw)
+                              m$XRRRScalePar, m$nt, m$TrScalePar, m$TrInterceptInd, m$rhopw, m$rL)
       }
    }
    if (alignPost){

@@ -41,9 +41,9 @@ samplePrior = function(hM, dataParList=NULL){
    }
 
    if(is.null(hM$C)){
-      rho = 1
+      rhoInd = 1
    } else {
-      rho = sample(x = 1:dim(hM$rhopw)[1], size = 1, prob = hM$rhopw[,2])
+      rhoInd = sample(x = 1:dim(hM$rhopw)[1], size = 1, prob = hM$rhopw[,2])
    }
 
    #PRIMARY PARAMETERS FOR RANDOM EFFECTS
@@ -55,7 +55,7 @@ samplePrior = function(hM, dataParList=NULL){
    Lambda = vector("list", hM$nr)
    Eta = vector("list", hM$nr)
    np = hM$np
-   Alpha = vector("list", hM$nr)
+   AlphaInd = vector("list", hM$nr)
 
    for(r in seq_len(hM$nr)){
       if(hM$rL[[r]]$nfMax==Inf){
@@ -86,15 +86,15 @@ samplePrior = function(hM, dataParList=NULL){
          Lambda[[r]] = array(rnorm(nf[r]*hM$ns*ncr[r])*mult, dim=c(nf[r],hM$ns,ncr[r]))
       }
       if(hM$rL[[r]]$sDim == 0){
-         Alpha[[r]] = rep(1,nf[r])
+         AlphaInd[[r]] = rep(1,nf[r])
          Eta[[r]] = matrix(rnorm(np[r]*nf[r]),np[r],nf[r])
       } else {
-         Alpha[[r]] = sample(x = 1:dim(hM$rL[[r]]$alphapw)[1], size = nf[r], prob = hM$rL[[r]]$alphapw[,2], replace = TRUE)
+         AlphaInd[[r]] = sample(x = 1:dim(hM$rL[[r]]$alphapw)[1], size = nf[r], prob = hM$rL[[r]]$alphapw[,2], replace = TRUE)
          Eta[[r]] = matrix(rnorm(np[r]*nf[r]),np[r],nf[r])
          Wg = rLPar[[r]]$Wg
-         alpha = Alpha[[r]]
+         alphaInd = AlphaInd[[r]]
          for(i in 1:nf[r]){
-            Eta[[r]][,i]=mvrnorm(mu=rep(0,np[r]),Sigma=Wg[,,alpha[i]])
+            Eta[[r]][,i]=mvrnorm(mu=rep(0,np[r]),Sigma=Wg[,,alphaInd[i]])
          }
       }
    }
@@ -108,7 +108,7 @@ samplePrior = function(hM, dataParList=NULL){
          Beta[,j] = mvrnorm(1, Mu[,j], V)
    }
    else {
-      Beta = t(matrix(mvrnorm(mu=as.vector(t(Mu)),Sigma = kronecker(V,Qg[,,rho])), hM$ns, hM$nc))
+      Beta = t(matrix(mvrnorm(mu=as.vector(t(Mu)),Sigma = kronecker(V,Qg[,,rhoInd])), hM$ns, hM$nc))
    }
 
    switch(class(hM$XScaled)[1L],
@@ -135,8 +135,8 @@ samplePrior = function(hM, dataParList=NULL){
    iSigma = 1 / sigma
    iV = chol2inv(chol(V))
 
-   sample = combineParameters(Beta=Beta,BetaSel=NULL,wRRR=NULL,Gamma=Gamma,iV=iV,rho=rho,iSigma=iSigma,
-                     Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,Delta=Delta,
+   sample = combineParameters(Beta=Beta,BetaSel=NULL,wRRR=NULL,Gamma=Gamma,iV=iV,rhoInd=rhoInd,iSigma=iSigma,
+                     Eta=Eta,Lambda=Lambda,AlphaInd=AlphaInd,Psi=Psi,Delta=Delta,
                      PsiRRR=NULL, DeltaRRR=NULL,ncNRRR=hM$ncNRRR, ncRRR=hM$ncRRR, ncsel=hM$ncsel, XSelect=NULL,
                      XScalePar=hM$XScalePar, XInterceptInd=hM$XInterceptInd, nt=hM$nt, TrScalePar=hM$TrScalePar,
                      TrInterceptInd=hM$TrInterceptInd, rhopw=hM$rhopw)

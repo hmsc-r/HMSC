@@ -17,9 +17,9 @@ test_that("UpdateGammaEta is correct",{
    parList = computeInitialParameters(TD$m,initPar=NULL)
    dataParList = computeDataParameters(TD$m)
    GammaEtaList = updateGammaEta(Z=parList$Z,Gamma=parList$Gamma,V=parList$V,iV=chol2inv(chol(parList$V)),id=sqrt(parList$sigma),
-                                 Eta=parList$Eta,Lambda=parList$Lambda,Alpha=parList$Alpha, Loff=TD$m$Loff,X=TD$m$X,Pi=TD$m$Pi,
-                                 dfPi=TD$m$dfPi,Tr=TD$m$Tr,rL=TD$m$rL, rLPar=dataParList$rLPar,Q=dataParList$Qg[,,parList$rho],
-                                 iQ=dataParList$iQg[,,parList$rho],RQ=dataParList$RQg[,,parList$rho],
+                                 Eta=parList$Eta,Lambda=parList$Lambda,AlphaInd=parList$AlphaInd, Loff=TD$m$Loff,X=TD$m$X,Pi=TD$m$Pi,
+                                 dfPi=TD$m$dfPi,Tr=TD$m$Tr,rL=TD$m$rL, rLPar=dataParList$rLPar,Q=dataParList$Qg[,,parList$rhoInd],
+                                 iQ=dataParList$iQg[,,parList$rhoInd],RQ=dataParList$RQg[,,parList$rhoInd],
                                  mGamma=TD$m$mGamma,U=TD$m$UGamma,iU=chol2inv(chol(TD$m$UGamma)))
    gamma = GammaEtaList$Gamma
    eta = GammaEtaList$Eta
@@ -38,7 +38,7 @@ test_that("updateBetaLambda is correct",{
    dataParList = computeDataParameters(TD$m)
    BetaLambdaList = updateBetaLambda(Y=TD$Y,Z=parList$Z,Gamma=parList$Gamma,iV=chol2inv(chol(parList$V)),
                                      iSigma=sqrt(parList$sigma),Eta=parList$Eta,Psi=parList$Psi,Delta=parList$Delta,
-                                     iQ=dataParList$iQg[,,parList$rho],Loff=TD$m$Loff,X=TD$m$X,Tr=TD$m$Tr,Pi=TD$m$Pi,dfPi=TD$m$dfPi,C=TD$m$C,rL=TD$m$rL)
+                                     iQ=dataParList$iQg[,,parList$rhoInd],Loff=TD$m$Loff,X=TD$m$X,Tr=TD$m$Tr,Pi=TD$m$Pi,dfPi=TD$m$dfPi,C=TD$m$C,rL=TD$m$rL)
    Beta = BetaLambdaList$Beta
    Lambda = BetaLambdaList$Lambda
    expect_equal(length(Lambda),2)
@@ -54,7 +54,7 @@ test_that("updateGammaV is correct",{
    set.seed(200)
    parList = computeInitialParameters(TD$m,initPar=NULL)
    dataParList = computeDataParameters(TD$m)
-   GammaVList = updateGammaV(Beta=parList$Beta,Gamma=parList$Gamma,iV=chol2inv(chol(parList$V)),rho=TD$m$rho,
+   GammaVList = updateGammaV(Beta=parList$Beta,Gamma=parList$Gamma,iV=chol2inv(chol(parList$V)),rhoInd=TD$m$rho,
                              iQg=dataParList$iQg,RQg=dataParList$RQg, Tr=TD$m$Tr,C=TD$m$C, mGamma=TD$m$mGamma,
                              iUGamma=chol2inv(chol(TD$m$UGamma)),V0=TD$m$V0,f0=TD$m$f0)
    Gamma = GammaVList$Gamma
@@ -71,9 +71,9 @@ test_that("updateRho is correct",{
    set.seed(200)
    parList = computeInitialParameters(TD$m,initPar=NULL)
    dataParList = computeDataParameters(TD$m)
-   rho = updateRho(Beta=parList$Beta,Gamma=parList$Gamma,iV=chol2inv(chol(parList$V)), RQg=dataParList$RQg,
+   rhoInd = updateRho(Beta=parList$Beta,Gamma=parList$Gamma,iV=chol2inv(chol(parList$V)), RQg=dataParList$RQg,
                    detQg=dataParList$detQg, Tr=TD$m$Tr, rhopw=TD$m$rhopw)
-   expect_equal(rho,1)
+   expect_equal(rhoInd,1)
 })
 
 test_that("updateLambdaPriors is correct",{
@@ -98,7 +98,7 @@ test_that("updateEta is correct", {
    parList = computeInitialParameters(TD$m,initPar=NULL)
    dataParList = computeDataParameters(TD$m)
    eta = updateEta(Y=TD$m$Y, Z=parList$Z, Beta=parList$Beta,iSigma=sqrt(parList$sigma),Eta=parList$Eta,
-             Lambda=parList$Lambda, Alpha=parList$Alpha, rLPar=dataParList$rLPar, Loff=TD$m$Loff, X=TD$m$X, Pi=TD$m$Pi,
+             Lambda=parList$Lambda, AlphaInd=parList$AlphaInd, rLPar=dataParList$rLPar, Loff=TD$m$Loff, X=TD$m$X, Pi=TD$m$Pi,
              dfPi=TD$m$dfPi,rL=TD$m$rL)
    expect_equal(length(eta),2)
    expect_equal(length(eta[[1]]),100)
@@ -110,12 +110,12 @@ test_that("updateEta is correct", {
 test_that("updateAlpha is correct",{
    set.seed(200)
    dataParList = computeDataParameters(TD$m)
-   Alpha = updateAlpha(Eta=TD$m$postList[[1]][[1]]$Eta, rLPar=dataParList$rLPar, rL=TD$m$rL)
-   expect_equal(length(Alpha),2)
-   expect_equal(length(Alpha[[1]]),2)
-   expect_equal(length(Alpha[[2]]),2)
-   expect_equal(Alpha[[1]],c(1,1))
-   expect_equal(Alpha[[2]],c(1,1))
+   AlphaInd = updateAlpha(Eta=TD$m$postList[[1]][[1]]$Eta, rLPar=dataParList$rLPar, rL=TD$m$rL)
+   expect_equal(length(AlphaInd),2)
+   expect_equal(length(AlphaInd[[1]]),2)
+   expect_equal(length(AlphaInd[[2]]),2)
+   expect_equal(AlphaInd[[1]],c(1,1))
+   expect_equal(AlphaInd[[2]],c(1,1))
 })
 
 test_that("updateInvSigma is correct",{
@@ -145,7 +145,7 @@ test_that("updateNf is correct",{
                distr=c('probit'))
    parList = computeInitialParameters(m,initPar=NULL)
    dataParList = computeDataParameters(m)
-   listPar = updateNf(eta=parList$Eta[[1]],lambda=parList$Lambda[[1]],alpha=parList$Alpha[[1]],psi=parList$Psi[[1]],
+   listPar = updateNf(eta=parList$Eta[[1]],lambda=parList$Lambda[[1]],alphaInd=parList$AlphaInd[[1]],psi=parList$Psi[[1]],
                       delta=parList$Delta[[1]],rL=m$rL[[1]], iter=100)
    Lambda = listPar$lambda
    Eta = listPar$eta
