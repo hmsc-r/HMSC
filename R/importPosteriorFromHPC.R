@@ -59,25 +59,17 @@ importPosteriorFromHPC = function(m, postList, nSamples, thin, transient, adaptN
       m$postList[[cInd]] = vector("list", m$samples)
       for(sInd in 1:length(postList[[cInd]])){
          s = postList[[cInd]][[sInd]]
-         if(!is.null(s$AlphaInd)){
-            AlphaInd = s$AlphaInd
-         } else{
-            if(!is.null(s$Alpha)){
-               AlphaInd = s$Alpha
-            } else{
-               warning("Posterior sample does not contain AlphaInd or Alpha, replacing with default AlphaInd = NULL, this will likely cause errors later")
-               AlphaInd = NULL
-            }
+         # Backward compatibility: Handle renaming of Alpha to AlphaInd and rho to rhoInd.
+         # In older versions, these fields were named 'Alpha' and 'rho', respectively.
+         AlphaInd = if (!is.null(s$AlphaInd)) s$AlphaInd else s$Alpha
+         if(is.null(AlphaInd)){
+            warning("Posterior sample does not contain AlphaInd or Alpha, replacing with default AlphaInd = NULL, this will likely cause errors later")
          }
-         if(!is.null(s$rhoInd)){
-            rhoInd = s$rhoInd
-         } else{
-            if(!is.null(s$rho)){
-               rhoInd = s$rho
-            } else{
-               warning("Posterior sample does not contain rhoInd or rho, replacing with default rhoInd = 1")
-               rhoInd = 1
-            }
+
+         rhoInd = if (!is.null(s$rhoInd)) s$rhoInd else s$rho
+         if(is.null(rhoInd)){
+            warning("Posterior sample does not contain rhoInd or rho, replacing with default rhoInd = 1")
+            rhoInd = 1
          }
          m$postList[[cInd]][[sInd]] =
             combineParameters(s$Beta, s$BetaSel, s$wRRR, s$Gamma, s$iV, rhoInd, s$sigma**-2,

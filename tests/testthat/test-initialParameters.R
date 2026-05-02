@@ -53,7 +53,7 @@ test_that("Standard initial AlphaInd is correct",{
 
 test_that("Standard initial rho is correct",{
    parList = computeInitialParameters(TD$m,initPar=NULL)
-   expect_equal(parList$rho,1)
+   expect_equal(parList$rhoInd,1)
 })
 
 test_that("Standard initial Lambda is correct",{
