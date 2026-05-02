@@ -165,6 +165,6 @@ test_that("sampleMCMC returns m object of right size",{
    set.seed(200)
    m = sampleMcmc(TD$m,samples=1)
    expect_equal(length(m),74)
-   expect_equal(length(m$postList[[1]][[1]]),13)
+   expect_equal(length(m$postList[[1]][[1]]),15)
 })
 
