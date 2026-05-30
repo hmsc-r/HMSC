@@ -183,3 +183,24 @@ test_that("Hmsc is set correctly",{
    expect_equal(m$phyloTree,TD$m$phyloTree)
    expect_equal(m$TrScaled,TD$m$TrScaled)
 })
+
+test_that("Hmsc constructor resets formula environments to globalenv()", {
+   create_model <- function() {
+      Y <- matrix(1:20, nrow=10, ncol=2)
+      XData <- data.frame(x1 = 1:10)
+      TrData <- data.frame(T1 = 1:2)
+      rownames(TrData) <- c("sp1", "sp2")
+      m <- Hmsc(Y=Y, XData=XData, TrData=TrData, TrFormula=~T1)
+      return(m)
+   }
+   m <- create_model()
+   expect_identical(environment(m$XFormula), globalenv())
+   expect_identical(environment(m$TrFormula), globalenv())
+
+   # Check XRRRFormula environment reset
+   Y <- matrix(1:20, nrow=10, ncol=2)
+   XData <- data.frame(x1 = 1:10)
+   m2 <- Hmsc(Y=Y, XData=XData, XRRRData=data.frame(xr1=1:10))
+   expect_identical(environment(m2$XRRRFormula), globalenv())
+})
+
