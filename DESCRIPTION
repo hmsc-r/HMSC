@@ -1,7 +1,7 @@
 Package: Hmsc
 Title: Hierarchical Model of Species Communities
 Type: Package
-Version: 3.3-9
+Version: 3.3-10
 Author: Gleb Tikhonov [aut],
     Otso Ovaskainen [aut, cre] (<https://orcid.org/0000-0001-9750-4421>),
     Jari Oksanen [aut],

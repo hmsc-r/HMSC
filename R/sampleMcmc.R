@@ -230,20 +230,50 @@
       if(FALSE && updaterWarningFlag) # do not advertise yet
          message("setting updater$latentLoadingOrderSwap=0 disabling full-conditional swapping of consecutive latent loadings")
    }
-    obj <- list(hM = hM, samples = samples, transient = transient, thin = thin,
-                nChains = nChains, verbose = verbose, nParallel = nParallel,
-                useSocket = useSocket, initPar = initPar,
-                initParList = initParList, dataParList = dataParList,
-                Rupdater = updater, adaptNf = adaptNf, alignPost = alignPost)
-
-    ## once preparing the export for Hmsc-HPC, we need to get rid of complex R-specific
-    ## content of Hmsc object, such as spatial S4
-    if(hpcFormat){
-      obj$hM$ranLevels = NULL
-      for(r in seq_len(hM$nr)){
-         obj$hM$rL[[r]]$s = NULL
-         obj$hM$rL[[r]]$sKnot = NULL
-      }
+    if (hpcFormat) {
+        obj <- list(hM = hM, nChains = nChains,
+                    initParList = initParList, dataParList = dataParList)
+        
+        ## once preparing the export for Hmsc-HPC, we need to get rid of complex R-specific
+        ## content of Hmsc object, such as spatial S4 and unused large data structures
+        obj$hM$ranLevels = NULL
+        for(r in seq_len(hM$nr)){
+           obj$hM$rL[[r]]$s = NULL
+           obj$hM$rL[[r]]$sKnot = NULL
+        }
+        obj$hM$Y = NULL              # Python uses YScaled
+        obj$hM$X = NULL              # Python uses XScaled
+        obj$hM$Tr = NULL             # Python uses TrScaled
+        obj$hM$XRRR = NULL           # Python uses XRRRScaled
+        obj$hM$XData = NULL          # R-specific
+        obj$hM$XFormula = NULL       # R-specific
+        obj$hM$XRRRData = NULL       # R-specific
+        obj$hM$XRRRFormula = NULL    # R-specific
+        obj$hM$TrData = NULL         # R-specific
+        obj$hM$TrFormula = NULL      # R-specific
+        obj$hM$phyloTree = NULL      # Python uses C matrix
+        obj$hM$studyDesign = NULL    # R-specific
+        obj$hM$ranLevelsUsed = NULL  # R-specific
+        obj$hM$dfPi = NULL           # Python uses Pi
+        obj$hM$spNames = NULL        # Metadata
+        obj$hM$covNames = NULL       # Metadata
+        obj$hM$trNames = NULL        # Metadata
+        obj$hM$rLNames = NULL        # Metadata
+        obj$hM$XScalePar = NULL      # Back-transform in R
+        obj$hM$XRRRScalePar = NULL   # Back-transform in R
+        obj$hM$YScalePar = NULL      # Back-transform in R
+        obj$hM$TrScalePar = NULL     # Back-transform in R
+        obj$hM$XInterceptInd = NULL  # Back-transform in R
+        obj$hM$TrInterceptInd = NULL # Back-transform in R
+        obj$hM$postList = NULL       # Empty at export
+        obj$hM$call = NULL           # R metadata
+        obj$hM$HmscVersion = NULL    # R metadata
+    } else {
+        obj <- list(hM = hM, samples = samples, transient = transient, thin = thin,
+                    nChains = nChains, verbose = verbose, nParallel = nParallel,
+                    useSocket = useSocket, initPar = initPar,
+                    initParList = initParList, dataParList = dataParList,
+                    Rupdater = updater, adaptNf = adaptNf, alignPost = alignPost)
     }
     obj
 }
