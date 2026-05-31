@@ -29,7 +29,6 @@ URL: https://www.helsinki.fi/en/researchgroups/statistical-ecology/software/hmsc
 BugReports: https://github.com/hmsc-r/HMSC/issues/
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.3
 Suggests: R.rsp,
    testthat,
    corrplot
@@ -57,3 +56,4 @@ Imports:
    sp,
    statmod,
    truncnorm
+Config/roxygen2/version: 8.0.0

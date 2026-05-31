@@ -11,7 +11,8 @@ coralGetRareSpeciesPriors(
   phyloTree = NULL,
   C.common.rare = NULL,
   interceptVarInflation = 5,
-  phyloFast = FALSE
+  phyloFast = FALSE,
+  showProgress = FALSE
 )
 }
 \arguments{
