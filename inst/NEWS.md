@@ -1,3 +1,30 @@
+Version 3.4-0
+=============
+
+### New Features
+
+* **Fast Phylogeny Support (`phyloFast`):**
+  * Added the `phyloFast = TRUE` option in `Hmsc()` to perform linear-time $O(N_s)$ tree-traversal calculations instead of standard $O(N_s^3)$ matrix operations for phylogenetic random effects. This avoids the construction and inversion of the $N_s \times N_s$ phylogenetic correlation matrix $C$, allowing the package to scale to large species communities with thousands of species.
+  * Added `taxToPhylo()` helper function to convert taxonomic classification dataframes (e.g. Class -> Order -> Family -> Genus -> Species) directly to a valid `phylo` tree object.
+  * Added experimental Common to Rare Transfer Learning (CORAL) prior computation for fast phylogeny models.
+  * Removed the package dependency on the `adephylo` package.
+
+* **Optimized Hmsc-HPC Direct RDS Interoperability:**
+  * Replaced the JSON/complex metadata exports with a direct and compact RDS-based data export structure (`hpcFormat = TRUE` in `sampleMcmc`), significantly simplifying the interface with the TensorFlow-based Python sampler and improving communication speed.
+  * Added automatic environment reset of model formula objects to `globalenv()` prior to export, preventing complex environment and namespace serialization issues in Python/HPC engines.
+  * Updated `importPosteriorFromHPC()` and `combineParameters()` to support seamless chain compatibility with the refactored parameters from Hmsc-HPC.
+
+* **MCMC State Parameter Standardization:**
+  * Standardized the names of MCMC parameters to lowercase (`alpha` and `alphaInd` instead of `Alpha` and `AlphaInd`) across both R and Python environments to align naming conventions, reflect their vector/scalar nature, and maintain backward compatibility.
+
+* **CORAL Utilities Improvements:**
+  * Added a `showProgress` argument to `coralTrain()` to print a text-based progress bar during learning steps.
+
+### Bug Fixes
+
+* Made `convertToCodaObject()` more robust when latent factor parameters or other parts of the posterior are disabled or empty.
+* Fixed indexing issues in the prior grid of `rho` and `rL` parameter handling in `combineParameters()`.
+
 Version 3.3-7
 =============
 

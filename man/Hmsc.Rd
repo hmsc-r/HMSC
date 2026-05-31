@@ -86,7 +86,14 @@ dependence of \eqn{\beta_{kj}} coefficients on species traits}
 
 \item{covRhoGroup}{a vector defining mapping of covariates to unique phylogenetic strength parameters}
 
-\item{phyloFast}{a flag indicating whether to use fast phylogenetic computations}
+\item{phyloFast}{(logical) indicating whether to use fast phylogenetic computations. 
+If \code{TRUE}, a linear-time ($O(N_s)$) tree-traversal algorithm is used instead of 
+the standard $O(N_s^3)$ matrix computations. This completely avoids constructing or 
+inverting the large $N_s \times N_s$ phylogenetic correlation matrix $C$, allowing 
+joint species distribution models to scale to thousands of species. 
+\strong{Limitations:} Requires the presence of a phylogenetic tree via \code{phyloTree} 
+(e.g., constructed using \code{\link{taxToPhylo}}), rather than direct correlation matrix 
+specification via \code{C}.}
 
 \item{distr}{a string shortcut or \eqn{n_s \times 2} matrix specifying the observation models}
 

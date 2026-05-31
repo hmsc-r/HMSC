@@ -31,7 +31,14 @@
 #' @param phyloTree a phylogenetic tree (object of class \code{phylo} or \code{corPhyl}) for species in \code{Y}
 #' @param C a phylogenic correlation matrix for species in \code{Y}
 #' @param covRhoGroup a vector defining mapping of covariates to unique phylogenetic strength parameters
-#' @param phyloFast a flag indicating whether to use fast phylogenetic computations
+#' @param phyloFast (logical) indicating whether to use fast phylogenetic computations. 
+#'    If \code{TRUE}, a linear-time ($O(N_s)$) tree-traversal algorithm is used instead of 
+#'    the standard $O(N_s^3)$ matrix computations. This completely avoids constructing or 
+#'    inverting the large $N_s \times N_s$ phylogenetic correlation matrix $C$, allowing 
+#'    joint species distribution models to scale to thousands of species. 
+#'    \strong{Limitations:} Requires the presence of a phylogenetic tree via \code{phyloTree} 
+#'    (e.g., constructed using \code{\link{taxToPhylo}}), rather than direct correlation matrix 
+#'    specification via \code{C}.
 #' @param distr a string shortcut or \eqn{n_s \times 2} matrix specifying the observation models
 #' @param truncateNumberOfFactors logical, reduces the maximal number of latent factor to be at most the number of species
 #'

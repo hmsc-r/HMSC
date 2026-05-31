@@ -1,10 +1,27 @@
 #' @title Convert Taxonomy to Phylogenetic Tree
 #'
-#' @description Converts a taxonomy data frame (with columns from root level to species level) into an 'ape' \code{phylo} object.
+#' @description Converts a taxonomy data frame (with columns ordered from root level to species level) into an 'ape' \code{phylo} object.
+#'    This function is particularly useful for generating a taxonomic tree structure 
+#'    to be used with fast phylogenetic computations (\code{phyloFast = TRUE}) in \code{\link{Hmsc}}.
+#'
+#' @details The function maps taxonomic hierarchies directly to tree branches with uniform edge lengths. 
+#'    This represents a taxonomic approximation of phylogenetic relationships when actual branch lengths are unavailable.
 #'
 #' @param df A data frame where rows are species and columns represent taxonomic levels ordered from root (left) to tip (right). The last column contains the tip/species labels.
 #'
 #' @return An object of class \code{phylo}.
+#'
+#' @examples
+#' # Example taxonomy data frame
+#' taxData = data.frame(
+#'    Class = c("Aves", "Aves", "Mammalia"),
+#'    Order = c("Passeriformes", "Passeriformes", "Rodentia"),
+#'    Family = c("Fringillidae", "Paridae", "Muridae"),
+#'    Species = c("Fringilla_coelebs", "Parus_major", "Mus_musculus")
+#' )
+#' tree = taxToPhylo(taxData)
+#' plot(tree)
+#'
 #'
 #' @export
 taxToPhylo <- function(df) {
