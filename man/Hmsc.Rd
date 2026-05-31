@@ -86,14 +86,7 @@ dependence of \eqn{\beta_{kj}} coefficients on species traits}
 
 \item{covRhoGroup}{a vector defining mapping of covariates to unique phylogenetic strength parameters}
 
-\item{phyloFast}{(logical) indicating whether to use fast phylogenetic computations. 
-If \code{TRUE}, a linear-time ($O(N_s)$) tree-traversal algorithm is used instead of 
-the standard $O(N_s^3)$ matrix computations. This completely avoids constructing or 
-inverting the large $N_s \times N_s$ phylogenetic correlation matrix $C$, allowing 
-joint species distribution models to scale to thousands of species. 
-\strong{Limitations:} Requires the presence of a phylogenetic tree via \code{phyloTree} 
-(e.g., constructed using \code{\link{taxToPhylo}}), rather than direct correlation matrix 
-specification via \code{C}.}
+\item{phyloFast}{a logical flag indicating whether to use fast phylogenetic tree traversal computations (see Details).}
 
 \item{distr}{a string shortcut or \eqn{n_s \times 2} matrix specifying the observation models}
 
@@ -157,6 +150,19 @@ Matrix \eqn{Y} may contain missing values, but it is not recommended to add a
   and these can be abbreviated as long as they are unique strings.
   The matrix argument and the vector of string literals allows specifying different observation
   models for different species.
+
+  When \code{phyloFast = TRUE}, the model utilizes a linear-time ($O(N_s)$) tree-traversal algorithm 
+  instead of the traditional $O(N_s^3)$ matrix operations based on the $N_s \times N_s$ phylogenetic correlation matrix $C$. 
+  From a Gibbs MCMC sampling perspective, these two algorithms are mathematically equivalent and target 
+  the exact same posterior distributions. They differ entirely in their computational implementation and linear 
+  algebra execution: rather than representing the phylogeny using dense covariance matrices and performing standard 
+  matrix algebra, the fast algorithm represents the tree as a directed acyclic graph and conducts message-passing 
+  sweeps (up and down the tree branches) to compute conditional likelihoods, evaluate hyperparameter updates, 
+  and draw posterior niche samples. This dramatically reduces memory and CPU requirements, allowing joint species 
+  distribution models to scale to thousands of species. 
+  \strong{Limitations:} Fast phylogeny requires providing a valid phylogenetic tree via the \code{phyloTree} argument (which 
+  can be constructed from taxonomic tables using \code{\link{taxToPhylo}}), and is not compatible if the phylogeny is specified 
+  only as a correlation matrix via the \code{C} argument.
 
   The offset term \code{Loff} enables to add a pre-defined quantity to the linear predictor.
   This can be used to account for variable sampling effort across sampling units and species.
