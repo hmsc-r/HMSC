@@ -119,20 +119,22 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
    getDelta = function(a,r=1)
       return(a$Delta[[r]])
 
-   nfMat = matrix(0,nChains,nr)
-   for (chain in 1:nChains){
-      postList = postListAll[[chain]][start:length(postListAll[[chain]])]
-      for(r in seq_len(nr)){
-         if(Eta){
-            nfMat[chain,r] = max(unlist(lapply(lapply(postList, getEta, r=r), ncol)))
-         } else if(Lambda){
-            nfMat[chain,r] = max(unlist(lapply(lapply(postList, getLambda, r=r), nrow)))
-         } else{
-            stop("At least Eta or Lambda must be TRUE to assess number of factors")
+   if (nr > 0 && (Eta || Lambda || Omega || Alpha || Psi || Delta)) {
+      nfMat = matrix(0,nChains,nr)
+      for (chain in 1:nChains){
+         postList = postListAll[[chain]][start:length(postListAll[[chain]])]
+         for(r in seq_len(nr)){
+            if(Eta){
+               nfMat[chain,r] = max(unlist(lapply(lapply(postList, getEta, r=r), ncol)))
+            } else if(Lambda){
+               nfMat[chain,r] = max(unlist(lapply(lapply(postList, getLambda, r=r), nrow)))
+            } else{
+               stop("At least Eta or Lambda must be TRUE to assess number of factors")
+            }
          }
       }
+      nfMax = apply(nfMat,2,max)
    }
-   nfMax = apply(nfMat,2,max)
 
    for (chain in 1:nChains){
       postList = postListAll[[chain]][start:length(postListAll[[chain]])]
@@ -174,58 +176,60 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
       postPsi1 = vector("list", nr)
       postDelta1 = vector("list", nr)
 
-      for(r in seq_len(nr)){
-         if(Eta){
-            postNf = unlist(lapply(lapply(postList, getEta, r=r), ncol))
-         } else if(Lambda){
-            postNf = unlist(lapply(lapply(postList, getLambda, r=r), nrow))
-         } else{
-            stop("At least Eta or Lambda must be TRUE to assess number of factors")
-         }
-         if(length(unique(postNf))!=1)
-            stop("HMSC: number of latent factors was changing in selected sequence of samples")
-         nf = unique(postNf)
-         if (Eta)      {
-            tmp1 = lapply(postList, getEta, r=r)
-            tmp2 = lapply(tmp1, function(A) cbind(A, matrix(0,nrow(A),nfMax[r]-ncol(A))))
-            tmp = do.call(rbind, lapply(tmp2, as.vector))
-            colnames(tmp) = sprintf("Eta%d[%s, factor%s]",r,levels(hM$dfPi[,r])[(rep(1:hM$np[r],nfMax[r]))],as.character(rep(1:nfMax[r],each=hM$np[r])))
-            postEta1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
-         }
+      if (Eta || Lambda || Omega || Alpha || Psi || Delta) {
+         for(r in seq_len(nr)){
+            if(Eta){
+               postNf = unlist(lapply(lapply(postList, getEta, r=r), ncol))
+            } else if(Lambda){
+               postNf = unlist(lapply(lapply(postList, getLambda, r=r), nrow))
+            } else{
+               stop("At least Eta or Lambda must be TRUE to assess number of factors")
+            }
+            if(length(unique(postNf))!=1)
+               stop("HMSC: number of latent factors was changing in selected sequence of samples")
+            nf = unique(postNf)
+            if (Eta)      {
+               tmp1 = lapply(postList, getEta, r=r)
+               tmp2 = lapply(tmp1, function(A) cbind(A, matrix(0,nrow(A),nfMax[r]-ncol(A))))
+               tmp = do.call(rbind, lapply(tmp2, as.vector))
+               colnames(tmp) = sprintf("Eta%d[%s, factor%s]",r,levels(hM$dfPi[,r])[(rep(1:hM$np[r],nfMax[r]))],as.character(rep(1:nfMax[r],each=hM$np[r])))
+               postEta1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
+            }
 
-         if (Lambda)      {
-            tmp1 = lapply(postList, getLambda, r=r)
-            tmp2 = lapply(tmp1, function(A) rbind(A, matrix(0,nfMax[r]-nrow(A),ncol(A))))
-            tmp = do.call(rbind, lapply(tmp2, function(A) as.vector(t(A)) ))
-            colnames(tmp) = sprintf("Lambda%d[%s, factor%s]",r,spNames[rep(1:ns,nfMax[r])],as.character(rep(1:nfMax[r],each=ns)) )
-            postLambda1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
-         }
-         if (Omega)      {
-            tmp = do.call(rbind, lapply(lapply(postList, getOmega, r=r), as.vector))
-            colnames(tmp) = sprintf("Omega%d[%s, %s]",r,spNames[rep(1:ns,ns)],spNames[(rep(1:ns,each=ns))] )
-            postOmega1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
-         }
-         if (Alpha)      {
-            tmp1 = lapply(postList, getAlpha, r=r)
-            tmp2 = lapply(tmp1, function(a) c(a,rep(0,nfMax[r]-length(a))))
-            tmp = do.call(rbind, tmp2)
-            colnames(tmp) = sprintf("Alpha%d[factor%s]",r,as.character(1:nfMax[r]) )
-            postAlpha1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
-         }
+            if (Lambda)      {
+               tmp1 = lapply(postList, getLambda, r=r)
+               tmp2 = lapply(tmp1, function(A) rbind(A, matrix(0,nfMax[r]-nrow(A),ncol(A))))
+               tmp = do.call(rbind, lapply(tmp2, function(A) as.vector(t(A)) ))
+               colnames(tmp) = sprintf("Lambda%d[%s, factor%s]",r,spNames[rep(1:ns,nfMax[r])],as.character(rep(1:nfMax[r],each=ns)) )
+               postLambda1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
+            }
+            if (Omega)      {
+               tmp = do.call(rbind, lapply(lapply(postList, getOmega, r=r), as.vector))
+               colnames(tmp) = sprintf("Omega%d[%s, %s]",r,spNames[rep(1:ns,ns)],spNames[(rep(1:ns,each=ns))] )
+               postOmega1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
+            }
+            if (Alpha)      {
+               tmp1 = lapply(postList, getAlpha, r=r)
+               tmp2 = lapply(tmp1, function(a) c(a,rep(0,nfMax[r]-length(a))))
+               tmp = do.call(rbind, tmp2)
+               colnames(tmp) = sprintf("Alpha%d[factor%s]",r,as.character(1:nfMax[r]) )
+               postAlpha1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
+            }
 
-         if (Psi)    {
-            tmp1 = lapply(postList, getPsi, r=r)
-            tmp2 = lapply(tmp1, function(A) rbind(A, matrix(0,nfMax[r]-nrow(A),ncol(A))))
-            tmp = do.call(rbind, lapply(tmp2, function(A) as.vector(t(A)) ))
-            colnames(tmp) = sprintf("Psi%d[%s, factor%s]",r,spNames[rep(1:ns,nfMax[r])],as.character(rep(1:nfMax[r],each=ns)) )
-            postPsi1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
-         }
+            if (Psi)    {
+               tmp1 = lapply(postList, getPsi, r=r)
+               tmp2 = lapply(tmp1, function(A) rbind(A, matrix(0,nfMax[r]-nrow(A),ncol(A))))
+               tmp = do.call(rbind, lapply(tmp2, function(A) as.vector(t(A)) ))
+               colnames(tmp) = sprintf("Psi%d[%s, factor%s]",r,spNames[rep(1:ns,nfMax[r])],as.character(rep(1:nfMax[r],each=ns)) )
+               postPsi1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
+            }
 
-         if (Delta)      {
-            tmp1 = lapply(lapply(postList, getDelta, r=r), function(a) c(a,rep(0,nfMax[r]-length(a))))
-            tmp = do.call(rbind, tmp1)
-            colnames(tmp) = sprintf("Delta%d[factor%s]",r,as.character(1:nfMax[r]) )
-            postDelta1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
+            if (Delta)      {
+               tmp1 = lapply(lapply(postList, getDelta, r=r), function(a) c(a,rep(0,nfMax[r]-length(a))))
+               tmp = do.call(rbind, tmp1)
+               colnames(tmp) = sprintf("Delta%d[factor%s]",r,as.character(1:nfMax[r]) )
+               postDelta1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
+            }
          }
       }
 
