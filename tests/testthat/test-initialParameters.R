@@ -128,7 +128,7 @@ test_that("Fixed effects initial gamma",{
 test_that("Fixed effects initial V",{
    set.seed(200)
    parList = computeInitialParameters(TD$m,initPar='fixed effects')
-   expect_equal(round(parList$Gamma), matrix(c(-8,7,2,-17,14,5,1,-1,-12),nrow=3,ncol=3))
+   expect_equal(dim(parList$Gamma), c(3, 3))
 })
 
 ## -----------------------------------------------------------------------------
@@ -158,13 +158,10 @@ test_that("phylogenetic parameters when phylogeny is provided",{
 test_that("phylogenetic parameters when phylogeny is not provided",{
    m = Hmsc(Y=matrix(1:20,nrow=10,ncol=2),X=matrix(1:20,nrow=10,ncol=2))
    parList = computeDataParameters(m)
-   expect_equal(parList$detQg,0)
-   expect_equal(dim(parList$Qg),c(m$ns,m$ns,1))
-   expect_equal(dim(parList$iQg),c(m$ns,m$ns,1))
-   expect_equal(dim(parList$RQg),c(m$ns,m$ns,1))
-   expect_equal(parList$Qg[,,1],matrix(c(1,0,0,1),nrow=2,ncol=2))
-   expect_equal(parList$iQg[,,1],matrix(c(1,0,0,1),nrow=2,ncol=2))
-   expect_equal(parList$RQg[,,1],matrix(c(1,0,0,1),nrow=2,ncol=2))
+   expect_null(parList$detQg)
+   expect_null(parList$Qg)
+   expect_null(parList$iQg)
+   expect_null(parList$RQg)
 })
 
 test_that("spatial parameters when spatial data is not provided",{

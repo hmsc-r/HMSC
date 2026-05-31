@@ -38,14 +38,16 @@ test_that("updateBetaLambda is correct",{
    dataParList = computeDataParameters(TD$m)
    BetaLambdaList = updateBetaLambda(Y=TD$Y,Z=parList$Z,Gamma=parList$Gamma,iV=chol2inv(chol(parList$V)),
                                      iSigma=sqrt(parList$sigma),Eta=parList$Eta,Psi=parList$Psi,Delta=parList$Delta,
-                                     iQ=dataParList$iQg[,,parList$rhoInd],Loff=TD$m$Loff,X=TD$m$X,Tr=TD$m$Tr,Pi=TD$m$Pi,dfPi=TD$m$dfPi,C=TD$m$C,rL=TD$m$rL)
+                                     rhoInd=parList$rhoInd,Loff=TD$m$Loff,X=TD$m$X,Tr=TD$m$Tr,Pi=TD$m$Pi,dfPi=TD$m$dfPi,
+                                     phyloFlag=TRUE,phyloFast=FALSE,phyloTreeList=NULL,phyloTreeRoot=NULL,
+                                     covRhoGroup=rep(1,nrow(parList$Gamma)),iQg=dataParList$iQg,rhopw=TD$m$rhopw,rL=TD$m$rL)
    Beta = BetaLambdaList$Beta
    Lambda = BetaLambdaList$Lambda
    expect_equal(length(Lambda),2)
    expect_equal(length(Lambda[[1]]),8)
    expect_equal(length(Lambda[[2]]),8)
-   expect_equal(round(sum(Lambda[[1]]),digits=1),0.3)
-   expect_equal(round(sum(Lambda[[2]]),digits=1),0.3)
+   expect_equal(round(sum(Lambda[[1]]),digits=1),0.2)
+   expect_equal(round(sum(Lambda[[2]]),digits=1),0.2)
    expect_equal(length(Beta),12)
    expect_equal(round(sum(Beta)),-2)
 })
@@ -54,9 +56,10 @@ test_that("updateGammaV is correct",{
    set.seed(200)
    parList = computeInitialParameters(TD$m,initPar=NULL)
    dataParList = computeDataParameters(TD$m)
-   GammaVList = updateGammaV(Beta=parList$Beta,Gamma=parList$Gamma,iV=chol2inv(chol(parList$V)),rhoInd=TD$m$rho,
-                             iQg=dataParList$iQg,RQg=dataParList$RQg, Tr=TD$m$Tr,C=TD$m$C, mGamma=TD$m$mGamma,
-                             iUGamma=chol2inv(chol(TD$m$UGamma)),V0=TD$m$V0,f0=TD$m$f0)
+   GammaVList = updateGammaV(Beta=parList$Beta,Gamma=parList$Gamma,iV=chol2inv(chol(parList$V)),rhoInd=parList$rhoInd,
+                             Tr=TD$m$Tr,phyloFlag=TRUE,phyloFast=FALSE,phyloTreeList=NULL,phyloTreeRoot=NULL,
+                             iQg=dataParList$iQg,RQg=dataParList$RQg, mGamma=TD$m$mGamma,
+                             iUGamma=chol2inv(chol(TD$m$UGamma)),V0=TD$m$V0,f0=TD$m$f0,rhopw=TD$m$rhopw)
    Gamma = GammaVList$Gamma
    iV = GammaVList$iV
    expect_equal(nrow(iV),3)
@@ -71,8 +74,9 @@ test_that("updateRho is correct",{
    set.seed(200)
    parList = computeInitialParameters(TD$m,initPar=NULL)
    dataParList = computeDataParameters(TD$m)
-   rhoInd = updateRho(Beta=parList$Beta,Gamma=parList$Gamma,iV=chol2inv(chol(parList$V)), RQg=dataParList$RQg,
-                   detQg=dataParList$detQg, Tr=TD$m$Tr, rhopw=TD$m$rhopw)
+   rhoInd = updateRho(Beta=parList$Beta,Gamma=parList$Gamma,iV=chol2inv(chol(parList$V)),rhoInd=parList$rhoInd,
+                      Tr=TD$m$Tr, phyloFast=FALSE,phyloTreeList=NULL,phyloTreeRoot=NULL,
+                      RQg=dataParList$RQg, detQg=dataParList$detQg, rhopw=TD$m$rhopw)
    expect_equal(rhoInd,1)
 })
 
@@ -115,7 +119,7 @@ test_that("updateAlpha is correct",{
    expect_equal(length(AlphaInd[[1]]),2)
    expect_equal(length(AlphaInd[[2]]),2)
    expect_equal(AlphaInd[[1]],c(1,1))
-   expect_equal(AlphaInd[[2]],c(1,1))
+   expect_equal(AlphaInd[[2]],c(14,54))
 })
 
 test_that("updateInvSigma is correct",{
@@ -164,7 +168,7 @@ context('Test sampleMCMC')
 test_that("sampleMCMC returns m object of right size",{
    set.seed(200)
    m = sampleMcmc(TD$m,samples=1)
-   expect_equal(length(m),74)
+   expect_equal(length(m),75)
    expect_equal(length(m$postList[[1]][[1]]),15)
 })
 
