@@ -168,9 +168,9 @@ computePredictedValues = function(hM, partition=NULL, partition.sp=NULL, start=1
             postList2 = duplicate(postList)
             for(r in seq_len(hM$nr)){
                postEta = lapply(postList, function(c) c$Eta[[r]])
-               postAlpha = lapply(postList, function(c) c$Alpha[[r]])
+               postAlphaInd = lapply(postList, function(c) c$AlphaInd[[r]])
                predPostEta = predictLatentFactor(unitsPred=levels(hM2$dfPi[,r]),units=levels(hM1$dfPi[,r]),
-                                                      postEta=postEta,postAlpha=postAlpha,rL=hM$rL[[r]])
+                                                      postEta=postEta,postAlphaInd=postAlphaInd,rL=hM$rL[[r]])
                for(i in seq_len(length(postList))){
                   postList2[[i]]$Eta[[r]] = predPostEta[[i]]
                }

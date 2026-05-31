@@ -239,20 +239,50 @@ ctry <- function(expr, tryFlag=TRUE){
       if(FALSE && updaterWarningFlag) # do not advertise yet
          message("setting updater$latentLoadingOrderSwap=0 disabling full-conditional swapping of consecutive latent loadings")
    }
-    obj <- list(hM = hM, samples = samples, transient = transient, thin = thin,
-                nChains = nChains, verbose = verbose, nParallel = nParallel,
-                useSocket = useSocket, initPar = initPar,
-                initParList = initParList, dataParList = dataParList,
-                Rupdater = updater, adaptNf = adaptNf, alignPost = alignPost)
-
-    ## once preparing the export for Hmsc-HPC, we need to get rid of complex R-specific
-    ## content of Hmsc object, such as spatial S4
-    if(hpcFormat){
-      obj$hM$ranLevels = NULL
-      for(r in seq_len(hM$nr)){
-         obj$hM$rL[[r]]$s = NULL
-         obj$hM$rL[[r]]$sKnot = NULL
-      }
+    if (hpcFormat) {
+        obj <- list(hM = hM, nChains = nChains,
+                    initParList = initParList, dataParList = dataParList)
+        
+        ## once preparing the export for Hmsc-HPC, we need to get rid of complex R-specific
+        ## content of Hmsc object, such as spatial S4 and unused large data structures
+        obj$hM$ranLevels = NULL
+        for(r in seq_len(hM$nr)){
+           obj$hM$rL[[r]]$s = NULL
+           obj$hM$rL[[r]]$sKnot = NULL
+        }
+        obj$hM$Y = NULL              # Python uses YScaled
+        obj$hM$X = NULL              # Python uses XScaled
+        obj$hM$Tr = NULL             # Python uses TrScaled
+        obj$hM$XRRR = NULL           # Python uses XRRRScaled
+        obj$hM$XData = NULL          # R-specific
+        obj$hM$XFormula = NULL       # R-specific
+        obj$hM$XRRRData = NULL       # R-specific
+        obj$hM$XRRRFormula = NULL    # R-specific
+        obj$hM$TrData = NULL         # R-specific
+        obj$hM$TrFormula = NULL      # R-specific
+        obj$hM$phyloTree = NULL      # Python uses C matrix
+        obj$hM$studyDesign = NULL    # R-specific
+        obj$hM$ranLevelsUsed = NULL  # R-specific
+        obj$hM$dfPi = NULL           # Python uses Pi
+        obj$hM$spNames = NULL        # Metadata
+        obj$hM$covNames = NULL       # Metadata
+        obj$hM$trNames = NULL        # Metadata
+        obj$hM$rLNames = NULL        # Metadata
+        obj$hM$XScalePar = NULL      # Back-transform in R
+        obj$hM$XRRRScalePar = NULL   # Back-transform in R
+        obj$hM$YScalePar = NULL      # Back-transform in R
+        obj$hM$TrScalePar = NULL     # Back-transform in R
+        obj$hM$XInterceptInd = NULL  # Back-transform in R
+        obj$hM$TrInterceptInd = NULL # Back-transform in R
+        obj$hM$postList = NULL       # Empty at export
+        obj$hM$call = NULL           # R metadata
+        obj$hM$HmscVersion = NULL    # R metadata
+    } else {
+        obj <- list(hM = hM, samples = samples, transient = transient, thin = thin,
+                    nChains = nChains, verbose = verbose, nParallel = nParallel,
+                    useSocket = useSocket, initPar = initPar,
+                    initParList = initParList, dataParList = dataParList,
+                    Rupdater = updater, adaptNf = adaptNf, alignPost = alignPost)
     }
     obj
 }
@@ -399,7 +429,7 @@ ctry <- function(expr, tryFlag=TRUE){
     iSigma = 1 / sigma
     Lambda = parList$Lambda
     Eta = parList$Eta
-    Alpha = parList$Alpha
+    AlphaInd = parList$AlphaInd
     Psi = parList$Psi
     Delta = parList$Delta
     rhoInd = parList$rhoInd
@@ -435,7 +465,7 @@ ctry <- function(expr, tryFlag=TRUE){
     postList = vector("list", samples)
     failed <- numeric(15) # counts of failed try(update*())s
     names(failed) <- c("Gamma2", "GammaEta", "BetaLambda", "wRRR",
-                       "BetaSel", "GammaV", "rhoInd", "LambdaPriors",
+                       "BetaSel", "GammaV", "rho", "LambdaPriors",
                        "wRRRPriors", "Eta", "Alpha",
                        "invSigma", "Z", "Nf", "LatentLoadingOrder")
 ###--> Iterations starts here <--
@@ -456,7 +486,7 @@ ctry <- function(expr, tryFlag=TRUE){
             GammaEtaList = ctry(updateGammaEta(Z=Z,Gamma=Gamma,
                                               V=chol2inv(chol(iV)),iV=iV,
                                               id=iSigma, Eta=Eta,
-                                              Lambda=Lambda,Alpha=Alpha,
+                                              Lambda=Lambda,AlphaInd=AlphaInd,
                                               Loff=Loff,X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,
                                               rL=hM$rL, rLPar=rLPar,
                                               Q=Qg[,,rhoInd],iQ=iQg[,,rhoInd],
@@ -542,7 +572,7 @@ ctry <- function(expr, tryFlag=TRUE){
             }
         }
 
-        if(hM$phyloFlag && !identical(updater$Rho, FALSE)){
+        if(hM$phyloFlag && !identical(updater$rho, FALSE)){
            out = ctry(updateRho(Beta=Beta,Gamma=Gamma,iV=iV,rhoInd=rhoInd,Tr=Tr,
                                  phyloFast=phyloFast,phyloTreeList=phyloTreeList,phyloTreeRoot=phyloTreeRoot,
                                  RQg=RQg,detQg=detQg, rhopw=rhopw),
@@ -552,8 +582,8 @@ ctry <- function(expr, tryFlag=TRUE){
                # print(rhoInd)
             }
             else if (iter > transient){
-               failed["rhoInd"] <- failed["rhoInd"] + 1
-               print("failed rhoInd")
+               failed["rho"] <- failed["rho"] + 1
+               print("failed rho")
             }
         }
 
@@ -583,7 +613,7 @@ ctry <- function(expr, tryFlag=TRUE){
 
         if(!identical(updater$Eta, FALSE))
             out = ctry(updateEta(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
-                                Lambda=Lambda,Alpha=Alpha, rLPar=rLPar, Loff=Loff,X=X,
+                                Lambda=Lambda,AlphaInd=AlphaInd, rLPar=rLPar, Loff=Loff,X=X,
                                 Pi=Pi,dfPi=dfPi,rL=hM$rL), tryFlag=tolerateError)
         if (!inherits(out, "try-error"))
             Eta <- out
@@ -621,13 +651,13 @@ ctry <- function(expr, tryFlag=TRUE){
         for(r in seq_len(nr)){
             if(iter <= adaptNf[r]){
                 listPar = ctry(updateNf(eta=Eta[[r]],lambda=Lambda[[r]],
-                                       alpha=Alpha[[r]],psi=Psi[[r]],
+                                       alphaInd=AlphaInd[[r]],psi=Psi[[r]],
                                        delta=Delta[[r]],rL=hM$rL[[r]],
                                        iter=iter), tryFlag=tolerateError)
                 if (!inherits(listPar, "try-error")) {
                     Lambda[[r]] = listPar$lambda
                     Eta[[r]] = listPar$eta
-                    Alpha[[r]] = listPar$alpha
+                    AlphaInd[[r]] = listPar$alphaInd
                     Psi[[r]] = listPar$psi
                     Delta[[r]] = listPar$delta
                 } else if (iter > transient) {
@@ -640,14 +670,14 @@ ctry <- function(expr, tryFlag=TRUE){
             for(r in seq_len(nr)){
                 listPar = ctry(updateLatentLoadingOrder(eta=Eta[[r]],
                                                        lambda=Lambda[[r]],
-                                                       alpha=Alpha[[r]],
+                                                       alphaInd=AlphaInd[[r]],
                                                        delta=Delta[[r]],
                                                        rL=hM$rL[[r]]),
                                tryFlag=tolerateError)
                 if (!inherits(listPar, "try-error")) {
                     Lambda[[r]] = listPar$lambda
                     Eta[[r]] = listPar$eta
-                    Alpha[[r]] = listPar$alpha
+                    AlphaInd[[r]] = listPar$alphaInd
                     Delta[[r]] = listPar$delta
                 } else if (iter > transient) {
                     failed["LatentLoadingOrder"] + failed["LatentLoadingOrder"] + 1
@@ -667,7 +697,7 @@ ctry <- function(expr, tryFlag=TRUE){
             postList[[(iter-transient)/thin]] =
                 combineParameters(Beta=Beta,BetaSel=BetaSel,wRRR = wRRR,
                                   Gamma=Gamma,iV=iV,rhoInd=rhoInd,iSigma=iSigma,
-                                  Eta=Eta,Lambda=Lambda,Alpha=Alpha,Psi=Psi,
+                                  Eta=Eta,Lambda=Lambda,AlphaInd=AlphaInd,Psi=Psi,
                                   Delta=Delta, PsiRRR=PsiRRR,
                                   DeltaRRR=DeltaRRR,ncNRRR=hM$ncNRRR,
                                   ncRRR=hM$ncRRR, ncsel = hM$ncsel,
@@ -677,7 +707,7 @@ ctry <- function(expr, tryFlag=TRUE){
                                   XRRRScalePar=hM$XRRRScalePar,nt=hM$nt,
                                   TrScalePar=hM$TrScalePar,
                                   TrInterceptInd=hM$TrInterceptInd,
-                                  rhopw=rhopw)
+                                  rhopw=rhopw, rL=hM$rL)
         }
         postList$failedUpdates <- failed
         if((verbose > 0) && (iter%%verbose == 0)){

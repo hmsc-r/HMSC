@@ -186,13 +186,13 @@
     }
     for (r in seq_len(hM$nr)) {
         postEta <- lapply(postList, function(c) c$Eta[[r]])
-        postAlpha <- lapply(postList, function(c) c$Alpha[[r]])
+        postAlphaInd <- lapply(postList, function(c) c$AlphaInd[[r]])
         predPostEta <-
             predictLatentFactor(unitsPred = levels(hM$dfPi[,r]),
                                 units = levels(hM1$dfPi[,r]),
-                                postEta = postEta, postAlpha = postAlpha,
+                                postEta = postEta, postAlphaInd = postAlphaInd,
                                 rL = hM$rL[[r]])
-        for(i in seq_len(length(postList))) {
+        for(i in seq_along(postList)) {
             postList[[i]]$Eta[[r]] <- predPostEta[[i]]
         }
     }

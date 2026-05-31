@@ -3,3 +3,10 @@
 .RData
 .Ruserdata
 .DS_Store
+..Rcheck
+doc/
+Meta/
+vignettes/data
+vignettes/models
+vignettes/performance
+vignettes/vignette_*

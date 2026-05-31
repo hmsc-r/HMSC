@@ -9,7 +9,7 @@
 #'     conditioned on
 #' @param postEta a list containing samples of random factors at
 #'     conditioned units
-#' @param postAlpha a list containing samples of range (lengthscale)
+#' @param postAlphaInd a list containing grid indices samples of range (lengthscale)
 #'     parameters for latent factors
 #' @param rL a \code{HmscRandomLevel}-class object that describes the
 #'     random level structure
@@ -53,7 +53,7 @@
 #' @export
 
 predictLatentFactor =
-   function(unitsPred, units, postEta, postAlpha, rL, predictMean=FALSE,
+   function(unitsPred, units, postEta, postAlphaInd, rL, predictMean=FALSE,
             predictMeanField=FALSE)
 {
    if(predictMean && predictMeanField)
@@ -80,7 +80,7 @@ predictLatentFactor =
                etaPred[indNew,] = matrix(rnorm(sum(indNew)*nf), sum(indNew), nf)
             }
          } else{
-            alpha = postAlpha[[pN]]
+            alphaInd = postAlphaInd[[pN]]
             alphapw = rL$alphapw
             if(predictMean || predictMeanField){
                if(!is.null(rL$s)){
@@ -102,9 +102,9 @@ predictLatentFactor =
                   D12 = rL$distMat[units, unitsPred[indNew], drop=FALSE]
                }
                for(h in 1:nf){
-                  if(alphapw[alpha[h],1] > 0){
-                     K11 = exp(-D11/alphapw[alpha[h],1])
-                     K12 = exp(-D12/alphapw[alpha[h],1])
+                  if(alphapw[alphaInd[h],1] > 0){
+                     K11 = exp(-D11/alphapw[alphaInd[h],1])
+                     K12 = exp(-D12/alphapw[alphaInd[h],1])
                      m = crossprod(K12, solve(K11, eta[,h]))
                      if(predictMean)
                         etaPred[indNew,h] = m
@@ -135,8 +135,8 @@ predictLatentFactor =
                      D = rL$distMat[unitsAll,unitsAll]
                   }
                   for(h in 1:nf){
-                     if(alphapw[alpha[h],1] > 0){
-                        K = exp(-D/alphapw[alpha[h],1])
+                     if(alphapw[alphaInd[h],1] > 0){
+                        K = exp(-D/alphapw[alphaInd[h],1])
                         K11 = K[1:np,1:np]
                         K12 = K[1:np,np+(1:nn)]
                         K22 = K[np+(1:nn),np+(1:nn)]
@@ -207,11 +207,11 @@ predictLatentFactor =
                   BgA = list()
                   FgA = list()
                   for(h in 1:nf){
-                     if(alphapw[alpha[h],1] > 0){
-                        K12 = exp(-dist12/alphapw[alpha[h],1])
+                     if(alphapw[alphaInd[h],1] > 0){
+                        K12 = exp(-dist12/alphapw[alphaInd[h],1])
                         ind1 = t(matrix(unlist(indices),nrow=2))[,2]
                         ind2 = t(matrix(unlist(indices),nrow=2))[,1]
-                        K11 = exp(-dist11/alphapw[alpha[h],1])
+                        K11 = exp(-dist11/alphapw[alphaInd[h],1])
                         K21iK11 = matrix(NA,ncol=nn,nrow=rL$nNeighbours)
                         for(i in 1:nn){
                            iK11 = solve(K11[,,i])
@@ -245,7 +245,7 @@ predictLatentFactor =
                   dns = das[np+(1:nn),]
                   dnsOld = das[1:np,]
                   for(h in 1:nf){
-                     ag = alpha[h]
+                     ag = alphaInd[h]
                      if(alphapw[ag,1]>0){
                         Wns = exp(-dns/alphapw[ag,1])
                         W12 = exp(-dnsOld/alphapw[ag,1])

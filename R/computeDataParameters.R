@@ -55,10 +55,12 @@ computeDataParameters = function(hM, compactFormat=FALSE){
    } else{
       Qg = iQg = detQg = RQg = NULL
    }
-   parList$Qg = Qg
-   parList$iQg = iQg
-   parList$RQg = RQg
-   parList$detQg = detQg
+   if (compactFormat == FALSE) {
+      parList$Qg = Qg
+      parList$iQg = iQg
+      parList$RQg = RQg
+      parList$detQg = detQg
+   }
 
    rLPar = vector("list", hM$nr)
    for(r in seq_len(hM$nr)){

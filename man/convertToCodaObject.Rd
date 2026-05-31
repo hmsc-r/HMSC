@@ -14,7 +14,7 @@ convertToCodaObject(
   Gamma = TRUE,
   V = TRUE,
   Sigma = TRUE,
-  Rho = TRUE,
+  rho = TRUE,
   Eta = TRUE,
   Lambda = TRUE,
   Alpha = TRUE,
@@ -45,7 +45,7 @@ and second entry controls whether traits numbers are printed}
 
 \item{Sigma}{logical indicating whether posterior of Sigma is included}
 
-\item{Rho}{logical indicating whether posterior of Rho is included}
+\item{rho}{logical indicating whether posterior of rho is included}
 
 \item{Eta}{logical indicating whether posterior of Eta is included}
 

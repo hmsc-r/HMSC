@@ -771,6 +771,19 @@ Hmsc = function(Y, XFormula=~., XData=NULL, X=NULL, XScale=TRUE,
    }
 
    hM = setPriors(hM, setDefault=TRUE)
+
+   # Reset environments of formula objects to globalenv() to prevent
+   # RObjectType 249/namespace serialization issues in Python/HPC samplers.
+   if (inherits(hM$XFormula, "formula")) {
+      environment(hM$XFormula) <- globalenv()
+   }
+   if (inherits(hM$XRRRFormula, "formula")) {
+      environment(hM$XRRRFormula) <- globalenv()
+   }
+   if (inherits(hM$TrFormula, "formula")) {
+      environment(hM$TrFormula) <- globalenv()
+   }
+
    hM$call <- match.call()
    hM$HmscVersion <- packageVersion("Hmsc")
    hM

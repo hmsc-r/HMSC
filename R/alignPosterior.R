@@ -77,7 +77,7 @@ alignPosterior=function(hM){
                cpL[[j]]$Delta[[r]] = abind(cpL[[j]]$Delta[[r]], array((hM$rL[[r]]$a2-1)/hM$rL[[r]]$b2,DeltaAddDim), along=1)
                cpL[[j]]$Eta[[r]] = abind(cpL[[j]]$Eta[[r]], matrix(0,nrow(cpL[[j]]$Eta[[r]]),nfMax-nf), along=2)
                if(hM$rL[[r]]$sDim > 0)
-                  cpL[[j]]$Alpha[[r]] = abind(cpL[[j]]$Alpha[[r]], rep(1,nfMax-nf), along=1)
+                  cpL[[j]]$AlphaInd[[r]] = abind(cpL[[j]]$AlphaInd[[r]], rep(1,nfMax-nf), along=1)
             }
          }
          hM$postList[[cInd]] = cpL

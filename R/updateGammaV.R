@@ -6,6 +6,7 @@ updateGammaV = function(Beta,Gamma,iV,rhoInd, Tr,phyloFlag,phyloFast,phyloTreeLi
    nc = nrow(Beta)
    nt = ncol(Tr)
 
+
    Mu = tcrossprod(Gamma, Tr)
    E = Beta - Mu
    if(phyloFlag == FALSE){
