@@ -63,5 +63,5 @@ updateLatentLoadingOrder = function(eta,lambda,alphaInd,delta, rL){
       }
       delta = matrix(exp(deltaLog), nf,1)
    }
-   return(list(eta=eta, lambda=lambda, alpha=alphaInd, delta=delta))
+   return(list(eta=eta, lambda=lambda, alphaInd=alphaInd, delta=delta))
 }

@@ -1,7 +1,7 @@
 #' @importFrom stats rnorm
 #' @importFrom Matrix bdiag Diagonal sparseMatrix t Matrix
 #'
-updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,AlphaInd, rLPar, Loff,X,Pi,dfPi,rL){
+updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,alphaInd, rLPar, Loff,X,Pi,dfPi,rL){
    ny = nrow(Z)
    ns = ncol(Z)
    nr = ncol(Pi)
@@ -106,7 +106,7 @@ updateEta = function(Y,Z,Beta,iSigma,Eta,Lambda,AlphaInd, rLPar, Loff,X,Pi,dfPi,
          }
       } else{
          eta = matrix(0,np[r],nf)
-         alphaInd = AlphaInd[[r]]
+         alphaInd = alphaInd[[r]]
          iWg = rLPar[[r]]$iWg
          switch(rL[[r]]$spatialMethod,
                 "Full" = {

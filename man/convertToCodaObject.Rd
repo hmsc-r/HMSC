@@ -17,10 +17,11 @@ convertToCodaObject(
   rho = TRUE,
   Eta = TRUE,
   Lambda = TRUE,
-  Alpha = TRUE,
+  alpha = TRUE,
   Omega = TRUE,
   Psi = TRUE,
-  Delta = TRUE
+  Delta = TRUE,
+  Alpha = NULL
 )
 }
 \arguments{
@@ -51,13 +52,13 @@ and second entry controls whether traits numbers are printed}
 
 \item{Lambda}{logical indicating whether posterior of Lambda is included}
 
-\item{Alpha}{logical indicating whether posterior of Alpha is included}
-
 \item{Omega}{logical indicating whether posterior of Omega is included}
 
 \item{Psi}{logical indicating whether posterior of Psi is included}
 
 \item{Delta}{logical indicating whether posterior of Delta is included}
+
+\item{Alpha}{logical indicating whether posterior of Alpha is included}
 }
 \value{
 A named list that can be analysed with \CRANpkg{coda} functions.

@@ -41,8 +41,13 @@ getPostEstimate = function(hM, parName, r=1, x=NULL, q=c(), chainIndex=1:length(
    if(parName %in% c("Eta", "Lambda", "Psi", "Delta")){
       valList = lapply(postList, function(a) a[[parName]][[r]])
    }
-   if(parName %in% c("Alpha", "AlphaInd")){
-      valList = lapply(postList, function(a) hM$rL[[r]]$alphapw[a[[parName]][[r]],1])
+   if(parName %in% c("Alpha", "AlphaInd", "alpha", "alphaInd")){
+      getAlphaInd = function(a) {
+         if(!is.null(a$alphaInd)) return(a$alphaInd[[r]])
+         if(!is.null(a$AlphaInd)) return(a$AlphaInd[[r]])
+         return(a$Alpha[[r]])
+      }
+      valList = lapply(postList, function(a) hM$rL[[r]]$alphapw[getAlphaInd(a),1])
    }
    if(parName %in% c("Omega", "OmegaCor")){
       if(hM$ranLevels[[r]]$xDim == 0){

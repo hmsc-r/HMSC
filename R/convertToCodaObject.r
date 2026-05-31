@@ -36,8 +36,9 @@
 convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
   covNamesNumbers=c(TRUE,TRUE), trNamesNumbers=c(TRUE,TRUE),
   Beta=TRUE, Gamma=TRUE, V=TRUE, Sigma=TRUE, rho=TRUE, Eta=TRUE, Lambda=TRUE,
-  Alpha=TRUE, Omega=TRUE, Psi=TRUE, Delta=TRUE)
+  alpha=TRUE, Omega=TRUE, Psi=TRUE, Delta=TRUE, Alpha=NULL)
 {
+   if(!is.null(Alpha)) alpha = Alpha
    if (is.null(hM$postList))
       stop("Hmsc object ", sQuote(substitute(hM)), " has no posterior samples")
    if (hM$phyloFlag == FALSE){
@@ -102,7 +103,7 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
    postEta = list()
    postLambda = list()
    postOmega = list()
-   postAlpha = list()
+   postalpha = list()
    postPsi = list()
    postDelta = list()
 
@@ -112,14 +113,16 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
       return(a$Eta[[r]])
    getLambda = function(a,r=1)
       return(a$Lambda[[r]])
-   getAlpha = function(a,r=1)
+   getAlpha = function(a,r=1) {
+      if(!is.null(a$alpha)) return(a$alpha[[r]])
       return(a$Alpha[[r]])
+   }
    getPsi = function(a,r=1)
       return(a$Psi[[r]])
    getDelta = function(a,r=1)
       return(a$Delta[[r]])
 
-   if (nr > 0 && (Eta || Lambda || Omega || Alpha || Psi || Delta)) {
+   if (nr > 0 && (Eta || Lambda || Omega || alpha || Psi || Delta)) {
       nfMat = matrix(0,nChains,nr)
       for (chain in 1:nChains){
          postList = postListAll[[chain]][start:length(postListAll[[chain]])]
@@ -172,11 +175,11 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
       postEta1 = vector("list", nr)
       postLambda1 = vector("list", nr)
       postOmega1 = vector("list", nr)
-      postAlpha1 = vector("list", nr)
+      postalpha1 = vector("list", nr)
       postPsi1 = vector("list", nr)
       postDelta1 = vector("list", nr)
 
-      if (Eta || Lambda || Omega || Alpha || Psi || Delta) {
+      if (Eta || Lambda || Omega || alpha || Psi || Delta) {
          for(r in seq_len(nr)){
             if(Eta){
                postNf = unlist(lapply(lapply(postList, getEta, r=r), ncol))
@@ -208,12 +211,12 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
                colnames(tmp) = sprintf("Omega%d[%s, %s]",r,spNames[rep(1:ns,ns)],spNames[(rep(1:ns,each=ns))] )
                postOmega1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
             }
-            if (Alpha)      {
+            if (alpha)      {
                tmp1 = lapply(postList, getAlpha, r=r)
                tmp2 = lapply(tmp1, function(a) c(a,rep(0,nfMax[r]-length(a))))
                tmp = do.call(rbind, tmp2)
-               colnames(tmp) = sprintf("Alpha%d[factor%s]",r,as.character(1:nfMax[r]) )
-               postAlpha1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
+               colnames(tmp) = sprintf("alpha%d[factor%s]",r,as.character(1:nfMax[r]) )
+               postalpha1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
             }
 
             if (Psi)    {
@@ -236,7 +239,7 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
       postEta[[chain]] = postEta1
       postLambda[[chain]] = postLambda1
       postOmega[[chain]] = postOmega1
-      postAlpha[[chain]] = postAlpha1
+      postalpha[[chain]] = postalpha1
       postPsi[[chain]] = postPsi1
       postDelta[[chain]] = postDelta1
    }
@@ -263,7 +266,7 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
       postEta2 = vector("list", nChains)
       postLambda2 = vector("list", nChains)
       postOmega2 = vector("list", nChains)
-      postAlpha2 = vector("list", nChains)
+      postalpha2 = vector("list", nChains)
       postPsi2 = vector("list", nChains)
       postDelta2 = vector("list", nChains)
 
@@ -277,8 +280,8 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
          postOmega1=postOmega[[chain]]
          postOmega2[[chain]] = postOmega1[[r]]
 
-         postAlpha1=postAlpha[[chain]]
-         postAlpha2[[chain]] = postAlpha1[[r]]
+         postalpha1=postalpha[[chain]]
+         postalpha2[[chain]] = postalpha1[[r]]
 
          postPsi1=postPsi[[chain]]
          postPsi2[[chain]] = postPsi1[[r]]
@@ -296,8 +299,9 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
       if (Omega){
          mpost$Omega[[r]] = mcmc.list(postOmega2)
       }
-      if (Alpha){
-         mpost$Alpha[[r]] = mcmc.list(postAlpha2)
+      if (alpha){
+         mpost$alpha[[r]] = mcmc.list(postalpha2)
+         mpost$Alpha[[r]] = mpost$alpha[[r]]
       }
       if (Psi){
          mpost$Psi[[r]] = mcmc.list(postPsi2)

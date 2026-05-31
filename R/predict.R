@@ -184,7 +184,7 @@ predict.Hmsc = function(object, post=poolMcmcChains(object$postList), Loff=NULL,
    PiNew = matrix(NA,nrow(dfPiNew),object$nr)
    for(r in seq_len(object$nr)){
       postEta = lapply(post, function(c) c$Eta[[r]])
-      postAlphaInd = lapply(post, function(c) c$AlphaInd[[r]])
+      postAlphaInd = lapply(post, function(c) if(!is.null(c$alphaInd)) c$alphaInd[[r]] else c$AlphaInd[[r]])
       predPostEta[[r]] = predictLatentFactor(unitsPred=levels(dfPiNew[,r]),units=levels(object$dfPi[,r]),
                                              postEta=postEta,postAlphaInd=postAlphaInd,rL=rL[[r]],predictMean=predictEtaMean,predictMeanField=predictEtaMeanField)
       rowNames = rownames(predPostEta[[r]][[1]])
@@ -284,7 +284,7 @@ get1prediction <-
         ## loop nfolds * nfolds.sp * predN * mcmcStep times
         for(sN in seq_len(mcmcStep)){
             Eta = updateEta(Y=Yc, Z=Z, Beta=sam$Beta, iSigma=1/sam$sigma,
-                            Eta=Eta, Lambda=sam$Lambda, AlphaInd=sam$AlphaInd,
+                            Eta=Eta, Lambda=sam$Lambda, alphaInd=if(!is.null(sam$alphaInd)) sam$alphaInd else sam$AlphaInd,
                             rLPar=rLPar, Loff=Loff, X=X, Pi=PiNew, dfPi=dfPiNew, rL=rL)
             Z = updateZ(Y=Yc, Z=Z, Beta=sam$Beta, iSigma=1/sam$sigma, Eta=Eta,
                         Lambda=sam$Lambda, Loff=Loff, X=X, Pi=PiNew, dfPi=dfPiNew,

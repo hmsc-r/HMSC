@@ -180,6 +180,7 @@ ctry <- function(expr, tryFlag=TRUE){
 
    ######## switching of the augmented updaters if the required
    ######## conditions are not met
+   if(!is.null(updater$Alpha)) updater$alpha = updater$Alpha
     EPS = 100 * sqrt(.Machine$double.eps) # was 1e-6: this is about equal
     updaterWarningFlag = TRUE
     iUGamma = chol2inv(chol(hM$UGamma))
@@ -429,7 +430,7 @@ ctry <- function(expr, tryFlag=TRUE){
     iSigma = 1 / sigma
     Lambda = parList$Lambda
     Eta = parList$Eta
-    AlphaInd = parList$AlphaInd
+    alphaInd = if(!is.null(parList$alphaInd)) parList$alphaInd else parList$AlphaInd
     Psi = parList$Psi
     Delta = parList$Delta
     rhoInd = parList$rhoInd
@@ -466,7 +467,7 @@ ctry <- function(expr, tryFlag=TRUE){
     failed <- numeric(15) # counts of failed try(update*())s
     names(failed) <- c("Gamma2", "GammaEta", "BetaLambda", "wRRR",
                        "BetaSel", "GammaV", "rho", "LambdaPriors",
-                       "wRRRPriors", "Eta", "Alpha",
+                       "wRRRPriors", "Eta", "alpha",
                        "invSigma", "Z", "Nf", "LatentLoadingOrder")
 ###--> Iterations starts here <--
     for(iter in seq_len(transient + samples*thin)) {
@@ -475,7 +476,7 @@ ctry <- function(expr, tryFlag=TRUE){
                                    Eta=Eta,Lambda=Lambda, Loff=Loff,X=X,Pi=Pi,
                                    dfPi=dfPi,Tr=Tr,C=C,rL=hM$rL, iQg=iQg,
                                    mGamma=mGamma,iUGamma=iUGamma),
-                      tryFlag=tolerateError)
+                       tryFlag=tolerateError)
             if (!inherits(out, "try-error")) {
                 Gamma <- out
             } else if (iter > transient) {
@@ -486,7 +487,7 @@ ctry <- function(expr, tryFlag=TRUE){
             GammaEtaList = ctry(updateGammaEta(Z=Z,Gamma=Gamma,
                                               V=chol2inv(chol(iV)),iV=iV,
                                               id=iSigma, Eta=Eta,
-                                              Lambda=Lambda,AlphaInd=AlphaInd,
+                                              Lambda=Lambda,alphaInd=alphaInd,
                                               Loff=Loff,X=X,Pi=Pi,dfPi=dfPi,Tr=Tr,
                                               rL=hM$rL, rLPar=rLPar,
                                               Q=Qg[,,rhoInd],iQ=iQg[,,rhoInd],
@@ -613,20 +614,20 @@ ctry <- function(expr, tryFlag=TRUE){
 
         if(!identical(updater$Eta, FALSE))
             out = ctry(updateEta(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,Eta=Eta,
-                                Lambda=Lambda,AlphaInd=AlphaInd, rLPar=rLPar, Loff=Loff,X=X,
+                                Lambda=Lambda,alphaInd=alphaInd, rLPar=rLPar, Loff=Loff,X=X,
                                 Pi=Pi,dfPi=dfPi,rL=hM$rL), tryFlag=tolerateError)
         if (!inherits(out, "try-error"))
             Eta <- out
         else if (iter > transient)
             failed["Eta"] <- failed["Eta"] + 1
 
-        if(!identical(updater$Alpha, FALSE))
+        if(!identical(updater$alpha, FALSE))
             out = ctry(updateAlpha(Eta=Eta, rLPar=rLPar, rL=hM$rL),
                        tryFlag=tolerateError)
         if (!inherits(out, "try-error"))
-            Alpha <- out
+            alphaInd <- out
         else if (iter > transient)
-            failed["Alpha"] <- failed["Alpha"] + 1
+            failed["alpha"] <- failed["alpha"] + 1
 
         if(!identical(updater$InvSigma, FALSE))
             out = ctry(updateInvSigma(Y=Y,Z=Z,Beta=Beta,iSigma=iSigma,
@@ -651,13 +652,13 @@ ctry <- function(expr, tryFlag=TRUE){
         for(r in seq_len(nr)){
             if(iter <= adaptNf[r]){
                 listPar = ctry(updateNf(eta=Eta[[r]],lambda=Lambda[[r]],
-                                       alphaInd=AlphaInd[[r]],psi=Psi[[r]],
+                                       alphaInd=alphaInd[[r]],psi=Psi[[r]],
                                        delta=Delta[[r]],rL=hM$rL[[r]],
                                        iter=iter), tryFlag=tolerateError)
                 if (!inherits(listPar, "try-error")) {
                     Lambda[[r]] = listPar$lambda
                     Eta[[r]] = listPar$eta
-                    AlphaInd[[r]] = listPar$alphaInd
+                    alphaInd[[r]] = listPar$alphaInd
                     Psi[[r]] = listPar$psi
                     Delta[[r]] = listPar$delta
                 } else if (iter > transient) {
@@ -670,21 +671,21 @@ ctry <- function(expr, tryFlag=TRUE){
             for(r in seq_len(nr)){
                 listPar = ctry(updateLatentLoadingOrder(eta=Eta[[r]],
                                                        lambda=Lambda[[r]],
-                                                       alphaInd=AlphaInd[[r]],
+                                                       alphaInd=alphaInd[[r]],
                                                        delta=Delta[[r]],
                                                        rL=hM$rL[[r]]),
                                tryFlag=tolerateError)
                 if (!inherits(listPar, "try-error")) {
                     Lambda[[r]] = listPar$lambda
                     Eta[[r]] = listPar$eta
-                    AlphaInd[[r]] = listPar$alphaInd
+                    alphaInd[[r]] = listPar$alphaInd
                     Delta[[r]] = listPar$delta
                 } else if (iter > transient) {
                     failed["LatentLoadingOrder"] + failed["LatentLoadingOrder"] + 1
                 }
             }
             PsiDeltaList = ctry(updateLambdaPriors(Lambda=Lambda,Delta=Delta,
-                                                  rL=hM$rL), tryFlag=tolerateError)
+                                                   rL=hM$rL), tryFlag=tolerateError)
             if (!inherits(PsiDeltaList, "try-error")) {
                 Psi = PsiDeltaList$Psi
                 Delta = PsiDeltaList$Delta
@@ -697,7 +698,7 @@ ctry <- function(expr, tryFlag=TRUE){
             postList[[(iter-transient)/thin]] =
                 combineParameters(Beta=Beta,BetaSel=BetaSel,wRRR = wRRR,
                                   Gamma=Gamma,iV=iV,rhoInd=rhoInd,iSigma=iSigma,
-                                  Eta=Eta,Lambda=Lambda,AlphaInd=AlphaInd,Psi=Psi,
+                                  Eta=Eta,Lambda=Lambda,alphaInd=alphaInd,Psi=Psi,
                                   Delta=Delta, PsiRRR=PsiRRR,
                                   DeltaRRR=DeltaRRR,ncNRRR=hM$ncNRRR,
                                   ncRRR=hM$ncRRR, ncsel = hM$ncsel,

@@ -1,5 +1,5 @@
 combineParameters = function(Beta, BetaSel, wRRR, Gamma, iV, rhoInd, iSigma, Eta,
-   Lambda, AlphaInd, Psi, Delta, PsiRRR, DeltaRRR,ncNRRR, ncRRR, ncsel, XSelect, XScalePar,
+   Lambda, alphaInd, Psi, Delta, PsiRRR, DeltaRRR,ncNRRR, ncRRR, ncsel, XSelect, XScalePar,
    XInterceptInd, XRRRScalePar, nt, TrScalePar, TrInterceptInd, rhopw, rL){
    for(p in 1:nt){
       m = TrScalePar[1,p]
@@ -52,15 +52,14 @@ combineParameters = function(Beta, BetaSel, wRRR, Gamma, iV, rhoInd, iSigma, Eta
       }
    }
 
-   Alpha = vector("list", length(AlphaInd))
-   for(r in seq_along(AlphaInd)){
-      Alpha[[r]] = rL[[r]]$alphapw[AlphaInd[[r]], 1]
+   alpha = vector("list", length(alphaInd))
+   for(r in seq_along(alphaInd)){
+      alpha[[r]] = rL[[r]]$alphapw[alphaInd[[r]], 1]
    }
 
    V = chol2inv(chol(iV))
    sigma = 1/iSigma
    par = list(Beta=Beta, wRRR=wRRR, Gamma=Gamma, V=V, rho=rhopw[rhoInd,1], rhoInd=rhoInd, sigma=sigma,
-              Eta=Eta, Lambda=Lambda, Alpha=Alpha, AlphaInd=AlphaInd, Psi=Psi, Delta=Delta, PsiRRR=PsiRRR, DeltaRRR=DeltaRRR)
+              Eta=Eta, Lambda=Lambda, alpha=alpha, alphaInd=alphaInd, Alpha=alpha, AlphaInd=alphaInd, Psi=Psi, Delta=Delta, PsiRRR=PsiRRR, DeltaRRR=DeltaRRR)
    return(par)
 }
-

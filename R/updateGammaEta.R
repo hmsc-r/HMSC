@@ -4,7 +4,7 @@
 #' @importFrom stats rnorm
 #' @importFrom Matrix Diagonal sparseMatrix bdiag
 #'
-updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,AlphaInd, Loff,X,Tr,Pi,dfPi,rL, rLPar,Q,iQ,RQ,mGamma,U,iU){
+updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,alphaInd, Loff,X,Tr,Pi,dfPi,rL, rLPar,Q,iQ,RQ,mGamma,U,iU){
    ny = nrow(Z)
    ns = ncol(Z)
    nr = ncol(Pi)
@@ -246,8 +246,8 @@ updateGammaEta = function(Z,Gamma,V,iV,id,Eta,Lambda,AlphaInd, Loff,X,Tr,Pi,dfPi
             LamiD_PtX = kronecker(LamiD, PtX)
             LamiDT_PtX = kronecker(LamiD%*%Tr,PtX)
             if(rL[[r]]$spatialMethod == "Full"){
-               K = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$Wg[,,AlphaInd[[r]][x]]))
-               iK = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$iWg[,,AlphaInd[[r]][x]]))
+               K = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$Wg[,,alphaInd[[r]][x]]))
+               iK = bdiag(lapply(seq_len(nf), function(x) rLPar[[r]]$iWg[,,alphaInd[[r]][x]]))
             } else if(rL[[r]]$spatialMethod == "NNGP"){
                stop("no method implemented yet for nearest neighbour Gaussian process with GammaEta updater")
             } else if(rL[[r]]$spatialMethod == "GPP"){

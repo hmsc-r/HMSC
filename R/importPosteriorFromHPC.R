@@ -59,11 +59,11 @@ importPosteriorFromHPC = function(m, postList, nSamples, thin, transient, adaptN
       m$postList[[cInd]] = vector("list", m$samples)
       for(sInd in 1:length(postList[[cInd]])){
          s = postList[[cInd]][[sInd]]
-         # Backward compatibility: Handle renaming of Alpha to AlphaInd and rho to rhoInd.
-         # In older versions, these fields were named 'Alpha' and 'rho', respectively.
-         AlphaInd = if (!is.null(s$AlphaInd)) s$AlphaInd else s$Alpha
-         if(is.null(AlphaInd)){
-            warning("Posterior sample does not contain AlphaInd or Alpha, replacing with default AlphaInd = NULL, this will likely cause errors later")
+         # Backward compatibility: Handle renaming of Alpha/AlphaInd to alpha/alphaInd and rho to rhoInd.
+         # In older versions, these fields were named 'Alpha', 'AlphaInd', and 'rho', respectively.
+         alphaInd = if (!is.null(s$alphaInd)) s$alphaInd else (if (!is.null(s$AlphaInd)) s$AlphaInd else s$Alpha)
+         if(is.null(alphaInd)){
+            warning("Posterior sample does not contain alphaInd, AlphaInd or Alpha, replacing with default alphaInd = NULL, this will likely cause errors later")
          }
 
          rhoInd = if (!is.null(s$rhoInd)) s$rhoInd else s$rho
@@ -73,7 +73,7 @@ importPosteriorFromHPC = function(m, postList, nSamples, thin, transient, adaptN
          }
          m$postList[[cInd]][[sInd]] =
             combineParameters(s$Beta, s$BetaSel, s$wRRR, s$Gamma, s$iV, rhoInd, s$sigma**-2,
-                              s$Eta, s$Lambda, AlphaInd, s$Psi, s$Delta, s$PsiRRR, s$DeltaRRR,
+                              s$Eta, s$Lambda, alphaInd, s$Psi, s$Delta, s$PsiRRR, s$DeltaRRR,
                               m$ncNRRR, m$ncRRR, m$ncsel, m$XSelect, m$XScalePar, m$XInterceptInd,
                               m$XRRRScalePar, m$nt, m$TrScalePar, m$TrInterceptInd, m$rhopw, m$rL)
       }

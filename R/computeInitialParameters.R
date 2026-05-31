@@ -211,18 +211,19 @@ computeInitialParameters = function(hM, initPar, computeZ=TRUE){
          Eta[[r]] = matrix(rnorm(np[r]*nf[r]),np[r],nf[r])
       }
    }
-   if(!is.null(initPar$Eta)){
-      AlphaInd = initPar$AlphaInd
-   } else{
-      AlphaInd = vector("list", hM$nr)
-   }
-   for(r in seq_len(hM$nr)){
-      if(!is.null(initPar$AlphaInd[[r]])){
-         AlphaInd[[r]] = initPar$AlphaInd[[r]]
-      } else{
-         AlphaInd[[r]] = rep(1,nf[r])
-      }
-   }
+    if(!is.null(initPar$Eta)){
+       alphaInd = if(!is.null(initPar$alphaInd)) initPar$alphaInd else initPar$AlphaInd
+    } else{
+       alphaInd = vector("list", hM$nr)
+    }
+    for(r in seq_len(hM$nr)){
+       init_alphaInd = if(!is.null(initPar$alphaInd[[r]])) initPar$alphaInd[[r]] else initPar$AlphaInd[[r]]
+       if(!is.null(init_alphaInd)){
+          alphaInd[[r]] = init_alphaInd
+       } else{
+          alphaInd[[r]] = rep(1,nf[r])
+       }
+    }
 
    if(!is.null(initPar$rhoInd)){
       rhoInd = initPar$rhoInd
@@ -275,7 +276,8 @@ computeInitialParameters = function(hM, initPar, computeZ=TRUE){
    parList$Lambda = Lambda
    parList$Psi = Psi
    parList$Delta = Delta
-   parList$AlphaInd = AlphaInd
+   parList$alphaInd = alphaInd
+   parList$AlphaInd = alphaInd
    parList$rhoInd = rhoInd
    parList$Z = Z
 

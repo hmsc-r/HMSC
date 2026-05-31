@@ -3,7 +3,7 @@
 updateAlpha = function(Eta ,rL, rLPar){
    nr = length(rL)
 
-   AlphaInd = vector("list", nr)
+   alphaInd = vector("list", nr)
    for(r in seq_len(nr)){
       eta = Eta[[r]]
       np = nrow(eta)
@@ -15,7 +15,7 @@ updateAlpha = function(Eta ,rL, rLPar){
          alphapw = rL[[r]]$alphapw
          gN = nrow(alphapw)
 
-         AlphaInd[[r]] = rep(NA, nf)
+         alphaInd[[r]] = rep(NA, nf)
 
          switch(rL[[r]]$spatialMethod,
                 'Full' = {
@@ -76,13 +76,13 @@ updateAlpha = function(Eta ,rL, rLPar){
             )
             like = exp(like - max(like))
             like = like / sum(like)
-            AlphaInd[[r]][h] = sample.int(gN, size=1, prob=like)
+            alphaInd[[r]][h] = sample.int(gN, size=1, prob=like)
          }
       } else{
-         AlphaInd[[r]] = rep(1, nf)
+         alphaInd[[r]] = rep(1, nf)
       }
    }
-   return(AlphaInd)
+   return(alphaInd)
 }
 
 
