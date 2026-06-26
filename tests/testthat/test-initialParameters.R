@@ -42,13 +42,13 @@ test_that("Standard initial Eta is distributed as N(0,1)",{
    expect_equal(round(mean(parList$Eta[[2]])),0)
 })
 
-test_that("Standard initial AlphaInd is correct",{
+test_that("Standard initial alphaInd is correct",{
    parList = computeInitialParameters(TD$m,initPar=NULL)
-   expect_equal(length(parList$AlphaInd),2)
-   expect_equal(length(parList$AlphaInd[[1]]),2)
-   expect_equal(length(parList$AlphaInd[[2]]),2)
-   expect_equal(parList$AlphaInd[[1]],c(1,1))
-   expect_equal(parList$AlphaInd[[2]],c(1,1))
+   expect_equal(length(parList$alphaInd),2)
+   expect_equal(length(parList$alphaInd[[1]]),2)
+   expect_equal(length(parList$alphaInd[[2]]),2)
+   expect_equal(parList$alphaInd[[1]],c(1,1))
+   expect_equal(parList$alphaInd[[2]],c(1,1))
 })
 
 test_that("Standard initial rho is correct",{

@@ -16,7 +16,7 @@
 #' @param rho logical indicating whether posterior of rho is included
 #' @param Eta logical indicating whether posterior of Eta is included
 #' @param Lambda logical indicating whether posterior of Lambda is included
-#' @param Alpha logical indicating whether posterior of Alpha is included
+#' @param alpha logical indicating whether posterior of alpha is included
 #' @param Omega logical indicating whether posterior of Omega is included
 #' @param Psi logical indicating whether posterior of Psi is included
 #' @param Delta logical indicating whether posterior of Delta is included
@@ -36,9 +36,8 @@
 convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
   covNamesNumbers=c(TRUE,TRUE), trNamesNumbers=c(TRUE,TRUE),
   Beta=TRUE, Gamma=TRUE, V=TRUE, Sigma=TRUE, rho=TRUE, Eta=TRUE, Lambda=TRUE,
-  alpha=TRUE, Omega=TRUE, Psi=TRUE, Delta=TRUE, Alpha=NULL)
+  alpha=TRUE, Omega=TRUE, Psi=TRUE, Delta=TRUE)
 {
-   if(!is.null(Alpha)) alpha = Alpha
    if (is.null(hM$postList))
       stop("Hmsc object ", sQuote(substitute(hM)), " has no posterior samples")
    if (hM$phyloFlag == FALSE){
@@ -114,8 +113,7 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
    getLambda = function(a,r=1)
       return(a$Lambda[[r]])
    getAlpha = function(a,r=1) {
-      if(!is.null(a$alpha)) return(a$alpha[[r]])
-      return(a$Alpha[[r]])
+      return(a$alpha[[r]])
    }
    getPsi = function(a,r=1)
       return(a$Psi[[r]])
@@ -301,7 +299,6 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
       }
       if (alpha){
          mpost$alpha[[r]] = mcmc.list(postalpha2)
-         mpost$Alpha[[r]] = mpost$alpha[[r]]
       }
       if (Psi){
          mpost$Psi[[r]] = mcmc.list(postPsi2)

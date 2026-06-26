@@ -36,14 +36,15 @@ test_that("updateRho recovers rhoInd correctly (General and Boundary)", {
   dp = computeDataParameters(m)
   rho_samples_b = numeric(50)
   for(i in 1:50){
-    rho_samples_b[i] = updateRho(Beta=Beta_b, Gamma=Gamma, iV=diag(nc),
-                                 RQg=dp$RQg, detQg=dp$detQg, Tr=Tr, rhopw=rhopw)
+    rho_samples_b[i] = updateRho(Beta=Beta_b, Gamma=Gamma, iV=diag(nc), rhoInd=1,
+                                 Tr=Tr, phyloFast=m$phyloFast, phyloTreeList=m$phyloTreeList,
+                                 phyloTreeRoot=m$phyloTreeRoot, RQg=dp$RQg, detQg=dp$detQg, rhopw=rhopw)
   }
   expect_true(abs(test_index_recovery(rho_samples_b, true_rho_ind_b) - true_rho_ind_b) <= 2)
 })
 
 # 2. updateAlpha
-test_that("updateAlpha recovers AlphaInd correctly (General and Boundary)", {
+test_that("updateAlpha recovers alphaInd correctly (General and Boundary)", {
   set.seed(42)
   np = 80
   nf = 1
@@ -78,7 +79,7 @@ test_that("updateEta recovers latent factors", {
   m = Hmsc(Y=matrix(0, ny, ns), X=matrix(1, ny, 1), ranLevels=list("u"=rL), studyDesign=data.frame(u=as.factor(1:ny)))
   dp = computeDataParameters(m)
   eta_res = updateEta(Y=m$Y, Z=Z, Beta=matrix(0, 1, ns), iSigma=rep(400, ns), Eta=list(matrix(0, ny, nf)),
-                      Lambda=Lambda, AlphaInd=list(c(1)), rLPar=dp$rLPar, Loff=matrix(0, ny, ns),
+                      Lambda=Lambda, alphaInd=list(c(1)), rLPar=dp$rLPar, Loff=matrix(0, ny, ns),
                       X=m$X, Pi=m$Pi, dfPi=m$dfPi, rL=m$rL)
   expect_true(cor(as.vector(eta_res[[1]]), as.vector(true_eta)) > 0.8)
 })
@@ -94,8 +95,10 @@ test_that("updateBetaLambda recovers Beta correctly", {
   Z = X %*% true_beta + matrix(rnorm(ny*ns, sd=0.05), ny, ns)
   beta_lambda = updateBetaLambda(Y=matrix(0, ny, ns), Z=Z, Gamma=matrix(0, nc, 1), iV=diag(nc),
                                  iSigma=rep(400, ns), Eta=list(), Psi=list(), Delta=list(),
-                                 rhoInd=1, iQ=diag(ns), Loff=matrix(0, ny, ns), X=X, Tr=matrix(1, ns, 1),
-                                 Pi=matrix(nrow=ny, ncol=0), dfPi=data.frame(row.names=1:ny), C=diag(ns), rL=list())
+                                 rhoInd=1, Loff=matrix(0, ny, ns), X=X, Tr=matrix(1, ns, 1),
+                                 Pi=matrix(nrow=ny, ncol=0), dfPi=data.frame(row.names=1:ny),
+                                 phyloFlag=FALSE, phyloFast=FALSE, phyloTreeList=NULL,
+                                 phyloTreeRoot=NULL, covRhoGroup=NULL, iQg=NULL, rhopw=NULL, rL=list())
   expect_true(cor(as.vector(beta_lambda$Beta), as.vector(true_beta)) > 0.9)
 })
 
@@ -138,9 +141,9 @@ test_that("updateGammaV recovers Gamma and V", {
   true_V = diag(nc) * 0.15
   Beta = true_gamma %*% t(Tr) + t(MASS::mvrnorm(ns, mu=rep(0, nc), Sigma=true_V))
   res = updateGammaV(Beta=Beta, Gamma=matrix(0, nc, nt), iV=diag(nc), rhoInd=1,
-                     Tr=Tr, C=diag(ns), iQg=array(diag(ns), c(ns, ns, 1)),
-                     RQg=array(diag(ns), c(ns, ns, 1)), mGamma=matrix(0, nc*nt, 1),
-                     iUGamma=diag(nc*nt), V0=diag(nc), f0=nc+1)
+                     Tr=Tr, phyloFlag=FALSE, phyloFast=FALSE, phyloTreeList=NULL,
+                     phyloTreeRoot=NULL, iQg=NULL, RQg=NULL, mGamma=matrix(0, nc*nt, 1),
+                     iUGamma=diag(nc*nt), V0=diag(nc), f0=nc+1, rhopw=NULL)
   expect_true(cor(as.vector(res$Gamma), as.vector(true_gamma)) > 0.9)
 })
 
@@ -234,7 +237,7 @@ test_that("updateGammaEta execution and basic recovery", {
   dp = computeDataParameters(Hmsc(Y=matrix(0, ny, ns), X=X))
   
   res = updateGammaEta(Z=Z, Gamma=matrix(0, nc, nt), V=diag(nc), iV=diag(nc), id=rep(1, ns),
-                       Eta=list(matrix(0, ny, nf)), Lambda=Lambda, AlphaInd=list(1),
+                       Eta=list(matrix(0, ny, nf)), Lambda=Lambda, alphaInd=list(1),
                        Loff=NULL, X=X, Tr=Tr, Pi=matrix(1:ny, ny, 1), dfPi=data.frame(u=as.factor(1:ny)),
                        rL=list(rL), rLPar=dp$rLPar, Q=diag(ns), iQ=diag(ns), RQ=diag(ns),
                        mGamma=matrix(0, nc*nt, 1), U=diag(nc*nt), iU=diag(nc*nt))

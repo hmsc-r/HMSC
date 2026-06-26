@@ -60,6 +60,6 @@ combineParameters = function(Beta, BetaSel, wRRR, Gamma, iV, rhoInd, iSigma, Eta
    V = chol2inv(chol(iV))
    sigma = 1/iSigma
    par = list(Beta=Beta, wRRR=wRRR, Gamma=Gamma, V=V, rho=rhopw[rhoInd,1], rhoInd=rhoInd, sigma=sigma,
-              Eta=Eta, Lambda=Lambda, alpha=alpha, alphaInd=alphaInd, Alpha=alpha, AlphaInd=alphaInd, Psi=Psi, Delta=Delta, PsiRRR=PsiRRR, DeltaRRR=DeltaRRR)
+              Eta=Eta, Lambda=Lambda, alpha=alpha, alphaInd=alphaInd, Psi=Psi, Delta=Delta, PsiRRR=PsiRRR, DeltaRRR=DeltaRRR)
    return(par)
 }

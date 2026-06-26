@@ -58,3 +58,9 @@ This is a standard R package. The following commands are commonly used:
 - `NAMESPACE`: Exported/imported functions.
 - `R/Hmsc.R`: Main class constructor.
 - `R/sampleMcmc.R`: Core MCMC sampling implementation.
+
+## Version Control Rules
+
+- Never execute `git commit` or `git push`.
+- Stage changes (e.g. `git add`) only if the user explicitly asks you to do so.
+

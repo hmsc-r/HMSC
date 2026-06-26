@@ -180,7 +180,7 @@ ctry <- function(expr, tryFlag=TRUE){
 
    ######## switching of the augmented updaters if the required
    ######## conditions are not met
-   if(!is.null(updater$Alpha)) updater$alpha = updater$Alpha
+
     EPS = 100 * sqrt(.Machine$double.eps) # was 1e-6: this is about equal
     updaterWarningFlag = TRUE
     iUGamma = chol2inv(chol(hM$UGamma))
@@ -430,7 +430,7 @@ ctry <- function(expr, tryFlag=TRUE){
     iSigma = 1 / sigma
     Lambda = parList$Lambda
     Eta = parList$Eta
-    alphaInd = if(!is.null(parList$alphaInd)) parList$alphaInd else parList$AlphaInd
+    alphaInd = parList$alphaInd
     Psi = parList$Psi
     Delta = parList$Delta
     rhoInd = parList$rhoInd
