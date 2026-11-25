@@ -43,114 +43,142 @@ export(sampleMcmc)
 export(setPriors)
 export(taxToPhylo)
 importFrom(BayesLogit,rpg)
-importFrom(FNN,get.knn)
-importFrom(FNN,knnx.dist)
-importFrom(FNN,knnx.index)
+importFrom(FNN,
+  get.knn,
+  knnx.dist,
+  knnx.index
+)
 importFrom(MASS,mvrnorm)
-importFrom(MCMCpack,MCMCprobit)
-importFrom(MCMCpack,riwish)
-importFrom(MCMCpack,rwish)
-importFrom(Matrix,.sparseDiagonal)
-importFrom(Matrix,Diagonal)
-importFrom(Matrix,Matrix)
-importFrom(Matrix,bdiag)
-importFrom(Matrix,solve)
-importFrom(Matrix,sparseMatrix)
-importFrom(Matrix,t)
-importFrom(abind,abind)
-importFrom(abind,adrop)
-importFrom(ape,as.phylo.formula)
-importFrom(ape,bind.tree)
-importFrom(ape,drop.tip)
-importFrom(ape,keep.tip)
-importFrom(ape,read.tree)
-importFrom(ape,rtree)
-importFrom(ape,vcv)
-importFrom(ape,vcv.phylo)
-importFrom(ape,write.tree)
-importFrom(coda,mcmc)
-importFrom(coda,mcmc.list)
+importFrom(MCMCpack,
+  MCMCprobit,
+  riwish,
+  rwish
+)
+importFrom(Matrix,
+  .sparseDiagonal,
+  Diagonal,
+  Matrix,
+  bdiag,
+  solve,
+  sparseMatrix,
+  t
+)
+importFrom(abind,
+  abind,
+  adrop
+)
+importFrom(ape,
+  as.phylo.formula,
+  bind.tree,
+  drop.tip,
+  keep.tip,
+  read.tree,
+  rtree,
+  vcv,
+  vcv.phylo,
+  write.tree
+)
+importFrom(coda,
+  mcmc,
+  mcmc.list
+)
 importFrom(fields,image.plot)
-importFrom(ggplot2,aes)
-importFrom(ggplot2,aes_string)
-importFrom(ggplot2,geom_bar)
-importFrom(ggplot2,geom_errorbar)
-importFrom(ggplot2,geom_point)
-importFrom(ggplot2,ggplot)
-importFrom(ggplot2,labs)
-importFrom(ggplot2,position_dodge)
-importFrom(ggplot2,xlab)
-importFrom(ggplot2,ylab)
-importFrom(grDevices,adjustcolor)
-importFrom(grDevices,colorRampPalette)
-importFrom(grDevices,heat.colors)
-importFrom(grDevices,palette)
-importFrom(grDevices,rgb)
-importFrom(graphics,abline)
-importFrom(graphics,axis)
-importFrom(graphics,barplot)
-importFrom(graphics,lines)
-importFrom(graphics,mtext)
-importFrom(graphics,par)
-importFrom(graphics,plot)
-importFrom(graphics,plot.new)
-importFrom(graphics,points)
-importFrom(graphics,polygon)
-importFrom(graphics,text)
-importFrom(graphics,title)
+importFrom(ggplot2,
+  aes,
+  aes_string,
+  geom_bar,
+  geom_errorbar,
+  geom_point,
+  ggplot,
+  labs,
+  position_dodge,
+  xlab,
+  ylab
+)
+importFrom(grDevices,
+  adjustcolor,
+  colorRampPalette,
+  heat.colors,
+  palette,
+  rgb
+)
+importFrom(graphics,
+  abline,
+  axis,
+  barplot,
+  lines,
+  mtext,
+  par,
+  plot,
+  plot.new,
+  points,
+  polygon,
+  text,
+  title
+)
 importFrom(matrixStats,logSumExp)
-importFrom(methods,as)
-importFrom(methods,is)
+importFrom(methods,
+  as,
+  is
+)
 importFrom(nnet,multinom)
 importFrom(pROC,auc)
-importFrom(parallel,clusterApplyLB)
-importFrom(parallel,clusterEvalQ)
-importFrom(parallel,clusterExport)
-importFrom(parallel,detectCores)
-importFrom(parallel,makeCluster)
-importFrom(parallel,mclapply)
-importFrom(parallel,parLapply)
-importFrom(parallel,stopCluster)
+importFrom(parallel,
+  clusterApplyLB,
+  clusterEvalQ,
+  clusterExport,
+  detectCores,
+  makeCluster,
+  mclapply,
+  parLapply,
+  stopCluster
+)
 importFrom(pracma,meshgrid)
 importFrom(rlang,duplicate)
-importFrom(sp,CRS)
-importFrom(sp,`coordinates<-`)
-importFrom(sp,`proj4string<-`)
-importFrom(sp,bbox)
-importFrom(sp,coordinates)
-importFrom(sp,is.projected)
-importFrom(sp,proj4string)
-importFrom(sp,spDists)
+importFrom(sp,
+  "coordinates<-",
+  "proj4string<-",
+  CRS,
+  bbox,
+  coordinates,
+  is.projected,
+  proj4string,
+  spDists
+)
 importFrom(statmod,gauss.quad)
-importFrom(stats,.MFclass)
-importFrom(stats,as.formula)
-importFrom(stats,binomial)
-importFrom(stats,coef)
-importFrom(stats,cor)
-importFrom(stats,cov)
-importFrom(stats,cov2cor)
-importFrom(stats,dgamma)
-importFrom(stats,dist)
-importFrom(stats,dnorm)
-importFrom(stats,dpois)
-importFrom(stats,dt)
-importFrom(stats,glm.fit)
-importFrom(stats,lm)
-importFrom(stats,lm.fit)
-importFrom(stats,median)
-importFrom(stats,model.matrix)
-importFrom(stats,pnorm)
-importFrom(stats,poisson)
-importFrom(stats,predict)
-importFrom(stats,quantile)
-importFrom(stats,rgamma)
-importFrom(stats,rnorm)
-importFrom(stats,rpois)
-importFrom(stats,runif)
-importFrom(stats,sd)
-importFrom(stats,terms)
-importFrom(stats,var)
+importFrom(stats,
+  .MFclass,
+  as.formula,
+  binomial,
+  coef,
+  cor,
+  cov,
+  cov2cor,
+  dgamma,
+  dist,
+  dnorm,
+  dpois,
+  dt,
+  glm.fit,
+  lm,
+  lm.fit,
+  median,
+  model.matrix,
+  pnorm,
+  poisson,
+  predict,
+  quantile,
+  rgamma,
+  rnorm,
+  rpois,
+  runif,
+  sd,
+  terms,
+  var
+)
 importFrom(truncnorm,rtruncnorm)
-importFrom(utils,packageVersion)
-importFrom(utils,setTxtProgressBar)
-importFrom(utils,txtProgressBar)
+importFrom(utils,
+  packageVersion,
+  setTxtProgressBar,
+  txtProgressBar
+)

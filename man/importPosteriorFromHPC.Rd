@@ -53,9 +53,9 @@ Parameter \code{alignPost} has an identical effect to its counterpart from \code
 if(FALSE){
 # If all chains were run with a single Hmsc-HPC call
 post_file_path = ... # path to the file where the posterior samples are stored
-importFromHPC = from_json(readRDS(file = post_file_path)[[1]])
-postList = importFromHPC[1:nChains]
-cat(sprintf("fitting time \%.1f sec\n", importFromHPC[[nChains+1]]))
+importFromHPC = readRDS(file = post_file_path)
+postList = importFromHPC[["list"]]
+cat(sprintf("fitting time \%.1f sec\n", importFromHPC[["time"]]))
 fm = importPosteriorFromHPC(m, postList, nSamples, thin, transient)
 
 # If Hmsc-HPC calls were configured to run one chain per call
@@ -63,9 +63,9 @@ post_file_path = ... # directory with Hmsc-HPC export files stored as post_chain
 chainList = vector("list", nChains)
 for(cInd in 1:nChains){
    chain_file_path = file.path(post_file_path, sprintf("post_chain\%.2d_file.rds", cInd-1))
-   chainList[[cInd]] = from_json(readRDS(file = chain_file_path)[[1]])[[1]]
+   chainList[[cInd]] = readRDS(file = chain_file_path)[["list"]][[1]]
 }
-fm = importPosteriorFromHPC(m, postList, nSamples, thin, transient)
+fm = importPosteriorFromHPC(m, chainList, nSamples, thin, transient)
 }
 
 }
