@@ -64,6 +64,8 @@ getPostEstimate = function(hM, parName, r=1, x=NULL, q=c(), chainIndex=1:length(
          valList = lapply(valList, function(Om) cov2cor(Om))
       }
    }
+   if (any(vapply(valList, is.null, logical(1))))
+      stop("Missing posterior samples for parameter ", parName)
    val = do.call(bind0, valList)
    valMean = colMeans(val)
    valSupport = colMeans(val>0)

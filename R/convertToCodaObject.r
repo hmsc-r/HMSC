@@ -228,8 +228,10 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
             }
             if (alpha && hM$rL[[r]]$sDim > 0) {
                tmp1 = lapply(postList, getAlpha, r=r)
-               tmp2 = lapply(tmp1, function(a) c(a, rep(hM$rL[[r]]$alphapw[1, 1], nfMax[r] - nf)))
-               tmp = do.call(rbind, tmp2)
+               tmp = matrix(
+                  vapply(tmp1, function(a) c(a, rep(hM$rL[[r]]$alphapw[1, 1], nfMax[r] - nf)), numeric(nfMax[r])),
+                  nrow = length(tmp1), ncol = nfMax[r], byrow = TRUE
+               )
                colnames(tmp) = sprintf("alpha%d[factor%s]",r,as.character(1:nfMax[r]) )
                postalpha1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
             }

@@ -277,6 +277,18 @@ test_that("R fitting and post-processing work across random-level structures", {
       }
    )
    expect_error(convertToCodaObject(missing_spatial_alpha_model))
+   expect_error(
+      getPostEstimate(missing_spatial_alpha_model, parName = "alpha", r = 1),
+      "Missing posterior samples"
+   )
+
+   single_missing_alpha_model <- prior_fitted_model
+   single_missing_alpha_model$postList[[1]][[1]]$alpha[1] <- list(NULL)
+   expect_error(convertToCodaObject(single_missing_alpha_model))
+   expect_error(
+      getPostEstimate(single_missing_alpha_model, parName = "alpha", r = 1),
+      "Missing posterior samples"
+   )
 })
 
 test_that("HPC export and importPosteriorFromHPC round-trip preserves alpha and post-processing", {
@@ -407,4 +419,12 @@ test_that("alignPosterior keeps alpha aligned with alphaInd across chains with d
       coda_post <- convertToCodaObject(combined_fit)
       expect_true(all(as.matrix(coda_post$alpha[[1]][[padded_chain]])[, 3] == 0.1))
    }
+
+   unaligned_fit <- c(fit_chain_2nf, fit_chain_3nf)
+   unaligned_coda <- convertToCodaObject(unaligned_fit)
+   expect_true(all(as.matrix(unaligned_coda$alpha[[1]][[1]])[, 3] == 0.1))
+
+   corrupted_2nf <- fit_chain_2nf
+   corrupted_2nf$postList[[1]][[1]]$alpha[1] <- list(NULL)
+   expect_error(convertToCodaObject(c(corrupted_2nf, fit_chain_3nf)))
 })
