@@ -56,8 +56,8 @@ combineParameters = function(Beta, BetaSel, wRRR, Gamma, iV, rhoInd, iSigma, Eta
    alphaIndOut = vector("list", length(rL))
    for(r in seq_along(rL)){
       if(rL[[r]]$sDim > 0){
-         alphaIndOut[[r]] = alphaInd[[r]]
-         alpha[[r]] = rL[[r]]$alphapw[alphaInd[[r]], 1]
+         alphaIndOut[[r]] = as.vector(alphaInd[[r]])
+         alpha[[r]] = rL[[r]]$alphapw[alphaIndOut[[r]], 1]
       } else {
          alphaIndOut[[r]] = rep(1, ncol(Eta[[r]]))
       }

@@ -340,6 +340,10 @@ test_that("HPC export and importPosteriorFromHPC round-trip preserves alpha and 
                if (model_name == "single_nonspatial") {
                   posterior_sample$alphaInd <- list()
                } else {
+                  posterior_sample$alphaInd[[1]] <- array(
+                     posterior_sample$alphaInd[[1]],
+                     dim = length(posterior_sample$alphaInd[[1]])
+                  )
                   posterior_sample$alphaInd[[2]] <- NULL
                }
                posterior_sample

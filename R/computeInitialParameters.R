@@ -219,6 +219,8 @@ computeInitialParameters = function(hM, initPar, computeZ=TRUE){
    for(r in seq_len(hM$nr)){
       if(r > length(alphaInd) || is.null(alphaInd[[r]])){
          alphaInd[[r]] = rep(1,nf[r])
+      } else{
+         alphaInd[[r]] = as.vector(alphaInd[[r]])
       }
    }
 
