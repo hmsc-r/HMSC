@@ -14,10 +14,10 @@ convertToCodaObject(
   Gamma = TRUE,
   V = TRUE,
   Sigma = TRUE,
-  rho = TRUE,
+  rho = NULL,
   Eta = TRUE,
   Lambda = TRUE,
-  alpha = TRUE,
+  alpha = NULL,
   Omega = TRUE,
   Psi = TRUE,
   Delta = TRUE
@@ -45,13 +45,18 @@ and second entry controls whether traits numbers are printed}
 
 \item{Sigma}{logical indicating whether posterior of Sigma is included}
 
-\item{rho}{logical indicating whether posterior of rho is included}
+\item{rho}{logical indicating whether posterior of rho is included. Defaults to \code{NULL}, which includes
+\code{rho} if and only if the model has a phylogeny (\code{hM$phyloFlag}). Forcing \code{rho = TRUE} for a model
+without phylogeny emits a warning and omits \code{rho}.}
 
 \item{Eta}{logical indicating whether posterior of Eta is included}
 
 \item{Lambda}{logical indicating whether posterior of Lambda is included}
 
-\item{alpha}{logical indicating whether posterior of alpha is included}
+\item{alpha}{logical indicating whether posterior of alpha is included. Defaults to \code{NULL}, which includes
+\code{alpha} if and only if the model has at least one spatial random level (\code{sDim > 0}). For mixed models,
+entries corresponding to non-spatial random levels are \code{NULL}. Forcing \code{alpha = TRUE} for a model
+without spatial random levels emits a warning and omits \code{alpha}.}
 
 \item{Omega}{logical indicating whether posterior of Omega is included}
 
@@ -60,7 +65,9 @@ and second entry controls whether traits numbers are printed}
 \item{Delta}{logical indicating whether posterior of Delta is included}
 }
 \value{
-A named list that can be analysed with \CRANpkg{coda} functions.
+A named list that can be analysed with \CRANpkg{coda} functions. Components \code{rho} and \code{alpha}
+  are omitted when not applicable to the model; for models with both spatial and non-spatial random levels,
+  \code{alpha} is a list of length \code{hM$nr} with \code{NULL} entries for non-spatial levels.
 }
 \description{
 Converts the Hmsc posterior into a named list of mcmc.list objects

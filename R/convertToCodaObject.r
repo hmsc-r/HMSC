@@ -13,15 +13,22 @@
 #' @param Gamma logical indicating whether posterior of Gamma is included
 #' @param V logical indicating whether posterior of V is included
 #' @param Sigma logical indicating whether posterior of Sigma is included
-#' @param rho logical indicating whether posterior of rho is included
+#' @param rho logical indicating whether posterior of rho is included. Defaults to \code{NULL}, which includes
+#'   \code{rho} if and only if the model has a phylogeny (\code{hM$phyloFlag}). Forcing \code{rho = TRUE} for a model
+#'   without phylogeny emits a warning and omits \code{rho}.
 #' @param Eta logical indicating whether posterior of Eta is included
 #' @param Lambda logical indicating whether posterior of Lambda is included
-#' @param alpha logical indicating whether posterior of alpha is included
+#' @param alpha logical indicating whether posterior of alpha is included. Defaults to \code{NULL}, which includes
+#'   \code{alpha} if and only if the model has at least one spatial random level (\code{sDim > 0}). For mixed models,
+#'   entries corresponding to non-spatial random levels are \code{NULL}. Forcing \code{alpha = TRUE} for a model
+#'   without spatial random levels emits a warning and omits \code{alpha}.
 #' @param Omega logical indicating whether posterior of Omega is included
 #' @param Psi logical indicating whether posterior of Psi is included
 #' @param Delta logical indicating whether posterior of Delta is included
 #'
-#' @return A named list that can be analysed with \CRANpkg{coda} functions.
+#' @return A named list that can be analysed with \CRANpkg{coda} functions. Components \code{rho} and \code{alpha}
+#'   are omitted when not applicable to the model; for models with both spatial and non-spatial random levels,
+#'   \code{alpha} is a list of length \code{hM$nr} with \code{NULL} entries for non-spatial levels.
 #'
 #' @examples
 #' # Convert recorded posterior samples in \code{Hmsc} object to coda object
@@ -35,13 +42,24 @@
 
 convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
   covNamesNumbers=c(TRUE,TRUE), trNamesNumbers=c(TRUE,TRUE),
-  Beta=TRUE, Gamma=TRUE, V=TRUE, Sigma=TRUE, rho=TRUE, Eta=TRUE, Lambda=TRUE,
-  alpha=TRUE, Omega=TRUE, Psi=TRUE, Delta=TRUE)
+  Beta=TRUE, Gamma=TRUE, V=TRUE, Sigma=TRUE, rho=NULL, Eta=TRUE, Lambda=TRUE,
+  alpha=NULL, Omega=TRUE, Psi=TRUE, Delta=TRUE)
 {
    if (is.null(hM$postList))
       stop("Hmsc object ", sQuote(substitute(hM)), " has no posterior samples")
-   if (hM$phyloFlag == FALSE){
+   hasPhylo = isTRUE(hM$phyloFlag)
+   if (is.null(rho)){
+      rho = hasPhylo
+   } else if (isTRUE(rho) && !hasPhylo){
+      warning("rho is not applicable for a model without phylogeny; setting rho = FALSE")
       rho = FALSE
+   }
+   hasSpatial = any(vapply(hM$rL, function(x) x$sDim > 0, logical(1)))
+   if (is.null(alpha)){
+      alpha = hasSpatial
+   } else if (isTRUE(alpha) && !hasSpatial){
+      warning("alpha is not applicable for a model without spatial random levels; setting alpha = FALSE")
+      alpha = FALSE
    }
 
    nChains = length(hM$postList)
@@ -112,10 +130,8 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
       return(a$Eta[[r]])
    getLambda = function(a,r=1)
       return(a$Lambda[[r]])
-   getAlpha = function(a,r=1) {
-      if(length(a$alpha) >= r) return(a$alpha[[r]])
-      return(NULL)
-   }
+   getAlpha = function(a,r=1)
+      return(a$alpha[[r]])
    getPsi = function(a,r=1)
       return(a$Psi[[r]])
    getDelta = function(a,r=1)
@@ -210,9 +226,9 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
                colnames(tmp) = sprintf("Omega%d[%s, %s]",r,spNames[rep(1:ns,ns)],spNames[(rep(1:ns,each=ns))] )
                postOmega1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
             }
-            if (alpha)      {
+            if (alpha && hM$rL[[r]]$sDim > 0) {
                tmp1 = lapply(postList, getAlpha, r=r)
-               tmp2 = lapply(tmp1, function(a) c(a,rep(0,nfMax[r]-length(a))))
+               tmp2 = lapply(tmp1, function(a) c(a, rep(hM$rL[[r]]$alphapw[1, 1], nfMax[r] - nf)))
                tmp = do.call(rbind, tmp2)
                colnames(tmp) = sprintf("alpha%d[factor%s]",r,as.character(1:nfMax[r]) )
                postalpha1[[r]] = mcmc(tmp, thin=thin, start=start1, end=end1)
@@ -260,6 +276,9 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
    if (rho){
       mpost$rho = mcmc.list(postRho)
    }
+   if (alpha){
+      mpost$alpha = vector("list", nr)
+   }
 
    for(r in seq_len(nr)){
       postEta2 = vector("list", nChains)
@@ -298,7 +317,7 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
       if (Omega){
          mpost$Omega[[r]] = mcmc.list(postOmega2)
       }
-      if (alpha){
+      if (alpha && hM$rL[[r]]$sDim > 0){
          mpost$alpha[[r]] = mcmc.list(postalpha2)
       }
       if (Psi){
