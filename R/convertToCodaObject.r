@@ -113,7 +113,8 @@ convertToCodaObject = function(hM, start=1, spNamesNumbers=c(TRUE,TRUE),
    getLambda = function(a,r=1)
       return(a$Lambda[[r]])
    getAlpha = function(a,r=1) {
-      return(a$alpha[[r]])
+      if(length(a$alpha) >= r) return(a$alpha[[r]])
+      return(NULL)
    }
    getPsi = function(a,r=1)
       return(a$Psi[[r]])

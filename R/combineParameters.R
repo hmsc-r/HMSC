@@ -52,9 +52,11 @@ combineParameters = function(Beta, BetaSel, wRRR, Gamma, iV, rhoInd, iSigma, Eta
       }
    }
 
-   alpha = vector("list", length(alphaInd))
-   for(r in seq_along(alphaInd)){
-      alpha[[r]] = rL[[r]]$alphapw[alphaInd[[r]], 1]
+   alpha = vector("list", length(rL))
+   for(r in seq_along(rL)){
+      if(!is.null(rL[[r]]$alphapw) && length(alphaInd) >= r && !is.null(alphaInd[[r]])){
+         alpha[[r]] = rL[[r]]$alphapw[alphaInd[[r]], 1]
+      }
    }
 
    V = chol2inv(chol(iV))
