@@ -89,8 +89,8 @@
 #'   The matrix argument and the vector of string literals allows specifying different observation
 #'   models for different species.
 #'
-#'   When \code{phyloFast = TRUE}, the model utilizes a linear-time ($O(N_s)$) tree-traversal algorithm 
-#'   instead of the traditional $O(N_s^3)$ matrix operations based on the $N_s \times N_s$ phylogenetic correlation matrix $C$. 
+#'   When \code{phyloFast = TRUE}, the model utilizes a linear-time (\eqn{O(N_s)}) tree-traversal algorithm
+#'   instead of the traditional \eqn{O(N_s^3)} matrix operations based on the \eqn{N_s \times N_s} phylogenetic correlation matrix \eqn{C}. 
 #'   From a Gibbs MCMC sampling perspective, these two algorithms are mathematically equivalent and target 
 #'   the exact same posterior distributions. They differ entirely in their computational implementation and linear 
 #'   algebra execution: rather than representing the phylogeny using dense covariance matrices and performing standard 

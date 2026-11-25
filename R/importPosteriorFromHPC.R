@@ -7,9 +7,9 @@
 #' @param nSamples number of posterior MCMC samples per chain used in Hmsc-HPC
 #' @param thin thinning interval used in Hmsc-HPC
 #' @param transient number of transient MCMC steps used in Hmsc-HPC
-#' @param adaptNf number of MCMC steps for adjustung number of factors used in Hmsc-HPC
+#' @param adaptNf number of MCMC steps for adjusting number of factors used in Hmsc-HPC
 #' @param verbose level of verbose to fake
-#' @param alignPost boolean flag indicating whether the posterior of each chains should be aligned
+#' @param alignPost boolean flag indicating whether the posterior of each chain should be aligned
 #'
 #' @return a fitted Hmsc model object
 #'
@@ -54,7 +54,7 @@ importPosteriorFromHPC = function(m, postList, nSamples, thin, transient, adaptN
    m$verbose = verbose
    for(cInd in 1:length(postList)){
       if(m$samples != length(postList[[cInd]])){
-         stop("Hmsc:importPosteriorFromHPC = each chain length miust be equalt to nSamples")
+         stop("Hmsc:importPosteriorFromHPC = each chain length must be equal to nSamples")
       }
       m$postList[[cInd]] = vector("list", m$samples)
       for(sInd in 1:length(postList[[cInd]])){

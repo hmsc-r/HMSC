@@ -10,6 +10,7 @@
 #' @param interceptVarInflation multiplier for conditional variance prior of intercept term in the CORAL prior,
 #' compared to phylogeny-induced conditional prior
 #' @param phyloFast logical, if TRUE use fast tree traversal for phylogeny-induced priors
+#' @param showProgress logical, if TRUE show a text progress bar during computation
 #'
 #' @return
 #' A list containing CORAL prior as matrix of means and matrix of flattened covariances

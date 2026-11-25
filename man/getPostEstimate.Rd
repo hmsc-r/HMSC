@@ -21,7 +21,7 @@ getPostEstimate(
 \item{parName}{name of the parameter to be summarized. Can take value of
 model's baseline parameters, "Omega" or "OmegaCor".}
 
-\item{r}{the random level for which to calculate the parameter. Has effect only for Eta, Lambda, Omega and OmegaCor.}
+\item{r}{the random level for which to calculate the parameter. Has effect only for Eta, Lambda, Psi, Delta, alpha, Omega and OmegaCor.}
 
 \item{x}{values of covariates for covariate dependent omega}
 

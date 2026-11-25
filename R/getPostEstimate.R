@@ -5,7 +5,7 @@
 #' @param hM a fitted \code{Hmsc} model object
 #' @param parName name of the parameter to be summarized. Can take value of
 #'  model's baseline parameters, "Omega" or "OmegaCor".
-#' @param r the random level for which to calculate the parameter. Has effect only for Eta, Lambda, Omega and OmegaCor.
+#' @param r the random level for which to calculate the parameter. Has effect only for Eta, Lambda, Psi, Delta, alpha, Omega and OmegaCor.
 #' @param x values of covariates for covariate dependent omega
 #' @param q vector of quantiles to calculate.
 #' @param chainIndex which posterior chains to use for summarization (defaults to all)

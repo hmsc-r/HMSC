@@ -26,11 +26,11 @@ importPosteriorFromHPC(
 
 \item{transient}{number of transient MCMC steps used in Hmsc-HPC}
 
-\item{adaptNf}{number of MCMC steps for adjustung number of factors used in Hmsc-HPC}
+\item{adaptNf}{number of MCMC steps for adjusting number of factors used in Hmsc-HPC}
 
 \item{verbose}{level of verbose to fake}
 
-\item{alignPost}{boolean flag indicating whether the posterior of each chains should be aligned}
+\item{alignPost}{boolean flag indicating whether the posterior of each chain should be aligned}
 }
 \value{
 a fitted Hmsc model object

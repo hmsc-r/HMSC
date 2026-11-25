@@ -30,6 +30,8 @@ coralGetRareSpeciesPriors(
 compared to phylogeny-induced conditional prior}
 
 \item{phyloFast}{logical, if TRUE use fast tree traversal for phylogeny-induced priors}
+
+\item{showProgress}{logical, if TRUE show a text progress bar during computation}
 }
 \value{
 A list containing CORAL prior as matrix of means and matrix of flattened covariances
