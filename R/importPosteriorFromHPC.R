@@ -52,23 +52,25 @@ importPosteriorFromHPC = function(m, postList, nSamples, thin, transient, adaptN
    m$postList = vector("list", length(postList))
    m$adaptNf = adaptNf
    m$verbose = verbose
-   for(cInd in 1:length(postList)){
+   missingAlphaIndCount = 0L
+   missingRhoIndCount = 0L
+   for(cInd in seq_along(postList)){
       if(m$samples != length(postList[[cInd]])){
          stop("Hmsc:importPosteriorFromHPC = each chain length must be equal to nSamples")
       }
       m$postList[[cInd]] = vector("list", m$samples)
-      for(sInd in 1:length(postList[[cInd]])){
+      for(sInd in seq_along(postList[[cInd]])){
          s = postList[[cInd]][[sInd]]
          # Backward compatibility: Handle renaming of Alpha/AlphaInd to alpha/alphaInd and rho to rhoInd.
          # In older versions, these fields were named 'Alpha', 'AlphaInd', and 'rho', respectively.
          alphaInd = if (!is.null(s$alphaInd)) s$alphaInd else (if (!is.null(s$AlphaInd)) s$AlphaInd else s$Alpha)
          if(is.null(alphaInd)){
-            warning("Posterior sample does not contain alphaInd, AlphaInd or Alpha, replacing with default alphaInd = NULL, this will likely cause errors later")
+            missingAlphaIndCount = missingAlphaIndCount + 1L
          }
 
          rhoInd = if (!is.null(s$rhoInd)) s$rhoInd else s$rho
          if(is.null(rhoInd)){
-            warning("Posterior sample does not contain rhoInd or rho, replacing with default rhoInd = 1")
+            missingRhoIndCount = missingRhoIndCount + 1L
             rhoInd = 1
          }
          m$postList[[cInd]][[sInd]] =
@@ -77,6 +79,12 @@ importPosteriorFromHPC = function(m, postList, nSamples, thin, transient, adaptN
                               m$ncNRRR, m$ncRRR, m$ncsel, m$XSelect, m$XScalePar, m$XInterceptInd,
                               m$XRRRScalePar, m$nt, m$TrScalePar, m$TrInterceptInd, m$rhopw, m$rL)
       }
+   }
+   if(missingAlphaIndCount > 0L){
+      warning(sprintf("%d posterior sample(s) did not contain alphaInd, AlphaInd or Alpha; replacing with default alphaInd = NULL (this may cause errors for spatial random levels)", missingAlphaIndCount))
+   }
+   if(missingRhoIndCount > 0L){
+      warning(sprintf("%d posterior sample(s) did not contain rhoInd or rho; replacing with default rhoInd = 1", missingRhoIndCount))
    }
    if (alignPost){
       for (i in 1:5){
