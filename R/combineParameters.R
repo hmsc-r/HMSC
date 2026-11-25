@@ -1,7 +1,7 @@
 combineParameters = function(Beta, BetaSel, wRRR, Gamma, iV, rhoInd, iSigma, Eta,
    Lambda, alphaInd, Psi, Delta, PsiRRR, DeltaRRR,ncNRRR, ncRRR, ncsel, XSelect, XScalePar,
    XInterceptInd, XRRRScalePar, nt, TrScalePar, TrInterceptInd, rhopw, rL){
-   for(p in 1:nt){
+   for(p in seq_len(nt)){
       m = TrScalePar[1,p]
       s = TrScalePar[2,p]
       if(m!=0 || s!=1){
@@ -12,7 +12,7 @@ combineParameters = function(Beta, BetaSel, wRRR, Gamma, iV, rhoInd, iSigma, Eta
       }
    }
 
-   for(k in 1:ncNRRR){
+   for(k in seq_len(ncNRRR)){
       m = XScalePar[1,k]
       s = XScalePar[2,k]
       if(m!=0 || s!=1){
@@ -44,7 +44,7 @@ combineParameters = function(Beta, BetaSel, wRRR, Gamma, iV, rhoInd, iSigma, Eta
 
    for (i in seq_len(ncsel)){
       XSel = XSelect[[i]]
-      for (spg in 1:length(XSel$q)){
+      for (spg in seq_along(XSel$q)){
          if(!BetaSel[[i]][spg]){
             fsp = which(XSel$spGroup==spg)
             Beta[XSel$covGroup,fsp]=0
@@ -53,15 +53,19 @@ combineParameters = function(Beta, BetaSel, wRRR, Gamma, iV, rhoInd, iSigma, Eta
    }
 
    alpha = vector("list", length(rL))
+   alphaIndOut = vector("list", length(rL))
    for(r in seq_along(rL)){
-      if(!is.null(rL[[r]]$alphapw) && length(alphaInd) >= r && !is.null(alphaInd[[r]])){
+      if(rL[[r]]$sDim > 0){
+         alphaIndOut[[r]] = alphaInd[[r]]
          alpha[[r]] = rL[[r]]$alphapw[alphaInd[[r]], 1]
+      } else {
+         alphaIndOut[[r]] = rep(1, ncol(Eta[[r]]))
       }
    }
 
    V = chol2inv(chol(iV))
    sigma = 1/iSigma
    par = list(Beta=Beta, wRRR=wRRR, Gamma=Gamma, V=V, rho=rhopw[rhoInd,1], rhoInd=rhoInd, sigma=sigma,
-              Eta=Eta, Lambda=Lambda, alpha=alpha, alphaInd=alphaInd, Psi=Psi, Delta=Delta, PsiRRR=PsiRRR, DeltaRRR=DeltaRRR)
+              Eta=Eta, Lambda=Lambda, alpha=alpha, alphaInd=alphaIndOut, Psi=Psi, Delta=Delta, PsiRRR=PsiRRR, DeltaRRR=DeltaRRR)
    return(par)
 }

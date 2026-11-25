@@ -17,7 +17,7 @@
 
 alignPosterior=function(hM){
    bind0 = function(...){
-      abind(...,along=0)
+      abind(..., along = 0)
    }
    ncRRR = hM$ncRRR
    ncNRRR = hM$ncNRRR
@@ -31,7 +31,7 @@ alignPosterior=function(hM){
       LambdaPostList = lapply(cpL, function(a) a[["Lambda"]][[r]])
       LambdaPostArray = do.call(bind0, LambdaPostList)
       LambdaPostMean = colMeans(LambdaPostArray)
-      for(cInd in 1:length(hM$postList)){
+      for(cInd in seq_along(hM$postList)){
          cpL = hM$postList[[cInd]]
          LambdaPostList = lapply(cpL, function(a) a[["Lambda"]][[r]])
          nf = nrow(LambdaPostList[[1]])
@@ -56,7 +56,7 @@ alignPosterior=function(hM){
                }))))
             }
          }
-         for(j in 1:length(cpL)){
+         for(j in seq_along(cpL)){
             for(k in 1:nf){
                if(s[k,j]<0){
                   cpL[[j]]$Eta[[r]][,k] = -cpL[[j]]$Eta[[r]][,k]
@@ -76,30 +76,30 @@ alignPosterior=function(hM){
                DeltaAddDim[1] = nfMax-nf
                cpL[[j]]$Delta[[r]] = abind(cpL[[j]]$Delta[[r]], array((hM$rL[[r]]$a2-1)/hM$rL[[r]]$b2,DeltaAddDim), along=1)
                cpL[[j]]$Eta[[r]] = abind(cpL[[j]]$Eta[[r]], matrix(0,nrow(cpL[[j]]$Eta[[r]]),nfMax-nf), along=2)
+               cpL[[j]]$alphaInd[[r]] = c(cpL[[j]]$alphaInd[[r]], rep(1, nfMax - nf))
                if(hM$rL[[r]]$sDim > 0){
-                  if(!is.null(cpL[[j]]$alphaInd)) cpL[[j]]$alphaInd[[r]] = abind(cpL[[j]]$alphaInd[[r]], rep(1,nfMax-nf), along=1)
-                  if(!is.null(cpL[[j]]$alpha)) cpL[[j]]$alpha[[r]] = abind(cpL[[j]]$alpha[[r]], rep(hM$rL[[r]]$alphapw[1, 1], nfMax-nf), along=1)
+                  cpL[[j]]$alpha[[r]] = c(cpL[[j]]$alpha[[r]], rep(hM$rL[[r]]$alphapw[1, 1], nfMax - nf))
                }
             }
          }
          hM$postList[[cInd]] = cpL
       }
    }
-   if(ncRRR>0){
-      for (i in 1:length(hM$postList)){
-         cpL= hM$postList[[i]]
-         valList=lapply(cpL, function(a) a[["wRRR"]])
-         if (i==1){
+   if (ncRRR>0){
+      for (i in seq_along(hM$postList)){
+         cpL = hM$postList[[i]]
+         valList = lapply(cpL, function(a) a[["wRRR"]])
+         if (i == 1){
             val = do.call(bind0, valList)
             valMean = colMeans(val)
          }
-         s=NULL
+         s = NULL
          for(k in 1:ncRRR){
             s = rbind(s,sign(abind(lapply(valList, function(a) cor(as.vector(valMean[k,]),as.vector(a[k,]))))))
          }
-         for(j in 1:length(cpL)){
-            for(k in 1:ncRRR){
-               if(s[k,j]<0){
+         for(j in seq_along(cpL)){
+            for (k in 1:ncRRR){
+               if (s[k, j] < 0){
                   cpL[[j]]$wRRR[k,] = -cpL[[j]]$wRRR[k,]
                   cpL[[j]]$Beta[ncNRRR+k,] = -cpL[[j]]$Beta[ncNRRR+k,]
                   cpL[[j]]$Gamma[ncNRRR+k,] = -cpL[[j]]$Gamma[ncNRRR+k,]
