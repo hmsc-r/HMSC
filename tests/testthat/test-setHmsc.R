@@ -36,9 +36,13 @@ test_that("Hmsc returns error when X contains more than one intercept column", {
    expect_error(Hmsc(Y=matrix(1:20,nrow=10,ncol=2),XData=XdatList),"only one column of X matrix can be named Intercept or (Intercept)",fixed=TRUE)
 })
 test_that("Hmsc returns error when intercept column does not only contain 1",{
-   Xmat = matrix(rep(1,20),nrow=10,ncol=2)
+   Xmat = matrix(c(1:10, rep(1,10)),nrow=10,ncol=2)
+   colnames(Xmat) = c("Intercept","x1")
+   XmatList = list(s1=Xmat,s2=Xmat)
    Xdat = data.frame(Xmat)
-   XdatList = list(s1=Xdat,s2=Xdat)
+   expect_error(Hmsc(Y=matrix(1:10),X=Xmat), "intercept column in X matrix must be a column of ones",fixed=TRUE)
+   expect_error(Hmsc(Y=matrix(1:20,nrow=10,ncol=2),X=XmatList), "intercept column in X matrix must be a column of ones",fixed=TRUE)
+   expect_error(Hmsc(Y=matrix(1:10),XData=Xdat,XFormula=~0+Intercept+x1), "intercept column in X matrix must be a column of ones",fixed=TRUE)
 })
 ## ---------------------------------------------------------------------------------------
 context("setting trait data")
