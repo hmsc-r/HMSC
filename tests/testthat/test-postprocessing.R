@@ -1,10 +1,25 @@
 check_fitted_postprocessing <- function(fitted_model, nSamples, nChains) {
    coda_post <- convertToCodaObject(fitted_model)
 
-   testthat::expect_true(coda::is.mcmc.list(coda_post$Beta))
+   expect_true(coda::is.mcmc.list(coda_post$Beta))
    expect_equal(length(coda_post$Beta), nChains)
    expect_equal(nrow(coda_post$Beta[[1]]), nSamples)
    expect_equal(ncol(coda_post$Beta[[1]]), fitted_model$nc * fitted_model$ns)
+
+   beta_estimate <- getPostEstimate(fitted_model, parName = "Beta", q = c(0.025, 0.975))
+   expect_equal(dim(beta_estimate$q), c(2, fitted_model$nc, fitted_model$ns))
+
+   sigma_matrix <- do.call(rbind, lapply(fitted_model$postList, function(chain_samples) {
+      do.call(rbind, lapply(chain_samples, function(posterior_sample) {
+         posterior_sample$sigma
+      }))
+   }))
+   sigma_estimate <- getPostEstimate(fitted_model, parName = "sigma", q = c(0.025, 0.975))
+   expect_equal(dim(sigma_estimate$q), c(2, fitted_model$ns))
+   expect_equal(
+      unname(sigma_estimate$q),
+      unname(apply(sigma_matrix, 2, stats::quantile, c(0.025, 0.975)))
+   )
 
    if (fitted_model$phyloFlag) {
       expect_true(coda::is.mcmc.list(coda_post$rho))
@@ -16,26 +31,76 @@ check_fitted_postprocessing <- function(fitted_model, nSamples, nChains) {
          }))
       }))
       expect_equal(unname(rho_matrix), unname(expected_rho))
+
+      rho_estimate <- getPostEstimate(fitted_model, parName = "rho", q = c(0.025, 0.975))
+      expect_equal(dim(rho_estimate$q), c(2, fitted_model$rhoLen))
+      expect_equal(
+         unname(rho_estimate$q),
+         unname(apply(rho_matrix, 2, stats::quantile, c(0.025, 0.975)))
+      )
+      expect_null(convertToCodaObject(fitted_model, rho = FALSE)$rho)
+   } else {
+      expect_null(coda_post$rho)
+      expect_warning(
+         coda_forced_rho <- convertToCodaObject(fitted_model, rho = TRUE),
+         "without phylogeny"
+      )
+      expect_null(coda_forced_rho$rho)
    }
 
    for (chain_idx in seq_along(fitted_model$postList)) {
       for (sample_idx in seq_along(fitted_model$postList[[chain_idx]])) {
-         expect_equal(length(fitted_model$postList[[chain_idx]][[sample_idx]]$alpha), fitted_model$nr)
+         posterior_sample <- fitted_model$postList[[chain_idx]][[sample_idx]]
+         expect_equal(length(posterior_sample$alpha), fitted_model$nr)
+         expect_equal(length(posterior_sample$alphaInd), fitted_model$nr)
+         for (level_idx in seq_len(fitted_model$nr)) {
+            expect_null(dim(posterior_sample$alphaInd[[level_idx]]))
+            expect_equal(
+               length(posterior_sample$alphaInd[[level_idx]]),
+               ncol(posterior_sample$Eta[[level_idx]])
+            )
+            if (fitted_model$rL[[level_idx]]$sDim > 0) {
+               expect_null(dim(posterior_sample$alpha[[level_idx]]))
+            } else {
+               expect_null(posterior_sample$alpha[[level_idx]])
+            }
+         }
       }
    }
 
    if (fitted_model$nr == 0) {
       expect_null(coda_post$alpha)
       expect_null(coda_post$Eta)
+      expect_warning(
+         coda_forced_alpha <- convertToCodaObject(fitted_model, alpha = TRUE),
+         "without spatial random levels"
+      )
+      expect_null(coda_forced_alpha$alpha)
    } else {
-      expect_equal(length(coda_post$alpha), fitted_model$nr)
-      for (level_idx in seq_len(fitted_model$nr)) {
-         expect_true(coda::is.mcmc.list(coda_post$alpha[[level_idx]]))
-         expect_equal(length(coda_post$alpha[[level_idx]]), nChains)
-         expect_equal(nrow(coda_post$alpha[[level_idx]][[1]]), nSamples)
+      has_spatial <- any(vapply(fitted_model$rL, function(rL) rL$sDim > 0, logical(1)))
+      if (has_spatial) {
+         expect_equal(length(coda_post$alpha), fitted_model$nr)
+      } else {
+         expect_null(coda_post$alpha)
+         coda_nonspatial_defaults <- convertToCodaObject(
+            fitted_model, Eta = FALSE, Lambda = FALSE, Omega = FALSE,
+            Psi = FALSE, Delta = FALSE
+         )
+         expect_null(coda_nonspatial_defaults$alpha)
+         expect_warning(
+            coda_forced_alpha <- convertToCodaObject(fitted_model, alpha = TRUE),
+            "without spatial random levels"
+         )
+         expect_null(coda_forced_alpha$alpha)
+      }
 
-         alpha_matrix <- do.call(rbind, coda_post$alpha[[level_idx]])
+      for (level_idx in seq_len(fitted_model$nr)) {
          if (fitted_model$rL[[level_idx]]$sDim > 0) {
+            expect_true(coda::is.mcmc.list(coda_post$alpha[[level_idx]]))
+            expect_equal(length(coda_post$alpha[[level_idx]]), nChains)
+            expect_equal(nrow(coda_post$alpha[[level_idx]][[1]]), nSamples)
+
+            alpha_matrix <- do.call(rbind, coda_post$alpha[[level_idx]])
             expected_alpha <- do.call(rbind, lapply(fitted_model$postList, function(chain_samples) {
                do.call(rbind, lapply(chain_samples, function(posterior_sample) {
                   fitted_model$rL[[level_idx]]$alphapw[posterior_sample$alphaInd[[level_idx]], 1]
@@ -44,12 +109,28 @@ check_fitted_postprocessing <- function(fitted_model, nSamples, nChains) {
             expect_equal(unname(alpha_matrix), unname(expected_alpha))
             expect_true(all(alpha_matrix %in% fitted_model$rL[[level_idx]]$alphapw[, 1]))
 
-            alpha_estimate <- getPostEstimate(fitted_model, parName = "alpha", r = level_idx)
+            alpha_estimate <- getPostEstimate(
+               fitted_model, parName = "alpha", r = level_idx, q = c(0.025, 0.5, 0.975)
+            )
             expect_equal(unname(alpha_estimate$mean), unname(colMeans(alpha_matrix)))
+            expect_equal(dim(alpha_estimate$q), c(3, ncol(alpha_matrix)))
+            expect_equal(
+               unname(alpha_estimate$q),
+               unname(apply(alpha_matrix, 2, stats::quantile, c(0.025, 0.5, 0.975)))
+            )
+
+            alpha_median <- getPostEstimate(
+               fitted_model, parName = "alpha", r = level_idx, q = 0.5
+            )
+            expect_equal(length(alpha_median$q), ncol(alpha_matrix))
+            expect_equal(
+               unname(alpha_median$q),
+               unname(apply(alpha_matrix, 2, stats::quantile, 0.5))
+            )
          } else {
-            expect_null(fitted_model$postList[[1]][[1]]$alpha[[level_idx]])
-            expect_true(all(is.finite(alpha_matrix)))
-            expect_true(all(alpha_matrix == 0))
+            if (has_spatial) {
+               expect_null(coda_post$alpha[[level_idx]])
+            }
             expect_error(
                getPostEstimate(fitted_model, parName = "alpha", r = level_idx),
                "is not spatial and has no alpha parameter"
@@ -61,7 +142,11 @@ check_fitted_postprocessing <- function(fitted_model, nSamples, nChains) {
       expect_null(coda_no_alpha$alpha)
       expect_true(coda::is.mcmc.list(coda_no_alpha$Beta))
 
-      coda_lambda_only <- convertToCodaObject(fitted_model, Eta = FALSE, Lambda = TRUE, alpha = TRUE)
+      coda_lambda_only <- if (has_spatial) {
+         convertToCodaObject(fitted_model, Eta = FALSE, Lambda = TRUE, alpha = TRUE)
+      } else {
+         convertToCodaObject(fitted_model, Eta = FALSE, Lambda = TRUE)
+      }
       expect_equal(coda_lambda_only$alpha, coda_post$alpha)
 
       coda_fixed_only <- convertToCodaObject(
@@ -182,6 +267,16 @@ test_that("R fitting and post-processing work across random-level structures", {
       nChains = nChains, fromPrior = TRUE
    )
    check_fitted_postprocessing(prior_fitted_model, nSamples = nSamples, nChains = nChains)
+
+   missing_spatial_alpha_model <- prior_fitted_model
+   missing_spatial_alpha_model$postList[[1]] <- lapply(
+      missing_spatial_alpha_model$postList[[1]],
+      function(posterior_sample) {
+         posterior_sample$alpha[1] <- list(NULL)
+         posterior_sample
+      }
+   )
+   expect_error(convertToCodaObject(missing_spatial_alpha_model))
 })
 
 test_that("HPC export and importPosteriorFromHPC round-trip preserves alpha and post-processing", {
@@ -238,42 +333,74 @@ test_that("HPC export and importPosteriorFromHPC round-trip preserves alpha and 
          expect_gt(max(rho_matrix), 0)
          expect_gt(length(unique(as.vector(rho_matrix))), 1L)
       }
+
+      if (model_name %in% c("single_nonspatial", "spatial_then_nonspatial")) {
+         truncated_chains <- lapply(hpc_chains, function(chain_samples) {
+            lapply(chain_samples, function(posterior_sample) {
+               if (model_name == "single_nonspatial") {
+                  posterior_sample$alphaInd <- list()
+               } else {
+                  posterior_sample$alphaInd[[2]] <- NULL
+               }
+               posterior_sample
+            })
+         })
+         truncated_fit <- importPosteriorFromHPC(
+            model, truncated_chains, nSamples = nSamples, thin = thin, transient = transient
+         )
+         check_fitted_postprocessing(truncated_fit, nSamples = nSamples, nChains = nChains)
+      }
    }
 })
 
 test_that("alignPosterior keeps alpha aligned with alphaInd across chains with differing nf", {
    set.seed(789)
-   rL_custom <- setPriors(
+   rL_spatial_custom <- setPriors(
       TD$rL1,
       alphapw = cbind(c(0.1, 0.5, 1.0), c(0.4, 0.3, 0.3)),
       nfMin = 2, nfMax = 4
    )
+   rL_nonspatial_custom <- setPriors(TD$rL2, nfMin = 2, nfMax = 4)
    model <- Hmsc(
       Y = TD$Y, XData = TD$X, XFormula = ~x1 + x2, distr = "probit",
       TrData = TD$Tr, TrFormula = ~T1 + T2,
-      studyDesign = TD$studyDesign, ranLevels = list(plot = rL_custom)
+      studyDesign = TD$studyDesign,
+      ranLevels = list(plot = rL_spatial_custom, sample = rL_nonspatial_custom)
    )
 
    nSamples <- 4
-   fit_chain_1 <- sampleMcmc(
+   fit_chain_2nf <- sampleMcmc(
       model, samples = nSamples, transient = 0, thin = 1,
-      nChains = 1, adaptNf = 0, alignPost = FALSE, verbose = 0
+      nChains = 1, adaptNf = c(0, 0), alignPost = FALSE, verbose = 0
    )
-   fit_chain_2 <- sampleMcmc(
+   fit_chain_3nf <- sampleMcmc(
       model, samples = nSamples, transient = 0, thin = 1,
-      nChains = 1, adaptNf = 0, alignPost = FALSE, verbose = 0,
-      initPar = list(Delta = list(matrix(1, 3, 1)))
+      nChains = 1, adaptNf = c(0, 0), alignPost = FALSE, verbose = 0,
+      initPar = list(Delta = list(matrix(1, 3, 1), matrix(1, 3, 1)))
    )
 
-   combined_fit <- alignPosterior(c(fit_chain_1, fit_chain_2))
-   for (posterior_sample in combined_fit$postList[[1]]) {
-      expect_equal(length(posterior_sample$alphaInd[[1]]), 3L)
-      expect_equal(length(posterior_sample$alpha[[1]]), 3L)
-      expect_equal(posterior_sample$alphaInd[[1]][3], 1)
-      expect_equal(posterior_sample$alpha[[1]][3], 0.1)
+   for (ordering in list(
+      list(fit = alignPosterior(c(fit_chain_2nf, fit_chain_3nf)), padded_chain = 1L),
+      list(fit = alignPosterior(c(fit_chain_3nf, fit_chain_2nf)), padded_chain = 2L)
+   )) {
+      combined_fit <- ordering$fit
+      padded_chain <- ordering$padded_chain
+      for (posterior_sample in combined_fit$postList[[padded_chain]]) {
+         expect_equal(length(posterior_sample$alphaInd[[1]]), 3L)
+         expect_equal(length(posterior_sample$alpha[[1]]), 3L)
+         expect_null(dim(posterior_sample$alphaInd[[1]]))
+         expect_null(dim(posterior_sample$alpha[[1]]))
+         expect_equal(posterior_sample$alphaInd[[1]][3], 1)
+         expect_equal(posterior_sample$alpha[[1]][3], 0.1)
+
+         expect_equal(length(posterior_sample$alphaInd[[2]]), 3L)
+         expect_null(dim(posterior_sample$alphaInd[[2]]))
+         expect_equal(posterior_sample$alphaInd[[2]][3], 1)
+         expect_null(posterior_sample$alpha[[2]])
+      }
+
+      check_fitted_postprocessing(combined_fit, nSamples = nSamples, nChains = 2)
+      coda_post <- convertToCodaObject(combined_fit)
+      expect_true(all(as.matrix(coda_post$alpha[[1]][[padded_chain]])[, 3] == 0.1))
    }
-
-   check_fitted_postprocessing(combined_fit, nSamples = nSamples, nChains = 2)
-   coda_post <- convertToCodaObject(combined_fit)
-   expect_true(all(as.matrix(coda_post$alpha[[1]][[1]])[, 3] == 0.1))
 })
